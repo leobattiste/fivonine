@@ -249,8 +249,6 @@ const quote = (label: string, fr: string, en: string, ref: string): EssayBlock =
 
 export const intro1790s: EssayBlock[] = [
   p("At the start of the decade, Saint-Domingue was the richest colony in the world and one of the most violent. A French teaching dossier counts about 450,000 enslaved people, 40,000 white colonists and 30,000 free people of color, and notes that the colony was the world's leading producer of sugar. By the decade's end slavery had been abolished, the colony was run by a formerly enslaved general, and three European empires had sent armies and withdrawn or lost."),
-  note("A note on sources", "Most of what is known about these years was written in French: the decrees of the Assemblée nationale and the Convention, the proclamations of the commissioners, and the first Haitian histories by Thomas Madiou (1847–48) and Beaubrun Ardouin (1853–60), followed by modern work by Yves Benot, Pierre Pluchon, Jean Fouchard, Bernard Gainot and Frédéric Régent. This page is built from French sources and translated into English; French titles are kept with an English gloss."),
-  note("Disputed or interpretive", "Where sources disagree the page says so. Four points are open: the date and historicity of the Bois-Caïman ceremony; the casualties of 1791 and of the War of the South; Toussaint's role before and when he joined the French; and whether the War of the South was a race war or a struggle for power."),
 ];
 
 export const essay1790s: EssayBlock[] = [
