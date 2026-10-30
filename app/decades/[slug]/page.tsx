@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import PeriodView from "@/components/PeriodView";
 import DecadeSwitcher from "@/components/DecadeSwitcher";
+import DecadeQuestions from "@/components/DecadeQuestions";
 import ShareButton from "@/components/ShareButton";
 import { MarkExplored } from "@/components/Progress";
 import { eventsInPeriod, formatDate, getContent, yearOf } from "@/lib/data";
@@ -65,59 +66,73 @@ export default async function PeriodPage({ params }: { params: Promise<{ slug: s
       </header>
 
       {(p.overview || p.researchNote) && (
-        <section className="grid gap-12 border-t border-rule pt-12 lg:grid-cols-[1fr_20rem]">
-          <div className="read">
+        <section className="border-t border-rule pt-10">
+          <p className="label">The decade in brief</p>
+          <div className="read mt-3">
             {p.overview && <p>{p.overview}</p>}
-            {p.researchNote && (
-              <p className={`${p.overview ? "mt-6 border-l-2 border-fg pl-4 text-[1rem]" : ""} text-dim`}>{p.researchNote}</p>
-            )}
+            {p.researchNote && <p className={`${p.overview ? "mt-6 border-l-2 border-fg pl-4 text-[1rem]" : ""} text-dim`}>{p.researchNote}</p>}
           </div>
-          <aside className="space-y-10">
-            {people.length > 0 && (
-              <div>
-                <p className="label">People in this chapter</p>
-                <ul className="mt-3 space-y-2.5">
-                  {people.map((x) => (
-                    <li key={x.slug}>
-                      <Link href={`/people/${x.slug}`} className="group block">
-                        <span className="block font-medium group-hover:text-dim">{x.name}</span>
-                        <span className="block text-sm text-dim">{x.roles[0]}</span>
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-            {threads.length > 0 && (
-              <div>
-                <p className="label">Threads passing through</p>
-                <ul className="mt-3 space-y-2">
-                  {threads.map((t) => <li key={t.slug}><Link href={`/threads/${t.slug}`} className="font-medium hover:text-dim">{t.title}</Link></li>)}
-                </ul>
-              </div>
-            )}
-          </aside>
+        </section>
+      )}
+
+      <section className="mt-16">
+        <DecadeQuestions period={p} next={next} events={evs} categories={c.categories} />
+      </section>
+
+      {(people.length > 0 || threads.length > 0) && (
+        <section className="mt-20 grid gap-10 border-t border-rule pt-10 sm:grid-cols-2">
+          {people.length > 0 && (
+            <div>
+              <h2 className="text-lg font-semibold">People in this {p.kind === "decade" ? "decade" : "period"}</h2>
+              <ul className="mt-4 space-y-3">
+                {people.map((x) => (
+                  <li key={x.slug}>
+                    <Link href={`/people/${x.slug}`} className="group block">
+                      <span className="block font-medium group-hover:text-dim">{x.name}</span>
+                      <span className="block text-sm text-dim">{x.roles[0]}</span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {threads.length > 0 && (
+            <div>
+              <h2 className="text-lg font-semibold">Stories that continue across decades</h2>
+              <ul className="mt-4 space-y-3">
+                {threads.map((t) => (
+                  <li key={t.slug}>
+                    <Link href={`/threads/${t.slug}`} className="group block">
+                      <span className="block font-medium group-hover:text-dim">{t.title}</span>
+                      <span className="block text-sm text-dim">{t.dek}</span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </section>
       )}
 
       {evs.length > 0 && (
-        <section className="mt-24">
-          <h2 className="mb-10 text-d-3 font-semibold">{p.kind === "decade" ? "Year by year" : "The record"}</h2>
-          <PeriodView
-            events={evs.map((e) => ({ ...e, label: formatDate(e), year: yearOf(e) }))}
-            categories={c.categories}
-            start={p.start}
-            end={p.end}
-            isDecade={p.kind === "decade"}
-          />
-        </section>
-      )}
-
-      {p.legacy && (
-        <section className="mt-24 rounded-[2rem] bg-raise p-8 sm:p-14">
-          <p className="label">What it left behind</p>
-          <p className="mt-4 max-w-3xl font-serif text-[1.75rem] leading-snug">{p.legacy}</p>
-        </section>
+        <details className="group mt-20 rounded-[2rem] border border-rule">
+          <summary className="flex cursor-pointer list-none items-center justify-between p-6 sm:p-8">
+            <span>
+              <span className="block text-xl font-semibold">{p.kind === "decade" ? "Every moment, year by year" : "Every moment in this period"}</span>
+              <span className="block text-sm text-dim">{evs.length} {evs.length === 1 ? "moment" : "moments"}, filterable by area</span>
+            </span>
+            <svg className="shrink-0 transition-transform group-open:rotate-45" width="20" height="20" viewBox="0 0 16 16" aria-hidden><path d="M8 2v12M2 8h12" stroke="currentColor" strokeWidth="1.6" /></svg>
+          </summary>
+          <div className="px-6 pb-8 sm:px-8">
+            <PeriodView
+              events={evs.map((e) => ({ ...e, label: formatDate(e), year: yearOf(e) }))}
+              categories={c.categories}
+              start={p.start}
+              end={p.end}
+              isDecade={p.kind === "decade"}
+            />
+          </div>
+        </details>
       )}
 
       <nav className="mt-24 grid gap-px overflow-hidden rounded-[2rem] bg-rule sm:grid-cols-2">

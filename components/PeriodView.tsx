@@ -30,7 +30,7 @@ export default function PeriodView({ events, categories, start, end, isDecade }:
   return (
     <div className="grid gap-10 lg:grid-cols-[15rem_1fr]">
       {/* Controls */}
-      <div className="lg:sticky lg:top-36 lg:self-start">
+      <div className="lg:self-start">
         <p className="label">Show</p>
         <div className="mt-3 flex flex-wrap gap-2 lg:flex-col lg:items-start">
           <button className="pill" data-on={dim === "all"} onClick={() => setDim("all")}>

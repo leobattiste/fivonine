@@ -22,6 +22,7 @@ export interface Period {
   overview: string;
   legacy?: string;
   researchNote?: string; // transparent note when coverage is thin
+  answers?: Partial<Record<string, string>>; // keyed by question id (lib/questions.ts)
 }
 
 export interface Source {

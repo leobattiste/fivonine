@@ -27,6 +27,7 @@ async function main() {
   await up("periods", periods.map((p) => ({
     slug: p.slug, kind: p.kind, label: p.label, start_year: p.start, end_year: p.end,
     title: p.title, overview: p.overview, legacy: p.legacy ?? null, research_note: p.researchNote ?? null,
+    answers: p.answers ?? {},
   })));
   await up("people", people);
   await up("events", events.map((e) => ({
@@ -39,6 +40,9 @@ async function main() {
   await up("event_links", events.flatMap((e) => (e.related ?? []).map((r) => ({ from_slug: e.slug, to_slug: r }))), "from_slug,to_slug");
 
   // Sources have no natural key: replace them per event.
+  // Retire old category slugs (the 13 areas replaced them)
+  await db.from("categories").delete().not("slug", "in", `(${categories.map((c) => c.slug).join(",")})`);
+
   await db.from("sources").delete().in("event_slug", events.map((e) => e.slug));
   await up("sources", events.flatMap((e) => e.sources.map((s, i) => ({ event_slug: e.slug, title: s.title, url: s.url ?? null, sort: i }))));
 

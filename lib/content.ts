@@ -1,4 +1,5 @@
 import type { Category, Content, HistEvent, Period, Person, Thread } from "./types";
+import { answers } from "./answers";
 
 /**
  * Bundled starter content. It mirrors the Supabase schema exactly, so the site runs
@@ -11,21 +12,17 @@ import type { Category, Content, HistEvent, Period, Person, Thread } from "./typ
 export const categories: Category[] = [
   { slug: "politics", name: "Politics & Government", short: "Politics" },
   { slug: "economy", name: "Economy & Finance", short: "Economy" },
-  { slug: "foreign-affairs", name: "Foreign Affairs & Diplomacy", short: "Diplomacy" },
+  { slug: "foreign-relations", name: "Foreign Relations", short: "Foreign relations" },
   { slug: "wars", name: "Wars & Conflicts", short: "Wars" },
-  { slug: "society", name: "Society & Daily Life", short: "Society" },
-  { slug: "culture", name: "Culture & Traditions", short: "Culture" },
   { slug: "music", name: "Music & Entertainment", short: "Music" },
   { slug: "arts", name: "Arts & Literature", short: "Arts" },
-  { slug: "religion", name: "Religion & Spirituality", short: "Religion" },
+  { slug: "society", name: "Society & Daily Life", short: "Society" },
   { slug: "education", name: "Education & Science", short: "Education" },
-  { slug: "sports", name: "Sports & Athletics", short: "Sports" },
+  { slug: "religion", name: "Religion & Spirituality", short: "Religion" },
+  { slug: "sports", name: "Sports & Recreation", short: "Sports" },
   { slug: "business", name: "Business & Agriculture", short: "Business" },
-  { slug: "health", name: "Health & Public Health", short: "Health" },
-  { slug: "environment", name: "Environment & Disasters", short: "Environment" },
-  { slug: "diaspora", name: "Migration & Diaspora", short: "Diaspora" },
-  { slug: "contributions", name: "Haitian Contributions Abroad", short: "Contributions" },
-  { slug: "milestones", name: "Milestones & Turning Points", short: "Milestones" },
+  { slug: "contributions", name: "International Contributions", short: "Contributions" },
+  { slug: "major-events", name: "Major Events & Disasters", short: "Major events" },
 ];
 
 export const periods: Period[] = [
@@ -129,6 +126,7 @@ export const periods: Period[] = [
     }
   }
   periods.sort((a, b) => a.start - b.start);
+  for (const p of periods) if (answers[p.slug]) p.answers = answers[p.slug];
 })();
 
 function decade(start: number, title: string, headline: string, overview: string, legacy?: string, researchNote?: string): Period {
@@ -155,7 +153,7 @@ export const events: HistEvent[] = [
     date: "1492-12-05",
     precision: "day",
     dimension: "foreign",
-    categories: ["foreign-affairs", "milestones"],
+    categories: ["foreign-relations", "major-events"],
     countries: ["Spain"],
     location: "Môle Saint-Nicolas",
     summary:
@@ -171,7 +169,7 @@ export const events: HistEvent[] = [
     date: "1697-09-20",
     precision: "day",
     dimension: "foreign",
-    categories: ["foreign-affairs", "politics"],
+    categories: ["foreign-relations", "politics"],
     countries: ["France", "Spain"],
     location: "Rijswijk, Dutch Republic",
     summary:
@@ -205,7 +203,7 @@ export const events: HistEvent[] = [
     date: "1791-08-14",
     precision: "day",
     dimension: "inside",
-    categories: ["wars", "religion", "milestones"],
+    categories: ["wars", "religion", "major-events"],
     location: "Northern Plain, near Cap-Français",
     summary:
       "According to tradition, a ceremony at Bois Caïman led by Dutty Boukman and Cécile Fatiman preceded the uprising that broke out on the night of 22 August 1791, when enslaved people across the Northern Plain rose against the plantations.",
@@ -222,7 +220,7 @@ export const events: HistEvent[] = [
     date: "1794-02-04",
     precision: "day",
     dimension: "foreign",
-    categories: ["politics", "foreign-affairs", "milestones"],
+    categories: ["politics", "foreign-relations", "major-events"],
     countries: ["France"],
     location: "Paris",
     summary:
@@ -257,7 +255,7 @@ export const events: HistEvent[] = [
     date: "1803-11-18",
     precision: "day",
     dimension: "inside",
-    categories: ["wars", "milestones"],
+    categories: ["wars", "major-events"],
     countries: ["France"],
     location: "Vertières, near Cap-Français",
     summary:
@@ -274,7 +272,7 @@ export const events: HistEvent[] = [
     date: "1804-01-01",
     precision: "day",
     dimension: "inside",
-    categories: ["politics", "milestones"],
+    categories: ["politics", "major-events"],
     location: "Gonaïves",
     summary:
       "Dessalines proclaimed the independence of Haiti, restoring the island's Taíno name. Haiti became the first independent nation in Latin America and the Caribbean to abolish slavery permanently, and the first Black republic.",
@@ -320,7 +318,7 @@ export const events: HistEvent[] = [
     date: "1815-12-24",
     precision: "circa",
     dimension: "abroad",
-    categories: ["foreign-affairs", "contributions", "wars"],
+    categories: ["foreign-relations", "contributions", "wars"],
     countries: ["Venezuela", "Colombia"],
     location: "Les Cayes and Jacmel",
     summary:
@@ -353,7 +351,7 @@ export const events: HistEvent[] = [
     date: "1825-04-17",
     precision: "day",
     dimension: "foreign",
-    categories: ["economy", "foreign-affairs", "milestones"],
+    categories: ["economy", "foreign-relations", "major-events"],
     countries: ["France"],
     location: "Paris / Port-au-Prince",
     summary:
@@ -376,7 +374,7 @@ export const events: HistEvent[] = [
     date: "1838",
     precision: "year",
     dimension: "foreign",
-    categories: ["economy", "foreign-affairs"],
+    categories: ["economy", "foreign-relations"],
     countries: ["France"],
     location: "Port-au-Prince",
     summary:
@@ -394,7 +392,7 @@ export const events: HistEvent[] = [
     date: "1844-02-27",
     precision: "day",
     dimension: "inside",
-    categories: ["politics", "foreign-affairs"],
+    categories: ["politics", "foreign-relations"],
     countries: ["Dominican Republic"],
     location: "Santo Domingo",
     summary: "A year after Boyer's overthrow, separatists in Santo Domingo ended Haitian rule over the eastern part of the island.",
@@ -410,7 +408,7 @@ export const events: HistEvent[] = [
     date: "1862-06-05",
     precision: "day",
     dimension: "foreign",
-    categories: ["foreign-affairs", "milestones"],
+    categories: ["foreign-relations", "major-events"],
     countries: ["United States"],
     location: "Washington, D.C.",
     summary:
@@ -444,7 +442,7 @@ export const events: HistEvent[] = [
     date: "1914-12-17",
     precision: "day",
     dimension: "foreign",
-    categories: ["economy", "foreign-affairs"],
+    categories: ["economy", "foreign-relations"],
     countries: ["United States"],
     location: "Port-au-Prince",
     summary:
@@ -465,7 +463,7 @@ export const events: HistEvent[] = [
     date: "1915-07-28",
     precision: "day",
     dimension: "foreign",
-    categories: ["wars", "politics", "foreign-affairs", "milestones"],
+    categories: ["wars", "politics", "foreign-relations", "major-events"],
     countries: ["United States"],
     location: "Port-au-Prince",
     summary:
@@ -503,7 +501,7 @@ export const events: HistEvent[] = [
     date: "1928",
     precision: "year",
     dimension: "inside",
-    categories: ["arts", "culture", "religion", "education"],
+    categories: ["arts", "society", "religion", "education"],
     location: "Port-au-Prince",
     summary:
       "Written under the occupation, Price-Mars's ethnographic essays urged Haiti's elite to stop imitating France and to take seriously the country's African heritage, Vodou and peasant culture.",
@@ -528,6 +526,64 @@ export const events: HistEvent[] = [
     related: ["us-occupation-1915", "marines-leave-1934"],
     sources: [{ title: "United States occupation of Haiti", url: wiki("United_States_occupation_of_Haiti") }],
   },
+  {
+    slug: "league-of-nations-bellegarde",
+    title: "Haiti joins the League of Nations; Bellegarde protests the occupation",
+    date: "1920",
+    precision: "year",
+    dimension: "abroad",
+    categories: ["foreign-relations", "contributions"],
+    countries: ["Switzerland", "United States"],
+    location: "Geneva",
+    summary:
+      "Haiti was among the founding members of the League of Nations. Its delegate, the educator and diplomat Dantès Bellegarde, used the League's platform in the early 1920s to denounce the US occupation of his country.",
+    status: "documented",
+    related: ["us-occupation-1915"],
+    sources: [{ title: "Dantès Bellegarde", url: wiki("Dant%C3%A8s_Bellegarde") }],
+  },
+  {
+    slug: "batraville-killed",
+    title: "Benoît Batraville, last Caco leader, is killed",
+    date: "1920-05-19",
+    precision: "day",
+    dimension: "inside",
+    categories: ["wars"],
+    countries: ["United States"],
+    location: "Central Plateau",
+    summary: "Batraville had continued the armed resistance after Péralte's death. His killing by US Marines effectively ended the Caco war.",
+    status: "documented",
+    related: ["peralte-killed"],
+    sources: [{ title: "Benoît Batraville", url: wiki("Beno%C3%AEt_Batraville") }],
+  },
+  {
+    slug: "revue-indigene",
+    title: "Young writers launch La Revue indigène",
+    date: "1927",
+    precision: "year",
+    dimension: "inside",
+    categories: ["arts"],
+    location: "Port-au-Prince",
+    summary:
+      "Jacques Roumain, Normil Sylvain, Philippe Thoby-Marcelin, Émile Roumer, Carl Brouard and others founded a review calling for literature rooted in Haitian life rather than French models, launching the indigéniste movement.",
+    status: "documented",
+    related: ["price-mars-oncle"],
+    sources: [{ title: "Indigenism (Haiti)", url: wiki("Indig%C3%A9nisme") }],
+  },
+  {
+    slug: "damien-strike",
+    title: "Students at Damien strike, setting off the 1929 protests",
+    date: "1929-10-31",
+    precision: "day",
+    dimension: "inside",
+    categories: ["education", "politics"],
+    location: "Damien, near Port-au-Prince",
+    summary:
+      "Students at the central agricultural school, run by the occupation's Service Technique, walked out over cuts to scholarships. Their strike spread to other schools, civil servants and customs workers.",
+    consequences: "Weeks later Marines fired on protesters at Marchaterre, and President Hoover sent the Forbes Commission.",
+    status: "documented",
+    related: ["marchaterre-massacre"],
+    sources: [{ title: "United States occupation of Haiti", url: wiki("United_States_occupation_of_Haiti") }],
+  },
   // ——— 1930s ———
   {
     slug: "marines-leave-1934",
@@ -535,7 +591,7 @@ export const events: HistEvent[] = [
     date: "1934-08-15",
     precision: "day",
     dimension: "foreign",
-    categories: ["politics", "foreign-affairs", "milestones"],
+    categories: ["politics", "foreign-relations", "major-events"],
     countries: ["United States"],
     location: "Port-au-Prince",
     summary:
@@ -550,7 +606,7 @@ export const events: HistEvent[] = [
     date: "1937-10-02",
     precision: "circa",
     dimension: "abroad",
-    categories: ["wars", "diaspora", "society"],
+    categories: ["wars", "contributions", "society"],
     countries: ["Dominican Republic"],
     location: "Dominican borderlands",
     summary:
@@ -567,7 +623,7 @@ export const events: HistEvent[] = [
     date: "1944-05",
     precision: "month",
     dimension: "inside",
-    categories: ["arts", "culture", "contributions"],
+    categories: ["arts", "society", "contributions"],
     location: "Port-au-Prince",
     summary:
       "Founded with American teacher DeWitt Peters and Haitian artists and intellectuals, the Centre d'Art gave studio space and exhibitions to self-taught painters such as Hector Hyppolite and Philomé Obin.",
@@ -595,7 +651,7 @@ export const events: HistEvent[] = [
     date: "1947",
     precision: "year",
     dimension: "foreign",
-    categories: ["economy", "foreign-affairs"],
+    categories: ["economy", "foreign-relations"],
     countries: ["United States"],
     location: "Port-au-Prince",
     summary:
@@ -612,7 +668,7 @@ export const events: HistEvent[] = [
     date: "1955",
     precision: "year",
     dimension: "inside",
-    categories: ["music", "culture"],
+    categories: ["music", "society"],
     location: "Port-au-Prince",
     summary:
       "Saxophonist and bandleader Nemours Jean-Baptiste popularized a new dance music, konpa direk, drawing on merengue and Haitian rhythms. A friendly rivalry with Webert Sicot's cadence rampa electrified the scene.",
@@ -660,7 +716,7 @@ export const events: HistEvent[] = [
     date: "1986-02-07",
     precision: "day",
     dimension: "inside",
-    categories: ["politics", "milestones"],
+    categories: ["politics", "major-events"],
     location: "Port-au-Prince",
     summary:
       "After months of protests that began in Gonaïves, Jean-Claude 'Baby Doc' Duvalier left for France on a US Air Force plane, ending 29 years of Duvalier rule.",
@@ -676,7 +732,7 @@ export const events: HistEvent[] = [
     date: "1987-03-29",
     precision: "day",
     dimension: "inside",
-    categories: ["politics", "milestones"],
+    categories: ["politics", "major-events"],
     location: "Haiti",
     summary: "A referendum approved a constitution that recognized Haitian Creole as an official language alongside French and set limits on presidential power.",
     status: "documented",
@@ -690,7 +746,7 @@ export const events: HistEvent[] = [
     date: "1990",
     precision: "year",
     dimension: "inside",
-    categories: ["music", "culture", "politics"],
+    categories: ["music", "society", "politics"],
     location: "Port-au-Prince",
     summary:
       "The roots band's carnival song — 'I'm not afraid' — became an anthem of the democratic movement, bringing Vodou rhythms and lyrics into mainstream popular music.",
@@ -705,7 +761,7 @@ export const events: HistEvent[] = [
     date: "1990-12-16",
     precision: "day",
     dimension: "inside",
-    categories: ["politics", "milestones"],
+    categories: ["politics", "major-events"],
     location: "Haiti",
     summary: "A priest and leader of the Lavalas movement, Aristide won Haiti's first widely recognized free presidential election with about two-thirds of the vote.",
     consequences: "He was overthrown by the army on 30 September 1991, seven months after taking office.",
@@ -720,7 +776,7 @@ export const events: HistEvent[] = [
     date: "1994-09-19",
     precision: "day",
     dimension: "foreign",
-    categories: ["politics", "foreign-affairs", "wars"],
+    categories: ["politics", "foreign-relations", "wars"],
     countries: ["United States", "United Nations"],
     location: "Port-au-Prince",
     summary:
@@ -737,7 +793,7 @@ export const events: HistEvent[] = [
     date: "2010-01-12",
     precision: "day",
     dimension: "inside",
-    categories: ["environment", "health", "milestones"],
+    categories: ["major-events", "society"],
     location: "Léogâne and Port-au-Prince",
     summary:
       "A magnitude 7.0 earthquake struck near Léogâne, devastating Port-au-Prince and surrounding towns. Haitians call it 'Goudougoudou'.",
@@ -753,7 +809,7 @@ export const events: HistEvent[] = [
     date: "2010-10",
     precision: "month",
     dimension: "foreign",
-    categories: ["health", "foreign-affairs"],
+    categories: ["society", "foreign-relations"],
     countries: ["United Nations", "Nepal"],
     location: "Mirebalais, Centre department",
     summary:
@@ -770,7 +826,7 @@ export const events: HistEvent[] = [
     date: "2021-07-07",
     precision: "day",
     dimension: "inside",
-    categories: ["politics", "milestones"],
+    categories: ["politics", "major-events"],
     countries: ["Colombia", "United States"],
     location: "Pèlerin, Port-au-Prince",
     summary:
@@ -784,7 +840,7 @@ export const events: HistEvent[] = [
     date: "2021-08-14",
     precision: "day",
     dimension: "inside",
-    categories: ["environment", "health"],
+    categories: ["major-events", "society"],
     location: "Nippes and Sud departments",
     summary: "A magnitude 7.2 earthquake killed more than 2,000 people, and Tropical Storm Grace hit the same region days later.",
     status: "documented",
