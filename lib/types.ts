@@ -23,6 +23,7 @@ export interface Period {
   legacy?: string;
   researchNote?: string; // transparent note when coverage is thin
   essay?: EssayBlock[];
+  biblio?: string[]; // further reading, shown only at the bottom of the page
   notes?: Partial<Record<string, string>>; // short note per subject (area slug); "next" leads into the following decade
 }
 

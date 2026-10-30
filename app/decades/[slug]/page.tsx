@@ -167,7 +167,7 @@ export default async function PeriodPage({ params }: { params: Promise<{ slug: s
         )}
 
         {/* 5. Historical archives */}
-        {(images.length > 0 || sources.length > 0) && (
+        {(images.length > 0 || sources.length > 0 || (p.biblio?.length ?? 0) > 0) && (
           <section aria-labelledby="archives" className="mt-20 border-t border-rule pt-10">
             <h2 id="archives" className="text-d-4 font-semibold">Historical archives</h2>
             {images.length > 0 && (
@@ -175,9 +175,9 @@ export default async function PeriodPage({ params }: { params: Promise<{ slug: s
                 {images.map((img) => <li key={img.src}><EssayImage {...img} compact /></li>)}
               </ul>
             )}
-            {sources.length > 0 && (
+            {(sources.length > 0 || (p.biblio?.length ?? 0) > 0) && (
               <div className="mx-auto mt-8 w-full max-w-[45rem]">
-                <p className="text-sm font-medium">Documents and sources</p>
+                {sources.length > 0 && <p className="text-sm font-medium">Documents and sources</p>}
                 <ol className="mt-3 list-decimal space-y-1.5 pl-5 text-[0.95rem] text-dim marker:text-dim/60">
                   {sources.map((x) => (
                     <li key={x.title + (x.url ?? "")}>
@@ -185,6 +185,14 @@ export default async function PeriodPage({ params }: { params: Promise<{ slug: s
                     </li>
                   ))}
                 </ol>
+                {p.biblio && p.biblio.length > 0 && (
+                  <>
+                    <p className="mt-8 text-sm font-medium">Further reading</p>
+                    <ul className="mt-3 list-disc space-y-1.5 pl-5 text-[0.95rem] text-dim marker:text-dim/60">
+                      {p.biblio.map((b) => <li key={b}>{b}</li>)}
+                    </ul>
+                  </>
+                )}
                 <p className="mt-4 text-sm text-dim">
                   Have a photograph, document or recording from {label}?{" "}
                   <Link href={`/contribute?type=source&page=${encodeURIComponent(`/decades/${p.slug}`)}`} className="underline underline-offset-4 hover:text-fg">Share it with us</Link>.

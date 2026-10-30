@@ -3,7 +3,7 @@ import { subjectNotes } from "./answers";
 import { moreEvents, morePeople } from "./events-more";
 import { yearEvents, yearPeople } from "./events-years";
 import { essays } from "./essays";
-import { events1790s, people1790s, essay1790s, notes1790s } from "./decade-1790s";
+import { events1790s, people1790s, essay1790s, notes1790s, biblio1790s } from "./decade-1790s";
 import { indigenousChapter } from "./chapter-indigenous";
 import { chaptersA, eventsA } from "./chapters-a";
 import { chaptersB, eventsB, periodInfoB } from "./chapters-b";
@@ -137,7 +137,7 @@ export const periods: Period[] = [
   for (const p of periods) {
     if (subjectNotes[p.slug]) p.notes = subjectNotes[p.slug];
     if (essays[p.slug]) p.essay = essays[p.slug];
-    if (p.slug === "1790s") { p.essay = essay1790s; p.notes = { ...p.notes, ...notes1790s }; }
+    if (p.slug === "1790s") { p.essay = essay1790s; p.biblio = biblio1790s; p.notes = { ...p.notes, ...notes1790s }; }
     if (p.slug === "indigenous-ayiti") p.essay = indigenousChapter;
     const chapter = chaptersA[p.slug] ?? chaptersB[p.slug] ?? chaptersC[p.slug];
     if (chapter && !p.essay) p.essay = chapter;

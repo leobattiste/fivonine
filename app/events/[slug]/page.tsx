@@ -74,12 +74,6 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
           {e.causes && (<><h2 className="mt-10 font-display text-lg font-semibold text-fg">Causes</h2><p className="mt-2">{e.causes}</p></>)}
           {e.consequences && (<><h2 className="mt-10 font-display text-lg font-semibold text-fg">What it changed</h2><p className="mt-2">{e.consequences}</p></>)}
 
-          <h2 className="mt-14 font-display text-lg font-semibold text-fg">Sources</h2>
-          <ol className="mt-3 list-decimal space-y-2 pl-5 text-[1rem]">
-            {e.sources.map((s, i) => (
-              <li key={i}>{s.url ? <a href={s.url} target="_blank" rel="noreferrer" className="underline decoration-rule underline-offset-4 hover:text-dim hover:decoration-fg">{s.title}</a> : s.title}</li>
-            ))}
-          </ol>
           <p className="mt-6 font-display text-sm text-dim">
             See something wrong? <Link className="underline underline-offset-4 hover:text-fg" href={`/contribute?type=correction&page=${encodeURIComponent(`/events/${e.slug}`)}`}>Send a correction</Link>.
           </p>

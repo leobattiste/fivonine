@@ -163,14 +163,6 @@ export default function PersonModalProvider({ children }: { children: React.Reac
                     </ul>
                   </div>
                 )}
-                {ev.sources.length > 0 && (
-                  <section className="mt-8">
-                    <h3 className="text-lg font-semibold">Sources</h3>
-                    <ol className="mt-3 list-decimal space-y-1.5 pl-5 text-[0.95rem] text-dim">
-                      {ev.sources.map((x, i) => <li key={i}>{x.url ? <a href={x.url} target="_blank" rel="noreferrer" className="underline decoration-rule underline-offset-4 hover:text-fg">{x.title}</a> : x.title}</li>)}
-                    </ol>
-                  </section>
-                )}
                 {evData.linked.length > 0 && (
                   <section className="mt-8">
                     <h3 className="text-lg font-semibold">Connected moments</h3>
