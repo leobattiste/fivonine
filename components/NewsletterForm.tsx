@@ -25,7 +25,7 @@ export default function NewsletterForm({ source = "site" }: { source?: string })
     }
   }
 
-  if (state === "ok") return <p className="font-serif text-lg text-mint">{msg}</p>;
+  if (state === "ok") return <p className="font-serif text-lg text-dim">{msg}</p>;
 
   return (
     <form onSubmit={submit} className="flex w-full flex-col gap-2 sm:flex-row">
@@ -37,12 +37,12 @@ export default function NewsletterForm({ source = "site" }: { source?: string })
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         placeholder="you@email.com"
-        className="min-w-0 flex-1 rounded-full border border-rule bg-base px-5 py-3 text-sm outline-none placeholder:text-dim/70 focus:border-mint"
+        className="min-w-0 flex-1 rounded-full border border-rule bg-base px-5 py-3 text-sm outline-none placeholder:text-dim/70 focus:border-fg"
       />
       <button disabled={state === "loading"} className="btn btn-solid justify-center disabled:opacity-60">
         {state === "loading" ? "Subscribing…" : "Subscribe"}
       </button>
-      {state === "error" && <p className="text-sm text-sun sm:basis-full">{msg}</p>}
+      {state === "error" && <p className="text-sm font-medium text-fg sm:basis-full">{msg}</p>}
     </form>
   );
 }

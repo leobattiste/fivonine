@@ -34,10 +34,10 @@ export default function Strata({ c }: { c: Content }) {
                 ) : (
                   <>
                     {kicker && <span className="block text-sm text-dim">{kicker}</span>}
-                    <span className="block text-lg font-medium leading-snug group-hover:text-white sm:text-xl">{headline}</span>
+                    <span className="block text-lg font-medium leading-snug group-hover:text-dim sm:text-xl">{headline}</span>
                   </>
                 )}
-                <span className="mt-1 hidden text-xs text-sun group-data-[explored=true]:block">You've been here</span>
+                <span className="mt-1 hidden text-xs status-note group-data-[explored=true]:block">You've been here</span>
               </span>
               <span className="col-span-2 sm:col-span-1">
                 <span className="flex h-2 w-full overflow-hidden rounded-full bg-raise" style={{ width: `${Math.max(8, (n / max) * 100)}%` }}>

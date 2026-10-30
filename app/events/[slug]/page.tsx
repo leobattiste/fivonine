@@ -57,13 +57,13 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
       </div>
 
       <header className="mt-10">
-        <p className="wdth-tight text-d-2 font-extrabold tabular-nums" style={{ color }}>{yearOf(e)}</p>
+        <p className="wdth-tight text-d-2 font-extrabold tabular-nums">{yearOf(e)}</p>
         <h1 className="mt-4 max-w-4xl text-d-3 font-semibold">{e.title}</h1>
         <dl className="mt-8 grid max-w-3xl grid-cols-2 gap-x-8 gap-y-4 text-sm sm:grid-cols-4">
           <div><dt className="text-dim">Date</dt><dd className="mt-0.5">{formatDate(e)}</dd></div>
           <div><dt className="text-dim">Place</dt><dd className="mt-0.5">{e.location}</dd></div>
           <div><dt className="text-dim">Dimension</dt><dd className="mt-0.5 flex items-center gap-2"><span className="h-2 w-2 rounded-full" style={{ background: color }} />{DIMENSIONS[e.dimension].label}</dd></div>
-          <div><dt className="text-dim">Evidence</dt><dd className={`mt-0.5 ${e.status === "documented" ? "" : "text-sun"}`}>{STATUS_LABEL[e.status]}</dd></div>
+          <div><dt className="text-dim">Evidence</dt><dd className={`mt-0.5 ${e.status === "documented" ? "" : "status-note"}`}>{STATUS_LABEL[e.status]}</dd></div>
         </dl>
       </header>
 
@@ -77,7 +77,7 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
           <h2 className="mt-14 font-display text-lg font-semibold text-fg">Sources</h2>
           <ol className="mt-3 list-decimal space-y-2 pl-5 text-[1rem]">
             {e.sources.map((s, i) => (
-              <li key={i}>{s.url ? <a href={s.url} target="_blank" rel="noreferrer" className="underline decoration-rule underline-offset-4 hover:text-mint hover:decoration-mint">{s.title}</a> : s.title}</li>
+              <li key={i}>{s.url ? <a href={s.url} target="_blank" rel="noreferrer" className="underline decoration-rule underline-offset-4 hover:text-dim hover:decoration-fg">{s.title}</a> : s.title}</li>
             ))}
           </ol>
           <p className="mt-6 font-display text-sm text-dim">
@@ -104,7 +104,7 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
             <div>
               <p className="label">People</p>
               <ul className="mt-3 space-y-2">
-                {people.map((p) => <li key={p.slug}><Link href={`/people/${p.slug}`} className="font-medium hover:text-mint">{p.name}</Link></li>)}
+                {people.map((p) => <li key={p.slug}><Link href={`/people/${p.slug}`} className="font-medium hover:text-dim">{p.name}</Link></li>)}
               </ul>
             </div>
           )}

@@ -47,7 +47,8 @@ export default async function ThreadPage({ params }: { params: Promise<{ slug: s
               )}
               <Link href={`/events/${s.e.slug}`} className="group grid grid-cols-[5.5rem_1fr] items-start gap-4 sm:grid-cols-[8.5rem_1fr]">
                 <span className="relative z-10 flex flex-col items-center bg-base py-2">
-                  <span className="wdth-tight text-3xl font-bold tabular-nums sm:text-4xl" style={{ color: DIMENSIONS[s.e.dimension].color }}>{yearOf(s.e)}</span>
+                  <span className="wdth-tight text-3xl font-bold tabular-nums sm:text-4xl">{yearOf(s.e)}</span>
+                  <span className="mt-2 h-2 w-2 rounded-full" style={{ background: DIMENSIONS[s.e.dimension].color }} aria-hidden />
                 </span>
                 <span className="rounded-2xl p-4 transition-colors group-hover:bg-raise sm:p-5">
                   <span className="block text-xl font-semibold leading-snug sm:text-2xl">{s.e.title}</span>
@@ -60,7 +61,7 @@ export default async function ThreadPage({ params }: { params: Promise<{ slug: s
         })}
       </ol>
 
-      <p className="read mt-16 border-l-2 border-sun pl-5 !text-[1rem] text-dim">{t.caveat}</p>
+      <p className="read mt-16 border-l-2 border-fg pl-5 !text-[1rem] text-dim">{t.caveat}</p>
     </article>
   );
 }

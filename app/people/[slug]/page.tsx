@@ -31,7 +31,7 @@ export default async function PersonPage({ params }: { params: Promise<{ slug: s
       <div className="flex justify-end"><ShareButton title={p.name} path={`/people/${p.slug}`} /></div>
       <p className="mt-6 text-dim">{[p.born, p.died].filter(Boolean).join(" to ") || "Dates uncertain"}</p>
       <h1 className="mt-2 max-w-4xl text-d-2 font-extrabold">{p.name}</h1>
-      <p className="mt-4 text-lg text-mint">{p.roles.join(", ")}</p>
+      <p className="mt-4 text-lg text-dim">{p.roles.join(", ")}</p>
       <p className="read mt-8">{p.bio}</p>
 
       {periods.length > 0 && (

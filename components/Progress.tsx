@@ -33,7 +33,7 @@ export function JourneyMeter({ total }: { total: number }) {
     <div className="max-w-sm">
       <div className="flex justify-between gap-6 text-sm"><span>You've explored {done.length} of {total} periods</span><span className="tabular-nums text-dim">{pct}%</span></div>
       <div className="mt-2 h-1 w-64 overflow-hidden rounded-full bg-raise">
-        <div className="h-full rounded-full bg-sun" style={{ width: `${pct}%` }} />
+        <div className="h-full rounded-full bg-fg" style={{ width: `${pct}%` }} />
       </div>
     </div>
   );

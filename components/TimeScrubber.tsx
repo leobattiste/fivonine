@@ -55,13 +55,11 @@ export default function TimeScrubber({ points }: { points: Pt[] }) {
   };
 
   const centuries = [1500, 1600, 1700, 1800, 1900, 2000];
-  const close = Math.abs(nearest.year - year) <= 3;
 
   return (
     <div className="select-none">
       {/* The year */}
-      <p className="wdth-tight -ml-[0.04em] font-display text-d-0 font-extrabold tabular-nums transition-colors duration-300" aria-live="polite" aria-atomic
-        style={{ color: close ? DIMENSIONS[nearest.dimension].color : "#E7EFEA" }}>
+      <p className="wdth-tight -ml-[0.04em] font-display text-d-0 font-extrabold tabular-nums" aria-live="polite" aria-atomic>
         {year}
       </p>
 

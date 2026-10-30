@@ -8,7 +8,7 @@ export default function NotFound() {
       <p className="read mt-4">The link may be old, or the entry may have moved. Search for it or pick a decade.</p>
       <div className="mt-8 flex gap-2">
         <Link href="/explore" className="btn btn-solid">Search the record</Link>
-        <Link href="/#decades" className="btn btn-ghost">Browse decades</Link>
+        <Link href="/decades" className="btn btn-ghost">Browse decades</Link>
       </div>
     </div>
   );

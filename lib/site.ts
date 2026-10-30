@@ -7,9 +7,9 @@ export const SITE = {
 };
 
 export const DIMENSIONS = {
-  inside: { label: "Inside Haiti", short: "Inside Haiti", color: "#7FE0C2" },
-  abroad: { label: "Haitians abroad", short: "Abroad", color: "#F4C76A" },
-  foreign: { label: "The world acting on Haiti", short: "World on Haiti", color: "#A9B5FF" },
+  inside: { label: "Inside Haiti", short: "Inside Haiti", color: "#0E8A6A" },
+  abroad: { label: "Haitians abroad", short: "Abroad", color: "#C2650A" },
+  foreign: { label: "The world acting on Haiti", short: "World on Haiti", color: "#4655D6" },
 } as const;
 
 export const STATUS_LABEL = {

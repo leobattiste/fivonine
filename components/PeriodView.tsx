@@ -30,7 +30,7 @@ export default function PeriodView({ events, categories, start, end, isDecade }:
   return (
     <div className="grid gap-10 lg:grid-cols-[15rem_1fr]">
       {/* Controls */}
-      <div className="lg:sticky lg:top-24 lg:self-start">
+      <div className="lg:sticky lg:top-36 lg:self-start">
         <p className="label">Show</p>
         <div className="mt-3 flex flex-wrap gap-2 lg:flex-col lg:items-start">
           <button className="pill" data-on={dim === "all"} onClick={() => setDim("all")}>
@@ -87,10 +87,10 @@ export default function PeriodView({ events, categories, start, end, isDecade }:
                         <div className={`grid transition-[grid-template-rows] duration-300 ${isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}>
                           <div className="overflow-hidden">
                             <div className="pb-4 pl-5">
-                              {e.status !== "documented" && <p className="mb-2 text-sm text-sun">{STATUS_LABEL[e.status]}</p>}
+                              {e.status !== "documented" && <p className="mb-2 text-sm status-note">{STATUS_LABEL[e.status]}</p>}
                               <p className="read !text-[1.05rem]">{e.summary}</p>
                               {e.consequences && <p className="read mt-3 !text-[1.05rem] text-dim"><em>Afterwards:</em> {e.consequences}</p>}
-                              <Link href={`/events/${e.slug}`} className="mt-4 inline-block text-sm text-mint underline-offset-4 hover:underline">
+                              <Link href={`/events/${e.slug}`} className="mt-4 inline-block text-sm text-dim underline-offset-4 hover:underline">
                                 Sources and connections
                               </Link>
                             </div>

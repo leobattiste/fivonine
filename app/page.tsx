@@ -38,7 +38,10 @@ export default async function Home() {
       <section id="decades" className="mx-auto max-w-[1240px] scroll-mt-20 px-5 sm:px-8">
         <div className="mb-8 flex flex-wrap items-end justify-between gap-6">
           <h2 className="text-d-2 font-bold">Every period</h2>
-          <JourneyMeter total={c.periods.length} />
+          <div className="flex flex-col items-start gap-4 sm:items-end">
+            <JourneyMeter total={c.periods.length} />
+            <Link href="/decades" className="btn btn-ghost">Browse decades as a grid</Link>
+          </div>
         </div>
         <Strata c={c} />
       </section>
@@ -50,8 +53,9 @@ export default async function Home() {
             {otd.events.slice(0, 3).map((e) => (
               <li key={e.slug} className="bg-base">
                 <Link href={`/events/${e.slug}`} className="group flex h-full flex-col p-7 hover:bg-raise">
-                  <span className="wdth-tight text-6xl font-bold tabular-nums" style={{ color: DIMENSIONS[e.dimension].color }}>{yearOf(e)}</span>
-                  <span className="mt-4 text-xl font-medium leading-snug group-hover:text-white">{e.title}</span>
+                  <span className="wdth-tight text-6xl font-bold tabular-nums">{yearOf(e)}</span>
+                  <span className="mt-2 flex items-center gap-2 text-sm text-dim"><span className="h-2 w-2 rounded-full" style={{ background: DIMENSIONS[e.dimension].color }} />{DIMENSIONS[e.dimension].label}</span>
+                  <span className="mt-4 text-xl font-medium leading-snug group-hover:text-dim">{e.title}</span>
                   <span className="mt-3 font-serif text-[0.98rem] leading-relaxed text-dim line-clamp-3">{e.summary}</span>
                 </Link>
               </li>
@@ -75,7 +79,7 @@ export default async function Home() {
                 <li key={t.slug}>
                   <Link href={`/threads/${t.slug}`} className="group grid gap-2 py-7 sm:grid-cols-[1fr_auto] sm:items-baseline sm:gap-8">
                     <span>
-                      <span className="block text-2xl font-semibold group-hover:text-mint">{t.title}</span>
+                      <span className="block text-2xl font-semibold group-hover:text-dim">{t.title}</span>
                       <span className="mt-1 block font-serif text-[1.05rem] text-dim">{t.dek}</span>
                     </span>
                     <span className="text-sm tabular-nums text-dim">{Math.min(...ys)} to {Math.max(...ys)}</span>

@@ -62,7 +62,7 @@ export default function ExploreClient({ items, people, categories, periods, coun
   const personHits = terms.length ? people.filter((p) => terms.every((t) => norm(p.name + " " + p.role).includes(t))) : [];
   const active = Boolean(q || dim || category || country || period);
 
-  const select = "rounded-full border border-rule bg-base px-4 py-2 text-sm text-fg outline-none focus:border-mint";
+  const select = "rounded-full border border-rule bg-base px-4 py-2 text-sm text-fg outline-none focus:border-fg";
 
   return (
     <div>
@@ -74,7 +74,7 @@ export default function ExploreClient({ items, people, categories, periods, coun
         onChange={(e) => setQ(e.target.value)}
         placeholder="Search a year, a name, a place…"
         autoFocus
-        className="w-full border-b border-rule bg-transparent pb-4 text-d-3 font-semibold outline-none placeholder:text-rule focus:border-mint"
+        className="w-full border-b border-rule bg-transparent pb-4 text-d-3 font-semibold outline-none placeholder:text-rule focus:border-fg"
       />
 
       <div className="mt-6 flex flex-wrap gap-2">
@@ -120,13 +120,13 @@ export default function ExploreClient({ items, people, categories, periods, coun
         {results.map((i) => (
           <li key={i.slug}>
             <Link href={`/events/${i.slug}`} className="group grid grid-cols-[4.5rem_1fr] gap-5 border-b border-rule py-5 sm:grid-cols-[6rem_1fr_auto] sm:items-baseline">
-              <span className="wdth-tight text-3xl font-bold tabular-nums" style={{ color: DIMENSIONS[i.dimension].color }}>{i.year}</span>
+              <span className="wdth-tight whitespace-nowrap text-3xl font-bold tabular-nums"><span className="mr-2 inline-block h-2 w-2 -translate-y-[0.3em] rounded-full align-middle" style={{ background: DIMENSIONS[i.dimension].color }} aria-hidden />{i.year}</span>
               <span className="min-w-0">
-                <span className="block text-lg font-medium leading-snug group-hover:text-white">{i.title}</span>
+                <span className="block text-lg font-medium leading-snug group-hover:text-dim">{i.title}</span>
                 <span className="mt-1 block font-serif text-[0.98rem] leading-relaxed text-dim line-clamp-2">{i.summary}</span>
               </span>
               <span className="col-start-2 text-sm text-dim sm:col-start-auto">
-                {i.status !== "documented" ? <span className="text-sun">{STATUS_LABEL[i.status]}</span> : i.location}
+                {i.status !== "documented" ? <span className="status-note">{STATUS_LABEL[i.status]}</span> : i.location}
               </span>
             </Link>
           </li>

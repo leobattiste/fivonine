@@ -14,7 +14,7 @@ export const metadata: Metadata = {
   twitter: { card: "summary_large_image" },
 };
 
-export const viewport: Viewport = { themeColor: "#0B2321", width: "device-width", initialScale: 1 };
+export const viewport: Viewport = { themeColor: "#FFFFFF", width: "device-width", initialScale: 1 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -26,7 +26,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <Mark /> Fivonine
             </Link>
             <div className="flex items-center gap-1 text-sm text-dim">
-              <Link href="/#decades" className="hidden rounded-full px-3 py-1.5 hover:text-fg sm:block">Decades</Link>
+              <Link href="/decades" className="rounded-full px-3 py-1.5 hover:text-fg">Decades</Link>
               <Link href="/threads" className="rounded-full px-3 py-1.5 hover:text-fg">Threads</Link>
               <Link href="/explore" className="ml-1 flex items-center gap-2 rounded-full border border-rule px-3.5 py-1.5 text-fg hover:border-dim">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></svg>
@@ -62,9 +62,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 function Mark() {
   return (
     <svg width="22" height="22" viewBox="0 0 22 22" aria-hidden>
-      <rect x="1" y="3" width="20" height="4" rx="2" fill="#7FE0C2" />
-      <rect x="1" y="9" width="14" height="4" rx="2" fill="#F4C76A" />
-      <rect x="1" y="15" width="17" height="4" rx="2" fill="#A9B5FF" />
+      <rect x="1" y="3" width="20" height="4" rx="2" fill="#0A0A0A" />
+      <rect x="1" y="9" width="14" height="4" rx="2" fill="#8A8A87" />
+      <rect x="1" y="15" width="17" height="4" rx="2" fill="#C8C8C5" />
     </svg>
   );
 }

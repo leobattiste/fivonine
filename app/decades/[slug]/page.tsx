@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import PeriodView from "@/components/PeriodView";
+import DecadeSwitcher from "@/components/DecadeSwitcher";
 import ShareButton from "@/components/ShareButton";
 import { MarkExplored } from "@/components/Progress";
 import { eventsInPeriod, formatDate, getContent, yearOf } from "@/lib/data";
@@ -37,7 +38,15 @@ export default async function PeriodPage({ params }: { params: Promise<{ slug: s
   const [kicker, headline] = p.title.includes(":") ? p.title.split(/:\s(.+)/) : ["", p.title];
   const big = p.kind === "decade" ? `${p.start}s` : p.label;
 
+  const switcher = c.periods.map((x) => ({
+    slug: x.slug,
+    short: x.kind === "decade" ? `${x.start}s` : x.label,
+    empty: !x.overview && eventsInPeriod(c, x).length === 0,
+  }));
+
   return (
+    <>
+    <DecadeSwitcher items={switcher} current={p.slug} />
     <article className="mx-auto max-w-[1240px] px-5 pt-8 sm:px-8">
       <MarkExplored slug={p.slug} />
 
@@ -49,7 +58,7 @@ export default async function PeriodPage({ params }: { params: Promise<{ slug: s
         <h1 className={`wdth-tight mt-6 font-extrabold ${p.kind === "decade" ? "text-d-1" : "text-d-2"}`}>{big}</h1>
         <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_20rem]">
           <div>
-            {kicker && <p className="text-lg text-mint">{kicker}</p>}
+            {kicker && <p className="text-lg text-dim">{kicker}</p>}
             <p className="mt-1 max-w-3xl text-d-3 font-semibold">{headline}</p>
           </div>
         </div>
@@ -60,7 +69,7 @@ export default async function PeriodPage({ params }: { params: Promise<{ slug: s
           <div className="read">
             {p.overview && <p>{p.overview}</p>}
             {p.researchNote && (
-              <p className={`${p.overview ? "mt-6 border-l-2 border-sun pl-4 text-[1rem]" : ""} text-dim`}>{p.researchNote}</p>
+              <p className={`${p.overview ? "mt-6 border-l-2 border-fg pl-4 text-[1rem]" : ""} text-dim`}>{p.researchNote}</p>
             )}
           </div>
           <aside className="space-y-10">
@@ -71,7 +80,7 @@ export default async function PeriodPage({ params }: { params: Promise<{ slug: s
                   {people.map((x) => (
                     <li key={x.slug}>
                       <Link href={`/people/${x.slug}`} className="group block">
-                        <span className="block font-medium group-hover:text-mint">{x.name}</span>
+                        <span className="block font-medium group-hover:text-dim">{x.name}</span>
                         <span className="block text-sm text-dim">{x.roles[0]}</span>
                       </Link>
                     </li>
@@ -83,7 +92,7 @@ export default async function PeriodPage({ params }: { params: Promise<{ slug: s
               <div>
                 <p className="label">Threads passing through</p>
                 <ul className="mt-3 space-y-2">
-                  {threads.map((t) => <li key={t.slug}><Link href={`/threads/${t.slug}`} className="font-medium hover:text-mint">{t.title}</Link></li>)}
+                  {threads.map((t) => <li key={t.slug}><Link href={`/threads/${t.slug}`} className="font-medium hover:text-dim">{t.title}</Link></li>)}
                 </ul>
               </div>
             )}
@@ -115,16 +124,18 @@ export default async function PeriodPage({ params }: { params: Promise<{ slug: s
         {prev ? (
           <Link href={`/decades/${prev.slug}`} className="group bg-base p-8 hover:bg-raise">
             <span className="label">Earlier</span>
-            <span className="wdth-tight mt-2 block text-5xl font-bold group-hover:text-mint">{prev.kind === "decade" ? `${prev.start}s` : prev.label}</span>
+            <span className="wdth-tight mt-2 block text-5xl font-bold group-hover:text-dim">{prev.kind === "decade" ? `${prev.start}s` : prev.label}</span>
           </Link>
         ) : <span className="bg-base" />}
         {next ? (
           <Link href={`/decades/${next.slug}`} className="group bg-base p-8 text-right hover:bg-raise">
             <span className="label">Later</span>
-            <span className="wdth-tight mt-2 block text-5xl font-bold group-hover:text-mint">{next.kind === "decade" ? `${next.start}s` : next.label}</span>
+            <span className="wdth-tight mt-2 block text-5xl font-bold group-hover:text-dim">{next.kind === "decade" ? `${next.start}s` : next.label}</span>
           </Link>
         ) : <span className="bg-base" />}
       </nav>
+      <p className="mt-6 hidden text-center text-sm text-dim sm:block">Tip: use the ← and → keys to move between periods.</p>
     </article>
+    </>
   );
 }

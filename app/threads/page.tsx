@@ -23,7 +23,7 @@ export default async function ThreadsPage() {
           return (
             <li key={t.slug}>
               <Link href={`/threads/${t.slug}`} className="group block rounded-[2rem] bg-raise p-8 hover:bg-lift sm:p-10">
-                <span className="block text-d-4 font-semibold group-hover:text-mint">{t.title}</span>
+                <span className="block text-d-4 font-semibold group-hover:text-dim">{t.title}</span>
                 <span className="mt-2 block max-w-2xl font-serif text-lg text-dim">{t.dek}</span>
                 {/* miniature of the thread on a time axis */}
                 <span className="relative mt-8 block h-10" aria-hidden>

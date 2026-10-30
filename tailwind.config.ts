@@ -5,15 +5,16 @@ export default {
   theme: {
     extend: {
       colors: {
-        base: "#0B2321", // deep mountain-sea green
-        raise: "#11302D",
-        lift: "#173B37",
-        rule: "#1F4541",
-        fg: "#E7EFEA",
-        dim: "#8DA79F",
-        mint: "#7FE0C2", // inside Haiti
-        sun: "#F4C76A", // Haitians abroad
-        peri: "#A9B5FF", // the world acting on Haiti
+        base: "#FFFFFF",
+        raise: "#F5F5F4",
+        lift: "#EBEBEA",
+        rule: "#E4E4E2",
+        fg: "#0A0A0A",
+        dim: "#6E6E6B",
+        // Color is reserved for the three dimensions
+        mint: "#0E8A6A", // inside Haiti
+        sun: "#C2650A", // Haitians abroad
+        peri: "#4655D6", // the world acting on Haiti
       },
       fontFamily: {
         display: ["'Bricolage Grotesque Variable'", "system-ui", "sans-serif"],
