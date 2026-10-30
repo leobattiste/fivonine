@@ -38,24 +38,22 @@ export default function DecadeTimeline({ sections, years, notes = {}, label, sho
 
   return (
     <div>
-      {/* Explore the decade */}
+      {/* Explore the decade: filters, styled like the year chips */}
       <section aria-labelledby="explore-decade">
-        <h2 id="explore-decade" className="text-d-4 font-semibold">Explore {label}</h2>
-        <ol className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
-          {sections.map((s, i) => {
+        <h2 id="explore-decade" className="label">Explore {label}</h2>
+        <ol className="no-scrollbar -mx-5 mt-3 flex gap-2 overflow-x-auto px-5 sm:mx-0 sm:flex-wrap sm:px-0">
+          {sections.map((s) => {
             const n = count(s.slug);
             const on = active === s.slug;
             return (
-              <li key={s.slug}>
+              <li key={s.slug} className="shrink-0">
                 <button
                   onClick={() => setActive(on ? "" : s.slug)}
                   aria-pressed={on}
                   title={s.items.join(", ")}
-                  className={`flex h-full w-full flex-col rounded-2xl border p-4 text-left transition-colors ${on ? "border-fg bg-fg text-base" : n ? "border-rule hover:border-fg" : "border-dashed border-rule text-dim"}`}
+                  className={`rounded-full border px-3.5 py-1.5 text-sm ${on ? "border-fg bg-fg text-base" : n ? "border-rule hover:border-fg" : "border-rule text-dim/50"}`}
                 >
-                  <span className={`text-sm tabular-nums ${on ? "text-base/70" : "text-dim"}`}>{i + 1}</span>
-                  <span className="mt-1 font-semibold leading-snug">{s.short}</span>
-                  <span className={`mt-auto pt-3 text-xs tabular-nums ${on ? "text-base/70" : "text-dim"}`}>{n ? `${n} ${n === 1 ? "moment" : "moments"}` : "Being researched"}</span>
+                  {s.short}
                 </button>
               </li>
             );
@@ -64,7 +62,7 @@ export default function DecadeTimeline({ sections, years, notes = {}, label, sho
       </section>
 
       {/* Browse by year */}
-      <section aria-labelledby="browse-year" className="mt-10">
+      <section aria-labelledby="browse-year" className="mt-8">
         <h2 id="browse-year" className="label">Browse by year</h2>
         <ol className="no-scrollbar -mx-5 mt-3 flex gap-2 overflow-x-auto px-5 sm:mx-0 sm:flex-wrap sm:px-0">
           {years.map((y) => {
@@ -78,21 +76,6 @@ export default function DecadeTimeline({ sections, years, notes = {}, label, sho
           })}
         </ol>
       </section>
-
-      {/* Section focus */}
-      {current && (
-        <div className="mt-10 rounded-[1.5rem] bg-raise p-6 sm:p-8">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <p className="text-sm text-dim">Showing only</p>
-              <p className="text-xl font-semibold">{current.name}</p>
-            </div>
-            <button onClick={() => setActive("")} className="btn btn-ghost !py-2 shrink-0">Show everything</button>
-          </div>
-          {notes[current.slug] && <p className="read mt-4">{notes[current.slug]}</p>}
-          <p className="mt-4 text-sm text-dim">Covers: {current.items.join(", ")}.</p>
-        </div>
-      )}
 
       {/* The years */}
       <ol className="mt-12">
