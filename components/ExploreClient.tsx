@@ -1,0 +1,142 @@
+"use client";
+import Link from "next/link";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { DIMENSIONS, STATUS_LABEL } from "@/lib/site";
+import type { Category, Dimension, EvidenceStatus } from "@/lib/types";
+
+type Item = {
+  slug: string; title: string; summary: string; year: number; label: string; location: string;
+  dimension: Dimension; categories: string[]; countries: string[]; period: string; people: string[]; status: EvidenceStatus;
+};
+
+type Props = {
+  items: Item[];
+  people: { slug: string; name: string; role: string }[];
+  categories: Category[];
+  periods: { slug: string; label: string }[];
+  countries: string[];
+  initial: { q: string; category: string; country: string; period: string };
+};
+
+const norm = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+
+export default function ExploreClient({ items, people, categories, periods, countries, initial }: Props) {
+  const [q, setQ] = useState(initial.q);
+  const [dim, setDim] = useState<Dimension | "">("");
+  const [category, setCategory] = useState(initial.category);
+  const [country, setCountry] = useState(initial.country);
+  const [period, setPeriod] = useState(initial.period);
+  const input = useRef<HTMLInputElement>(null);
+
+  // "/" focuses search, like the tools people already know
+  useEffect(() => {
+    const h = (e: KeyboardEvent) => {
+      if (e.key === "/" && document.activeElement?.tagName !== "INPUT") { e.preventDefault(); input.current?.focus(); }
+    };
+    window.addEventListener("keydown", h);
+    return () => window.removeEventListener("keydown", h);
+  }, []);
+
+  // Keep the URL shareable
+  useEffect(() => {
+    const p = new URLSearchParams();
+    if (q) p.set("q", q);
+    if (category) p.set("category", category);
+    if (country) p.set("country", country);
+    if (period) p.set("period", period);
+    const s = p.toString();
+    window.history.replaceState(null, "", s ? `?${s}` : window.location.pathname);
+  }, [q, category, country, period]);
+
+  const terms = norm(q).split(/\s+/).filter(Boolean);
+  const results = useMemo(() => items.filter((i) => {
+    if (dim && i.dimension !== dim) return false;
+    if (category && !i.categories.includes(category)) return false;
+    if (country && !i.countries.includes(country)) return false;
+    if (period && i.period !== period) return false;
+    if (!terms.length) return true;
+    const hay = norm([i.title, i.summary, i.location, String(i.year), ...i.countries, ...i.people].join(" "));
+    return terms.every((t) => hay.includes(t));
+  }), [items, dim, category, country, period, terms.join(" ")]);
+
+  const personHits = terms.length ? people.filter((p) => terms.every((t) => norm(p.name + " " + p.role).includes(t))) : [];
+  const active = Boolean(q || dim || category || country || period);
+
+  const select = "rounded-full border border-rule bg-base px-4 py-2 text-sm text-fg outline-none focus:border-mint";
+
+  return (
+    <div>
+      <label htmlFor="q" className="sr-only">Search</label>
+      <input
+        id="q"
+        ref={input}
+        value={q}
+        onChange={(e) => setQ(e.target.value)}
+        placeholder="Search a year, a name, a place…"
+        autoFocus
+        className="w-full border-b border-rule bg-transparent pb-4 text-d-3 font-semibold outline-none placeholder:text-rule focus:border-mint"
+      />
+
+      <div className="mt-6 flex flex-wrap gap-2">
+        {(Object.keys(DIMENSIONS) as Dimension[]).map((d) => (
+          <button key={d} className="pill" data-on={dim === d} onClick={() => setDim(dim === d ? "" : d)}>
+            <span className="h-2 w-2 rounded-full" style={{ background: DIMENSIONS[d].color }} />{DIMENSIONS[d].label}
+          </button>
+        ))}
+      </div>
+      <div className="mt-3 flex flex-wrap gap-2">
+        <select aria-label="Subject" value={category} onChange={(e) => setCategory(e.target.value)} className={select}>
+          <option value="">Any subject</option>
+          {categories.map((c) => <option key={c.slug} value={c.slug}>{c.name}</option>)}
+        </select>
+        <select aria-label="Period" value={period} onChange={(e) => setPeriod(e.target.value)} className={select}>
+          <option value="">Any period</option>
+          {periods.map((p) => <option key={p.slug} value={p.slug}>{p.label}</option>)}
+        </select>
+        <select aria-label="Country" value={country} onChange={(e) => setCountry(e.target.value)} className={select}>
+          <option value="">Any country</option>
+          {countries.map((c) => <option key={c} value={c}>{c}</option>)}
+        </select>
+        {active && (
+          <button className="px-3 text-sm text-dim hover:text-fg" onClick={() => { setQ(""); setDim(""); setCategory(""); setCountry(""); setPeriod(""); }}>
+            Clear all
+          </button>
+        )}
+      </div>
+
+      {personHits.length > 0 && (
+        <div className="mt-10 flex flex-wrap gap-3">
+          {personHits.map((p) => (
+            <Link key={p.slug} href={`/people/${p.slug}`} className="rounded-2xl bg-raise px-5 py-3 hover:bg-lift">
+              <span className="block font-semibold">{p.name}</span>
+              <span className="block text-sm text-dim">{p.role}</span>
+            </Link>
+          ))}
+        </div>
+      )}
+
+      <p className="mt-10 text-sm text-dim" aria-live="polite">{results.length} {results.length === 1 ? "moment" : "moments"}</p>
+      <ul className="mt-3 border-t border-rule">
+        {results.map((i) => (
+          <li key={i.slug}>
+            <Link href={`/events/${i.slug}`} className="group grid grid-cols-[4.5rem_1fr] gap-5 border-b border-rule py-5 sm:grid-cols-[6rem_1fr_auto] sm:items-baseline">
+              <span className="wdth-tight text-3xl font-bold tabular-nums" style={{ color: DIMENSIONS[i.dimension].color }}>{i.year}</span>
+              <span className="min-w-0">
+                <span className="block text-lg font-medium leading-snug group-hover:text-white">{i.title}</span>
+                <span className="mt-1 block font-serif text-[0.98rem] leading-relaxed text-dim line-clamp-2">{i.summary}</span>
+              </span>
+              <span className="col-start-2 text-sm text-dim sm:col-start-auto">
+                {i.status !== "documented" ? <span className="text-sun">{STATUS_LABEL[i.status]}</span> : i.location}
+              </span>
+            </Link>
+          </li>
+        ))}
+      </ul>
+      {results.length === 0 && (
+        <p className="mt-10 max-w-lg font-serif text-lg text-dim">
+          Nothing matches yet. Try a broader word, remove a filter, or browse a decade from the home page.
+        </p>
+      )}
+    </div>
+  );
+}

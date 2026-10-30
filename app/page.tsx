@@ -1,0 +1,103 @@
+import Link from "next/link";
+import Strata from "@/components/Strata";
+import TimeScrubber from "@/components/TimeScrubber";
+import NewsletterForm from "@/components/NewsletterForm";
+import { JourneyMeter } from "@/components/Progress";
+import { formatDate, getContent, onThisDay, periodFor, sortEvents, yearOf } from "@/lib/data";
+import { DIMENSIONS } from "@/lib/site";
+
+export const revalidate = 3600;
+
+export default async function Home() {
+  const c = await getContent();
+  const otd = onThisDay(c);
+  const today = new Date().toLocaleDateString("en-US", { month: "long", day: "numeric" });
+  const points = sortEvents(c.events)
+    .filter((e) => yearOf(e) >= 1490)
+    .map((e) => {
+      const p = periodFor(e, c.periods)!;
+      return { slug: e.slug, title: e.title, year: yearOf(e), label: formatDate(e), location: e.location, dimension: e.dimension, period: p.slug, periodLabel: p.label.replace(/^The /, "the ") };
+    });
+
+  return (
+    <>
+      <section className="mx-auto max-w-[1240px] px-5 pb-24 pt-10 sm:px-8 sm:pt-16">
+        <div className="flex flex-wrap items-start justify-between gap-6">
+          <h1 className="max-w-xl text-xl font-medium leading-snug sm:text-2xl">
+            Haiti, one decade at a time: what happened at home, what Haitians did abroad, and what the world did to Haiti.
+          </h1>
+          <ul className="flex flex-col gap-1.5 text-sm text-dim">
+            {Object.values(DIMENSIONS).map((d) => (
+              <li key={d.label} className="flex items-center gap-2"><span className="h-2 w-2 rounded-full" style={{ background: d.color }} />{d.label}</li>
+            ))}
+          </ul>
+        </div>
+        <div className="mt-6 sm:mt-2"><TimeScrubber points={points} /></div>
+      </section>
+
+      <section id="decades" className="mx-auto max-w-[1240px] scroll-mt-20 px-5 sm:px-8">
+        <div className="mb-8 flex flex-wrap items-end justify-between gap-6">
+          <h2 className="text-d-2 font-bold">Every period</h2>
+          <JourneyMeter total={c.periods.length} />
+        </div>
+        <Strata c={c} />
+      </section>
+
+      {otd.events.length > 0 && (
+        <section className="mx-auto mt-32 max-w-[1240px] px-5 sm:px-8">
+          <h2 className="text-d-3 font-semibold">{otd.mode === "day" ? `On ${today}` : "This month, across the centuries"}</h2>
+          <ul className="mt-8 grid gap-px overflow-hidden rounded-3xl bg-rule md:grid-cols-3">
+            {otd.events.slice(0, 3).map((e) => (
+              <li key={e.slug} className="bg-base">
+                <Link href={`/events/${e.slug}`} className="group flex h-full flex-col p-7 hover:bg-raise">
+                  <span className="wdth-tight text-6xl font-bold tabular-nums" style={{ color: DIMENSIONS[e.dimension].color }}>{yearOf(e)}</span>
+                  <span className="mt-4 text-xl font-medium leading-snug group-hover:text-white">{e.title}</span>
+                  <span className="mt-3 font-serif text-[0.98rem] leading-relaxed text-dim line-clamp-3">{e.summary}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      <section className="mx-auto mt-32 max-w-[1240px] px-5 sm:px-8">
+        <div className="grid gap-10 md:grid-cols-[1fr_2fr]">
+          <div>
+            <h2 className="text-d-3 font-semibold">Threads across the decades</h2>
+            <p className="mt-4 max-w-sm font-serif text-lg leading-relaxed text-dim">
+              Follow one line of cause and consequence through a century or more.
+            </p>
+          </div>
+          <ul className="divide-y divide-rule border-y border-rule">
+            {c.threads.map((t) => {
+              const ys = t.steps.map((s) => c.events.find((e) => e.slug === s.event)).filter(Boolean).map((e) => yearOf(e!));
+              return (
+                <li key={t.slug}>
+                  <Link href={`/threads/${t.slug}`} className="group grid gap-2 py-7 sm:grid-cols-[1fr_auto] sm:items-baseline sm:gap-8">
+                    <span>
+                      <span className="block text-2xl font-semibold group-hover:text-mint">{t.title}</span>
+                      <span className="mt-1 block font-serif text-[1.05rem] text-dim">{t.dek}</span>
+                    </span>
+                    <span className="text-sm tabular-nums text-dim">{Math.min(...ys)} to {Math.max(...ys)}</span>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      </section>
+
+      <section className="mx-auto mt-32 max-w-[1240px] px-5 sm:px-8">
+        <div className="grid gap-8 rounded-[2rem] bg-raise p-8 sm:p-14 md:grid-cols-[1.3fr_1fr] md:items-center">
+          <div>
+            <h2 className="text-d-3 font-semibold">This week in Haitian history</h2>
+            <p className="mt-4 max-w-md font-serif text-lg leading-relaxed text-dim">
+              Every Sunday: three moments from the week ahead, from any century, and one thread worth following.
+            </p>
+          </div>
+          <NewsletterForm source="home" />
+        </div>
+      </section>
+    </>
+  );
+}

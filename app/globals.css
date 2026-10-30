@@ -1,0 +1,45 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root { color-scheme: dark; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: #0b2321;
+  color: #e7efea;
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: "ss01", "tnum";
+}
+
+::selection { background: #7fe0c2; color: #0b2321; }
+
+:focus-visible { outline: 2px solid #7fe0c2; outline-offset: 3px; border-radius: 6px; }
+
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { scrollbar-width: none; }
+
+/* Reading text */
+.read { font-family: "Newsreader Variable", Georgia, serif; font-size: 1.1875rem; line-height: 1.7; color: #d3ded8; max-width: 38em; }
+.read p + p { margin-top: 1em; }
+
+/* Small sentence-case label, used only where it carries information */
+.label { font-size: 0.8125rem; color: #8da79f; letter-spacing: 0.01em; }
+
+/* Display numerals breathe in variable width */
+.wdth-tight { font-stretch: 78%; }
+.wdth-wide { font-stretch: 100%; }
+
+.pill {
+  @apply inline-flex items-center gap-2 rounded-full border border-rule px-3.5 py-1.5 text-sm text-dim transition-colors;
+}
+.pill:hover { color: #e7efea; border-color: #3b6862; }
+.pill[data-on="true"] { @apply border-fg bg-fg text-base; }
+
+.btn { @apply inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-medium transition-colors; }
+.btn-solid { @apply bg-fg text-base hover:bg-white; }
+.btn-ghost { @apply border border-rule text-fg hover:border-dim; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}
