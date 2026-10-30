@@ -1,12 +1,14 @@
 "use client";
+import L from "@/components/L";
+import { useT } from "@/components/Prefs";
 import Link from "next/link";
 import { PersonLink } from "@/components/PersonModal";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { DIMENSIONS, STATUS_LABEL } from "@/lib/site";
-import type { Category, Dimension, EvidenceStatus } from "@/lib/types";
+import { DIMENSIONS } from "@/lib/site";
+import type { Category, Dimension, EventFr, EvidenceStatus } from "@/lib/types";
 
 type Item = {
-  slug: string; title: string; summary: string; year: number; label: string; location: string;
+  fr?: EventFr; labelFr?: string; slug: string; title: string; summary: string; year: number; label: string; location: string;
   dimension: Dimension; categories: string[]; countries: string[]; period: string; people: string[]; status: EvidenceStatus;
 };
 
@@ -14,7 +16,7 @@ type Props = {
   items: Item[];
   people: { slug: string; name: string; role: string }[];
   categories: Category[];
-  periods: { slug: string; label: string }[];
+  periods: { slug: string; label: string; labelFr?: string }[];
   countries: string[];
   initial: { q: string; category: string; country: string; period: string };
 };
@@ -22,6 +24,7 @@ type Props = {
 const norm = (s: string) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 
 export default function ExploreClient({ items, people, categories, periods, countries, initial }: Props) {
+  const t = useT();
   const [q, setQ] = useState(initial.q);
   const [dim, setDim] = useState<Dimension | "">("");
   const [category, setCategory] = useState(initial.category);
@@ -67,41 +70,41 @@ export default function ExploreClient({ items, people, categories, periods, coun
 
   return (
     <div>
-      <label htmlFor="q" className="sr-only">Search</label>
+      <label htmlFor="q" className="sr-only">{t("Search", "Recherche")}</label>
       <input
         id="q"
         ref={input}
         value={q}
         onChange={(e) => setQ(e.target.value)}
-        placeholder="A year, a name, a place…"
+        placeholder={t("A year, a name, a place…", "Une année, un nom, un lieu…")}
         type="search"
         enterKeyHint="search"
-        className="w-full rounded-none border-b-2 border-rule bg-transparent pb-3 text-d-3 font-semibold placeholder:text-dim/50 focus:border-fg focus:outline-none focus-visible:outline-none"
+        className="w-full rounded-none border-b-2 border-rule bg-transparent pb-3 text-xl placeholder:text-dim/50 focus:border-fg focus:outline-none focus-visible:outline-none"
       />
 
       <div className="mt-6 flex flex-wrap gap-2">
         {(Object.keys(DIMENSIONS) as Dimension[]).map((d) => (
           <button key={d} className="pill" data-on={dim === d} onClick={() => setDim(dim === d ? "" : d)}>
-            <span className="h-2 w-2 rounded-full" style={{ background: DIMENSIONS[d].color }} />{DIMENSIONS[d].label}
+            <span className="h-2 w-2 rounded-full" style={{ background: DIMENSIONS[d].color }} /><L en={DIMENSIONS[d].label} fr={DIMENSIONS[d].labelFr} />
           </button>
         ))}
       </div>
       <div className="mt-3 grid grid-cols-1 gap-2 sm:flex sm:flex-wrap">
-        <select aria-label="Subject" value={category} onChange={(e) => setCategory(e.target.value)} className={select}>
-          <option value="">Any subject</option>
-          {categories.map((c) => <option key={c.slug} value={c.slug}>{c.name}</option>)}
+        <select aria-label={t("Subject", "Thème")} value={category} onChange={(e) => setCategory(e.target.value)} className={select}>
+          <option value="">{t("Any subject", "Tout thème")}</option>
+          {categories.map((c) => <option key={c.slug} value={c.slug}>{t(c.name, c.nameFr)}</option>)}
         </select>
-        <select aria-label="Period" value={period} onChange={(e) => setPeriod(e.target.value)} className={select}>
-          <option value="">Any period</option>
-          {periods.map((p) => <option key={p.slug} value={p.slug}>{p.label}</option>)}
+        <select aria-label={t("Period", "Période")} value={period} onChange={(e) => setPeriod(e.target.value)} className={select}>
+          <option value="">{t("Any period", "Toute période")}</option>
+          {periods.map((p) => <option key={p.slug} value={p.slug}>{t(p.label, p.labelFr)}</option>)}
         </select>
-        <select aria-label="Country" value={country} onChange={(e) => setCountry(e.target.value)} className={select}>
-          <option value="">Any country</option>
+        <select aria-label={t("Country", "Pays")} value={country} onChange={(e) => setCountry(e.target.value)} className={select}>
+          <option value="">{t("Any country", "Tout pays")}</option>
           {countries.map((c) => <option key={c} value={c}>{c}</option>)}
         </select>
         {active && (
           <button className="h-11 px-3 text-left text-sm text-dim hover:text-fg sm:h-auto" onClick={() => { setQ(""); setDim(""); setCategory(""); setCountry(""); setPeriod(""); }}>
-            Clear all
+            <L en="Clear all" fr="Tout effacer" />
           </button>
         )}
       </div>
@@ -122,21 +125,21 @@ export default function ExploreClient({ items, people, categories, periods, coun
         {results.map((i) => (
           <li key={i.slug}>
             <Link href={`/events/${i.slug}`} className="group grid grid-cols-[4.5rem_1fr] gap-5 border-b border-rule py-5 sm:grid-cols-[6rem_1fr_auto] sm:items-baseline">
-              <span className="wdth-tight whitespace-nowrap text-3xl font-bold tabular-nums"><span className="mr-2 inline-block h-2 w-2 -translate-y-[0.3em] rounded-full align-middle" style={{ background: DIMENSIONS[i.dimension].color }} aria-hidden />{i.year}</span>
+              <span className="wdth-tight whitespace-nowrap text-2xl tabular-nums"><span className="mr-2 inline-block h-2 w-2 -translate-y-[0.3em] rounded-full align-middle" style={{ background: DIMENSIONS[i.dimension].color }} aria-hidden />{i.year}</span>
               <span className="min-w-0">
-                <span className="block text-lg font-medium leading-snug group-hover:text-dim">{i.title}</span>
-                <span className="mt-1 block font-serif text-[0.98rem] leading-relaxed text-dim line-clamp-2">{i.summary}</span>
+                <span className="block text-lg font-medium leading-snug group-hover:text-dim"><L en={i.title} fr={i.fr?.title} /></span>
+                <span className="mt-1 block text-[0.95rem] leading-relaxed text-dim line-clamp-2"><L en={i.summary} fr={i.fr?.summary} /></span>
               </span>
               <span className="col-start-2 text-sm text-dim sm:col-start-auto">
-                {i.status !== "documented" ? <span className="status-note">{STATUS_LABEL[i.status]}</span> : i.location}
+                {i.location}
               </span>
             </Link>
           </li>
         ))}
       </ul>
       {results.length === 0 && (
-        <p className="mt-10 max-w-lg font-serif text-lg text-dim">
-          Nothing matches yet. Try a broader word, remove a filter, or browse a decade from the home page.
+        <p className="mt-10 max-w-lg text-lg text-dim">
+          <L en="Nothing matches yet. Try a broader word, remove a filter, or browse a decade from the home page." fr="Rien ne correspond pour l’instant. Essayez un mot plus large, retirez un filtre ou parcourez une décennie depuis l’accueil." />
         </p>
       )}
     </div>

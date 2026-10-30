@@ -10,6 +10,8 @@ export interface Category {
   slug: string;
   name: string;
   short: string;
+  nameFr?: string;
+  shortFr?: string;
 }
 
 export interface Period {
@@ -23,12 +25,14 @@ export interface Period {
   legacy?: string;
   researchNote?: string; // transparent note when coverage is thin
   essay?: EssayBlock[];
+  fr?: { label?: string; title?: string; overview?: string; legacy?: string };
   biblio?: string[]; // further reading, shown only at the bottom of the page
   notes?: Partial<Record<string, string>>; // short note per subject (area slug); "next" leads into the following decade
 }
 
 /** One block of a decade essay. Years in `year` headings become anchors linked from the timeline. */
-export type EssayBlock =
+export type EssayBlock = EssayBlockBase & { fr?: { text?: string; title?: string; label?: string; items?: string[]; caption?: string; alt?: string } };
+type EssayBlockBase =
   | { type: "year"; year: string; title: string }
   | { type: "section"; n?: string; title: string }
   | { type: "sub"; title: string }
@@ -45,7 +49,11 @@ export interface Source {
   url?: string;
 }
 
+/** French text for a moment, where it has been translated. */
+export interface EventFr { title?: string; summary?: string; context?: string; causes?: string; consequences?: string; location?: string }
+
 export interface HistEvent {
+  fr?: EventFr;
   slug: string;
   title: string;
   date: string; // ISO "1825-04-17" or "1928" for year precision
@@ -66,6 +74,7 @@ export interface HistEvent {
 }
 
 export interface Person {
+  fr?: { bio?: string; roles?: string[] };
   slug: string;
   name: string;
   born?: string;

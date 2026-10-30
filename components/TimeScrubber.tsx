@@ -1,10 +1,12 @@
 "use client";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import L from "@/components/L";
+import { useT } from "@/components/Prefs";
 import { DIMENSIONS } from "@/lib/site";
 import type { Dimension } from "@/lib/types";
 
-type Pt = { slug: string; title: string; year: number; label: string; location: string; dimension: Dimension; period: string; periodLabel: string };
+type Pt = { titleFr?: string; labelFr?: string; slug: string; title: string; year: number; label: string; location: string; dimension: Dimension; period: string; periodLabel: string };
 
 const MIN = 1490;
 const MAX = 2030;
@@ -12,6 +14,7 @@ const START = 1804;
 
 /** The hero: a giant year you can drag through five centuries. */
 export default function TimeScrubber({ points }: { points: Pt[] }) {
+  const t = useT();
   const [year, setYear] = useState(MIN + 2);
   const [dragging, setDragging] = useState(false);
   const track = useRef<HTMLDivElement>(null);
@@ -59,7 +62,7 @@ export default function TimeScrubber({ points }: { points: Pt[] }) {
   return (
     <div className="select-none">
       {/* The year */}
-      <p className="wdth-tight -ml-[0.04em] font-display text-d-0 font-extrabold tabular-nums" aria-live="polite" aria-atomic>
+      <p className="wdth-tight -ml-[0.04em] text-d-0 tabular-nums" aria-live="polite" aria-atomic>
         {year}
       </p>
 
@@ -68,7 +71,7 @@ export default function TimeScrubber({ points }: { points: Pt[] }) {
         ref={track}
         role="slider"
         tabIndex={0}
-        aria-label="Choose a year"
+        aria-label={t("Choose a year", "Choisir une année")}
         aria-valuemin={MIN}
         aria-valuemax={MAX}
         aria-valuenow={year}
@@ -106,16 +109,16 @@ export default function TimeScrubber({ points }: { points: Pt[] }) {
         <div className="min-h-[7.5rem]">
           <p className="flex items-center gap-2 text-sm text-dim">
             <span className="h-2 w-2 rounded-full" style={{ background: DIMENSIONS[nearest.dimension].color }} />
-            {nearest.label}, {nearest.location}
+            <L en={nearest.label} fr={nearest.labelFr} />, {nearest.location}
           </p>
-          <p className="mt-2 max-w-2xl text-d-4 font-semibold">{nearest.title}</p>
+          <p className="mt-2 max-w-2xl text-d-4 font-semibold"><L en={nearest.title} fr={nearest.titleFr} /></p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Link href={`/events/${nearest.slug}`} className="btn btn-solid">Read this moment</Link>
-          <Link href={`/decades/${nearest.period}`} className="btn btn-ghost">Open {nearest.periodLabel}</Link>
+          <Link href={`/events/${nearest.slug}`} className="btn btn-solid"><L en="Read this moment" fr="Lire ce moment" /></Link>
+          <Link href={`/decades/${nearest.period}`} className="btn btn-ghost"><L en="Open" fr="Ouvrir" /> {nearest.periodLabel}</Link>
         </div>
       </div>
-      <p className="mt-6 text-sm text-dim">Drag the line, or use the arrow keys. Shift jumps a decade.</p>
+      <p className="mt-6 text-sm text-dim"><L en="Drag the line, or use the arrow keys. Shift jumps a decade." fr="Faites glisser la ligne ou utilisez les flèches. Maj saute une décennie." /></p>
     </div>
   );
 }

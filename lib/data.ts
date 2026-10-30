@@ -91,6 +91,15 @@ export function formatDate(e: HistEvent) {
   return e.precision === "circa" ? `c. ${s}` : s;
 }
 
+export function formatDateFr(e: HistEvent) {
+  const [y, m, d] = e.date.split("-").map(Number);
+  const months = ["janvier","février","mars","avril","mai","juin","juillet","août","septembre","octobre","novembre","décembre"];
+  if (e.precision === "year" || !m) return e.precision === "circa" ? `vers ${y}` : String(y);
+  if (e.precision === "month" || !d) return `${months[m - 1]} ${y}`;
+  const s = `${d === 1 ? "1er" : d} ${months[m - 1]} ${y}`;
+  return e.precision === "circa" ? `vers ${s}` : s;
+}
+
 export function eventsInPeriod(c: Content, p: Period) {
   return sortEvents(c.events.filter((e) => periodFor(e, c.periods)?.slug === p.slug));
 }

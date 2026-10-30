@@ -1,8 +1,11 @@
 "use client";
+import L from "@/components/L";
+import { useT } from "@/components/Prefs";
 import { useEffect, useState } from "react";
 import { CONTRIBUTION_KINDS } from "@/lib/site";
 
 export default function ContributeForm() {
+  const t = useT();
   const [kind, setKind] = useState<string>("");
   const [page, setPage] = useState("");
   const [message, setMessage] = useState("");
@@ -23,7 +26,7 @@ export default function ContributeForm() {
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    if (!kind) { setState("error"); setError("Choose what you're sending."); return; }
+    if (!kind) { setState("error"); setError(t("Choose what you're sending.", "Choisissez ce que vous envoyez.")); return; }
     setState("sending");
     try {
       const r = await fetch("/api/contribute", {
@@ -32,22 +35,22 @@ export default function ContributeForm() {
         body: JSON.stringify({ kind, page, message, name, email, website }),
       });
       const j = await r.json();
-      if (!r.ok) throw new Error(j.error || "Something went wrong. Try again.");
+      if (!r.ok) throw new Error(j.error || t("Something went wrong. Try again.", "Une erreur s’est produite. Réessayez."));
       setState("sent");
     } catch (err: unknown) {
       setState("error");
-      setError(err instanceof Error ? err.message : "Something went wrong. Try again.");
+      setError(err instanceof Error ? err.message : t("Something went wrong. Try again.", "Une erreur s’est produite. Réessayez."));
     }
   }
 
   if (state === "sent") {
     return (
       <div className="rounded-[2rem] bg-raise p-8 sm:p-12">
-        <p className="text-d-4 font-semibold">Mèsi. We received it.</p>
+        <p className="text-d-4"><L en="Mèsi. We received it." fr="Mèsi. Nous l’avons reçu." /></p>
         <p className="mt-2 max-w-lg text-dim">
-          We read everything. If you left your email and we use what you sent, we&apos;ll let you know.
+          <L en="We read everything. If you left your email and we use what you sent, we’ll let you know." fr="Nous lisons tout. Si vous avez laissé votre courriel et que nous utilisons ce que vous avez envoyé, nous vous le dirons." />
         </p>
-        <button onClick={() => { setState("idle"); setMessage(""); setKind(""); setPage(""); }} className="btn btn-ghost mt-6">Send something else</button>
+        <button onClick={() => { setState("idle"); setMessage(""); setKind(""); setPage(""); }} className="btn btn-ghost mt-6"><L en="Send something else" fr="Envoyer autre chose" /></button>
       </div>
     );
   }
@@ -58,14 +61,14 @@ export default function ContributeForm() {
   return (
     <form onSubmit={submit} className="max-w-2xl space-y-8" noValidate>
       <fieldset>
-        <legend className="text-lg font-semibold">What are you sending?</legend>
+        <legend className="text-lg"><L en="What are you sending?" fr="Que nous envoyez-vous ?" /></legend>
         <div className="mt-4 grid gap-2 sm:grid-cols-2">
           {CONTRIBUTION_KINDS.map((k) => (
             <label key={k.value} className={`flex cursor-pointer gap-3 rounded-2xl border p-4 transition-colors ${kind === k.value ? "border-fg bg-raise" : "border-rule hover:border-dim"}`}>
-              <input type="radio" name="kind" value={k.value} checked={kind === k.value} onChange={() => setKind(k.value)} className="mt-1 accent-black" />
+              <input type="radio" name="kind" value={k.value} checked={kind === k.value} onChange={() => setKind(k.value)} className="mt-1 accent-[rgb(var(--fg))]" />
               <span>
-                <span className="block font-medium">{k.label}</span>
-                <span className="block text-sm text-dim">{k.hint}</span>
+                <span className="block font-medium"><L en={k.label} fr={k.labelFr} /></span>
+                <span className="block text-sm text-dim"><L en={k.hint} fr={k.hintFr} /></span>
               </span>
             </label>
           ))}
@@ -73,23 +76,23 @@ export default function ContributeForm() {
       </fieldset>
 
       <div>
-        <label htmlFor="c-message" className="text-lg font-semibold">Your message</label>
-        <p className="mt-1 text-sm text-dim">{active ? active.hint : "Include dates, names and where you learned it, if you can."}</p>
-        <textarea id="c-message" required rows={7} value={message} onChange={(e) => setMessage(e.target.value)} className={`${field} mt-3 resize-y font-serif text-[1.05rem] leading-relaxed`} />
+        <label htmlFor="c-message" className="text-lg"><L en="Your message" fr="Votre message" /></label>
+        <p className="mt-1 text-sm text-dim">{active ? <L en={active.hint} fr={active.hintFr} /> : <L en="Include dates, names and where you learned it, if you can." fr="Indiquez les dates, les noms et où vous l’avez appris, si possible." />}</p>
+        <textarea id="c-message" required rows={7} value={message} onChange={(e) => setMessage(e.target.value)} className={`${field} mt-3 resize-y leading-relaxed`} />
       </div>
 
       <div>
-        <label htmlFor="c-page" className="font-medium">Which page is this about? <span className="font-normal text-dim">Optional</span></label>
-        <input id="c-page" value={page} onChange={(e) => setPage(e.target.value)} placeholder="For example, the 1920s or a link" className={`${field} mt-2`} />
+        <label htmlFor="c-page" className="font-medium"><L en="Which page is this about?" fr="De quelle page s’agit-il ?" /> <span className="font-normal text-dim"><L en="Optional" fr="Facultatif" /></span></label>
+        <input id="c-page" value={page} onChange={(e) => setPage(e.target.value)} placeholder={t("For example, the 1920s or a link", "Par exemple, les années 1920 ou un lien")} className={`${field} mt-2`} />
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <label htmlFor="c-name" className="font-medium">Name <span className="font-normal text-dim">Optional</span></label>
+          <label htmlFor="c-name" className="font-medium"><L en="Name" fr="Nom" /> <span className="font-normal text-dim"><L en="Optional" fr="Facultatif" /></span></label>
           <input id="c-name" value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" className={`${field} mt-2`} />
         </div>
         <div>
-          <label htmlFor="c-email" className="font-medium">Email <span className="font-normal text-dim">Optional, for follow-up</span></label>
+          <label htmlFor="c-email" className="font-medium"><L en="Email" fr="Courriel" /> <span className="font-normal text-dim"><L en="Optional, for follow-up" fr="Facultatif, pour le suivi" /></span></label>
           <input id="c-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" className={`${field} mt-2`} />
         </div>
       </div>
@@ -102,8 +105,8 @@ export default function ContributeForm() {
       {state === "error" && <p className="font-medium" role="alert">{error}</p>}
 
       <div className="flex flex-wrap items-center gap-4">
-        <button disabled={state === "sending"} className="btn btn-solid disabled:opacity-60">{state === "sending" ? "Sending…" : "Send contribution"}</button>
-        <p className="text-sm text-dim">We never publish your name or email without asking.</p>
+        <button disabled={state === "sending"} className="btn btn-solid disabled:opacity-60">{state === "sending" ? <L en="Sending…" fr="Envoi…" /> : <L en="Send contribution" fr="Envoyer la contribution" />}</button>
+        <p className="text-sm text-dim"><L en="We never publish your name or email without asking." fr="Nous ne publions jamais votre nom ni votre courriel sans vous le demander." /></p>
       </div>
     </form>
   );

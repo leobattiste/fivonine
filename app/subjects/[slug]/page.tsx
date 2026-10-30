@@ -1,9 +1,11 @@
 import Link from "next/link";
+import L from "@/components/L";
+import { dateNode } from "@/components/dates";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import ShareButton from "@/components/ShareButton";
 import { eventsInPeriod, formatDate, getContent, yearOf } from "@/lib/data";
-import { DIMENSIONS, STATUS_LABEL } from "@/lib/site";
+import { DIMENSIONS } from "@/lib/site";
 
 export const revalidate = 3600;
 
@@ -32,22 +34,22 @@ export default async function SubjectPage({ params }: { params: Promise<{ slug: 
   return (
     <div className="mx-auto max-w-[1240px] px-5 pt-8 sm:px-8">
       <div className="flex items-center justify-between text-sm text-dim">
-        <Link href="/subjects" className="hover:text-fg">All subjects</Link>
+        <Link href="/subjects" className="hover:text-fg"><L en="All subjects" fr="Tous les thèmes" /></Link>
         <ShareButton title={`${cat.name} in Haitian history`} path={`/subjects/${slug}`} />
       </div>
-      <h1 className="mt-8 max-w-4xl text-d-2 font-extrabold">{cat.name}</h1>
+      <h1 className="mt-8 max-w-4xl text-d-2"><L en={cat.name} fr={cat.nameFr} /></h1>
       <p className="read mt-4">
         {chapters.length
-          ? `Traced through ${chapters.length} ${chapters.length === 1 ? "period" : "periods"} so far, from the earliest record to today.`
-          : "No moments recorded for this subject yet."}
+          ? <L en={`Traced through ${chapters.length} ${chapters.length === 1 ? "period" : "periods"} so far, from the earliest record to today.`} fr={`Suivi à travers ${chapters.length} ${chapters.length === 1 ? "période" : "périodes"} jusqu’ici, des plus anciens témoignages à aujourd’hui.`} />
+          : <L en="No moments recorded for this subject yet." fr="Aucun moment enregistré pour ce thème pour l’instant." />}
       </p>
 
       <div className="mt-12">
         {chapters.map(({ p, note, evs }) => (
           <section key={p.slug} className="grid gap-4 border-t border-rule py-10 lg:grid-cols-[14rem_1fr] lg:gap-10">
             <div>
-              <Link href={`/decades/${p.slug}?subject=${slug}`} className="wdth-tight text-4xl font-bold hover:text-dim">
-                {p.kind === "decade" ? `${p.start}s` : p.label}
+              <Link href={`/decades/${p.slug}?subject=${slug}`} className="wdth-tight text-3xl hover:text-dim">
+                {p.kind === "decade" ? `${p.start}s` : <L en={p.label} fr={p.fr?.label} />}
               </Link>
             </div>
             <div className="min-w-0">
@@ -57,15 +59,14 @@ export default async function SubjectPage({ params }: { params: Promise<{ slug: 
                   {evs.map((e) => (
                     <li key={e.slug}>
                       <Link href={`/events/${e.slug}`} className="group grid grid-cols-[4.25rem_1fr] items-baseline gap-4 border-b border-rule py-3">
-                        <span className="wdth-tight whitespace-nowrap text-xl font-bold tabular-nums">
+                        <span className="wdth-tight whitespace-nowrap text-base tabular-nums">
                           <span className="mr-1.5 inline-block h-1.5 w-1.5 -translate-y-[0.25em] rounded-full" style={{ background: DIMENSIONS[e.dimension].color }} aria-hidden />
                           {yearOf(e)}
                         </span>
                         <span>
-                          <span className="block font-medium group-hover:text-dim">{e.title}</span>
+                          <span className="block font-medium group-hover:text-dim"><L en={e.title} fr={e.fr?.title} /></span>
                           <span className="block text-sm text-dim">
-                            {formatDate(e)}, {e.location}
-                            {e.status !== "documented" && <span className="status-note ml-2">{STATUS_LABEL[e.status]}</span>}
+                            {dateNode(e)}, {e.location}
                           </span>
                         </span>
                       </Link>
@@ -79,9 +80,9 @@ export default async function SubjectPage({ params }: { params: Promise<{ slug: 
       </div>
 
       <section className="mt-16 border-t border-rule pt-10">
-        <h2 className="text-lg font-semibold">Other subjects</h2>
+        <h2 className="text-lg"><L en="Other subjects" fr="Autres thèmes" /></h2>
         <div className="mt-4 flex flex-wrap gap-2">
-          {others.map((o) => <Link key={o.slug} href={`/subjects/${o.slug}`} className="pill">{o.name}</Link>)}
+          {others.map((o) => <Link key={o.slug} href={`/subjects/${o.slug}`} className="pill"><L en={o.name} fr={o.nameFr} /></Link>)}
         </div>
       </section>
     </div>

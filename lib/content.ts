@@ -3,7 +3,9 @@ import { subjectNotes } from "./answers";
 import { moreEvents, morePeople } from "./events-more";
 import { yearEvents, yearPeople } from "./events-years";
 import { essays } from "./essays";
+import { periodsFr } from "./fr/periods";
 import { events1790s, people1790s, essay1790s, notes1790s, biblio1790s } from "./decade-1790s";
+import { events1790sFr, people1790sFr, essay1790sFr } from "./fr/decade-1790s";
 import { indigenousChapter } from "./chapter-indigenous";
 import { chaptersA, eventsA } from "./chapters-a";
 import { chaptersB, eventsB, periodInfoB } from "./chapters-b";
@@ -137,7 +139,8 @@ export const periods: Period[] = [
   for (const p of periods) {
     if (subjectNotes[p.slug]) p.notes = subjectNotes[p.slug];
     if (essays[p.slug]) p.essay = essays[p.slug];
-    if (p.slug === "1790s") { p.essay = essay1790s; p.biblio = biblio1790s; p.notes = { ...p.notes, ...notes1790s }; }
+    if (periodsFr[p.slug]) p.fr = { ...(p.kind === "decade" ? { label: `Les années ${p.start}` } : {}), ...periodsFr[p.slug] };
+    if (p.slug === "1790s") { p.essay = essay1790s.map((b, i) => (essay1790sFr[i] ? { ...b, fr: essay1790sFr[i] } : b) as typeof b); p.biblio = biblio1790s; p.notes = { ...p.notes, ...notes1790s }; }
     if (p.slug === "indigenous-ayiti") p.essay = indigenousChapter;
     const chapter = chaptersA[p.slug] ?? chaptersB[p.slug] ?? chaptersC[p.slug];
     if (chapter && !p.essay) p.essay = chapter;
@@ -889,6 +892,9 @@ export const people: Person[] = [
 // Merge the second batch, newest additions last; pages sort chronologically.
 events.push(...moreEvents, ...yearEvents, ...events1790s, ...eventsA, ...eventsB, ...eventsC);
 people.push(...morePeople, ...yearPeople, ...people1790s);
+
+for (const e of events) if (events1790sFr[e.slug]) e.fr = { ...e.fr, ...events1790sFr[e.slug] };
+for (const pe of people) if (people1790sFr[pe.slug]) pe.fr = { ...pe.fr, ...people1790sFr[pe.slug] };
 
 // File every moment under the 10 sections, and merge decade notes the same way.
 const sectionedEvents = events.map(toSections);

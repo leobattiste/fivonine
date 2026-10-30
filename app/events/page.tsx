@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
+import L from "@/components/L";
 import HistoryTimeline from "@/components/HistoryTimeline";
-import { formatDate, getContent, periodFor, sortEvents, yearOf } from "@/lib/data";
+import { formatDate, formatDateFr, getContent, periodFor, sortEvents, yearOf } from "@/lib/data";
 
 export const metadata: Metadata = { title: "Events", description: "Every recorded moment in Haitian history, on one timeline from 1492 to today." };
 export const revalidate = 3600;
@@ -10,18 +11,18 @@ export default async function EventsPage() {
   const items = sortEvents(c.events).map((e) => {
     const p = periodFor(e, c.periods);
     return {
-      slug: e.slug, title: e.title, summary: e.summary, label: formatDate(e), year: yearOf(e), location: e.location,
+      slug: e.slug, title: e.title, summary: e.summary, fr: e.fr, label: formatDate(e), labelFr: formatDateFr(e), year: yearOf(e), location: e.location,
       dimension: e.dimension, categories: e.categories, status: e.status,
-      period: p?.slug ?? "", periodLabel: p ? (p.kind === "decade" ? `${p.start}s` : p.label) : "",
+      period: p?.slug ?? "", periodLabel: p ? (p.kind === "decade" ? `${p.start}s` : p.label) : "", periodLabelFr: p?.fr?.label,
     };
   });
   const first = items[0]?.year;
 
   return (
     <div className="mx-auto max-w-[1240px] px-5 pt-10 sm:px-8 sm:pt-12">
-      <h1 className="text-d-2 font-extrabold">Events</h1>
+      <h1 className="text-d-2"><L en="Events" fr="Événements" /></h1>
       <p className="read mt-4">
-        Every moment recorded so far, from {first} to today, on one timeline. Pick a subject to follow it through the centuries.
+        <L en={`Every moment recorded so far, from ${first} to today, on one timeline. Pick a subject to follow it through the centuries.`} fr={`Tous les moments enregistrés jusqu’ici, de ${first} à aujourd’hui, sur une seule frise. Choisissez un thème pour le suivre à travers les siècles.`} />
       </p>
       <div className="mt-10"><HistoryTimeline items={items} categories={c.categories} /></div>
     </div>

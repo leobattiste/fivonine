@@ -1,4 +1,5 @@
 "use client";
+import L from "@/components/L";
 import { useState } from "react";
 
 export default function ShareButton({ title, path, text }: { title: string; path: string; text?: string }) {
@@ -30,14 +31,14 @@ export default function ShareButton({ title, path, text }: { title: string; path
     <div className="relative inline-block">
       <button onClick={share} className="btn btn-ghost">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7M16 6l-4-4-4 4M12 2v14" /></svg>
-        Share
+        <L en="Share" fr="Partager" />
       </button>
       {open && (
-        <div className="absolute right-0 z-30 mt-2 w-52 overflow-hidden rounded-xl border border-rule bg-raise text-sm shadow-2xl shadow-black/40">
+        <div className="absolute right-0 z-30 mt-2 w-52 overflow-hidden rounded-xl border border-rule bg-raise text-sm shadow-2xl shadow-black/20">
           <a className="block px-4 py-2.5 hover:bg-lift" target="_blank" rel="noreferrer" href={`https://wa.me/?text=${enc(`${msg} ${url()}`)}`}>WhatsApp</a>
           <a className="block px-4 py-2.5 hover:bg-lift" target="_blank" rel="noreferrer" href={`https://twitter.com/intent/tweet?text=${enc(msg)}&url=${enc(url())}`}>X / Twitter</a>
           <a className="block px-4 py-2.5 hover:bg-lift" target="_blank" rel="noreferrer" href={`https://www.facebook.com/sharer/sharer.php?u=${enc(url())}`}>Facebook</a>
-          <button className="block w-full px-4 py-2.5 text-left hover:bg-lift" onClick={copy}>{copied ? "Link copied" : "Copy link"}</button>
+          <button className="block w-full px-4 py-2.5 text-left hover:bg-lift" onClick={copy}>{copied ? <L en="Link copied" fr="Lien copié" /> : <L en="Copy link" fr="Copier le lien" />}</button>
         </div>
       )}
     </div>

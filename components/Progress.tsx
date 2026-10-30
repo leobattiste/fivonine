@@ -1,4 +1,5 @@
 "use client";
+import L from "@/components/L";
 import { useEffect, useState } from "react";
 
 const KEY = "fivonine:explored";
@@ -27,11 +28,11 @@ export function JourneyMeter({ total }: { total: number }) {
     setDone(d);
     for (const s of d) document.querySelectorAll(`[data-period="${s}"]`).forEach((el) => el.setAttribute("data-explored", "true"));
   }, []);
-  if (!done || done.length === 0) return <p className="max-w-xs text-sm text-dim">Start anywhere. The periods you open are remembered on this device.</p>;
+  if (!done || done.length === 0) return <p className="max-w-xs text-sm text-dim"><L en="Start anywhere. The periods you open are remembered on this device." fr="Commencez où vous voulez. Les périodes que vous ouvrez sont mémorisées sur cet appareil." /></p>;
   const pct = Math.round((done.length / total) * 100);
   return (
     <div className="max-w-sm">
-      <div className="flex justify-between gap-6 text-sm"><span>You've explored {done.length} of {total} periods</span><span className="tabular-nums text-dim">{pct}%</span></div>
+      <div className="flex justify-between gap-6 text-sm"><span><L en={`You've explored ${done.length} of ${total} periods`} fr={`Vous avez exploré ${done.length} périodes sur ${total}`} /></span><span className="tabular-nums text-dim">{pct}%</span></div>
       <div className="mt-2 h-1 w-64 overflow-hidden rounded-full bg-raise">
         <div className="h-full rounded-full bg-fg" style={{ width: `${pct}%` }} />
       </div>
