@@ -23,9 +23,9 @@ export default function Strata({ c }: { c: Content }) {
             <Link
               href={`/decades/${p.slug}`}
               data-period={p.slug}
-              className={`group grid grid-cols-[6.5rem_1fr] items-center gap-x-5 gap-y-3 border-b border-rule py-5 transition-colors hover:bg-raise sm:grid-cols-[11rem_1fr_14rem] sm:px-4 ${empty ? "text-dim" : ""}`}
+              className={`group grid grid-cols-[5.75rem_minmax(0,1fr)] items-center gap-x-4 gap-y-3 border-b border-rule py-5 transition-colors hover:bg-raise sm:grid-cols-[11rem_1fr_14rem] sm:px-4 ${empty ? "text-dim" : ""}`}
             >
-              <span className={`wdth-tight font-display font-bold tabular-nums tracking-tight ${p.kind === "era" ? "text-lg leading-tight sm:text-2xl" : "text-[2rem] leading-none sm:text-[3.4rem]"}`}>
+              <span className={`wdth-tight font-display font-bold tabular-nums tracking-tight ${p.kind === "era" ? "text-base leading-tight sm:text-2xl" : "text-[1.9rem] leading-none sm:text-[3.4rem]"}`}>
                 {p.kind === "decade" ? `${p.start}s` : p.label}
               </span>
               <span className="min-w-0">

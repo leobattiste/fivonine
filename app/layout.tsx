@@ -5,6 +5,7 @@ import "@fontsource-variable/newsreader/opsz.css";
 import "@fontsource-variable/newsreader/opsz-italic.css";
 import "./globals.css";
 import { SITE } from "@/lib/site";
+import MobileTabBar from "@/components/MobileTabBar";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),
@@ -14,29 +15,30 @@ export const metadata: Metadata = {
   twitter: { card: "summary_large_image" },
 };
 
-export const viewport: Viewport = { themeColor: "#FFFFFF", width: "device-width", initialScale: 1 };
+export const viewport: Viewport = { themeColor: "#FFFFFF", width: "device-width", initialScale: 1, viewportFit: "cover" };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className="min-h-screen font-display">
+      <body className="min-h-screen pb-[calc(4rem+env(safe-area-inset-bottom))] font-display sm:pb-0">
         <header className="sticky top-0 z-40 bg-base/80 backdrop-blur-md">
-          <nav className="mx-auto flex max-w-[1240px] items-center justify-between px-5 py-4 sm:px-8">
+          <nav className="mx-auto flex h-[60px] max-w-[1240px] items-center justify-between px-4 sm:px-8">
             <Link href="/" className="flex items-center gap-2.5 text-[1.05rem] font-semibold tracking-tight">
               <Mark /> Fivonine
             </Link>
-            <div className="flex items-center gap-1 text-sm text-dim">
-              <Link href="/decades" className="rounded-full px-3 py-1.5 hover:text-fg">Decades</Link>
-              <Link href="/threads" className="rounded-full px-3 py-1.5 hover:text-fg">Threads</Link>
-              <Link href="/explore" className="ml-1 flex items-center gap-2 rounded-full border border-rule px-3.5 py-1.5 text-fg hover:border-dim">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></svg>
-                Search
+            <div className="flex items-center text-sm text-dim">
+              <Link href="/decades" className="hidden rounded-full px-3 py-2 hover:text-fg sm:block">Decades</Link>
+              <Link href="/threads" className="hidden rounded-full px-3 py-2 hover:text-fg sm:block">Threads</Link>
+              <Link href="/explore" aria-label="Search" className="ml-1 hidden h-10 w-10 place-items-center rounded-full border border-rule text-fg hover:border-fg sm:flex sm:h-auto sm:w-auto sm:gap-2 sm:px-3.5 sm:py-1.5">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></svg>
+                <span className="hidden sm:inline">Search</span>
               </Link>
             </div>
           </nav>
         </header>
         <main>{children}</main>
-        <footer className="mt-32 border-t border-rule">
+        <MobileTabBar />
+        <footer className="mt-24 border-t border-rule sm:mt-32">
           <div className="mx-auto grid max-w-[1240px] gap-10 px-5 py-14 sm:grid-cols-[1.2fr_1fr_auto] sm:px-8">
             <div>
               <p className="flex items-center gap-2.5 font-semibold"><Mark /> Fivonine</p>

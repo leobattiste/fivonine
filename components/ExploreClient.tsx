@@ -62,7 +62,7 @@ export default function ExploreClient({ items, people, categories, periods, coun
   const personHits = terms.length ? people.filter((p) => terms.every((t) => norm(p.name + " " + p.role).includes(t))) : [];
   const active = Boolean(q || dim || category || country || period);
 
-  const select = "rounded-full border border-rule bg-base px-4 py-2 text-sm text-fg outline-none focus:border-fg";
+  const select = "h-11 rounded-full border border-rule bg-base px-4 text-base text-fg outline-none focus:border-fg sm:h-auto sm:py-2 sm:text-sm";
 
   return (
     <div>
@@ -72,9 +72,10 @@ export default function ExploreClient({ items, people, categories, periods, coun
         ref={input}
         value={q}
         onChange={(e) => setQ(e.target.value)}
-        placeholder="Search a year, a name, a place…"
-        autoFocus
-        className="w-full border-b border-rule bg-transparent pb-4 text-d-3 font-semibold outline-none placeholder:text-rule focus:border-fg"
+        placeholder="A year, a name, a place…"
+        type="search"
+        enterKeyHint="search"
+        className="w-full rounded-none border-b-2 border-rule bg-transparent pb-3 text-d-3 font-semibold placeholder:text-dim/50 focus:border-fg focus:outline-none focus-visible:outline-none"
       />
 
       <div className="mt-6 flex flex-wrap gap-2">
@@ -84,7 +85,7 @@ export default function ExploreClient({ items, people, categories, periods, coun
           </button>
         ))}
       </div>
-      <div className="mt-3 flex flex-wrap gap-2">
+      <div className="mt-3 grid grid-cols-1 gap-2 sm:flex sm:flex-wrap">
         <select aria-label="Subject" value={category} onChange={(e) => setCategory(e.target.value)} className={select}>
           <option value="">Any subject</option>
           {categories.map((c) => <option key={c.slug} value={c.slug}>{c.name}</option>)}
@@ -98,7 +99,7 @@ export default function ExploreClient({ items, people, categories, periods, coun
           {countries.map((c) => <option key={c} value={c}>{c}</option>)}
         </select>
         {active && (
-          <button className="px-3 text-sm text-dim hover:text-fg" onClick={() => { setQ(""); setDim(""); setCategory(""); setCountry(""); setPeriod(""); }}>
+          <button className="h-11 px-3 text-left text-sm text-dim hover:text-fg sm:h-auto" onClick={() => { setQ(""); setDim(""); setCategory(""); setCountry(""); setPeriod(""); }}>
             Clear all
           </button>
         )}

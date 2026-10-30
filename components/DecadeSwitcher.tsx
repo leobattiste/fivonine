@@ -63,7 +63,7 @@ function ArrowLink({ href, label, dir }: { href?: string; label: string; dir: "l
       <path d={dir === "left" ? "M10 3 5 8l5 5" : "m6 3 5 5-5 5"} fill="none" stroke="currentColor" strokeWidth="1.8" />
     </svg>
   );
-  const cls = "grid h-9 w-9 shrink-0 place-items-center rounded-full border border-rule";
+  const cls = "grid h-10 w-10 shrink-0 place-items-center rounded-full border border-rule";
   return href ? (
     <Link href={href} aria-label={label} title={label} className={`${cls} hover:border-fg`}>{icon}</Link>
   ) : (

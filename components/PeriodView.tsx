@@ -28,7 +28,7 @@ export default function PeriodView({ events, categories, start, end, isDecade }:
   }, [filtered, isDecade, start, end]);
 
   return (
-    <div className="grid gap-10 lg:grid-cols-[15rem_1fr]">
+    <div className="grid grid-cols-[minmax(0,1fr)] gap-10 lg:grid-cols-[15rem_minmax(0,1fr)]">
       {/* Controls */}
       <div className="lg:self-start">
         <p className="label">Show</p>

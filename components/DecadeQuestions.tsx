@@ -19,9 +19,9 @@ export default function DecadeQuestions({ period, next, events, categories }: Pr
   const areaName = (slug: string) => categories.find((c) => c.slug === slug)?.name ?? slug;
 
   return (
-    <div className="grid gap-12 lg:grid-cols-[15rem_1fr]">
+    <div className="grid grid-cols-[minmax(0,1fr)] gap-10 lg:grid-cols-[15rem_minmax(0,1fr)] lg:gap-12">
       {/* Question index */}
-      <nav aria-label="Questions" className="lg:sticky lg:top-36 lg:self-start">
+      <nav aria-label="Questions" className="min-w-0 lg:sticky lg:top-36 lg:self-start">
         <p className="label">{answered} of {QUESTIONS.length} questions answered so far</p>
         <ol className="no-scrollbar -mx-5 mt-3 flex gap-2 overflow-x-auto px-5 lg:mx-0 lg:flex-col lg:gap-0.5 lg:overflow-visible lg:px-0">
           {sections.map(({ q, has }) => (

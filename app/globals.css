@@ -6,6 +6,7 @@
 html { scroll-behavior: smooth; }
 
 body {
+  -webkit-tap-highlight-color: transparent;
   background: #ffffff;
   color: #0a0a0a;
   -webkit-font-smoothing: antialiased;
