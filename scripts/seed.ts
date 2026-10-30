@@ -28,6 +28,7 @@ async function main() {
     slug: p.slug, kind: p.kind, label: p.label, start_year: p.start, end_year: p.end,
     title: p.title, overview: p.overview, legacy: p.legacy ?? null, research_note: p.researchNote ?? null,
     notes: p.notes ?? {},
+    essay: p.essay ?? null,
   })));
   await up("people", people);
   await up("events", events.map((e) => ({

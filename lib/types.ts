@@ -22,8 +22,22 @@ export interface Period {
   overview: string;
   legacy?: string;
   researchNote?: string; // transparent note when coverage is thin
+  essay?: EssayBlock[];
   notes?: Partial<Record<string, string>>; // short note per subject (area slug); "next" leads into the following decade
 }
+
+/** One block of a decade essay. Years in `year` headings become anchors linked from the timeline. */
+export type EssayBlock =
+  | { type: "year"; year: string; title: string }
+  | { type: "section"; n?: string; title: string }
+  | { type: "sub"; title: string }
+  | { type: "p"; text: string }
+  | { type: "list"; items: string[] }
+  | { type: "note"; label: string; text: string }
+  | { type: "table"; head: [string, string]; rows: [string, string][]; caption?: string }
+  | { type: "people"; items: { name: string; slug?: string; text: string }[] }
+  | { type: "biblio"; items: string[] }
+  | { type: "img"; src: string; alt: string; caption: string; credit: string; license: string; source: string };
 
 export interface Source {
   title: string;

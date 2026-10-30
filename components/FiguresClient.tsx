@@ -1,5 +1,5 @@
 "use client";
-import Link from "next/link";
+import { PersonLink } from "@/components/PersonModal";
 import { useMemo, useState } from "react";
 import type { Category } from "@/lib/types";
 
@@ -50,7 +50,7 @@ export default function FiguresClient({ figures, categories, eras }: { figures: 
       <ul className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {list.map((f) => (
           <li key={f.slug}>
-            <Link href={`/people/${f.slug}`} className="flex h-full flex-col rounded-2xl border border-rule p-5 transition-colors hover:border-fg">
+            <PersonLink slug={f.slug} className="flex h-full flex-col rounded-2xl border border-rule p-5 transition-colors hover:border-fg">
               <span className="text-sm tabular-nums text-dim">{f.years}</span>
               <span className="mt-1 text-xl font-semibold leading-tight">{f.name}</span>
               <span className="mt-1.5 text-[0.95rem] text-dim">{f.roles.join(", ")}</span>
@@ -58,7 +58,7 @@ export default function FiguresClient({ figures, categories, eras }: { figures: 
                 {f.subjects.slice(0, 3).map((s) => <span key={s}>{name(s)}</span>)}
                 <span className="ml-auto tabular-nums">{f.count} {f.count === 1 ? "moment" : "moments"}</span>
               </span>
-            </Link>
+            </PersonLink>
           </li>
         ))}
       </ul>

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { PersonLink } from "@/components/PersonModal";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import EventRow from "@/components/EventCard";
@@ -103,7 +104,7 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
             <div>
               <p className="label">People</p>
               <ul className="mt-3 space-y-2">
-                {people.map((p) => <li key={p.slug}><Link href={`/people/${p.slug}`} className="font-medium hover:text-dim">{p.name}</Link></li>)}
+                {people.map((p) => <li key={p.slug}><PersonLink slug={p.slug} className="font-medium hover:text-dim">{p.name}</PersonLink></li>)}
               </ul>
             </div>
           )}

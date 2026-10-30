@@ -6,6 +6,7 @@ import "@fontsource-variable/newsreader/opsz-italic.css";
 import "./globals.css";
 import { SITE } from "@/lib/site";
 import SiteHeader from "@/components/SiteHeader";
+import PersonModalProvider from "@/components/PersonModal";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),
@@ -22,7 +23,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body className="min-h-screen font-display">
         <SiteHeader />
-        <main>{children}</main>
+        <PersonModalProvider>
+          <main>{children}</main>
+        </PersonModalProvider>
         <footer className="mt-24 border-t border-rule pb-[env(safe-area-inset-bottom)] sm:mt-32">
           <div className="mx-auto grid max-w-[1240px] gap-10 px-5 py-14 sm:grid-cols-[1.2fr_1fr_auto] sm:px-8">
             <div>

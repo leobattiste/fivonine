@@ -1,6 +1,9 @@
 import type { Category, Content, HistEvent, Period, Person } from "./types";
 import { subjectNotes } from "./answers";
 import { moreEvents, morePeople } from "./events-more";
+import { yearEvents, yearPeople } from "./events-years";
+import { essays } from "./essays";
+import { indigenousChapter } from "./chapter-indigenous";
 
 /**
  * Bundled starter content. It mirrors the Supabase schema exactly, so the site runs
@@ -37,7 +40,6 @@ export const periods: Period[] = [
     overview:
       "For thousands of years before Europeans arrived, the island was home to successive Indigenous peoples. By the late fifteenth century the Taíno organized the island into chiefdoms (cacicazgos) led by caciques, with farming built on cassava, maize and conucos (mounded fields). The name Ayiti — often glossed as 'land of high mountains' — is the name Haiti reclaimed at independence.",
     legacy: "Dessalines and the founders deliberately chose the Taíno name Ayiti in 1804, tying the new nation to the island's first people.",
-    researchNote: "Coverage of this era draws on archaeology and early colonial accounts; population estimates remain disputed among historians.",
   },
   {
     slug: "conquest",
@@ -127,7 +129,11 @@ export const periods: Period[] = [
     }
   }
   periods.sort((a, b) => a.start - b.start);
-  for (const p of periods) if (subjectNotes[p.slug]) p.notes = subjectNotes[p.slug];
+  for (const p of periods) {
+    if (subjectNotes[p.slug]) p.notes = subjectNotes[p.slug];
+    if (essays[p.slug]) p.essay = essays[p.slug];
+    if (p.slug === "indigenous-ayiti") p.essay = indigenousChapter;
+  }
 })();
 
 function decade(start: number, title: string, headline: string, overview: string, legacy?: string, researchNote?: string): Period {
@@ -162,6 +168,7 @@ export const events: HistEvent[] = [
     consequences:
       "Spanish colonization brought forced labor, violence and epidemic disease that devastated the Taíno population within a few decades.",
     status: "documented",
+    people: ["guacanagari"],
     sources: [{ title: "La Navidad", url: wiki("La_Navidad") }, { title: "Taíno", url: wiki("Ta%C3%ADno") }],
   },
   {
@@ -869,7 +876,7 @@ export const people: Person[] = [
 ];
 
 // Merge the second batch, newest additions last; pages sort chronologically.
-events.push(...moreEvents);
-people.push(...morePeople);
+events.push(...moreEvents, ...yearEvents);
+people.push(...morePeople, ...yearPeople);
 
 export const content: Content = { categories, periods, events, people };

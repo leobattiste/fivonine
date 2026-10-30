@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import { PersonLink } from "@/components/PersonModal";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { DIMENSIONS, STATUS_LABEL } from "@/lib/site";
 import type { Category, Dimension, EvidenceStatus } from "@/lib/types";
@@ -108,10 +109,10 @@ export default function ExploreClient({ items, people, categories, periods, coun
       {personHits.length > 0 && (
         <div className="mt-10 flex flex-wrap gap-3">
           {personHits.map((p) => (
-            <Link key={p.slug} href={`/people/${p.slug}`} className="rounded-2xl bg-raise px-5 py-3 hover:bg-lift">
+            <PersonLink key={p.slug} slug={p.slug} className="rounded-2xl bg-raise px-5 py-3 hover:bg-lift">
               <span className="block font-semibold">{p.name}</span>
               <span className="block text-sm text-dim">{p.role}</span>
-            </Link>
+            </PersonLink>
           ))}
         </div>
       )}

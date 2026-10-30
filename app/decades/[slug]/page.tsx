@@ -1,9 +1,11 @@
 import Link from "next/link";
+import { PersonLink } from "@/components/PersonModal";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import PeriodView from "@/components/PeriodView";
 import DecadeSwitcher from "@/components/DecadeSwitcher";
 import ShareButton from "@/components/ShareButton";
+import Essay from "@/components/Essay";
 import { MarkExplored } from "@/components/Progress";
 import { eventsInPeriod, formatDate, getContent, yearOf } from "@/lib/data";
 
@@ -65,7 +67,7 @@ export default async function PeriodPage({ params }: { params: Promise<{ slug: s
 
       {(p.overview || p.researchNote) && (
         <section className="border-t border-rule pt-10">
-          <p className="label">The decade in brief</p>
+          <p className="label">{p.kind === "decade" ? "The decade in brief" : "In brief"}</p>
           <div className="read mt-3">
             {p.overview && <p>{p.overview}</p>}
             {p.researchNote && <p className={`${p.overview ? "mt-6 border-l-2 border-fg pl-4 text-[1rem]" : ""} text-dim`}>{p.researchNote}</p>}
@@ -73,9 +75,16 @@ export default async function PeriodPage({ params }: { params: Promise<{ slug: s
         </section>
       )}
 
+      {p.essay && p.essay.length > 0 && (
+        <section className="mt-14 border-t border-rule pt-12">
+          <h2 className="mb-10 text-d-3 font-semibold">{p.essay.some((b) => b.type === "year") ? `The ${p.start}s, year by year` : "The chapter"}</h2>
+          <Essay blocks={p.essay} title={p.label} />
+        </section>
+      )}
+
       {(evs.length > 0 || p.kind === "decade") && (
-        <section className="mt-14">
-          <h2 className="mb-6 text-d-3 font-semibold">{p.kind === "decade" ? `${p.start} to ${p.end}, year by year` : "Timeline"}</h2>
+        <section className={p.essay?.length ? "mt-24 border-t border-rule pt-12" : "mt-14"}>
+          <h2 className="mb-6 text-d-3 font-semibold">{p.essay?.length ? "Every recorded moment" : p.kind === "decade" ? `${p.start} to ${p.end}, year by year` : "Timeline"}</h2>
           <PeriodView
             events={evs.map((e) => ({ ...e, label: formatDate(e), year: yearOf(e) }))}
             categories={c.categories}
@@ -103,10 +112,10 @@ export default async function PeriodPage({ params }: { params: Promise<{ slug: s
               <ul className="mt-4 space-y-3">
                 {people.map((x) => (
                   <li key={x.slug}>
-                    <Link href={`/people/${x.slug}`} className="group block">
+                    <PersonLink slug={x.slug} className="group block">
                       <span className="block font-medium group-hover:text-dim">{x.name}</span>
                       <span className="block text-sm text-dim">{x.roles[0]}</span>
-                    </Link>
+                    </PersonLink>
                   </li>
                 ))}
               </ul>
