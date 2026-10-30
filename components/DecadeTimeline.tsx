@@ -116,7 +116,6 @@ export default function DecadeTimeline({ sections, years, notes = {}, label, sho
                                 <span className="min-w-0">
                                   <span className={`block leading-snug group-hover:text-dim ${e.highlight ? "font-semibold" : "font-medium"}`}>
                                     {e.title}
-                                    {e.highlight && <span className="ml-2 inline-block rounded-full bg-fg px-2 py-0.5 align-middle text-[10px] font-semibold text-base">Highlight</span>}
                                   </span>
                                   <span className="block text-sm text-dim">
                                     {e.label}, {e.location}
