@@ -33,7 +33,6 @@ export default async function PeriodPage({ params }: { params: Promise<{ slug: s
   const next = c.periods[i + 1];
   const evs = eventsInPeriod(c, p);
   const people = c.people.filter((person) => evs.some((e) => e.people?.includes(person.slug)));
-  const threads = c.threads.filter((t) => t.steps.some((s) => evs.some((e) => e.slug === s.event)));
   const range = p.kind === "decade" ? `${p.start} to ${p.end}` : p.start < 0 ? `Before ${p.end + 1}` : `${p.start} to ${p.end}`;
   const [kicker, headline] = p.title.includes(":") ? p.title.split(/:\s(.+)/) : ["", p.title];
   const big = p.kind === "decade" ? `${p.start}s` : p.label;
@@ -96,7 +95,7 @@ export default async function PeriodPage({ params }: { params: Promise<{ slug: s
         </section>
       )}
 
-      {(people.length > 0 || threads.length > 0) && (
+      {people.length > 0 && (
         <section className="mt-20 grid gap-10 border-t border-rule pt-10 sm:grid-cols-2">
           {people.length > 0 && (
             <div>
@@ -107,21 +106,6 @@ export default async function PeriodPage({ params }: { params: Promise<{ slug: s
                     <Link href={`/people/${x.slug}`} className="group block">
                       <span className="block font-medium group-hover:text-dim">{x.name}</span>
                       <span className="block text-sm text-dim">{x.roles[0]}</span>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-          {threads.length > 0 && (
-            <div>
-              <h2 className="text-lg font-semibold">Stories that continue across decades</h2>
-              <ul className="mt-4 space-y-3">
-                {threads.map((t) => (
-                  <li key={t.slug}>
-                    <Link href={`/threads/${t.slug}`} className="group block">
-                      <span className="block font-medium group-hover:text-dim">{t.title}</span>
-                      <span className="block text-sm text-dim">{t.dek}</span>
                     </Link>
                   </li>
                 ))}

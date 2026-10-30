@@ -23,27 +23,22 @@ function shell(body: string, unsubscribeUrl: string) {
 export function welcomeEmail(unsubscribeUrl: string) {
   return shell(
     `<h1 style="font-size:28px;line-height:1.15;margin:16px 0 12px">Byenveni. Welcome to Fivonine.</h1>
-     <p style="font-size:16px;line-height:1.6;color:#3A3A38">Every Sunday you'll get three moments from the coming week, drawn from any century of Haitian history, and one thread connecting decades.</p>
+     <p style="font-size:16px;line-height:1.6;color:#3A3A38">Every Sunday you'll get three moments from the coming week, drawn from any century of Haitian history.</p>
      <p style="margin:28px 0"><a href="${SITE.url}/decades" style="background:#0A0A0A;color:#fff;padding:12px 22px;border-radius:999px;text-decoration:none;font-size:15px">Start with a decade</a></p>`,
     unsubscribeUrl
   );
 }
 
-export function digestEmail(events: HistEvent[], thread: { title: string; dek: string; slug: string } | null, unsubscribeUrl: string) {
+export function digestEmail(events: HistEvent[], unsubscribeUrl: string) {
   const items = events
     .map((e) => `<tr><td style="padding:18px 0;border-top:1px solid #E4E4E2">
       <div style="font-size:32px;font-weight:800;color:#0A0A0A;letter-spacing:-1px"><span style="display:inline-block;width:10px;height:10px;border-radius:5px;background:${COLORS[e.dimension]};vertical-align:middle;margin-right:8px"></span>${e.date.slice(0, 4)}</div>
       <a href="${SITE.url}/events/${e.slug}" style="display:block;font-size:18px;font-weight:600;color:#0A0A0A;text-decoration:none;margin-top:4px">${esc(e.title)}</a>
       <p style="font-size:15px;line-height:1.55;color:#3A3A38;margin:6px 0 0">${esc(e.summary)}</p></td></tr>`)
     .join("");
-  const t = thread
-    ? `<div style="background:#F5F5F4;border-radius:14px;padding:20px;margin-top:24px"><div style="font-size:13px;color:#6E6E6B">Thread of the week</div>
-       <a href="${SITE.url}/threads/${thread.slug}" style="display:block;font-size:18px;font-weight:700;color:#0A0A0A;text-decoration:none;margin-top:4px">${esc(thread.title)}</a>
-       <p style="font-size:15px;color:#3A3A38;margin:6px 0 0">${esc(thread.dek)}</p></div>`
-    : "";
   return shell(
     `<h1 style="font-size:26px;line-height:1.15;margin:16px 0 8px">This week in Haitian history</h1>
-     <table role="presentation" width="100%" cellpadding="0" cellspacing="0">${items}</table>${t}`,
+     <table role="presentation" width="100%" cellpadding="0" cellspacing="0">${items}</table>`,
     unsubscribeUrl
   );
 }

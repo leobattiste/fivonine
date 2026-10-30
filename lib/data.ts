@@ -13,7 +13,7 @@ export const getContent = cache(async (): Promise<Content> => {
   if (!hasSupabase()) return bundled;
   try {
     const db = getServiceClient();
-    const [cats, pers, evs, evCats, evPeople, links, srcs, people, threads, steps] = await Promise.all([
+    const [cats, pers, evs, evCats, evPeople, links, srcs, people] = await Promise.all([
       db.from("categories").select("*").order("sort"),
       db.from("periods").select("*").order("start_year"),
       db.from("events").select("*").eq("published", true),
@@ -22,10 +22,8 @@ export const getContent = cache(async (): Promise<Content> => {
       db.from("event_links").select("*"),
       db.from("sources").select("*").order("sort"),
       db.from("people").select("*"),
-      db.from("threads").select("*"),
-      db.from("thread_steps").select("*").order("position"),
     ]);
-    const err = [cats, pers, evs, evCats, evPeople, links, srcs, people, threads, steps].find((r) => r.error);
+    const err = [cats, pers, evs, evCats, evPeople, links, srcs, people].find((r) => r.error);
     if (err?.error) throw err.error;
 
     const group = <T extends Record<string, any>>(rows: T[] | null, key: string) => {
@@ -37,7 +35,6 @@ export const getContent = cache(async (): Promise<Content> => {
     const gp = group(evPeople.data, "event_slug");
     const gl = group(links.data, "from_slug");
     const gs = group(srcs.data, "event_slug");
-    const gt = group(steps.data, "thread_slug");
 
     const result: Content = {
       categories: (cats.data ?? []).map((c) => ({ slug: c.slug, name: c.name, short: c.short })),
@@ -57,10 +54,6 @@ export const getContent = cache(async (): Promise<Content> => {
       })),
       people: (people.data ?? []).map((p) => ({
         slug: p.slug, name: p.name, born: p.born ?? undefined, died: p.died ?? undefined, roles: p.roles ?? [], bio: p.bio,
-      })),
-      threads: (threads.data ?? []).map((t) => ({
-        slug: t.slug, title: t.title, dek: t.dek, caveat: t.caveat,
-        steps: (gt.get(t.slug) ?? []).map((s) => ({ event: s.event_slug, note: s.note })),
       })),
     };
     // An empty database (not yet seeded) falls back to bundled content.

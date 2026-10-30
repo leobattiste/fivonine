@@ -1,4 +1,4 @@
-import type { Category, Content, HistEvent, Period, Person, Thread } from "./types";
+import type { Category, Content, HistEvent, Period, Person } from "./types";
 import { subjectNotes } from "./answers";
 import { moreEvents, morePeople } from "./events-more";
 
@@ -868,50 +868,8 @@ export const people: Person[] = [
   { slug: "jean-bertrand-aristide", name: "Jean-Bertrand Aristide", born: "1953", roles: ["Priest", "President"], bio: "Elected in 1990, ousted in 1991, restored in 1994, re-elected in 2000 and removed in 2004." },
 ];
 
-export const threads: Thread[] = [
-  {
-    slug: "the-price-of-freedom",
-    title: "The price of freedom",
-    dek: "How a ransom demanded in 1825 threaded through Haiti's finances for more than a century.",
-    caveat: "An illustrative research pathway. Historians debate how much of Haiti's later poverty the indemnity explains alongside internal politics, other loans and foreign intervention.",
-    steps: [
-      { event: "independence-1804", note: "Haiti wins its freedom by arms, but slaveholding powers refuse to recognize it." },
-      { event: "indemnity-1825", note: "France demands 150 million francs for recognition; Haiti borrows to pay." },
-      { event: "indemnity-reduced-1838", note: "The bill is cut to 90 million — still decades of payments." },
-      { event: "gold-removed-1914", note: "Foreign banks control Haiti's treasury; US Marines remove its gold." },
-      { event: "us-occupation-1915", note: "The US takes over customs and finances during a 19-year occupation." },
-      { event: "debt-repaid-1947", note: "The last of the occupation-era debt is retired." },
-    ],
-  },
-  {
-    slug: "freedom-exported",
-    title: "Freedom, exported",
-    dek: "Haitians who carried the fight for liberty and equality beyond the island.",
-    caveat: "A curated selection, not a complete record of Haitian contributions abroad.",
-    steps: [
-      { event: "siege-of-savannah", note: "Free men of color from Saint-Domingue fight in the American Revolution." },
-      { event: "independence-1804", note: "The first nation founded by formerly enslaved people." },
-      { event: "petion-aids-bolivar", note: "Haiti arms Bolívar on condition that he abolish slavery." },
-      { event: "firmin-equality-of-races", note: "A Haitian scientist dismantles racial hierarchy in Paris." },
-      { event: "price-mars-oncle", note: "Pride in African heritage, later echoed by Négritude." },
-    ],
-  },
-  {
-    slug: "the-sound-of-resistance",
-    title: "The sound of resistance",
-    dek: "From the drums of Bois Caïman to carnival anthems — how music carried Haiti's politics.",
-    caveat: "Music history is still being expanded on Fivonine; more decades will join this thread.",
-    steps: [
-      { event: "bois-caiman", note: "A ceremony with drums and song, remembered as the spark of revolution." },
-      { event: "price-mars-oncle", note: "Elite culture is told to honor the music and faith of the peasantry." },
-      { event: "konpa-direk", note: "Konpa becomes the sound of modern Haiti." },
-      { event: "boukman-eksperyans-kanaval", note: "Roots music becomes the soundtrack of democracy." },
-    ],
-  },
-];
-
 // Merge the second batch, newest additions last; pages sort chronologically.
 events.push(...moreEvents);
 people.push(...morePeople);
 
-export const content: Content = { categories, periods, events, people, threads };
+export const content: Content = { categories, periods, events, people };

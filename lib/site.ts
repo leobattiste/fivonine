@@ -18,3 +18,13 @@ export const STATUS_LABEL = {
   disputed: "Figures disputed",
   investigative: "Under investigation",
 } as const;
+
+/** What readers can send through the Contribute page. */
+export const CONTRIBUTION_KINDS = [
+  { value: "correction", label: "A correction", hint: "Something on Fivonine that's wrong or incomplete." },
+  { value: "moment", label: "A moment we're missing", hint: "An event, with its date and where you learned about it." },
+  { value: "figure", label: "A person we're missing", hint: "Who they were and why they matter." },
+  { value: "source", label: "A source or document", hint: "A book, archive, article, photo or recording." },
+  { value: "story", label: "A family story", hint: "How history touched your family, in Haiti or abroad." },
+  { value: "idea", label: "Feedback or an idea", hint: "What would make Fivonine better for you." },
+] as const;

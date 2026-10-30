@@ -21,7 +21,7 @@ async function up(table: string, rows: object[], onConflict?: string) {
 }
 
 async function main() {
-  const { categories, periods, events, people, threads } = content;
+  const { categories, periods, events, people } = content;
 
   await up("categories", categories.map((c, i) => ({ ...c, sort: i })));
   await up("periods", periods.map((p) => ({
@@ -46,8 +46,6 @@ async function main() {
   await db.from("sources").delete().in("event_slug", events.map((e) => e.slug));
   await up("sources", events.flatMap((e) => e.sources.map((s, i) => ({ event_slug: e.slug, title: s.title, url: s.url ?? null, sort: i }))));
 
-  await up("threads", threads.map(({ steps, ...t }) => t));
-  await up("thread_steps", threads.flatMap((t) => t.steps.map((s, i) => ({ thread_slug: t.slug, position: i, event_slug: s.event, note: s.note }))), "thread_slug,position");
   console.log("Seed complete.");
 }
 

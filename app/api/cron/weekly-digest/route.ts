@@ -6,7 +6,7 @@ import { SITE } from "@/lib/site";
 
 export const dynamic = "force-dynamic";
 
-/** Sunday letter: events whose anniversaries fall in the next 7 days, plus a rotating thread. */
+/** Sunday letter: events whose anniversaries fall in the next 7 days. */
 export async function GET(req: Request) {
   if (process.env.CRON_SECRET && req.headers.get("authorization") !== `Bearer ${process.env.CRON_SECRET}`) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -27,8 +27,6 @@ export async function GET(req: Request) {
   picks = sortEvents(picks).slice(0, 3);
   if (!picks.length) return NextResponse.json({ skipped: "No anniversaries this week" });
 
-  const week = Math.floor(now.getTime() / (7 * 864e5));
-  const thread = c.threads.length ? c.threads[week % c.threads.length] : null;
 
   const { data: subs, error } = await getServiceClient().from("subscribers").select("email, token").eq("status", "active");
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
@@ -41,7 +39,7 @@ export async function GET(req: Request) {
         from: FROM,
         to: s.email,
         subject: `This week in Haitian history: ${picks[0].title}`,
-        html: digestEmail(picks, thread, unsub),
+        html: digestEmail(picks, unsub),
         headers: { "List-Unsubscribe": `<${unsub}>`, "List-Unsubscribe-Post": "List-Unsubscribe=One-Click" },
       };
     });

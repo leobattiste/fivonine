@@ -33,7 +33,6 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
   const people = c.people.filter((p) => e.people?.includes(p.slug));
   const cats = c.categories.filter((x) => e.categories.includes(x.slug));
   const linked = connectedEvents(c, e);
-  const threads = c.threads.filter((t) => t.steps.some((s) => s.event === e.slug));
   const color = DIMENSIONS[e.dimension].color;
 
   const jsonLd = {
@@ -81,7 +80,7 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
             ))}
           </ol>
           <p className="mt-6 font-display text-sm text-dim">
-            See something wrong? <a className="underline underline-offset-4 hover:text-fg" href={`mailto:hello@fivonine.com?subject=${encodeURIComponent("Correction: " + e.title)}`}>Send a correction</a>.
+            See something wrong? <Link className="underline underline-offset-4 hover:text-fg" href={`/contribute?type=correction&page=${encodeURIComponent(`/events/${e.slug}`)}`}>Send a correction</Link>.
           </p>
         </div>
 
@@ -108,12 +107,6 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
               </ul>
             </div>
           )}
-          {threads.map((t) => (
-            <Link key={t.slug} href={`/threads/${t.slug}`} className="block rounded-2xl bg-raise p-5 hover:bg-lift">
-              <span className="label">Part of the thread</span>
-              <span className="mt-1 block text-lg font-semibold">{t.title}</span>
-            </Link>
-          ))}
         </aside>
       </div>
 

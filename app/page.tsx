@@ -83,38 +83,11 @@ export default async function Home() {
       )}
 
       <section className="mx-auto mt-32 max-w-[1240px] px-5 sm:px-8">
-        <div className="grid gap-10 md:grid-cols-[1fr_2fr]">
-          <div>
-            <h2 className="text-d-3 font-semibold">Threads across the decades</h2>
-            <p className="mt-4 max-w-sm font-serif text-lg leading-relaxed text-dim">
-              Follow one line of cause and consequence through a century or more.
-            </p>
-          </div>
-          <ul className="divide-y divide-rule border-y border-rule">
-            {c.threads.map((t) => {
-              const ys = t.steps.map((s) => c.events.find((e) => e.slug === s.event)).filter(Boolean).map((e) => yearOf(e!));
-              return (
-                <li key={t.slug}>
-                  <Link href={`/threads/${t.slug}`} className="group grid gap-2 py-7 sm:grid-cols-[1fr_auto] sm:items-baseline sm:gap-8">
-                    <span>
-                      <span className="block text-2xl font-semibold group-hover:text-dim">{t.title}</span>
-                      <span className="mt-1 block font-serif text-[1.05rem] text-dim">{t.dek}</span>
-                    </span>
-                    <span className="text-sm tabular-nums text-dim">{Math.min(...ys)} to {Math.max(...ys)}</span>
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-      </section>
-
-      <section className="mx-auto mt-32 max-w-[1240px] px-5 sm:px-8">
         <div className="grid gap-8 rounded-[2rem] bg-raise p-8 sm:p-14 md:grid-cols-[1.3fr_1fr] md:items-center">
           <div>
             <h2 className="text-d-3 font-semibold">This week in Haitian history</h2>
             <p className="mt-4 max-w-md font-serif text-lg leading-relaxed text-dim">
-              Every Sunday: three moments from the week ahead, from any century, and one thread worth following.
+              Every Sunday: three moments from the week ahead, from any century of Haitian history.
             </p>
           </div>
           <NewsletterForm source="home" />

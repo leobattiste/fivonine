@@ -58,23 +58,9 @@ export interface Person {
   bio: string;
 }
 
-export interface ThreadStep {
-  event: string; // event slug
-  note: string; // why this step matters in the chain
-}
-
-export interface Thread {
-  slug: string;
-  title: string;
-  dek: string;
-  caveat: string;
-  steps: ThreadStep[];
-}
-
 export interface Content {
   categories: Category[];
   periods: Period[];
   events: HistEvent[];
   people: Person[];
-  threads: Thread[];
 }
