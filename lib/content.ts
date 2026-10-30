@@ -7,6 +7,7 @@ import { indigenousChapter } from "./chapter-indigenous";
 import { chaptersA, eventsA } from "./chapters-a";
 import { chaptersB, eventsB, periodInfoB } from "./chapters-b";
 import { chaptersC, eventsC, legacyC, periodInfoC } from "./chapters-c";
+import { SECTIONS, notesToSections, toSections } from "./sections";
 
 /**
  * Bundled starter content. It mirrors the Supabase schema exactly, so the site runs
@@ -887,4 +888,9 @@ export const people: Person[] = [
 events.push(...moreEvents, ...yearEvents, ...eventsA, ...eventsB, ...eventsC);
 people.push(...morePeople, ...yearPeople);
 
-export const content: Content = { categories, periods, events, people };
+// File every moment under the 10 sections, and merge decade notes the same way.
+const sectionedEvents = events.map(toSections);
+for (const p of periods) p.notes = notesToSections(p.notes);
+const sections = SECTIONS.map(({ items, ...c }) => c);
+
+export const content: Content = { categories: sections, periods, events: sectionedEvents, people };

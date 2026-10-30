@@ -34,7 +34,18 @@ export default function Essay({ blocks, title }: { blocks: EssayBlock[]; title: 
       </nav>
 
       <article className="min-w-0">
-        {blocks.map((b, i) => {
+        <EssayBlocks blocks={blocks} />
+      </article>
+    </div>
+  );
+}
+
+/** Renders chapter blocks without the contents index. Used for each year of a decade. */
+export function EssayBlocks({ blocks }: { blocks: EssayBlock[] }) {
+  const col = "mx-auto w-full max-w-[45rem]";
+  return (
+    <>
+      {blocks.map((b, i) => {
           switch (b.type) {
             case "year":
               return (
@@ -113,8 +124,7 @@ export default function Essay({ blocks, title }: { blocks: EssayBlock[]; title: 
             case "img":
               return <EssayImage key={i} {...b} />;
           }
-        })}
-      </article>
-    </div>
+      })}
+    </>
   );
 }

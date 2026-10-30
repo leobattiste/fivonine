@@ -58,6 +58,7 @@ export interface HistEvent {
   causes?: string;
   consequences?: string;
   status: EvidenceStatus;
+  highlight?: boolean; // a defining moment of its period
   people?: string[]; // person slugs
   related?: string[]; // event slugs (graph edges)
   sources: Source[];

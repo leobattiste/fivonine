@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 
 /** A captioned essay image. If the image can't load, the caption stays and the empty box collapses. */
-export default function EssayImage({ src, alt, caption, credit, license, source }: { src: string; alt: string; caption: string; credit: string; license: string; source: string }) {
+export default function EssayImage({ src, alt, caption, credit, license, source, compact = false }: { src: string; alt: string; caption: string; credit: string; license: string; source: string; compact?: boolean }) {
   const [failed, setFailed] = useState(false);
   const ref = useRef<HTMLImageElement>(null);
 
@@ -13,7 +13,7 @@ export default function EssayImage({ src, alt, caption, credit, license, source 
   }, []);
 
   return (
-    <figure className="my-10 sm:-mx-8 lg:-mx-24">
+    <figure className={compact ? "" : "my-10 sm:-mx-8 lg:-mx-24"}>
       {!failed && (
         // eslint-disable-next-line @next/next/no-img-element
         <img
@@ -23,10 +23,10 @@ export default function EssayImage({ src, alt, caption, credit, license, source 
           loading="lazy"
           decoding="async"
           onError={() => setFailed(true)}
-          className="w-full rounded-2xl bg-raise object-cover"
+          className={`w-full rounded-2xl bg-raise object-cover ${compact ? "aspect-[4/3]" : ""}`}
         />
       )}
-      <figcaption className={`mx-auto max-w-[45rem] text-sm leading-relaxed text-dim ${failed ? "" : "mt-3"}`}>
+      <figcaption className={`${compact ? "text-xs" : "mx-auto max-w-[45rem] text-sm"} leading-relaxed text-dim ${failed ? "" : compact ? "mt-2" : "mt-3"}`}>
         <span className="text-fg">{caption}</span>{" "}
         <span>
           {credit}.{" "}
