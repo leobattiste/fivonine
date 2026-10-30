@@ -1,5 +1,5 @@
 "use client";
-import Link from "next/link";
+import { EventLink } from "@/components/PersonModal";
 import { useEffect, useState } from "react";
 import { DIMENSIONS, STATUS_LABEL } from "@/lib/site";
 import type { Dimension, EvidenceStatus } from "@/lib/types";
@@ -111,7 +111,7 @@ export default function DecadeTimeline({ sections, years, notes = {}, label, sho
                         <ul className="mt-1 divide-y divide-rule">
                           {items.map((e) => (
                             <li key={e.slug}>
-                              <Link href={`/events/${e.slug}`} className="group flex gap-3 py-2.5">
+                              <EventLink slug={e.slug} className="group flex gap-3 py-2.5">
                                 <span className="mt-2 h-2 w-2 shrink-0 rounded-full" style={{ background: DIMENSIONS[e.dimension].color }} aria-hidden />
                                 <span className="min-w-0">
                                   <span className={`block leading-snug group-hover:text-dim ${e.highlight ? "font-semibold" : "font-medium"}`}>
@@ -123,7 +123,7 @@ export default function DecadeTimeline({ sections, years, notes = {}, label, sho
                                     {e.status !== "documented" && <span className="status-note ml-2">{STATUS_LABEL[e.status]}</span>}
                                   </span>
                                 </span>
-                              </Link>
+                              </EventLink>
                             </li>
                           ))}
                         </ul>
