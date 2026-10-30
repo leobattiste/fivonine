@@ -35,6 +35,8 @@ export default async function PeriodPage({ params }: { params: Promise<{ slug: s
   const next = c.periods[i + 1];
   const evs = eventsInPeriod(c, p);
   const people = c.people.filter((person) => evs.some((e) => e.people?.includes(person.slug)));
+  // Every source cited by this period's moments, once each
+  const sources = [...new Map(evs.flatMap((e) => e.sources).map((x) => [x.url ?? x.title, x])).values()];
   const range = p.kind === "decade" ? `${p.start} to ${p.end}` : p.start < 0 ? `Before ${p.end + 1}` : `${p.start} to ${p.end}`;
   const [kicker, headline] = p.title.includes(":") ? p.title.split(/:\s(.+)/) : ["", p.title];
   const big = p.kind === "decade" ? `${p.start}s` : p.label;
@@ -77,7 +79,7 @@ export default async function PeriodPage({ params }: { params: Promise<{ slug: s
 
       {p.essay && p.essay.length > 0 && (
         <section className="mt-14 border-t border-rule pt-12">
-          <h2 className="mb-10 text-d-3 font-semibold">{p.essay.some((b) => b.type === "year") ? `The ${p.start}s, year by year` : "The chapter"}</h2>
+          <h2 className="mb-10 text-d-3 font-semibold">{!p.essay.some((b) => b.type === "year") ? "The chapter" : p.kind === "decade" ? `The ${p.start}s, year by year` : `${p.start} to ${p.end}, year by year`}</h2>
           <Essay blocks={p.essay} title={p.label} />
         </section>
       )}
@@ -104,11 +106,11 @@ export default async function PeriodPage({ params }: { params: Promise<{ slug: s
         </section>
       )}
 
-      {people.length > 0 && (
-        <section className="mt-20 grid gap-10 border-t border-rule pt-10 sm:grid-cols-2">
+      {(people.length > 0 || sources.length > 0) && (
+        <section className="mt-20 grid gap-12 border-t border-rule pt-10 lg:grid-cols-[1fr_1.4fr]">
           {people.length > 0 && (
             <div>
-              <h2 className="text-lg font-semibold">People in this {p.kind === "decade" ? "decade" : "period"}</h2>
+              <h2 className="text-lg font-semibold">Key people of the {p.kind === "decade" ? "decade" : "period"}</h2>
               <ul className="mt-4 space-y-3">
                 {people.map((x) => (
                   <li key={x.slug}>
@@ -121,9 +123,23 @@ export default async function PeriodPage({ params }: { params: Promise<{ slug: s
               </ul>
             </div>
           )}
+          {sources.length > 0 && (
+            <div className={people.length ? "" : "lg:col-span-2"}>
+              <h2 className="text-lg font-semibold">Sources for this chapter</h2>
+              <ol className="mt-4 list-decimal space-y-1.5 pl-5 text-[0.95rem] text-dim marker:text-dim/60">
+                {sources.map((x) => (
+                  <li key={x.title + (x.url ?? "")}>
+                    {x.url ? <a href={x.url} target="_blank" rel="noreferrer" className="underline decoration-rule underline-offset-4 hover:text-fg hover:decoration-fg">{x.title}</a> : x.title}
+                  </li>
+                ))}
+              </ol>
+              <p className="mt-4 text-sm text-dim">
+                Every moment on this page links to its own sources. <Link href={`/contribute?type=source&page=${encodeURIComponent(`/decades/${p.slug}`)}`} className="underline underline-offset-4 hover:text-fg">Suggest a source</Link>.
+              </p>
+            </div>
+          )}
         </section>
       )}
-
 
       <nav className="mt-24 grid gap-px overflow-hidden rounded-[2rem] bg-rule sm:grid-cols-2">
         {prev ? (

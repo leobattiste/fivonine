@@ -4,6 +4,9 @@ import { moreEvents, morePeople } from "./events-more";
 import { yearEvents, yearPeople } from "./events-years";
 import { essays } from "./essays";
 import { indigenousChapter } from "./chapter-indigenous";
+import { chaptersA, eventsA } from "./chapters-a";
+import { chaptersB, eventsB, periodInfoB } from "./chapters-b";
+import { chaptersC, eventsC, legacyC, periodInfoC } from "./chapters-c";
 
 /**
  * Bundled starter content. It mirrors the Supabase schema exactly, so the site runs
@@ -133,6 +136,11 @@ export const periods: Period[] = [
     if (subjectNotes[p.slug]) p.notes = subjectNotes[p.slug];
     if (essays[p.slug]) p.essay = essays[p.slug];
     if (p.slug === "indigenous-ayiti") p.essay = indigenousChapter;
+    const chapter = chaptersA[p.slug] ?? chaptersB[p.slug] ?? chaptersC[p.slug];
+    if (chapter && !p.essay) p.essay = chapter;
+    const info = periodInfoB[p.slug] ?? periodInfoC[p.slug];
+    if (info) { Object.assign(p, info); p.researchNote = undefined; }
+    if (!p.legacy && legacyC[p.slug]) p.legacy = legacyC[p.slug];
   }
 })();
 
@@ -876,7 +884,7 @@ export const people: Person[] = [
 ];
 
 // Merge the second batch, newest additions last; pages sort chronologically.
-events.push(...moreEvents, ...yearEvents);
+events.push(...moreEvents, ...yearEvents, ...eventsA, ...eventsB, ...eventsC);
 people.push(...morePeople, ...yearPeople);
 
 export const content: Content = { categories, periods, events, people };
