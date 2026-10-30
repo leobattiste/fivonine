@@ -35,6 +35,24 @@ export default async function Home() {
         <div className="mt-6 sm:mt-2"><TimeScrubber points={points} /></div>
       </section>
 
+      <section className="mx-auto mb-24 max-w-[1240px] px-5 sm:px-8">
+        <ul className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+          {[
+            { href: "/decades", title: "Decades", line: `${c.periods.length} periods, each a year-by-year timeline` },
+            { href: "/events", title: "Events", line: `${c.events.length} moments on one timeline` },
+            { href: "/people", title: "Figures", line: `${c.people.length} people who shaped Haiti` },
+            { href: "/subjects", title: "Subjects", line: `${c.categories.length} subjects through the centuries` },
+          ].map((x) => (
+            <li key={x.href}>
+              <Link href={x.href} className="flex h-full flex-col rounded-2xl border border-rule p-5 transition-colors hover:border-fg">
+                <span className="text-2xl font-semibold">{x.title}</span>
+                <span className="mt-2 text-sm text-dim">{x.line}</span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </section>
+
       <section id="decades" className="mx-auto max-w-[1240px] scroll-mt-20 px-5 sm:px-8">
         <div className="mb-8 flex flex-wrap items-end justify-between gap-6">
           <h2 className="text-d-2 font-bold">Every period</h2>

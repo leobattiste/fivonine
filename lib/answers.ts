@@ -1,8 +1,9 @@
 /**
- * Answers to the ten decade questions (lib/questions.ts), keyed by period slug.
- * A question left out is shown as "being researched" — never filled with guesses.
+ * Short notes on each subject within a decade, keyed by period slug, then by area slug
+ * (lib/content.ts categories). "next" is how the decade leads into the following one.
+ * A subject left out simply shows its timeline entries, never filler.
  */
-export const answers: Record<string, Partial<Record<string, string>>> = {
+export const subjectNotes: Record<string, Partial<Record<string, string>>> = {
   "1800s": {
     politics:
       "Toussaint Louverture issued a constitution in 1801 naming himself governor for life while keeping the colony nominally French. After his capture in 1802, Jean-Jacques Dessalines led the final war and proclaimed independence on 1 January 1804. He took the title of emperor that year and issued a constitution in 1805. His assassination in October 1806 split the country: Henri Christophe held the north, Alexandre Pétion led a republic in the south.",
@@ -12,9 +13,9 @@ export const answers: Record<string, Partial<Record<string, string>>> = {
       "Most Haitians had been enslaved only a few years earlier. The 1805 constitution abolished slavery forever, barred white foreigners from owning property, and declared all Haitians 'black' regardless of color, a political definition of citizenship. Tension persisted between the formerly enslaved majority and the smaller class of people who had been free before the revolution.",
     wars:
       "Napoleon's expedition under General Leclerc landed in 1802 to restore French control. Yellow fever and the indigenous army destroyed it; the last French forces surrendered after the Battle of Vertières in November 1803. In 1805 Dessalines invaded the Spanish-speaking east and besieged Santo Domingo, then withdrew.",
-    diaspora:
+    contributions:
       "Thousands fled the revolution, many of them colonists with enslaved people and free people of color. Large numbers went to eastern Cuba; after Spain expelled French nationals from Cuba in 1809, around ten thousand of these refugees moved on to New Orleans, roughly doubling its population and shaping its Creole culture.",
-    foreign:
+    "foreign-relations":
       "France's defeat in Saint-Domingue helped persuade Napoleon to sell Louisiana to the United States in 1803, a link most historians accept. The United States and European powers refused to recognize Haiti, and in 1806 Congress banned US trade with the island under pressure from slaveholding interests.",
     next:
       "The north–south division after 1806 defined the 1810s: a kingdom under Christophe, a republic under Pétion, and a cold war between them.",
@@ -28,9 +29,9 @@ export const answers: Record<string, Partial<Record<string, string>>> = {
       "Slavery was abolished in the east after 1822. Beginning in 1824, Boyer invited free Black Americans to settle in Haiti, offering land and passage; several thousand came, though many later returned to the United States.",
     wars:
       "No major wars; the decade was dominated by the occupation of the east and the standing threat of a French reconquest until 1825.",
-    diaspora:
+    contributions:
       "The flow ran the other way: African American emigrants arrived from Philadelphia, New York and Baltimore under Boyer's invitation, forming communities such as the one at Samaná in the east that endure today.",
-    foreign:
+    "foreign-relations":
       "France used a naval squadron to deliver Charles X's 1825 ordinance, turning recognition into a debt. The United States continued to withhold recognition, and the Vatican had no agreement with Haiti, leaving the Catholic Church without regular clergy.",
     next:
       "The indemnity and its loans hung over the 1830s, leading to renegotiation in 1838, while resentment in the east built toward Dominican independence in 1844.",
@@ -44,9 +45,9 @@ export const answers: Record<string, Partial<Record<string, string>>> = {
       "Occupation authorities revived the corvée, unpaid forced labor on roads, in 1916. Abuses against conscripted peasants fueled anger in the countryside and swelled the armed resistance. Occupation officials also brought the racial segregation of the United States into Haitian public life.",
     wars:
       "Caco fighters resisted the invasion in 1915. A second, larger uprising began in 1918 under Charlemagne Péralte and continued under Benoît Batraville. Marines and the US-led Gendarmerie suppressed it; thousands of Haitians were killed. In 1918 Haiti also declared war on Germany.",
-    diaspora:
+    contributions:
       "Haitian laborers began leaving in growing numbers for sugar plantations in Cuba, a migration that accelerated through the 1920s.",
-    foreign:
+    "foreign-relations":
       "The United States justified the 1915 invasion by citing instability and fears of European, especially German, influence during the First World War. The State Department and Navy ran Haiti's finances, police and public works through treaty officials.",
     next:
       "By 1920 armed resistance was broken, and opposition moved into journalism, literature and student politics in the 1920s.",
@@ -64,12 +65,16 @@ export const answers: Record<string, Partial<Record<string, string>>> = {
       "In 1927 young writers including Jacques Roumain, Normil Sylvain, Philippe Thoby-Marcelin, Émile Roumer and Carl Brouard founded La Revue indigène, launching the indigéniste movement. In 1928 Jean Price-Mars published Ainsi parla l'oncle, a defense of Haitian folk culture and Vodou that influenced writers across the Caribbean and Africa. Diplomat and educator Dantès Bellegarde wrote and spoke against the occupation.",
     wars:
       "The last major Caco leader, Benoît Batraville, was killed in 1920, ending armed resistance. The US-trained Gendarmerie d'Haïti was renamed the Garde d'Haïti in 1928; it would become the Haitian army that shaped politics for decades.",
-    diaspora:
+    contributions:
       "The largest movement was labor migration to the sugar estates of eastern Cuba and the Dominican Republic. Many workers lived in harsh conditions, and their presence would become a source of tension in both countries in the 1930s.",
-    foreign:
+    "foreign-relations":
       "Washington, through the State Department and a High Commissioner, controlled Haiti's finances, police and public works. Haiti was a founding member of the League of Nations, where Dantès Bellegarde protested the occupation. After the strikes and the Marchaterre killings of December 1929, President Hoover appointed the Forbes Commission to plan a US withdrawal.",
-    daily:
-      "Occupation officials created an agricultural and vocational school system, the Service Technique, which many Haitians saw as an attempt to replace classical education with manual training; a strike by students at the Damien agricultural school in October 1929 set off the wider protests. The Catholic Church dominated official religion while Vodou remained widely practiced and legally restricted. Most Haitians lived from small farms growing coffee, food crops and livestock.",
+    education:
+      "Occupation officials built an agricultural and vocational school system, the Service Technique, which many Haitians saw as an attempt to replace classical education with manual training. A strike by students at the Damien agricultural school in October 1929 set off the wider protests that helped end the occupation.",
+    religion:
+      "The Catholic Church dominated official religion, while Vodou remained widely practiced and legally restricted. Price-Mars's defense of Vodou as a serious religion was itself a challenge to elite opinion.",
+    business:
+      "Most Haitians lived from small farms growing coffee, food crops and livestock. The 1918 constitution's opening to foreign land ownership let American agricultural companies expand, sometimes displacing peasant farmers.",
     next:
       "The 1929 strikes, Marchaterre and the Forbes Commission led to elections in 1930 and the end of the occupation in 1934. Price-Mars's ideas fed the noiriste politics and artistic renaissance of the 1940s.",
   },
@@ -84,9 +89,9 @@ export const answers: Record<string, Partial<Record<string, string>>> = {
       "Jacques Roumain's writing and politics made him the decade's leading intellectual. Foreign writers took a strong interest in Haiti: Langston Hughes visited in 1931, and Zora Neale Hurston studied Vodou there in 1936–37 for her book Tell My Horse.",
     wars:
       "Haiti fought no wars, but the 1937 massacre ordered by Rafael Trujillo was the deadliest attack on Haitians of the century.",
-    diaspora:
+    contributions:
       "Haitian communities in Cuba and the Dominican Republic, built by the labor migration of earlier decades, bore the brunt of deportations and the 1937 massacre.",
-    foreign:
+    "foreign-relations":
       "Franklin Roosevelt's Good Neighbor policy brought the occupation to an end; Roosevelt visited Cap-Haïtien in July 1934. After the 1937 massacre, the United States, Mexico and Cuba mediated an agreement under which Trujillo's government agreed to pay an indemnity, only part of which reached victims.",
     next:
       "Élie Lescot succeeded Vincent in 1941, and the war years brought both an anti-Vodou campaign and an artistic renaissance that defined the 1940s.",

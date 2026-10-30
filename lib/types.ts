@@ -22,7 +22,7 @@ export interface Period {
   overview: string;
   legacy?: string;
   researchNote?: string; // transparent note when coverage is thin
-  answers?: Partial<Record<string, string>>; // keyed by question id (lib/questions.ts)
+  notes?: Partial<Record<string, string>>; // short note per subject (area slug); "next" leads into the following decade
 }
 
 export interface Source {

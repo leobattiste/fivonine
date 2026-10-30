@@ -27,7 +27,7 @@ async function main() {
   await up("periods", periods.map((p) => ({
     slug: p.slug, kind: p.kind, label: p.label, start_year: p.start, end_year: p.end,
     title: p.title, overview: p.overview, legacy: p.legacy ?? null, research_note: p.researchNote ?? null,
-    answers: p.answers ?? {},
+    notes: p.notes ?? {},
   })));
   await up("people", people);
   await up("events", events.map((e) => ({

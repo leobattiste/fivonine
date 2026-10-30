@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import PeriodView from "@/components/PeriodView";
 import DecadeSwitcher from "@/components/DecadeSwitcher";
-import DecadeQuestions from "@/components/DecadeQuestions";
 import ShareButton from "@/components/ShareButton";
 import { MarkExplored } from "@/components/Progress";
 import { eventsInPeriod, formatDate, getContent, yearOf } from "@/lib/data";
@@ -75,9 +74,27 @@ export default async function PeriodPage({ params }: { params: Promise<{ slug: s
         </section>
       )}
 
-      <section className="mt-16">
-        <DecadeQuestions period={p} next={next} events={evs} categories={c.categories} />
-      </section>
+      {(evs.length > 0 || p.kind === "decade") && (
+        <section className="mt-14">
+          <h2 className="mb-6 text-d-3 font-semibold">{p.kind === "decade" ? `${p.start} to ${p.end}, year by year` : "Timeline"}</h2>
+          <PeriodView
+            events={evs.map((e) => ({ ...e, label: formatDate(e), year: yearOf(e) }))}
+            categories={c.categories}
+            notes={p.notes}
+            start={p.start}
+            end={p.end}
+            isDecade={p.kind === "decade"}
+          />
+        </section>
+      )}
+
+      {(p.notes?.next || p.legacy) && (
+        <section className="mt-20 rounded-[2rem] bg-raise p-8 sm:p-12">
+          <p className="label">How it led to {next ? (next.kind === "decade" ? `the ${next.start}s` : next.label) : "today"}</p>
+          <p className="mt-4 max-w-3xl font-serif text-[1.4rem] leading-snug sm:text-[1.6rem]">{p.notes?.next ?? p.legacy}</p>
+          {next && <Link href={`/decades/${next.slug}`} className="btn btn-solid mt-6">Continue to {next.kind === "decade" ? `the ${next.start}s` : next.label}</Link>}
+        </section>
+      )}
 
       {(people.length > 0 || threads.length > 0) && (
         <section className="mt-20 grid gap-10 border-t border-rule pt-10 sm:grid-cols-2">
@@ -114,26 +131,6 @@ export default async function PeriodPage({ params }: { params: Promise<{ slug: s
         </section>
       )}
 
-      {evs.length > 0 && (
-        <details className="group mt-20 rounded-[2rem] border border-rule">
-          <summary className="flex cursor-pointer list-none items-center justify-between p-6 sm:p-8">
-            <span>
-              <span className="block text-xl font-semibold">{p.kind === "decade" ? "Every moment, year by year" : "Every moment in this period"}</span>
-              <span className="block text-sm text-dim">{evs.length} {evs.length === 1 ? "moment" : "moments"}, filterable by area</span>
-            </span>
-            <svg className="shrink-0 transition-transform group-open:rotate-45" width="20" height="20" viewBox="0 0 16 16" aria-hidden><path d="M8 2v12M2 8h12" stroke="currentColor" strokeWidth="1.6" /></svg>
-          </summary>
-          <div className="px-6 pb-8 sm:px-8">
-            <PeriodView
-              events={evs.map((e) => ({ ...e, label: formatDate(e), year: yearOf(e) }))}
-              categories={c.categories}
-              start={p.start}
-              end={p.end}
-              isDecade={p.kind === "decade"}
-            />
-          </div>
-        </details>
-      )}
 
       <nav className="mt-24 grid gap-px overflow-hidden rounded-[2rem] bg-rule sm:grid-cols-2">
         {prev ? (

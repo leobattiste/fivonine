@@ -1,5 +1,6 @@
 import type { Category, Content, HistEvent, Period, Person, Thread } from "./types";
-import { answers } from "./answers";
+import { subjectNotes } from "./answers";
+import { moreEvents, morePeople } from "./events-more";
 
 /**
  * Bundled starter content. It mirrors the Supabase schema exactly, so the site runs
@@ -126,7 +127,7 @@ export const periods: Period[] = [
     }
   }
   periods.sort((a, b) => a.start - b.start);
-  for (const p of periods) if (answers[p.slug]) p.answers = answers[p.slug];
+  for (const p of periods) if (subjectNotes[p.slug]) p.notes = subjectNotes[p.slug];
 })();
 
 function decade(start: number, title: string, headline: string, overview: string, legacy?: string, researchNote?: string): Period {
@@ -538,6 +539,7 @@ export const events: HistEvent[] = [
     summary:
       "Haiti was among the founding members of the League of Nations. Its delegate, the educator and diplomat Dantès Bellegarde, used the League's platform in the early 1920s to denounce the US occupation of his country.",
     status: "documented",
+    people: ["dantes-bellegarde"],
     related: ["us-occupation-1915"],
     sources: [{ title: "Dantès Bellegarde", url: wiki("Dant%C3%A8s_Bellegarde") }],
   },
@@ -629,6 +631,7 @@ export const events: HistEvent[] = [
       "Founded with American teacher DeWitt Peters and Haitian artists and intellectuals, the Centre d'Art gave studio space and exhibitions to self-taught painters such as Hector Hyppolite and Philomé Obin.",
     consequences: "Haitian painting gained a worldwide audience; André Breton championed Hyppolite, and Haitian works entered major museum collections.",
     status: "documented",
+    people: ["hector-hyppolite"],
     related: ["price-mars-oncle"],
     sources: [{ title: "Centre d'Art", url: wiki("Centre_d%27Art") }],
   },
@@ -906,5 +909,9 @@ export const threads: Thread[] = [
     ],
   },
 ];
+
+// Merge the second batch, newest additions last; pages sort chronologically.
+events.push(...moreEvents);
+people.push(...morePeople);
 
 export const content: Content = { categories, periods, events, people, threads };

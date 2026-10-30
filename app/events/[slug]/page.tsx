@@ -97,7 +97,7 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
           <div>
             <p className="label">Subjects</p>
             <div className="mt-3 flex flex-wrap gap-2">
-              {cats.map((x) => <Link key={x.slug} href={`/explore?category=${x.slug}`} className="pill">{x.short}</Link>)}
+              {cats.map((x) => <Link key={x.slug} href={`/subjects/${x.slug}`} className="pill">{x.short}</Link>)}
             </div>
           </div>
           {people.length > 0 && (

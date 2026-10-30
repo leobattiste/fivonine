@@ -1,110 +1,126 @@
 "use client";
-import { useMemo, useState } from "react";
 import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
 import { DIMENSIONS, STATUS_LABEL } from "@/lib/site";
 import type { Category, Dimension, HistEvent } from "@/lib/types";
 
 type Props = {
   events: (HistEvent & { label: string; year: number })[];
   categories: Category[];
+  notes?: Partial<Record<string, string>>;
   start: number;
   end: number;
   isDecade: boolean;
 };
 
-/** Decade body: switch between the three dimensions, filter by subject, read year by year. */
-export default function PeriodView({ events, categories, start, end, isDecade }: Props) {
-  const [dim, setDim] = useState<Dimension | "all">("all");
-  const [cat, setCat] = useState<string | null>(null);
-  const [open, setOpen] = useState<string | null>(null);
+/** A decade as a timeline: every year in order, filterable by subject and by where it happened. */
+export default function PeriodView({ events, categories, notes = {}, start, end, isDecade }: Props) {
+  const [subject, setSubject] = useState<string>("");
+  const [dim, setDim] = useState<Dimension | "">("");
 
-  const usedCats = categories.filter((c) => events.some((e) => e.categories.includes(c.slug)));
-  const filtered = events.filter((e) => (dim === "all" || e.dimension === dim) && (!cat || e.categories.includes(cat)));
-  const count = (d: Dimension) => events.filter((e) => e.dimension === d).length;
+  // Shareable: ?subject=music
+  useEffect(() => {
+    const s = new URLSearchParams(window.location.search).get("subject");
+    if (s && categories.some((c) => c.slug === s)) setSubject(s);
+  }, [categories]);
+  useEffect(() => {
+    const u = new URL(window.location.href);
+    if (subject) u.searchParams.set("subject", subject); else u.searchParams.delete("subject");
+    window.history.replaceState(null, "", u);
+  }, [subject]);
+
+  const subjects = categories
+    .map((c) => ({ ...c, n: events.filter((e) => e.categories.includes(c.slug)).length, note: Boolean(notes[c.slug]) }))
+    .filter((c) => c.n || c.note);
+  const filtered = events.filter((e) => (!subject || e.categories.includes(subject)) && (!dim || e.dimension === dim));
+  const filtering = Boolean(subject || dim);
 
   const years = useMemo(() => {
     const ys = isDecade ? Array.from({ length: end - start + 1 }, (_, i) => start + i) : [...new Set(filtered.map((e) => e.year))];
     return ys.map((y) => ({ y, items: filtered.filter((e) => e.year === y) }));
   }, [filtered, isDecade, start, end]);
 
+  const active = categories.find((c) => c.slug === subject);
+  const areaShort = (slug: string) => categories.find((c) => c.slug === slug)?.short ?? slug;
+
   return (
-    <div className="grid grid-cols-[minmax(0,1fr)] gap-10 lg:grid-cols-[15rem_minmax(0,1fr)]">
-      {/* Controls */}
-      <div className="lg:self-start">
-        <p className="label">Show</p>
-        <div className="mt-3 flex flex-wrap gap-2 lg:flex-col lg:items-start">
-          <button className="pill" data-on={dim === "all"} onClick={() => setDim("all")}>
-            Everything <span className="tabular-nums opacity-60">{events.length}</span>
+    <div>
+      {/* Subjects */}
+      <div className="no-scrollbar -mx-5 flex gap-2 overflow-x-auto px-5 pb-1 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0">
+        <button className="pill shrink-0" data-on={!subject} onClick={() => setSubject("")}>
+          All subjects <span className="tabular-nums opacity-60">{events.length}</span>
+        </button>
+        {subjects.map((c) => (
+          <button key={c.slug} className="pill shrink-0" data-on={subject === c.slug} onClick={() => setSubject(subject === c.slug ? "" : c.slug)}>
+            {c.name} <span className="tabular-nums opacity-60">{c.n}</span>
           </button>
-          {(Object.keys(DIMENSIONS) as Dimension[]).map((d) => (
-            <button key={d} className="pill" data-on={dim === d} onClick={() => setDim(d)} disabled={!count(d)} style={{ opacity: count(d) ? 1 : 0.4 }}>
-              <span className="h-2 w-2 rounded-full" style={{ background: DIMENSIONS[d].color }} />
-              {DIMENSIONS[d].label} <span className="tabular-nums opacity-60">{count(d)}</span>
-            </button>
-          ))}
-        </div>
-        {usedCats.length > 1 && (
-          <>
-            <p className="label mt-8">Subject</p>
-            <div className="mt-3 flex flex-wrap gap-x-3 gap-y-1.5 text-sm">
-              <button onClick={() => setCat(null)} className={!cat ? "text-fg underline underline-offset-4" : "text-dim hover:text-fg"}>All</button>
-              {usedCats.map((c) => (
-                <button key={c.slug} onClick={() => setCat(cat === c.slug ? null : c.slug)}
-                  className={cat === c.slug ? "text-fg underline underline-offset-4" : "text-dim hover:text-fg"}>
-                  {c.short}
-                </button>
-              ))}
-            </div>
-          </>
-        )}
+        ))}
       </div>
 
-      {/* Year by year */}
-      <ol className="border-t border-rule">
-        {years.map(({ y, items }) => (
-          <li key={y} id={`y${y}`} className="grid scroll-mt-24 grid-cols-[4.5rem_1fr] gap-5 border-b border-rule py-5 sm:grid-cols-[6rem_1fr]">
-            <span className={`wdth-tight text-3xl font-bold tabular-nums ${items.length ? "" : "text-rule"}`}>{y}</span>
-            <div className="min-w-0 self-center">
-              {items.length === 0 ? (
-                <p className="text-sm text-dim/60">{dim !== "all" || cat ? "Nothing for this filter" : "No documented entries yet"}</p>
-              ) : (
-                <ul className="space-y-1">
-                  {items.map((e) => {
-                    const isOpen = open === e.slug;
-                    return (
-                      <li key={e.slug}>
-                        <button onClick={() => setOpen(isOpen ? null : e.slug)} aria-expanded={isOpen}
-                          className="flex w-full items-start gap-3 rounded-xl py-2 text-left">
-                          <span className="mt-2.5 h-2 w-2 shrink-0 rounded-full" style={{ background: DIMENSIONS[e.dimension].color }} />
-                          <span className="flex-1">
-                            <span className="block text-xl font-medium leading-snug">{e.title}</span>
-                            <span className="block text-sm text-dim">{e.label}, {e.location}</span>
-                          </span>
-                          <svg className={`mt-2 shrink-0 text-dim transition-transform ${isOpen ? "rotate-45" : ""}`} width="16" height="16" viewBox="0 0 16 16" aria-hidden>
-                            <path d="M8 2v12M2 8h12" stroke="currentColor" strokeWidth="1.6" />
-                          </svg>
-                        </button>
-                        <div className={`grid transition-[grid-template-rows] duration-300 ${isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}>
-                          <div className="overflow-hidden">
-                            <div className="pb-4 pl-5">
-                              {e.status !== "documented" && <p className="mb-2 text-sm status-note">{STATUS_LABEL[e.status]}</p>}
-                              <p className="read !text-[1.05rem]">{e.summary}</p>
-                              {e.consequences && <p className="read mt-3 !text-[1.05rem] text-dim"><em>Afterwards:</em> {e.consequences}</p>}
-                              <Link href={`/events/${e.slug}`} className="mt-4 inline-block text-sm text-dim underline-offset-4 hover:underline">
-                                Sources and connections
-                              </Link>
-                            </div>
-                          </div>
-                        </div>
-                      </li>
-                    );
-                  })}
-                </ul>
-              )}
-            </div>
-          </li>
+      {/* Where it happened */}
+      <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
+        {(Object.keys(DIMENSIONS) as Dimension[]).map((d) => (
+          <button key={d} onClick={() => setDim(dim === d ? "" : d)} aria-pressed={dim === d}
+            className={`flex items-center gap-2 rounded-full py-1 ${dim === d ? "font-medium text-fg underline underline-offset-4" : dim ? "text-dim/60" : "text-dim hover:text-fg"}`}>
+            <span className="h-2 w-2 rounded-full" style={{ background: DIMENSIONS[d].color }} />
+            {DIMENSIONS[d].label}
+          </button>
         ))}
+        {filtering && <button onClick={() => { setSubject(""); setDim(""); }} className="text-dim underline underline-offset-4 hover:text-fg">Show everything</button>}
+      </div>
+
+      {/* Subject note for this decade */}
+      {active && (
+        <div className="mt-8 rounded-2xl bg-raise p-6 sm:p-8">
+          <p className="text-sm font-medium">{active.name} in {isDecade ? `the ${start}s` : "this period"}</p>
+          {notes[active.slug] ? (
+            <p className="read mt-3">{notes[active.slug]}</p>
+          ) : (
+            <p className="mt-2 text-dim">No overview written yet. The timeline below shows every recorded moment for this subject.</p>
+          )}
+        </div>
+      )}
+
+      {/* Timeline */}
+      <ol className="relative mt-10">
+        <span className="absolute bottom-2 left-[3.4rem] top-2 w-px bg-rule sm:left-[5.4rem]" aria-hidden />
+        {years.map(({ y, items }) =>
+          items.length === 0 ? (
+            isDecade && (
+              <li key={y} id={`y${y}`} className="grid scroll-mt-40 grid-cols-[3.4rem_1fr] items-center sm:grid-cols-[5.4rem_1fr]">
+                <span className="pr-3 text-right text-sm tabular-nums text-dim/50 sm:pr-6">{y}</span>
+                <span className="relative pl-6 text-xs text-dim/50 sm:pl-8">
+                  <span className="absolute left-[-3px] top-1/2 h-1.5 w-1.5 -translate-y-1/2 rounded-full bg-rule" aria-hidden />
+                  {filtering ? "—" : "Nothing recorded yet"}
+                </span>
+              </li>
+            )
+          ) : (
+            <li key={y} id={`y${y}`} className="grid scroll-mt-40 grid-cols-[3.4rem_1fr] py-4 sm:grid-cols-[5.4rem_1fr]">
+              <span className="wdth-tight pr-3 text-right text-2xl font-bold tabular-nums sm:pr-6 sm:text-3xl">{y}</span>
+              <ul className="space-y-6 pl-6 sm:pl-8">
+                {items.map((e) => (
+                  <li key={e.slug} className="relative">
+                    <span className="absolute -left-[1.85rem] top-1.5 h-2.5 w-2.5 rounded-full ring-4 ring-base sm:-left-[2.35rem]" style={{ background: DIMENSIONS[e.dimension].color }} aria-hidden />
+                    <p className="text-sm text-dim">{e.label}, {e.location}</p>
+                    <Link href={`/events/${e.slug}`} className="mt-0.5 block text-xl font-semibold leading-snug hover:text-dim">{e.title}</Link>
+                    <p className="mt-2 max-w-2xl font-serif text-[1.05rem] leading-relaxed text-[#2a2a28]">{e.summary}</p>
+                    <p className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs text-dim">
+                      {e.categories.map((c) => (
+                        <button key={c} onClick={() => setSubject(c)} className="hover:text-fg hover:underline">{areaShort(c)}</button>
+                      ))}
+                      {e.status !== "documented" && <span className="status-note">{STATUS_LABEL[e.status]}</span>}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            </li>
+          )
+        )}
       </ol>
+      {filtered.length === 0 && (
+        <p className="mt-4 max-w-lg text-dim">Nothing recorded for this filter yet. We add moments only when they&apos;re sourced.</p>
+      )}
     </div>
   );
 }

@@ -8,6 +8,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   return [
     { url: u("/"), priority: 1 },
     { url: u("/decades"), priority: 0.9 },
+    { url: u("/events"), priority: 0.9 },
+    { url: u("/people"), priority: 0.8 },
+    { url: u("/subjects"), priority: 0.8 },
+    ...c.categories.map((x) => ({ url: u(`/subjects/${x.slug}`), priority: 0.7 })),
     { url: u("/threads"), priority: 0.8 },
     { url: u("/explore"), priority: 0.6 },
     ...c.periods.map((p) => ({ url: u(`/decades/${p.slug}`), priority: 0.9 })),
