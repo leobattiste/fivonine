@@ -13,6 +13,7 @@ import { chaptersA, eventsA } from "./chapters-a";
 import { chaptersB, eventsB, periodInfoB } from "./chapters-b";
 import { chaptersC, eventsC, legacyC, periodInfoC } from "./chapters-c";
 import { SECTIONS, notesToSections, toSections } from "./sections";
+import { archivalEvents1793 } from "./archival-research-1793";
 
 /**
  * Bundled starter content. It mirrors the Supabase schema exactly, so the site runs
@@ -893,7 +894,7 @@ export const people: Person[] = [
 ];
 
 // Merge the second batch, newest additions last; pages sort chronologically.
-events.push(...moreEvents, ...yearEvents, ...events1790s, ...eventsA, ...eventsB, ...eventsC);
+events.push(...moreEvents, ...yearEvents, ...events1790s, ...eventsA, ...eventsB, ...eventsC, ...archivalEvents1793);
 people.push(...morePeople, ...yearPeople, ...people1790s);
 
 for (const e of events) if (events1790sFr[e.slug]) e.fr = { ...e.fr, ...events1790sFr[e.slug] };
