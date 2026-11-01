@@ -43,6 +43,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             </p>
             <div className="flex flex-col gap-2 text-sm text-dim sm:items-end">
               <Link href="/explore" className="hover:text-fg"><L en="Explore" fr="Explorer" /></Link>
+              <Link href="/sources" className="hover:text-fg"><L en="Sources" fr="Sources" /></Link>
               <Link href="/donate" className="hover:text-fg"><L en="Donate" fr="Faire un don" /></Link>
               <Link href="/contribute" className="hover:text-fg"><L en="Contribute" fr="Contribuer" /></Link>
               <Link href="/about" className="hover:text-fg"><L en="About" fr="À propos" /></Link>
