@@ -18,6 +18,7 @@ import { additionalArchivalEvents } from "./archival-events-more";
 import { earlyStateStudies } from "./early-state-studies";
 import { contemporaryResearch } from "./research-expansion-2020s";
 import { archivalBiographies } from "./archival-biographies";
+import { biographyResearch } from "./biography-research";
 
 /**
  * Bundled starter content. It mirrors the Supabase schema exactly, so the site runs
@@ -904,6 +905,14 @@ people.push(...morePeople, ...yearPeople, ...people1790s);
 for (const e of events) if (events1790sFr[e.slug]) e.fr = { ...e.fr, ...events1790sFr[e.slug] };
 for (const pe of people) if (people1790sFr[pe.slug]) pe.fr = { ...pe.fr, ...people1790sFr[pe.slug] };
 for (const pe of people) { const biography = archivalBiographies[pe.slug]; if (biography) { pe.bio = biography.en; pe.fr = { ...pe.fr, bio: biography.fr }; } }
+for (const pe of people) {
+  const research = biographyResearch[pe.slug];
+  if (!research) continue;
+  pe.bio = research.en;
+  pe.fr = { ...pe.fr, bio: research.fr };
+  pe.sources = research.sources;
+  pe.editorial = { reviewedOn: "2026-11-01", note: "English and French biography reviewed against the listed historical sources." };
+}
 
 // File every moment under the 10 sections, and merge decade notes the same way.
 const sectionedEvents = events.map(toSections);
