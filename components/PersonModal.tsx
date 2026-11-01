@@ -11,6 +11,7 @@ import type { Dimension, HistEvent, HistoricalRecord, Person } from "@/lib/types
 
 type Profile = {
   person: Person;
+  subjects?: string[];
   records: { slug: string; title: string; titleFr?: string; type: string }[];
   periods: { slug: string; label: string; labelFr?: string }[];
   events: { titleFr?: string; labelFr?: string; slug: string; title: string; label: string; location: string; year: number; dimension: Dimension }[];
@@ -227,6 +228,7 @@ export default function PersonModalProvider({ children }: { children: React.Reac
                 <h2 className="mt-2 text-d-3">{p.name}</h2>
                 <p className="mt-3 text-lg text-dim"><L en={p.roles.join(", ")} fr={p.fr?.roles?.join(", ")} /></p>
                 <p className="read mt-6"><L en={p.bio} fr={p.fr?.bio} /></p>
+                <SubjectLinks slugs={data.subjects ?? []} compact className="mt-5" />
                 {data.periods.length > 0 && (
                   <div className="mt-8 flex flex-wrap gap-2">
                     {data.periods.map((x) => <Link key={x.slug} href={`/decades/${x.slug}`} className="pill"><L en={x.label} fr={x.labelFr} /></Link>)}
