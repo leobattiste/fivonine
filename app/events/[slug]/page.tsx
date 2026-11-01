@@ -39,6 +39,9 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
         </dl>
         <p className="read mt-7"><L en={e.summary} fr={e.fr?.summary} /></p>
         {e.body && <p className="read mt-5"><L en={e.body} fr={e.fr?.body} /></p>}
+        {e.editorial?.verification === "inventory" && (
+          <p className="mt-5 max-w-2xl border-l-2 border-rule pl-4 text-sm text-dim"><L en="Research note: this entry is based on a dated archival inventory. The full manuscript has not been examined, and the document date does not necessarily establish when its measures took effect." fr="Note de recherche : cette notice repose sur un inventaire d’archives daté. Le manuscrit intégral n’a pas été examiné et la date du document ne prouve pas nécessairement celle de l’application des mesures." /></p>
+        )}
         {e.context && <><h2 className="mt-8 text-lg"><L en="Background" fr="Contexte" /></h2><p className="read mt-2"><L en={e.context} fr={e.fr?.context} /></p></>}
         {e.causes && <><h2 className="mt-8 text-lg"><L en="Causes" fr="Causes" /></h2><p className="read mt-2"><L en={e.causes} fr={e.fr?.causes} /></p></>}
         {e.consequences && <><h2 className="mt-8 text-lg"><L en="Consequences and significance" fr="Conséquences et portée" /></h2><p className="read mt-2"><L en={e.consequences} fr={e.fr?.consequences} /></p></>}
