@@ -8,7 +8,7 @@ import type { HistEvent, DatePrecision, Dimension } from "./types";
  */
 type Entry = {
   slug: string; date: string; precision: DatePrecision; dimension: Dimension;
-  categories: string[]; location: string; countries?: string[];
+  categories: string[]; location: string; countries?: string[]; people?: string[];
   title: string; ft: string; summary: string; fs: string;
   body: string; fb: string; sources: [string, string][];
 };
@@ -65,6 +65,10 @@ const entries: Entry[] = [
         "IMF, institutional chronology of Haiti",
         "https://www.elibrary.imf.org/view/journals/002/2022/207/article-A001-en.xml"
       ]
+    ],
+    "people": [
+      "joseph-jouthe",
+      "jovenel-moise"
     ]
   },
   {
@@ -227,6 +231,9 @@ const entries: Entry[] = [
         "U.S. Department of State, Haiti human rights report 2020",
         "https://2021-2025.state.gov/reports/2020-country-reports-on-human-rights-practices/haiti/"
       ]
+    ],
+    "people": [
+      "jovenel-moise"
     ]
   },
   {
@@ -329,6 +336,9 @@ const entries: Entry[] = [
         "Scholars at Risk, case record of 28 August 2020",
         "https://www.scholarsatrisk.org/report/2020-08-28-university-of-haiti/"
       ]
+    ],
+    "people": [
+      "montferrier-dorval"
     ]
   },
   {
@@ -356,6 +366,9 @@ const entries: Entry[] = [
         "UN Secretary-General, report S/2021/133",
         "https://www.securitycouncilreport.org/atf/cf/%7B65BFCF9B-6D27-4E9C-8CD3-CF6E4FF96FF9%7D/s_2021_133.pdf"
       ]
+    ],
+    "people": [
+      "jovenel-moise"
     ]
   },
   {
@@ -437,6 +450,9 @@ const entries: Entry[] = [
         "BINUH, Core Group statement of 12 December 2020",
         "https://binuh.unmissions.org/fr/node/74516"
       ]
+    ],
+    "people": [
+      "jovenel-moise"
     ]
   },
   {
@@ -526,6 +542,9 @@ const entries: Entry[] = [
         "Edwidge Danticat, official biography",
         "https://edwidgedanticat.com/about"
       ]
+    ],
+    "people": [
+      "edwidge-danticat"
     ]
   },
   {
@@ -554,6 +573,9 @@ const entries: Entry[] = [
         "University of the Antilles Libraries, 2020 Prix Carbet",
         "https://bu.univ-antilles.fr/alertes/prix-carbet-caraibe-tout-monde-2020.html"
       ]
+    ],
+    "people": [
+      "yanick-lahens"
     ]
   }
 ];
@@ -567,6 +589,7 @@ export const historical2020: HistEvent[] = entries.map((entry) => ({
   categories: entry.categories,
   location: entry.location,
   countries: entry.countries,
+  people: entry.people,
   summary: entry.summary,
   body: entry.body,
   fr: { title: entry.ft, summary: entry.fs, body: entry.fb },
