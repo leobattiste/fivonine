@@ -2,7 +2,6 @@ import Link from "next/link";
 import Strata from "@/components/Strata";
 import TimeScrubber from "@/components/TimeScrubber";
 import NewsletterForm from "@/components/NewsletterForm";
-import { JourneyMeter } from "@/components/Progress";
 import L from "@/components/L";
 import { dateNode } from "@/components/dates";
 import { formatDate, formatDateFr, getContent, onThisDay, periodFor, sortEvents, yearOf } from "@/lib/data";
@@ -60,7 +59,6 @@ export default async function Home() {
         <div className="mb-8 flex flex-wrap items-end justify-between gap-6">
           <h2 className="text-d-2 font-bold"><L en="Every period" fr="Chaque période" /></h2>
           <div className="flex flex-col items-start gap-4 sm:items-end">
-            <JourneyMeter total={c.periods.length} />
             <Link href="/decades" className="btn btn-ghost"><L en="Browse decades as a grid" fr="Parcourir les décennies" /></Link>
           </div>
         </div>
