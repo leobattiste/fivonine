@@ -6,7 +6,6 @@ import DecadeSwitcher from "@/components/DecadeSwitcher";
 import DecadeTimeline, { type TLYear } from "@/components/DecadeTimeline";
 import ShareButton from "@/components/ShareButton";
 import Essay, { EssayBlocks } from "@/components/Essay";
-import { MarkExplored } from "@/components/Progress";
 import L from "@/components/L";
 import { dateNode } from "@/components/dates";
 import { eventsInPeriod, getContent, yearOf } from "@/lib/data";
@@ -90,7 +89,6 @@ export default async function PeriodPage({ params }: { params: Promise<{ slug: s
     <>
       <DecadeSwitcher items={switcher} current={p.slug} />
       <article className="mx-auto max-w-[1240px] px-5 pt-8 sm:px-8">
-        <MarkExplored slug={p.slug} />
 
         <header className="pb-12">
           <div className="flex items-center justify-between text-sm text-dim">
