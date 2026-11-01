@@ -33,20 +33,42 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <main>{children}</main>
         </PersonModalProvider>
         <footer className="mt-24 border-t border-rule pb-[env(safe-area-inset-bottom)] sm:mt-32">
-          <div className="mx-auto grid max-w-[1240px] gap-10 px-5 py-14 sm:grid-cols-[1.2fr_1fr_auto] sm:px-8">
-            <div>
-              <p className="wordmark text-lg">Fivonine</p>
-              <p className="mt-3 max-w-xs text-sm text-dim"><L en="The story, the people, the legacy. A connected record of Haiti and Haitians." fr="L’histoire, les personnes, l’héritage. Un récit relié d’Haïti et des Haïtiens." /></p>
+          <div className="mx-auto max-w-[1240px] px-5 sm:px-8">
+            <div className="grid gap-x-12 gap-y-12 py-14 sm:grid-cols-2 lg:grid-cols-[minmax(0,1.8fr)_repeat(3,minmax(0,1fr))] lg:py-20">
+              <div className="sm:col-span-2 lg:col-span-1">
+                <Link href="/" className="wordmark text-xl hover:opacity-75">Fivonine</Link>
+                <p className="mt-4 max-w-sm text-sm leading-relaxed text-dim">
+                  <L en="The story, the people, the legacy. A connected record of Haiti and Haitians."
+                     fr="L’histoire, les personnes, l’héritage. Un récit relié d’Haïti et des Haïtiens." />
+                </p>
+              </div>
+              <nav aria-label="Explore the archive">
+                <h2 className="text-base"><L en="Explore" fr="Explorer" /></h2>
+                <ul className="mt-5 space-y-3 text-sm text-dim">
+                  <li><Link href="/decades" className="hover:text-fg"><L en="Decades" fr="Décennies" /></Link></li>
+                  <li><Link href="/subjects" className="hover:text-fg"><L en="Subjects" fr="Thèmes" /></Link></li>
+                  <li><Link href="/people" className="hover:text-fg"><L en="Notable Figures" fr="Personnalités marquantes" /></Link></li>
+                  <li><Link href="/search" className="hover:text-fg"><L en="Search" fr="Recherche" /></Link></li>
+                </ul>
+              </nav>
+              <nav aria-label="Participate">
+                <h2 className="text-base"><L en="Get involved" fr="Participer" /></h2>
+                <ul className="mt-5 space-y-3 text-sm text-dim">
+                  <li><Link href="/contribute" className="hover:text-fg"><L en="Contribute" fr="Contribuer" /></Link></li>
+                  <li><Link href="/donate" className="hover:text-fg"><L en="Donate" fr="Faire un don" /></Link></li>
+                </ul>
+              </nav>
+              <nav aria-label="About Fivonine">
+                <h2 className="text-base"><L en="Information" fr="Informations" /></h2>
+                <ul className="mt-5 space-y-3 text-sm text-dim">
+                  <li><Link href="/about" className="hover:text-fg"><L en="About" fr="À propos" /></Link></li>
+                  <li><Link href="/sources" className="hover:text-fg"><L en="Sources" fr="Sources" /></Link></li>
+                </ul>
+              </nav>
             </div>
-            <p className="max-w-sm font-serif text-[0.95rem] leading-relaxed text-dim">
-              <L en="Every entry is sourced. When a decade has gaps, we say so instead of filling them." fr="Chaque entrée est sourcée. Quand une décennie présente des lacunes, nous le disons au lieu de les combler." />
-            </p>
-            <div className="flex flex-col gap-2 text-sm text-dim sm:items-end">
-              <Link href="/search" className="hover:text-fg"><L en="Search" fr="Recherche" /></Link>
-              <Link href="/sources" className="hover:text-fg"><L en="Sources" fr="Sources" /></Link>
-              <Link href="/donate" className="hover:text-fg"><L en="Donate" fr="Faire un don" /></Link>
-              <Link href="/contribute" className="hover:text-fg"><L en="Contribute" fr="Contribuer" /></Link>
-              <Link href="/about" className="hover:text-fg"><L en="About" fr="À propos" /></Link>
+            <div className="flex flex-col gap-2 border-t border-rule py-6 text-xs text-dim sm:flex-row sm:items-center sm:justify-between">
+              <p>© {new Date().getFullYear()} Fivonine</p>
+              <p><L en="A connected history of Haiti and Haitians." fr="Une histoire reliée d’Haïti et des Haïtiens." /></p>
             </div>
           </div>
         </footer>
