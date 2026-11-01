@@ -14,10 +14,8 @@ const BROWSE = [
 ];
 const OTHER = [
   { href: "/search", label: <L en="Search" fr="Recherche" /> },
-  { href: "/sources", label: <L en="Sources" fr="Sources" /> },
   { href: "/contribute", label: <L en="Contribute" fr="Contribuer" /> },
   { href: "/donate", label: <L en="Donate" fr="Faire un don" /> },
-  { href: "/about", label: <L en="About" fr="À propos" /> },
 ];
 
 function MenuContent({
