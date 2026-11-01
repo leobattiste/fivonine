@@ -81,7 +81,7 @@ export default async function PeriodPage({ params }: { params: Promise<{ slug: s
       title: ch?.title,
       content: story && story.length ? <EssayBlocks blocks={story} /> : undefined,
       events: evs.filter((e) => yearOf(e) === yr).map((e) => ({
-        slug: e.slug, title: e.title, fr: e.fr, label: dateNode(e), location: e.location, dimension: e.dimension,
+        slug: e.slug, title: e.title, fr: e.fr, label: dateNode(e), date: e.date, location: e.location, dimension: e.dimension,
         categories: e.categories, status: e.status, highlight: e.highlight,
       })),
     };

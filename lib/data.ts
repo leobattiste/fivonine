@@ -3,14 +3,17 @@ import { cache } from "react";
 import { content as bundled } from "./content";
 import { getServiceClient, hasSupabase } from "./supabase";
 import type { Content, HistEvent, Period } from "./types";
+import { historicalRecords, haitianIndependenceEvent } from "./historical-records";
 
 /**
  * Single read path for the whole site. With Supabase configured, content comes from
  * the database (rows are assembled into the same shape as lib/content.ts). Without it,
  * the bundled content is used, so the site works on first deploy.
  */
+const localContent: Content = { ...bundled, events: [...bundled.events, haitianIndependenceEvent], records: historicalRecords };
+
 export const getContent = cache(async (): Promise<Content> => {
-  if (!hasSupabase()) return bundled;
+  if (!hasSupabase()) return localContent;
   try {
     const db = getServiceClient();
     const [cats, pers, evs, evCats, evPeople, links, srcs, people] = await Promise.all([
@@ -46,24 +49,26 @@ export const getContent = cache(async (): Promise<Content> => {
         media: bundled.periods.find((bp) => bp.slug === p.slug)?.media,
         biblio: p.biblio ?? bundled.periods.find((bp) => bp.slug === p.slug)?.biblio,
       })),
-      events: (evs.data ?? []).map((e) => ({
+      events: [...(evs.data ?? []).map((e) => ({
         slug: e.slug, title: e.title, date: e.date_text, precision: e.precision, dimension: e.dimension,
         location: e.location, countries: e.countries ?? [], summary: e.summary, context: e.context ?? undefined,
         causes: e.causes ?? undefined, consequences: e.consequences ?? undefined, status: e.status,
         categories: (gc.get(e.slug) ?? []).map((r) => r.category_slug),
         people: (gp.get(e.slug) ?? []).map((r) => r.person_slug),
         related: (gl.get(e.slug) ?? []).map((r) => r.to_slug),
+        records: localContent.events.find((x) => x.slug === e.slug)?.records,
         sources: (gs.get(e.slug) ?? []).map((r) => ({ title: r.title, url: r.url ?? undefined })),
-      })),
+      })), ...localContent.events.filter((x) => x.slug === haitianIndependenceEvent.slug)],
+      records: historicalRecords,
       people: (people.data ?? []).map((p) => ({
         slug: p.slug, name: p.name, born: p.born ?? undefined, died: p.died ?? undefined, roles: p.roles ?? [], bio: p.bio,
       })),
     };
     // An empty database (not yet seeded) falls back to bundled content.
-    return result.events.length ? result : bundled;
+    return result.events.length ? result : localContent;
   } catch (e) {
     console.error("[fivonine] Supabase read failed, using bundled content", e);
-    return bundled;
+    return localContent;
   }
 });
 

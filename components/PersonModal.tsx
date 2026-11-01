@@ -6,7 +6,7 @@ import L from "@/components/L";
 import { useT } from "@/components/Prefs";
 import ShareButton from "@/components/ShareButton";
 import { DIMENSIONS } from "@/lib/site";
-import type { Dimension, HistEvent, Person } from "@/lib/types";
+import type { Dimension, HistEvent, HistoricalRecord, Person } from "@/lib/types";
 
 type Profile = {
   person: Person;
@@ -16,9 +16,10 @@ type Profile = {
 
 type EventData = {
   event: HistEvent; year: number; when: string; whenFr: string; period: { slug: string; label: string; labelFr?: string } | null;
-  sections: { en: string; fr?: string }[]; people: { slug: string; name: string }[]; linked: { slug: string; title: string; titleFr?: string; label: string; labelFr?: string }[];
+  sections: { en: string; fr?: string }[]; people: { slug: string; name: string }[]; records: { slug: string; title: string; titleFr?: string; type: string }[]; linked: { slug: string; title: string; titleFr?: string; label: string; labelFr?: string }[];
 };
-type Target = { kind: "people" | "events"; slug: string };
+type RecordData = { record: HistoricalRecord; events: { slug: string; title: string; titleFr?: string; label: string; labelFr?: string }[]; related: { slug: string; title: string; titleFr?: string; type: string }[] };
+type Target = { kind: "people" | "events" | "records"; slug: string };
 const Ctx = createContext<(kind: Target["kind"], slug: string) => void>(() => {});
 
 /** Wraps the site so any figure link can open that person over the current page. */
@@ -30,8 +31,9 @@ export default function PersonModalProvider({ children }: { children: React.Reac
   const base = `/${kind}/${slug}`;
   const [data, setData] = useState<Profile | null>(null);
   const [evData, setEvData] = useState<EventData | null>(null);
+  const [recordData, setRecordData] = useState<RecordData | null>(null);
   const [error, setError] = useState(false);
-  const cache = useRef(new Map<string, Profile | EventData>());
+  const cache = useRef(new Map<string, Profile | EventData | RecordData>());
   const panel = useRef<HTMLDivElement>(null);
   const returnFocus = useRef<HTMLElement | null>(null);
 
@@ -45,6 +47,7 @@ export default function PersonModalProvider({ children }: { children: React.Reac
     const hit = cache.current.get(`${k}/${s}`);
     setData(k === "people" ? ((hit as Profile) ?? null) : null);
     setEvData(k === "events" ? ((hit as EventData) ?? null) : null);
+    setRecordData(k === "records" ? ((hit as RecordData) ?? null) : null);
     // Update the address so it can be shared; Back closes it.
     depth.current += 1;
     window.history.pushState({ fivonineFigure: s }, "", `/${k}/${s}`);
@@ -86,11 +89,11 @@ export default function PersonModalProvider({ children }: { children: React.Reac
     if (!slug) return;
     const key = `${kind}/${slug}`;
     const hit = cache.current.get(key);
-    if (hit) { if (kind === "people") setData(hit as Profile); else setEvData(hit as EventData); return; }
+    if (hit) { if (kind === "people") setData(hit as Profile); else if (kind === "events") setEvData(hit as EventData); else setRecordData(hit as RecordData); return; }
     let live = true;
     fetch(`/api/${kind}/${slug}`)
       .then((r) => (r.ok ? r.json() : Promise.reject()))
-      .then((j) => { cache.current.set(key, j); if (live) { if (kind === "people") setData(j); else setEvData(j); } })
+      .then((j) => { cache.current.set(key, j); if (live) { if (kind === "people") setData(j); else if (kind === "events") setEvData(j); else setRecordData(j); } })
       .catch(() => live && setError(true));
     return () => { live = false; };
   }, [slug, kind]);
@@ -118,12 +121,13 @@ export default function PersonModalProvider({ children }: { children: React.Reac
   const t = useT();
   const p = kind === "people" ? data?.person : undefined;
   const ev = kind === "events" ? evData?.event : undefined;
+  const record = kind === "records" ? recordData?.record : undefined;
 
   return (
     <Ctx.Provider value={open}>
       {children}
       {slug && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-6" role="dialog" aria-modal="true" aria-label={p?.name ?? ev?.title ?? "Details"}>
+        <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-6" role="dialog" aria-modal="true" aria-label={p?.name ?? ev?.title ?? record?.title ?? "Details"}>
           <div onClick={close} className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" aria-hidden />
           <div ref={panel} tabIndex={-1}
             className="relative max-h-[92dvh] w-full overflow-y-auto rounded-t-[1.75rem] bg-base px-5 pb-[calc(2rem+env(safe-area-inset-bottom))] shadow-2xl outline-none sm:max-h-[88vh] sm:max-w-2xl sm:rounded-[1.75rem] sm:px-10 sm:pb-10">
@@ -135,7 +139,7 @@ export default function PersonModalProvider({ children }: { children: React.Reac
             </div>
 
             {error && <p className="py-10 text-dim"><L en="This couldn’t load." fr="Le chargement a échoué." /> <a className="underline" href={base}><L en="Open it as a page" fr="Ouvrir comme page" /></a>.</p>}
-            {!error && !p && !ev && (
+            {!error && !p && !ev && !record && (
               <div className="animate-pulse space-y-4 py-4" aria-label="Loading">
                 <div className="h-4 w-24 rounded bg-raise" /><div className="h-10 w-2/3 rounded bg-raise" /><div className="h-24 rounded bg-raise" />
               </div>
@@ -164,6 +168,14 @@ export default function PersonModalProvider({ children }: { children: React.Reac
                     </ul>
                   </div>
                 )}
+                {evData.records.length > 0 && (
+                  <section className="mt-8">
+                    <h3 className="text-lg"><L en="Places, documents and related records" fr="Lieux, documents et notices associées" /></h3>
+                    <ul className="mt-3 border-t border-rule">
+                      {evData.records.map((x) => <li key={x.slug} className="border-b border-rule py-3"><RecordLink slug={x.slug} className="block font-medium hover:text-dim"><L en={x.title} fr={x.titleFr} /></RecordLink><span className="mt-0.5 block text-xs uppercase tracking-wide text-dim">{x.type}</span></li>)}
+                    </ul>
+                  </section>
+                )}
                 {evData.linked.length > 0 && (
                   <section className="mt-8">
                     <h3 className="text-lg"><L en="Connected moments" fr="Moments liés" /></h3>
@@ -181,6 +193,19 @@ export default function PersonModalProvider({ children }: { children: React.Reac
                   <ShareButton title={ev.title} path={`/events/${ev.slug}`} />
                   <Link href={`/events/${ev.slug}`} className="text-sm underline underline-offset-4 hover:text-dim"><L en="Open as a page" fr="Ouvrir comme page" /></Link>
                 </div>
+              </div>
+            )}
+            {record && recordData && (
+              <div className="pt-1">
+                <p className="text-xs font-semibold uppercase tracking-[0.14em] text-dim">{record.type}</p>
+                <h2 className="mt-2 text-d-4 leading-tight"><L en={record.title} fr={record.fr?.title} /></h2>
+                {(record.dates || record.location) && <dl className="mt-5 grid grid-cols-2 gap-x-6 gap-y-3 text-sm">{record.dates && <div><dt className="text-dim"><L en="Date" fr="Date" /></dt><dd className="mt-0.5"><L en={record.dates} fr={record.fr?.dates} /></dd></div>}{record.location && <div><dt className="text-dim"><L en="Location" fr="Lieu" /></dt><dd className="mt-0.5"><L en={record.location} fr={record.fr?.location} /></dd></div>}</dl>}
+                <p className="read mt-6"><L en={record.summary} fr={record.fr?.summary} /></p>
+                {record.body && <p className="read mt-4"><L en={record.body} fr={record.fr?.body} /></p>}
+                {recordData.events.length > 0 && <section className="mt-8"><h3 className="text-lg"><L en="Connected events" fr="Événements liés" /></h3><ul className="mt-3 border-t border-rule">{recordData.events.map((x) => <li key={x.slug} className="border-b border-rule py-3"><EventLink slug={x.slug} className="font-medium hover:text-dim"><L en={x.title} fr={x.titleFr} /></EventLink><span className="block text-sm text-dim"><L en={x.label} fr={x.labelFr} /></span></li>)}</ul></section>}
+                {recordData.related.length > 0 && <section className="mt-8"><h3 className="text-lg"><L en="Related records" fr="Notices associées" /></h3><ul className="mt-3 border-t border-rule">{recordData.related.map((x) => <li key={x.slug} className="border-b border-rule py-3"><RecordLink slug={x.slug} className="font-medium hover:text-dim"><L en={x.title} fr={x.titleFr} /></RecordLink><span className="block text-xs uppercase tracking-wide text-dim">{x.type}</span></li>)}</ul></section>}
+                {record.sources.length > 0 && <section className="mt-8"><h3 className="text-lg"><L en="Sources" fr="Sources" /></h3><ul className="mt-3 list-disc space-y-2 pl-5 text-sm text-dim">{record.sources.map((s) => <li key={s.title}>{s.url ? <a href={s.url} target="_blank" rel="noreferrer" className="underline underline-offset-4">{s.title}</a> : s.title}</li>)}</ul></section>}
+                <div className="mt-8"><Link href={`/records/${record.slug}`} className="text-sm underline underline-offset-4"><L en="Open as a page" fr="Ouvrir comme une page" /></Link></div>
               </div>
             )}
             {p && data && (
@@ -245,4 +270,8 @@ export function PersonLink({ slug, className, children }: { slug: string; classN
 /** A link to a moment, opened over the current page the same way. */
 export function EventLink({ slug, className, children }: { slug: string; className?: string; children: React.ReactNode }) {
   return <a {...useModalLink("events", slug)} className={className}>{children}</a>;
+}
+
+export function RecordLink({ slug, className, children }: { slug: string; className?: string; children: React.ReactNode }) {
+  return <a {...useModalLink("records", slug)} className={className}>{children}</a>;
 }

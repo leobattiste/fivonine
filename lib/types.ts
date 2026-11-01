@@ -82,6 +82,7 @@ export interface HistEvent {
   highlight?: boolean; // a defining moment of its period
   people?: string[]; // person slugs
   related?: string[]; // event slugs (graph edges)
+  records?: string[]; // linked places, documents, institutions, objects and other records
   sources: Source[];
 }
 
@@ -95,9 +96,26 @@ export interface Person {
   bio: string;
 }
 
+export type HistoricalRecordType = "place" | "document" | "institution" | "organization" | "object" | "work" | "other";
+
+export interface HistoricalRecord {
+  slug: string;
+  type: HistoricalRecordType;
+  title: string;
+  summary: string;
+  body?: string;
+  location?: string;
+  dates?: string;
+  fr?: { title?: string; summary?: string; body?: string; location?: string; dates?: string };
+  eventSlugs?: string[];
+  related?: string[];
+  sources: Source[];
+}
+
 export interface Content {
   categories: Category[];
   periods: Period[];
   events: HistEvent[];
   people: Person[];
+  records?: HistoricalRecord[];
 }
