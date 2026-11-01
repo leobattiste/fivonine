@@ -88,7 +88,13 @@ export const frenchResearch: Record<string, PeriodMedia[]> = {
       language: "French",
     },
   ],
-  "1820s": [
+  "1820s": [    {
+      title: "Thomas Madiou, Histoire d’Haïti : tome V (1811-1818)",
+      description: "Le guide de Duke répertorie les volumes numérisés de Madiou, dont le tome V consacré aux années 1811-1818. Cette source historique haïtienne est à lire en regard des archives administratives et diplomatiques.",
+      url: "https://sites.duke.edu/haitilab/french/historiens-haitiens-du-19eme-siecle/",
+      language: "French",
+    },
+
     {
       title: "La normalisation des relations franco-haïtiennes (1825-1838)",
       description: "Article d'Itazienne Eugène, publié dans Outre-Mers en 2003. Étudie les négociations diplomatiques entre Haïti et la France après l'ordonnance de 1825 et jusqu'à la reconnaissance de 1838.",
@@ -122,7 +128,13 @@ export const frenchResearch: Record<string, PeriodMedia[]> = {
       language: "French",
     },
   ],
-  "1840s": [
+  "1840s": [    {
+      title: "Thomas Madiou, Histoire d’Haïti : tome VII (1827-1843)",
+      description: "Volume de Madiou consacré au gouvernement de Boyer et aux événements qui précèdent sa chute en 1843. Le guide de Duke répertorie l’accès à l’édition numérisée.",
+      url: "https://sites.duke.edu/haitilab/french/historiens-haitiens-du-19eme-siecle/",
+      language: "French",
+    },
+
     {
       title: "Le Moniteur : collection numérisée, 1845-1983",
       description: "La Digital Library of the Caribbean et les collections numériques de l'Université de Floride conservent des numéros du journal officiel haïtien. Vérifier chaque numéro et sa date avant de l'utiliser comme preuve.",
@@ -136,7 +148,13 @@ export const frenchResearch: Record<string, PeriodMedia[]> = {
       language: "French",
     },
   ],
-  "1850s": [
+  "1850s": [    {
+      title: "Thomas Madiou, Histoire d’Haïti : tome VIII (1843-1846)",
+      description: "Volume de Madiou consacré à la période de l’après-Boyer et aux premières années de la présidence de Soulouque. Le guide de Duke répertorie l’accès à l’édition numérisée.",
+      url: "https://sites.duke.edu/haitilab/french/historiens-haitiens-du-19eme-siecle/",
+      language: "French",
+    },
+
     {
       title: "Beaubrun Ardouin, Études sur l’histoire d’Haïti (1853-1860)",
       description: "Onze volumes de l’historien et homme politique haïtien, publiés à Paris entre 1853 et 1860. La version numérique de l’Université du Québec à Montréal permet de consulter les textes en français.",
