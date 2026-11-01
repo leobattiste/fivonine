@@ -186,6 +186,8 @@ export const chaptersC: Record<string, EssayBlock[]> = {
 
   "2020s": [
     p("The 2020s have so far been among the hardest years in Haiti's modern history. A president was assassinated, an earthquake struck the south, and armed gangs took control of much of the capital and its roads. Haiti went years without elected officials, and international security missions were authorized while hundreds of thousands were displaced. This chapter is ongoing and records events through mid-2026."),
+    y("2020", "A country without a legislature faces a pandemic"),
+    p("The mandates of most members of Haiti's parliament expired on 13 January after elections were not held, leaving the country without a functioning legislature and President Jovenel Moïse governing by decree. On 19 March Haiti confirmed its first COVID-19 cases and declared a nationwide health emergency. The pandemic strained an already fragile health system and disrupted work, education, transport and trade. The government later issued public-health decrees and reopened parts of the economy, including the textile sector, while debate over the legitimacy of executive rule continued."),
     y("2021", "An assassination and an earthquake"),
     p("On 7 July President Jovenel Moïse was killed at his home by an armed group that included former Colombian soldiers. Who ordered the killing remains under investigation. On 14 August a magnitude 7.2 earthquake struck the southern peninsula, killing more than 2,000 people. In September images of US border agents on horseback confronting Haitian migrants at Del Rio, Texas, drew outrage, as thousands were expelled to Haiti."),
     y("2022", "Fuel blockade"),
