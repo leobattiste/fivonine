@@ -14,8 +14,7 @@ type Entry = {
 };
 const entries: Entry[] = [
   {
-    "precision": "month",
-    "status": "documented",
+    "precision": "day",
     "slug": "haiti-police-army-clashes-carnival-2020",
     "date": "2020-02-23",
     "dimension": "inside",
@@ -44,7 +43,6 @@ const entries: Entry[] = [
   },
   {
     "precision": "month",
-    "status": "documented",
     "slug": "joseph-jouthe-appointed-prime-minister-2020",
     "date": "2020-03",
     "dimension": "inside",
@@ -71,7 +69,6 @@ const entries: Entry[] = [
   },
   {
     "precision": "month",
-    "status": "documented",
     "slug": "haiti-covid-schools-closure-2020",
     "date": "2020-03",
     "dimension": "inside",
@@ -99,8 +96,7 @@ const entries: Entry[] = [
     ]
   },
   {
-    "precision": "month",
-    "status": "documented",
+    "precision": "day",
     "slug": "imf-covid-financing-haiti-april-2020",
     "date": "2020-04-17",
     "dimension": "foreign",
@@ -129,8 +125,7 @@ const entries: Entry[] = [
     ]
   },
   {
-    "precision": "month",
-    "status": "documented",
+    "precision": "day",
     "slug": "g9-armed-coalition-formed-june-2020",
     "date": "2020-06-10",
     "dimension": "inside",
@@ -158,7 +153,6 @@ const entries: Entry[] = [
   },
   {
     "precision": "month",
-    "status": "documented",
     "slug": "cite-soleil-violence-may-july-2020",
     "date": "2020-06",
     "dimension": "inside",
@@ -185,8 +179,7 @@ const entries: Entry[] = [
     ]
   },
   {
-    "precision": "month",
-    "status": "documented",
+    "precision": "day",
     "slug": "social-protection-policy-haiti-2020",
     "date": "2020-06-12",
     "dimension": "inside",
@@ -215,7 +208,6 @@ const entries: Entry[] = [
   },
   {
     "precision": "month",
-    "status": "documented",
     "slug": "municipal-mandates-expire-2020",
     "date": "2020-07",
     "dimension": "inside",
@@ -238,8 +230,7 @@ const entries: Entry[] = [
     ]
   },
   {
-    "precision": "month",
-    "status": "documented",
+    "precision": "day",
     "slug": "haitian-league-season-abandoned-2020",
     "date": "2020-07-02",
     "dimension": "inside",
@@ -263,7 +254,6 @@ const entries: Entry[] = [
   },
   {
     "precision": "month",
-    "status": "documented",
     "slug": "haiti-schools-catch-up-reopening-2020",
     "date": "2020-08",
     "dimension": "inside",
@@ -290,8 +280,7 @@ const entries: Entry[] = [
     ]
   },
   {
-    "precision": "month",
-    "status": "documented",
+    "precision": "day",
     "slug": "tropical-storm-laura-haiti-2020",
     "date": "2020-08-23",
     "dimension": "inside",
@@ -315,8 +304,7 @@ const entries: Entry[] = [
     ]
   },
   {
-    "precision": "month",
-    "status": "documented",
+    "precision": "day",
     "slug": "montferrier-dorval-assassinated-2020",
     "date": "2020-08-28",
     "dimension": "inside",
@@ -345,7 +333,6 @@ const entries: Entry[] = [
   },
   {
     "precision": "month",
-    "status": "documented",
     "slug": "haiti-electoral-council-reconstituted-2020",
     "date": "2020-09",
     "dimension": "inside",
@@ -373,7 +360,6 @@ const entries: Entry[] = [
   },
   {
     "precision": "month",
-    "status": "documented",
     "slug": "gourde-inflation-and-currency-volatility-2020",
     "date": "2020-09",
     "dimension": "inside",
@@ -400,8 +386,7 @@ const entries: Entry[] = [
     ]
   },
   {
-    "precision": "month",
-    "status": "documented",
+    "precision": "day",
     "slug": "binuh-un-mandate-renewed-2020",
     "date": "2020-10-15",
     "dimension": "foreign",
@@ -428,8 +413,7 @@ const entries: Entry[] = [
     ]
   },
   {
-    "precision": "month",
-    "status": "documented",
+    "precision": "day",
     "slug": "haiti-ani-security-decrees-november-2020",
     "date": "2020-11-26",
     "dimension": "inside",
@@ -457,7 +441,6 @@ const entries: Entry[] = [
   },
   {
     "precision": "year",
-    "status": "documented",
     "slug": "haiti-2020-economic-contraction-year",
     "date": "2020",
     "dimension": "inside",
@@ -485,7 +468,6 @@ const entries: Entry[] = [
   },
   {
     "precision": "year",
-    "status": "documented",
     "slug": "haiti-diaspora-remittances-2020",
     "date": "2020",
     "dimension": "abroad",
@@ -516,7 +498,6 @@ const entries: Entry[] = [
   },
   {
     "precision": "year",
-    "status": "documented",
     "slug": "edwidge-danticat-bocas-fiction-prize-2020",
     "date": "2020",
     "dimension": "abroad",
@@ -549,7 +530,6 @@ const entries: Entry[] = [
   },
   {
     "precision": "year",
-    "status": "documented",
     "slug": "yanick-lahens-prix-carbet-2020",
     "date": "2020",
     "dimension": "abroad",
