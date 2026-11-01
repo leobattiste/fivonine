@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Link from "next/link";
 import L from "@/components/L";
+import SubjectLinks from "@/components/SubjectLinks";
 import { EventLink, PersonLink, RecordLink } from "@/components/PersonModal";
 import { formatDate, formatDateFr, getContent, periodFor, yearOf } from "@/lib/data";
 
@@ -37,6 +38,7 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
           <div><dt className="text-dim"><L en="Date" fr="Date" /></dt><dd><L en={formatDate(e)} fr={formatDateFr(e)} /></dd></div>
           <div><dt className="text-dim"><L en="Place" fr="Lieu" /></dt><dd>{placeRecord ? <RecordLink slug={placeRecord.slug} className="underline underline-offset-4">{e.location}</RecordLink> : e.location}</dd></div>
         </dl>
+        <SubjectLinks slugs={e.categories} className="mt-6" />
         <p className="read mt-7"><L en={e.summary} fr={e.fr?.summary} /></p>
         {e.body && <p className="read mt-5"><L en={e.body} fr={e.fr?.body} /></p>}
         {e.context && <><h2 className="mt-8 text-lg"><L en="Background" fr="Contexte" /></h2><p className="read mt-2"><L en={e.context} fr={e.fr?.context} /></p></>}
