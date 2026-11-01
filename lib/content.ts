@@ -1,5 +1,6 @@
 import type { Category, Content, HistEvent, Period, Person } from "./types";
 import { periodMedia } from "./period-media";
+import { frenchResearch } from "./french-research";
 import { subjectNotes } from "./answers";
 import { moreEvents, morePeople } from "./events-more";
 import { yearEvents, yearPeople } from "./events-years";
@@ -138,7 +139,7 @@ export const periods: Period[] = [
   }
   periods.sort((a, b) => a.start - b.start);
   for (const p of periods) {
-    if (periodMedia[p.slug]) p.media = periodMedia[p.slug];
+    if (periodMedia[p.slug] || frenchResearch[p.slug]) p.media = [...(periodMedia[p.slug] ?? []), ...(frenchResearch[p.slug] ?? [])];
     if (subjectNotes[p.slug]) p.notes = subjectNotes[p.slug];
     if (essays[p.slug]) p.essay = essays[p.slug];
     if (periodsFr[p.slug]) p.fr = { ...(p.kind === "decade" ? { label: `Les années ${p.start}` } : {}), ...periodsFr[p.slug] };
