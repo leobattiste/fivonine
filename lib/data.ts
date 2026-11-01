@@ -80,8 +80,8 @@ export const getContent = cache(async (): Promise<Content> => {
       records: historicalRecords,
       people: [...(people.data ?? []).map((p) => ({
         ...localPeople.get(p.slug),
-        slug: p.slug, name: p.name, born: p.born ?? undefined, died: p.died ?? undefined, roles: p.roles ?? [], bio: archivalBiographies[p.slug]?.en ?? p.bio,
-        fr: archivalBiographies[p.slug] ? { ...localPeople.get(p.slug)?.fr, bio: archivalBiographies[p.slug].fr } : localPeople.get(p.slug)?.fr,
+        slug: p.slug, name: p.name, born: p.born ?? undefined, died: p.died ?? undefined, roles: p.roles ?? [], bio: localPeople.get(p.slug)?.bio ?? archivalBiographies[p.slug]?.en ?? p.bio,
+        fr: localPeople.get(p.slug)?.fr ?? (archivalBiographies[p.slug] ? { bio: archivalBiographies[p.slug].fr } : undefined),
       })), ...localContent.people.filter((p) => !databasePersonSlugs.has(p.slug))],
     };
     // An empty database (not yet seeded) falls back to bundled content.
