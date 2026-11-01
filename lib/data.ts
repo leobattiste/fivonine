@@ -5,6 +5,7 @@ import { getServiceClient, hasSupabase } from "./supabase";
 import type { Content, HistEvent, Period } from "./types";
 import { historicalRecords, haitianIndependenceEvent } from "./historical-records";
 import { archivalBiographies } from "./archival-biographies";
+import { toSections } from "./sections";
 
 /**
  * Single read path for the whole site. With Supabase configured, content comes from
@@ -50,22 +51,13 @@ export const getContent = cache(async (): Promise<Content> => {
     const localEvents = new Map(localContent.events.map((e) => [e.slug, e]));
     const localPeople = new Map(localContent.people.map((p) => [p.slug, p]));
     const localPeriods = new Map(localContent.periods.map((p) => [p.slug, p]));
-    const localCategories = new Map(localContent.categories.map((c) => [c.slug, c]));
     const databasePeriodSlugs = new Set((pers.data ?? []).map((p) => p.slug));
-    const databaseCategorySlugs = new Set((cats.data ?? []).map((c) => c.slug));
     const databaseEventSlugs = new Set((evs.data ?? []).map((e) => e.slug));
     const databasePersonSlugs = new Set((people.data ?? []).map((p) => p.slug));
 
     const result: Content = {
-      categories: [
-        ...(cats.data ?? []).map((c) => ({
-          ...localCategories.get(c.slug),
-          slug: c.slug,
-          name: c.name ?? localCategories.get(c.slug)?.name ?? c.slug,
-          short: c.short ?? localCategories.get(c.slug)?.short ?? c.slug,
-        })),
-        ...localContent.categories.filter((c) => !databaseCategorySlugs.has(c.slug)),
-      ],
+      // Keep a single, bilingual ten-subject taxonomy even when the database has old tags.
+      categories: localContent.categories,
       periods: [
         ...(pers.data ?? []).map((p) => ({
           ...localPeriods.get(p.slug),
@@ -95,7 +87,7 @@ export const getContent = cache(async (): Promise<Content> => {
         related: (gl.get(e.slug) ?? []).length ? (gl.get(e.slug) ?? []).map((r) => r.to_slug) : localEvents.get(e.slug)?.related ?? [],
         records: localEvents.get(e.slug)?.records,
         sources: (gs.get(e.slug) ?? []).length ? (gs.get(e.slug) ?? []).map((r) => ({ title: r.title, url: r.url ?? undefined })) : localEvents.get(e.slug)?.sources ?? [],
-      })), ...localContent.events.filter((x) => !databaseEventSlugs.has(x.slug))],
+      })), ...localContent.events.filter((x) => !databaseEventSlugs.has(x.slug))].map(toSections),
       records: historicalRecords,
       people: [...(people.data ?? []).map((p) => ({
         ...localPeople.get(p.slug),
