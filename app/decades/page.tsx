@@ -1,7 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import L from "@/components/L";
-import { JourneyMeter } from "@/components/Progress";
 import { eventsInPeriod, getContent } from "@/lib/data";
 import type { Period } from "@/lib/types";
 
@@ -30,7 +29,6 @@ export default async function DecadesPage() {
             fr="Suivez l’histoire d’Haïti d’une période à l’autre. Choisissez une décennie pour lire son aperçu et découvrir les événements qui l’ont marquée."
           /></p>
         </div>
-        <JourneyMeter total={c.periods.length} />
       </header>
 
       {GROUPS.map((group) => {
@@ -50,8 +48,7 @@ export default async function DecadesPage() {
                   <li key={period.slug}>
                     <Link
                       href={`/decades/${period.slug}`}
-                      data-period={period.slug}
-                      className="group flex h-full min-h-[11rem] flex-col rounded-2xl border border-rule p-5 transition-colors hover:border-fg data-[explored=true]:bg-raise"
+                      className="group flex h-full min-h-[11rem] flex-col rounded-2xl border border-rule p-5 transition-colors hover:border-fg"
                     >
                       {period.kind === "decade"
                         ? <span className="wdth-tight text-[2.3rem] leading-none tabular-nums">{period.start}s</span>
