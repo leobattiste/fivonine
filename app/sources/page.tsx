@@ -13,7 +13,7 @@ export const revalidate = 3600;
 export default async function SourcesPage() {
   const entries = collectSources(await getContent());
   return (
-    <main className="mx-auto max-w-[1240px] px-5 pt-10 sm:px-8 sm:pt-12">
+    <div className="mx-auto max-w-[1240px] px-5 pt-10 sm:px-8 sm:pt-12">
       <h1 className="text-d-2"><L en="Sources" fr="Sources" /></h1>
       <p className="read mt-4">
         <L
@@ -28,6 +28,6 @@ export default async function SourcesPage() {
         />
       </p>
       <SourcesBrowser entries={entries} />
-    </main>
+    </div>
   );
 }
