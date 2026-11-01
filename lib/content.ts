@@ -16,6 +16,7 @@ import { SECTIONS, notesToSections, toSections } from "./sections";
 import { archivalEvents1793 } from "./archival-research-1793";
 import { additionalArchivalEvents } from "./archival-events-more";
 import { earlyStateStudies } from "./early-state-studies";
+import { contemporaryResearch } from "./research-expansion-2020s";
 import { archivalBiographies } from "./archival-biographies";
 
 /**
@@ -119,7 +120,7 @@ export const periods: Period[] = [
   decade(2020, "Now", "A presidency ended by assassination; a crisis still unfolding",
     "President Jovenel Moïse was assassinated at his home on 7 July 2021. In August 2021 an earthquake struck the southern peninsula. Armed gangs expanded their control in and around Port-au-Prince, and international security missions were authorized. This decade is ongoing.",
     undefined,
-    "Events after mid-2026 are not yet covered. This chapter is updated as the record develops."),
+    "Coverage includes selected documented events through October 2026. This is a developing historical chapter, not a complete day-by-day chronicle."),
 ];
 
 // Fill decades between 1790s and 2020s that have no researched chapter yet,
@@ -897,7 +898,7 @@ export const people: Person[] = [
 ];
 
 // Merge the second batch, newest additions last; pages sort chronologically.
-events.push(...moreEvents, ...yearEvents, ...events1790s, ...eventsA, ...eventsB, ...eventsC, ...archivalEvents1793, ...additionalArchivalEvents, ...earlyStateStudies);
+events.push(...moreEvents, ...yearEvents, ...events1790s, ...eventsA, ...eventsB, ...eventsC, ...archivalEvents1793, ...additionalArchivalEvents, ...earlyStateStudies, ...contemporaryResearch);
 people.push(...morePeople, ...yearPeople, ...people1790s);
 
 for (const e of events) if (events1790sFr[e.slug]) e.fr = { ...e.fr, ...events1790sFr[e.slug] };
