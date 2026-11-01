@@ -6,11 +6,9 @@ import L from "@/components/L";
 import PrefsControls from "@/components/PrefsControls";
 
 const EXPLORE = [
-  { href: "/decades", label: <L en="Decades" fr="Décennies" />, line: <L en="Each period as a year-by-year timeline" fr="Chaque période, année par année" /> },
-  { href: "/events", label: <L en="Events" fr="Événements" />, line: <L en="The whole history on one timeline" fr="Toute l’histoire sur une seule frise" /> },
-  { href: "/people", label: <L en="Figures" fr="Personnages" />, line: <L en="The people who shaped Haiti" fr="Les personnes qui ont façonné Haïti" /> },
-  { href: "/subjects", label: <L en="Subjects" fr="Thèmes" />, line: <L en="Politics, music, the economy and more" fr="Politique, musique, économie et plus" /> },
-  { href: "/explore#search", label: <L en="Search" fr="Recherche" />, line: <L en="Find a year, a name, a place" fr="Trouver une année, un nom, un lieu" /> },
+  { href: "/decades", label: <L en="Decades" fr="Décennies" />, line: <L en="Explore history year by year" fr="Parcourir l’histoire année par année" /> },
+  { href: "/subjects", label: <L en="Subjects" fr="Thèmes" />, line: <L en="Explore history by subject" fr="Parcourir l’histoire par thème" /> },
+  { href: "/people", label: <L en="Notable Figures" fr="Personnalités marquantes" />, line: <L en="Discover people who shaped Haiti" fr="Découvrir les personnes qui ont marqué Haïti" /> },
 ];
 const MAIN = [
   { href: "/donate", label: <L en="Donate" fr="Faire un don" /> },
@@ -74,7 +72,8 @@ export default function SiteHeader() {
                     <span className="block text-xs text-dim">{x.line}</span>
                   </Link>
                 ))}
-                <div className="mt-2 border-t border-rule px-2 pb-2 pt-4"><PrefsControls /></div>
+                <div className="mt-2 border-t border-rule px-2 pt-2"><Link href="/explore#search" className="block rounded-xl px-2 py-2 text-sm text-dim hover:bg-raise hover:text-fg"><L en="Search the archive" fr="Rechercher dans les archives" /></Link></div>
+                <div className="px-2 pb-2 pt-2"><PrefsControls /></div>
               </div>
             )}
           </li>
@@ -114,6 +113,7 @@ export default function SiteHeader() {
               </li>
             ))}
           </ul>
+          <Link href="/explore#search" className="mt-4 block border-b border-rule py-3 text-sm text-dim"><L en="Search the archive" fr="Rechercher dans les archives" /></Link>
           <ul className="mt-8 space-y-1">
             {MAIN.map((x) => (
               <li key={x.href}>
