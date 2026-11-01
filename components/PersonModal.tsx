@@ -3,6 +3,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import L from "@/components/L";
+import SubjectLinks from "@/components/SubjectLinks";
 import { useT } from "@/components/Prefs";
 import ShareButton from "@/components/ShareButton";
 import { DIMENSIONS } from "@/lib/site";
@@ -155,6 +156,7 @@ export default function PersonModalProvider({ children }: { children: React.Reac
                   <div><dt className="text-dim"><L en="Place" fr="Lieu" /></dt><dd className="mt-0.5">{placeRecord ? <RecordLink slug={placeRecord.slug} className="underline underline-offset-4">{ev.location}</RecordLink> : ev.location}</dd></div>
                   <div><dt className="text-dim"><L en="Dimension" fr="Dimension" /></dt><dd className="mt-0.5 flex items-center gap-2"><span className="h-2 w-2 rounded-full" style={{ background: DIMENSIONS[ev.dimension].color }} /><L en={DIMENSIONS[ev.dimension].label} fr={DIMENSIONS[ev.dimension].labelFr} /></dd></div>
                 </dl>
+                <SubjectLinks slugs={ev.categories} compact className="mt-5" />
                 <p className="read mt-6"><L en={ev.summary} fr={ev.fr?.summary} /></p>
                 {ev.body && <p className="read mt-4"><L en={ev.body} fr={ev.fr?.body} /></p>}
                 {ev.context && <><h3 className="mt-6 text-lg"><L en="Background" fr="Contexte" /></h3><p className="read mt-1"><L en={ev.context} fr={ev.fr?.context} /></p></>}
