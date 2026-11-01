@@ -1,5 +1,8 @@
 import Link from "next/link";
 import L from "@/components/L";
+import SubjectLinks from "@/components/SubjectLinks";
+import { EventLink } from "@/components/PersonModal";
+import { SUBJECT_OVERVIEWS } from "@/lib/subject-overviews";
 import { dateNode } from "@/components/dates";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
@@ -38,17 +41,27 @@ export default async function SubjectPage({ params }: { params: Promise<{ slug: 
         <ShareButton title={`${cat.name} in Haitian history`} path={`/subjects/${slug}`} />
       </div>
       <h1 className="mt-8 max-w-4xl text-d-2"><L en={cat.name} fr={cat.nameFr} /></h1>
-      <p className="read mt-4">
+      <p className="read mt-4"><L en={SUBJECT_OVERVIEWS[slug]?.en ?? cat.name} fr={SUBJECT_OVERVIEWS[slug]?.fr ?? cat.nameFr} /></p>
+      <p className="mt-4 text-sm text-dim">
         {chapters.length
-          ? <L en={`Traced through ${chapters.length} ${chapters.length === 1 ? "period" : "periods"} so far, from the earliest record to today.`} fr={`Suivi à travers ${chapters.length} ${chapters.length === 1 ? "période" : "périodes"} jusqu’ici, des plus anciens témoignages à aujourd’hui.`} />
-          : <L en="No moments recorded for this subject yet." fr="Aucun moment enregistré pour ce thème pour l’instant." />}
+          ? <L en={`Browse ${chapters.length} historical ${chapters.length === 1 ? "period" : "periods"} containing entries or research notes.`} fr={`Parcourez ${chapters.length} ${chapters.length === 1 ? "période historique" : "périodes historiques"} contenant des notices ou des notes de recherche.`} />
+          : <L en="No entries recorded for this subject yet." fr="Aucune entrée enregistrée pour ce thème pour l’instant." />}
       </p>
+      {chapters.length > 1 && (
+        <nav aria-label="Jump to historical period" className="mt-8 flex flex-wrap gap-2">
+          {chapters.map(({ p }) => (
+            <a key={p.slug} href={`#period-${p.slug}`} className="pill">
+              {p.kind === "decade" ? `${p.start}s` : <L en={p.label} fr={p.fr?.label} />}
+            </a>
+          ))}
+        </nav>
+      )}
 
       <div className="mt-12">
         {chapters.map(({ p, note, evs }) => (
-          <section key={p.slug} className="grid gap-4 border-t border-rule py-10 lg:grid-cols-[14rem_1fr] lg:gap-10">
+          <section key={p.slug} id={`period-${p.slug}`} className="scroll-mt-28 grid gap-4 border-t border-rule py-10 lg:grid-cols-[14rem_1fr] lg:gap-10">
             <div>
-              <Link href={`/decades/${p.slug}?subject=${slug}`} className="wdth-tight text-3xl hover:text-dim">
+              <Link href={`/decades/${p.slug}?section=${slug}`} className="wdth-tight text-3xl hover:text-dim">
                 {p.kind === "decade" ? `${p.start}s` : <L en={p.label} fr={p.fr?.label} />}
               </Link>
             </div>
@@ -57,8 +70,8 @@ export default async function SubjectPage({ params }: { params: Promise<{ slug: 
               {evs.length > 0 && (
                 <ul className={`${note ? "mt-6" : ""} border-t border-rule`}>
                   {evs.map((e) => (
-                    <li key={e.slug}>
-                      <Link href={`/events/${e.slug}`} className="group grid grid-cols-[4.25rem_1fr] items-baseline gap-4 border-b border-rule py-3">
+                    <li key={e.slug} className="border-b border-rule">
+                      <EventLink slug={e.slug} className="group grid grid-cols-[4.25rem_1fr] items-baseline gap-4 py-3">
                         <span className="wdth-tight whitespace-nowrap text-base tabular-nums">
                           <span className="mr-1.5 inline-block h-1.5 w-1.5 -translate-y-[0.25em] rounded-full" style={{ background: DIMENSIONS[e.dimension].color }} aria-hidden />
                           {yearOf(e)}
@@ -69,7 +82,8 @@ export default async function SubjectPage({ params }: { params: Promise<{ slug: 
                             {dateNode(e)}, {e.location}
                           </span>
                         </span>
-                      </Link>
+                      </EventLink>
+                      <SubjectLinks slugs={e.categories} compact className="mb-3 ml-[5.25rem]" />
                     </li>
                   ))}
                 </ul>
