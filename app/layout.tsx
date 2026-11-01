@@ -42,7 +42,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <L en="Every entry is sourced. When a decade has gaps, we say so instead of filling them." fr="Chaque entrée est sourcée. Quand une décennie présente des lacunes, nous le disons au lieu de les combler." />
             </p>
             <div className="flex flex-col gap-2 text-sm text-dim sm:items-end">
-              <Link href="/explore" className="hover:text-fg"><L en="Explore" fr="Explorer" /></Link>
+              <Link href="/search" className="hover:text-fg"><L en="Search" fr="Recherche" /></Link>
               <Link href="/sources" className="hover:text-fg"><L en="Sources" fr="Sources" /></Link>
               <Link href="/donate" className="hover:text-fg"><L en="Donate" fr="Faire un don" /></Link>
               <Link href="/contribute" className="hover:text-fg"><L en="Contribute" fr="Contribuer" /></Link>
