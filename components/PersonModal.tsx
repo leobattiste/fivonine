@@ -228,19 +228,7 @@ export default function PersonModalProvider({ children }: { children: React.Reac
                 <p className="mt-3 text-lg text-dim"><L en={p.roles.join(", ")} fr={p.fr?.roles?.join(", ")} /></p>
                 <p className="read mt-6"><L en={p.bio} fr={p.fr?.bio} /></p>
                 {data.periods.length > 0 && (
-                  {p.sources && p.sources.length > 0 && (
-                  <section className="mt-8">
-                    <h3 className="text-lg"><L en="Sources and further reading" fr="Sources et lectures complémentaires" /></h3>
-                    <ul className="mt-3 space-y-2 text-sm text-dim">
-                      {p.sources.map((source, i) => (
-                        <li key={source.url ?? `${source.title}-${i}`}>
-                          {source.url ? <a href={source.url} target="_blank" rel="noopener noreferrer" className="underline underline-offset-4 hover:text-fg">{source.title}</a> : source.title}
-                        </li>
-                      ))}
-                    </ul>
-                  </section>
-                )}
-                <div className="mt-8 flex flex-wrap gap-2">
+                  <div className="mt-8 flex flex-wrap gap-2">
                     {data.periods.map((x) => <Link key={x.slug} href={`/decades/${x.slug}`} className="pill"><L en={x.label} fr={x.labelFr} /></Link>)}
                   </div>
                 )}
@@ -268,6 +256,18 @@ export default function PersonModalProvider({ children }: { children: React.Reac
                               <span className="block text-sm text-dim"><L en={e.label} fr={e.labelFr} />, {e.location}</span>
                             </span>
                           </EventLink>
+                        </li>
+                      ))}
+                    </ul>
+                  </section>
+                )}
+                {p.sources && p.sources.length > 0 && (
+                  <section className="mt-8">
+                    <h3 className="text-lg"><L en="Sources" fr="Sources" /></h3>
+                    <ul className="mt-3 space-y-2 text-sm text-dim">
+                      {p.sources.map((source, i) => (
+                        <li key={source.url ?? `${source.title}-${i}`}>
+                          {source.url ? <a href={source.url} target="_blank" rel="noopener noreferrer" className="underline underline-offset-4 hover:text-fg">{source.title}</a> : source.title}
                         </li>
                       ))}
                     </ul>
