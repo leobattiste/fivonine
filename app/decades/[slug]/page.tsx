@@ -54,7 +54,6 @@ export default async function PeriodPage({ params }: { params: Promise<{ slug: s
   const people = c.people.filter((person) => evs.some((e) => e.people?.includes(person.slug)));
   const sources = [...new Map(evs.flatMap((e) => e.sources).map((x) => [x.url ?? x.title, x])).values()];
   const images = (p.essay ?? []).filter((b): b is Extract<EssayBlock, { type: "img" }> => b.type === "img");
-  const highlights = evs.filter((e) => e.highlight);
 
   const range = p.kind === "decade" ? `${p.start} to ${p.end}` : p.start < 0 ? `Before ${p.end + 1}` : `${p.start} to ${p.end}`;
   const rangeFr = p.kind === "decade" ? `${p.start} à ${p.end}` : p.start < 0 ? `Avant ${p.end + 1}` : `${p.start} à ${p.end}`;
@@ -109,31 +108,14 @@ export default async function PeriodPage({ params }: { params: Promise<{ slug: s
           <p className={`${kicker ? "mt-1" : "mt-8"} max-w-3xl text-d-3`}><L en={headline} fr={headlineFr} /></p>
         </header>
 
-        {/* 1. Decade overview */}
-        <section aria-labelledby="overview" className="border-t border-rule pt-10">
-          <h2 id="overview" className="label">{p.kind === "decade" ? <L en="Decade overview" fr="Aperçu de la décennie" /> : <L en="Overview" fr="Aperçu" />}</h2>
-          {intro.length > 0 ? (
-            <div className="-mx-0 mt-2"><EssayBlocks blocks={intro} /></div>
-          ) : (
-            p.overview && <p className="read mt-3"><L en={p.overview} fr={p.fr?.overview} /></p>
-          )}
-          {p.researchNote && <p className="read mt-6 border-l-2 border-fg pl-4 !text-[1rem] text-dim">{p.researchNote}</p>}
-          {highlights.length > 0 && (
-            <div className="mx-auto mt-10 w-full max-w-[45rem]">
-              <p className="text-sm font-medium"><L en="Highlights" fr="Moments clés" /></p>
-              <ul className="mt-3 grid gap-2 sm:grid-cols-2">
-                {highlights.map((e) => (
-                  <li key={e.slug}>
-                    <a href={`#y${yearOf(e)}`} className="block h-full rounded-2xl border border-rule p-4 hover:border-fg">
-                      <span className="block text-sm tabular-nums text-dim">{dateNode(e)}</span>
-                      <span className="mt-1 block font-semibold leading-snug"><L en={e.title} fr={e.fr?.title} /></span>
-                    </a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </section>
+        {/* Overview for pre-decade eras */}
+        {p.kind !== "decade" && (
+          <section aria-labelledby="overview" className="border-t border-rule pt-10">
+            <h2 id="overview" className="label"><L en="Overview" fr="Aperçu" /></h2>
+            {intro.length > 0 ? <div className="-mx-0 mt-2"><EssayBlocks blocks={intro} /></div> : p.overview && <p className="read mt-3"><L en={p.overview} fr={p.fr?.overview} /></p>}
+            {p.researchNote && <p className="read mt-6 border-l-2 border-fg pl-4 !text-[1rem] text-dim">{p.researchNote}</p>}
+          </section>
+        )}
 
         {/* A thematic chapter (periods before written chronology) */}
         {thematic && p.essay && (
@@ -154,6 +136,15 @@ export default async function PeriodPage({ params }: { params: Promise<{ slug: s
               labelFr={labelFr}
               showEmptyYears={p.kind === "decade"}
             />
+          </section>
+        )}
+
+        {/* The decade's year-by-year timeline is the main entry point. The overview follows it. */}
+        {p.kind === "decade" && (
+          <section aria-labelledby="overview" className="mt-16 border-t border-rule pt-10">
+            <h2 id="overview" className="label"><L en="Decade overview" fr="Aperçu de la décennie" /></h2>
+            {intro.length > 0 ? <div className="mt-2"><EssayBlocks blocks={intro} /></div> : p.overview && <p className="read mt-3"><L en={p.overview} fr={p.fr?.overview} /></p>}
+            {p.researchNote && <p className="read mt-6 border-l-2 border-fg pl-4 !text-[1rem] text-dim">{p.researchNote}</p>}
           </section>
         )}
 
