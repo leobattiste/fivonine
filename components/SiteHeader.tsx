@@ -5,11 +5,12 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import L from "@/components/L";
 import PrefsControls from "@/components/PrefsControls";
+import { useT } from "@/components/Prefs";
 
 const BROWSE = [
-  { href: "/decades", label: <L en="Decades" fr="Décennies" />, line: <L en="Browse history year by year" fr="Parcourir l’histoire année par année" /> },
-  { href: "/subjects", label: <L en="Subjects" fr="Thèmes" />, line: <L en="Browse history by subject" fr="Parcourir l’histoire par thème" /> },
-  { href: "/people", label: <L en="Notable Figures" fr="Personnalités marquantes" />, line: <L en="Explore the people who shaped Haiti" fr="Découvrir les personnalités qui ont marqué Haïti" /> },
+  { href: "/decades", titleEn: "Decades", titleFr: "Décennies", detailEn: "Browse history year by year", detailFr: "Parcourir l’histoire année par année" },
+  { href: "/subjects", titleEn: "Subjects", titleFr: "Thèmes", detailEn: "Browse history by subject", detailFr: "Parcourir l’histoire par thème" },
+  { href: "/people", titleEn: "Notable Figures", titleFr: "Personnalités marquantes", detailEn: "Explore the people who shaped Haiti", detailFr: "Découvrir les personnalités qui ont marqué Haïti" },
 ];
 const OTHER = [
   { href: "/sources", label: <L en="Sources" fr="Sources" /> },
@@ -20,6 +21,7 @@ const OTHER = [
 
 export default function SiteHeader() {
   const path = usePathname() || "/";
+  const t = useT();
   const [menu, setMenu] = useState(false);
   const active = (href: string) => path === href || path.startsWith(href + "/");
 
@@ -48,7 +50,7 @@ export default function SiteHeader() {
                   href={item.href}
                   aria-current={active(item.href) ? "page" : undefined}
                   className={`rounded-full px-3 py-2 font-medium transition-colors ${active(item.href) ? "text-fg" : "text-dim hover:text-fg"}`}
-                >{item.label}</Link>
+                >{t(item.titleEn, item.titleFr)}</Link>
               </li>
             ))}
             <li aria-hidden="true" className="mx-1 h-5 w-px bg-rule" />
@@ -85,8 +87,8 @@ export default function SiteHeader() {
             {BROWSE.map((item) => (
               <li key={item.href}>
                 <Link href={item.href} aria-current={active(item.href) ? "page" : undefined} onClick={() => setMenu(false)} className="block border-b border-rule py-3.5">
-                  <span className="block text-base font-medium">{item.label}</span>
-                  <span className="block text-sm text-dim">{item.line}</span>
+                  <span className="block text-lg font-semibold text-fg">{t(item.titleEn, item.titleFr)}</span>
+                  <span className="mt-1 block text-sm text-dim">{t(item.detailEn, item.detailFr)}</span>
                 </Link>
               </li>
             ))}
