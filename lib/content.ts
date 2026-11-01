@@ -14,6 +14,7 @@ import { chaptersB, eventsB, periodInfoB } from "./chapters-b";
 import { chaptersC, eventsC, legacyC, periodInfoC } from "./chapters-c";
 import { SECTIONS, notesToSections, toSections } from "./sections";
 import { archivalEvents1793 } from "./archival-research-1793";
+import { archivalBiographies } from "./archival-biographies";
 
 /**
  * Bundled starter content. It mirrors the Supabase schema exactly, so the site runs
@@ -899,6 +900,7 @@ people.push(...morePeople, ...yearPeople, ...people1790s);
 
 for (const e of events) if (events1790sFr[e.slug]) e.fr = { ...e.fr, ...events1790sFr[e.slug] };
 for (const pe of people) if (people1790sFr[pe.slug]) pe.fr = { ...pe.fr, ...people1790sFr[pe.slug] };
+for (const pe of people) { const biography = archivalBiographies[pe.slug]; if (biography) { pe.bio = biography.en; pe.fr = { ...pe.fr, bio: biography.fr }; } }
 
 // File every moment under the 10 sections, and merge decade notes the same way.
 const sectionedEvents = events.map(toSections);
