@@ -23,49 +23,157 @@ const normalize = (text: string) => text
   .replace(/\b(\d{1,2})(st|nd|rd|th)\b/g, "$1")
   .replace(/[^a-z0-9]+/g, " ").trim().replace(/\s+/g, " ");
 
-function dateIntent(query: string): { month: number; day: number } | null {
-  const parts = normalize(query).split(" ");
-  const month = MONTHS.findIndex((name, index) =>
-    parts.includes(normalize(name)) || parts.includes(normalize(MONTHS_FR[index]))
-  );
-  if (month < 0) return null;
-  const day = parts.map(Number).find((n) => Number.isInteger(n) && n >= 1 && n <= 31);
-  return day ? { month: month + 1, day } : null;
+type ParsedQuery = {
+  normalized: string;
+  words: string[];
+  kind?: SearchKind;
+  month?: number;
+  day?: number;
+  year?: number;
+  startYear?: number;
+  endYear?: number;
+  hasDate: boolean;
+};
+
+/** Interpret common questions without sending any user searches to a remote AI. */
+const QUERY_STOPWORDS = new Set([
+  "a", "an", "and", "are", "at", "about", "all", "any", "by", "during", "did", "do", "does",
+  "event", "events", "for", "find", "from", "give", "happened", "happens", "history", "historical",
+  "how", "in", "is", "me", "of", "on", "please", "records", "search", "show",
+  "tell", "the", "there", "to", "was", "were", "what", "when", "where", "which", "who",
+  "with", "year", "years", "date", "dates", "people", "person", "figure", "figures",
+  "au", "aux", "ce", "ces", "cette", "dans", "de", "des", "du", "en", "est", "et", "il",
+  "la", "le", "les", "me", "moi", "nous", "ou", "par", "passe", "passee", "passee", "passe",
+  "pour", "que", "quel", "quelle", "quels", "quelles", "qui", "recherche", "sur", "un", "une",
+  "evenement", "evenements", "personnes", "faits", "histoire", "annee", "annees",
+]);
+
+function parseQuery(raw: string, today?: { month: number; day: number } | null): ParsedQuery {
+  const normalized = normalize(raw);
+  const tokens = normalized.split(" ").filter(Boolean);
+  const kind: SearchKind | undefined =
+    /\b(who was|who is|qui etait|qui est|biography|biographie|notable figures|personnalites)\b/.test(normalized) ? "figure" :
+    /\b(what happened|what took place|events|evenements|que s est il passe|qu est ce qui s est passe)\b/.test(normalized) ? "event" :
+    /\b(decd|decade|decennie|decennies|historical period|periode historique)\b/.test(normalized) ? "decade" :
+    undefined;
+
+  let year: number | undefined;
+  let startYear: number | undefined;
+  let endYear: number | undefined;
+  let month: number | undefined;
+  let day: number | undefined;
+  const ignored = new Set<string>();
+  const iso = raw.match(/\b((?:1\d{3}|20\d{2}))-(0?[1-9]|1[0-2])-(0?[1-9]|[12]\d|3[01])\b/);
+  if (iso) {
+    year = Number(iso[1]);
+    month = Number(iso[2]);
+    day = Number(iso[3]);
+  }
+
+  if (!month) {
+    const found = MONTHS.findIndex((name, index) => {
+      const english = normalize(name);
+      const french = normalize(MONTHS_FR[index]);
+      const aliases = [english, french, english.slice(0, 3)];
+      return tokens.some((token) => aliases.includes(token));
+    });
+    if (found >= 0) {
+      month = found + 1;
+      const monthTokenIndex = tokens.findIndex((token) =>
+        [normalize(MONTHS[found]), normalize(MONTHS_FR[found]), normalize(MONTHS[found]).slice(0, 3)].includes(token)
+      );
+      if (monthTokenIndex >= 0) ignored.add(tokens[monthTokenIndex]);
+      const candidates = [
+        tokens[monthTokenIndex + 1],
+        tokens[monthTokenIndex - 1],
+        tokens[monthTokenIndex + 2],
+      ];
+      const numericDay = candidates.find((token) => token && /^\d{1,2}$/.test(token) && Number(token) >= 1 && Number(token) <= 31);
+      if (numericDay) day = Number(numericDay);
+    }
+  }
+
+  if (today && (/\b(today|on this day|aujourd hui|ce jour)\b/.test(normalized))) {
+    month = today.month;
+    day = today.day;
+  } else if (today && /\b(this month|ce mois)\b/.test(normalized)) {
+    month = today.month;
+  }
+
+  const years = [...normalized.matchAll(/\b(1\d{3}|20\d{2})\b/g)].map((value) => Number(value[1]));
+  const decadeMatch = normalized.match(/\b(1\d{2}0|20\d0)s\b/);
+  const range = /\b(between|from|entre|de)\b/.test(normalized) && years.length >= 2;
+  if (range) {
+    startYear = Math.min(years[0], years[1]);
+    endYear = Math.max(years[0], years[1]);
+  } else if (decadeMatch) {
+    startYear = Number(decadeMatch[1]);
+    endYear = startYear + 9;
+  } else if (!year && years.length === 1) {
+    year = years[0];
+  }
+  if (month) ignored.add(normalize(MONTHS[month - 1]));
+  if (month) ignored.add(normalize(MONTHS_FR[month - 1]));
+  if (day) ignored.add(String(day));
+  for (const y of years) ignored.add(String(y));
+  if (decadeMatch) ignored.add(decadeMatch[0]);
+
+  const words = tokens.filter((word) => !ignored.has(word) && !QUERY_STOPWORDS.has(word));
+  // "Haiti" adds no useful distinction when another term or date is provided.
+  const meaningful = words.length > 1 || Boolean(month || year || startYear);
+  const filtered = meaningful ? words.filter((word) => !["haiti", "haitian", "haitiens", "haitiennes"].includes(word)) : words;
+
+  return { normalized, words: filtered, kind, month, day, year, startYear, endYear, hasDate: Boolean(month || year || startYear) };
 }
 
-function score(entry: SearchRecord, raw: string): number {
-  const q = normalize(raw);
-  if (!q) return -1;
+/** Date constraints are strict: match the event's dated record, never invent an answer. */
+function dateMatch(entry: SearchRecord, query: ParsedQuery): boolean {
+  if (!query.hasDate) return true;
+  if (entry.kind !== "event" && entry.kind !== "decade") return false;
+  if (entry.kind === "decade" && (query.month || query.kind === "event")) return false;
+  if (query.month && entry.month !== query.month) return false;
+  if (query.day && entry.day !== query.day) return false;
+  if (query.year != null) {
+    if (entry.kind === "event" && entry.year !== query.year) return false;
+    if (entry.kind === "decade" && !(entry.year != null && entry.yearEnd != null && query.year >= entry.year && query.year <= entry.yearEnd)) return false;
+  }
+  if (query.startYear != null && query.endYear != null) {
+    if (entry.year == null) return false;
+    if (entry.kind === "event" && (entry.year < query.startYear || entry.year > query.endYear)) return false;
+    if (entry.kind === "decade" && (entry.year > query.endYear || (entry.yearEnd ?? entry.year) < query.startYear)) return false;
+  }
+  return true;
+}
+
+function score(entry: SearchRecord, query: ParsedQuery): number {
+  if (!query.normalized || (query.kind && entry.kind !== query.kind) || !dateMatch(entry, query)) return -1;
   const title = normalize([entry.title, entry.titleFr].filter(Boolean).join(" "));
   const titleEnglish = normalize(entry.title);
+  const frenchTitle = normalize(entry.titleFr ?? "");
   const description = normalize([entry.description, entry.descriptionFr, entry.detail, entry.detailFr].filter(Boolean).join(" "));
   const extra = normalize(entry.terms);
-  const exactDate = dateIntent(q);
-  if (exactDate) {
-    if (entry.kind === "event" && entry.month === exactDate.month && entry.day === exactDate.day) return 280;
-    if (!title.includes(q) && !description.includes(q)) return -1;
-  }
-  const tokens = q.split(" ").filter(Boolean);
   const haystack = title + " " + description + " " + extra;
-  const matchedYear = /^\d{4}$/.test(q) && Number(q) === entry.year;
-  const inPeriod = /^\d{4}$/.test(q) && entry.kind === "decade"
-    && entry.year != null && entry.yearEnd != null
-    && Number(q) >= entry.year && Number(q) <= entry.yearEnd;
-  if (!tokens.every((term) => haystack.includes(term)) && !matchedYear && !inPeriod) return -1;
 
-  let result = 10;
-  if (titleEnglish === q || normalize(entry.titleFr ?? "") === q) result += 200;
-  else if (titleEnglish.startsWith(q) || normalize(entry.titleFr ?? "").startsWith(q)) result += 135;
-  else if (title.includes(q)) result += 100;
-  else if (tokens.every((term) => title.includes(term))) result += 65;
-  else if (description.includes(q)) result += 45;
-  else if (extra.includes(q)) result += 18;
+  if (query.words.length && !query.words.every((word) => haystack.includes(word))) return -1;
+  if (!query.words.length && !query.hasDate && !query.kind) return -1;
 
-  if (matchedYear) result += entry.kind === "event" ? 100 : 45;
-  if (inPeriod) result += 85;
-  if (entry.kind === "subject" && tokens.every((term) => title.includes(term))) result += 35;
-  if (entry.kind === "figure" && title.includes(q)) result += 25;
-  if (entry.kind === "event" && entry.month && entry.day && exactDate) result += 80;
+  const phrase = query.words.join(" ");
+  let result = 20;
+  if (phrase) {
+    if (titleEnglish === phrase || frenchTitle === phrase) result += 240;
+    else if (titleEnglish.startsWith(phrase) || frenchTitle.startsWith(phrase)) result += 145;
+    else if (title.includes(phrase)) result += 110;
+    else if (query.words.every((word) => title.includes(word))) result += 75;
+    else if (description.includes(phrase)) result += 45;
+    else if (extra.includes(phrase)) result += 20;
+  }
+  if (query.month && query.day && entry.kind === "event") result += 235;
+  else if (query.month && entry.kind === "event") result += 155;
+  if (query.year != null && entry.kind === "event") result += 115;
+  if (query.startYear != null && entry.kind === "event") result += 95;
+  if (entry.kind === "decade" && query.hasDate) result += 60;
+  if (entry.kind === "figure" && query.kind === "figure") result += 90;
+  if (entry.kind === "event" && query.kind === "event") result += 50;
   return result;
 }
 
@@ -138,14 +246,15 @@ export default function SmartSearch({ entries, initialQuery = "", initialType = 
 
   const ranked = useMemo<Ranked[]>(() => {
     if (!normalize(query)) return [];
+    const parsed = parseQuery(query, today);
     return entries
-      .map((item) => ({ item, score: score(item, query) }))
+      .map((item) => ({ item, score: score(item, parsed) }))
       .filter((hit) => hit.score >= 0)
       .sort((a, b) =>
         b.score - a.score ||
         a.item.title.localeCompare(b.item.title, "en", { sensitivity: "base" })
       );
-  }, [entries, query]);
+  }, [entries, query, today]);
 
   const counts = useMemo(() => {
     const output: Partial<Record<SearchKind, number>> = {};
@@ -195,7 +304,7 @@ export default function SmartSearch({ entries, initialQuery = "", initialType = 
       { label: "Haitian music", query: "music" },
       { label: "Toussaint Louverture", query: "Toussaint Louverture" },
     ];
-    return available.filter((value) => entries.some((entry) => score(entry, value.query) >= 0));
+    return available.filter((value) => entries.some((entry) => score(entry, parseQuery(value.query)) >= 0));
   }, [entries]);
 
   const alternative = useMemo(() => {
