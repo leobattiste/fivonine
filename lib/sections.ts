@@ -39,7 +39,7 @@ export function toSections(e: HistEvent): HistEvent {
     switch (c) {
       case "politics": case "wars": add("politics"); break;
       case "economy": case "business": add("economy"); break;
-      case "society": add(HEALTH.test(text) ? "education" : "society"); break;
+      case "society": add("society"); break;
       case "religion": case "culture": add("culture"); break;
       case "music": case "arts": add("arts"); break;
       case "education": add("education"); break;
