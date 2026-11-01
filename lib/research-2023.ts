@@ -26,28 +26,6 @@ const entries:Entry[]=[
     ]
   },
   {
-    "slug": "research-2023-02-haiti-s-women-qualify-for-their-first",
-    "date": "2023-02-22",
-    "dimension": "abroad",
-    "categories": [
-      "sports",
-      "abroad"
-    ],
-    "location": "Auckland, New Zealand",
-    "title": "Haiti's women qualify for their first FIFA Women's World Cup",
-    "ft": "Les Haïtiennes se qualifient pour leur première Coupe du monde féminine",
-    "summary": "Melchie Dumornay scores twice in a 2–1 playoff victory over Chile.",
-    "fs": "Melchie Dumornay marque les deux buts de la victoire 2-1 contre le Chili.",
-    "body": "On 22 February 2023, Haiti defeated Chile 2–1 in the intercontinental playoff in Auckland, New Zealand, qualifying for the women's FIFA World Cup for the first time. Nineteen-year-old Melchie Dumornay scored both goals, while goalkeeper Kerly Théus and teammates helped secure the historic victory. The achievement reflected years of work by players and coaches in difficult conditions, as well as the contributions of women developing their careers in international leagues. Qualification should be distinguished from Haiti's subsequent group-stage matches in July and August. The result created an important moment of pride and international recognition and offers a starting point for documenting the history of women's football in Haiti.",
-    "fb": "Le 22 février 2023, Haïti bat le Chili 2-1 lors du barrage intercontinental à Auckland, en Nouvelle-Zélande, et se qualifie pour la première fois à la Coupe du monde féminine. Melchie Dumornay, âgée de dix-neuf ans, marque les deux buts. Kerly Théus et ses coéquipières contribuent aussi à ce succès historique. Cette performance résulte du travail des joueuses et des entraîneurs malgré de nombreuses difficultés, ainsi que de carrières menées dans des championnats étrangers. La qualification est distincte des rencontres disputées ensuite pendant la compétition.",
-    "sources": [
-      [
-        "Concacaf/FIFA",
-        "https://es.concacaf.com/news/dumornay-brace-qualifies-haiti-for-first-women-s-world-cup"
-      ]
-    ]
-  },
-  {
     "slug": "research-2023-03-the-bwa-kale-vigilante-movement-emerg",
     "date": "2023-04-24",
     "dimension": "inside",
@@ -161,24 +139,47 @@ const entries:Entry[]=[
     ]
   },
   {
-    "slug": "research-2023-08-un-security-council-authorizes-a-keny",
-    "date": "2023-10-02",
+    "slug": "haiti-2023-june-floods-earthquake-grandanse",
+    "date": "2023-06-06",
+    "dimension": "inside",
+    "categories": [
+      "environment",
+      "society",
+      "education"
+    ],
+    "location": "Grand'Anse, Ouest and Sud-Est departments, Haiti",
+    "title": "Deadly floods and a June earthquake compound Haiti's humanitarian emergency",
+    "ft": "Des inondations meurtrières et un séisme en juin aggravent la crise humanitaire",
+    "summary": "Heavy rainfall and an earthquake near Jérémie damage housing and healthcare facilities in multiple departments.",
+    "fs": "De fortes pluies et un séisme près de Jérémie endommagent des maisons et des structures de santé.",
+    "body": "In early June 2023, intense rain caused flooding and landslides across Haiti, damaging thousands of homes and several healthcare facilities. The Pan American Health Organization's 6 June monitoring update reported 51 deaths associated with flooding, alongside injuries and missing people, in the then-current assessment. On 6 June, a separate earthquake struck the Grand'Anse region near Jérémie; contemporary initial reports recorded four deaths and dozens injured. These were distinct hazards affecting overlapping communities. The emergency occurred amid insecurity and poor road access, complicating evacuation, medical treatment and distribution of relief. The reported casualty totals were preliminary and tied to specific reporting dates, not definitive totals for the month. A geographical account should identify the affected departments, local civil protection responses and how consecutive emergencies added to household vulnerability.",
+    "fb": "Au début de juin 2023, de fortes pluies provoquent des inondations et des glissements de terrain en Haïti, endommageant des milliers de maisons et plusieurs établissements de santé. Le bilan de l'Organisation panaméricaine de la santé daté du 6 juin fait état de 51 morts liés aux inondations, avec des blessés et des disparus. Le 6 juin, un séisme distinct frappe la région de la Grand'Anse près de Jérémie ; les premiers bilans signalent quatre morts et plusieurs dizaines de blessés. Ces catastrophes touchent des communautés déjà confrontées à l'insécurité et aux difficultés de transport. Les nombres sont provisoires et doivent être présentés à leur date de référence.",
+    "sources": [
+      [
+        "Pan American Health Organization, natural hazards monitoring, 6 June 2023",
+        "https://www.paho.org/en/natural-hazards-monitoring/natural-hazards-monitoring-6-june-2023"
+      ]
+    ]
+  },
+  {
+    "slug": "haiti-2023-kenya-proposes-leading-mission-july",
+    "date": "2023-07",
     "dimension": "foreign",
     "categories": [
       "world",
       "politics"
     ],
-    "location": "United Nations, New York",
-    "title": "UN Security Council authorizes a Kenya-led security support mission",
-    "ft": "Le Conseil de sécurité autorise une mission de soutien sécuritaire dirigée par le Kenya",
-    "summary": "Resolution 2699 authorizes international police support; it is not a UN peacekeeping mission.",
-    "fs": "La résolution 2699 autorise un soutien policier international distinct d'une opération de maintien de la paix.",
-    "body": "On 2 October 2023, the United Nations Security Council adopted resolution 2699 authorizing member states to form a multinational security support mission for Haiti, with Kenya offering to lead. The mission was intended to support the Haitian National Police, secure critical infrastructure and help create conditions for elections. It was authorized by the Security Council but was not a United Nations peacekeeping operation. The authorization did not mean that the officers immediately arrived; the first Kenyan contingent deployed in June 2024. The decision drew differing responses from Haitians because of concerns about insecurity, national sovereignty, civilian protection and the legacy of previous international missions.",
-    "fb": "Le 2 octobre 2023, le Conseil de sécurité des Nations unies adopte la résolution 2699, qui autorise des États à former une mission multinationale de soutien à la sécurité en Haïti, sous direction proposée du Kenya. Elle doit soutenir la Police nationale, protéger des infrastructures et contribuer à préparer des élections. Il ne s'agit pas d'une opération de maintien de la paix de l'ONU. L'autorisation ne correspond pas à un déploiement immédiat : les premiers policiers kényans arrivent en juin 2024. La décision suscite des positions divergentes au sein de la société haïtienne.",
+    "location": "Nairobi, Kenya",
+    "title": "Kenya announces willingness to consider leading a Haiti security mission",
+    "ft": "Le Kenya envisage de diriger une mission de sécurité en Haïti",
+    "summary": "Kenya offers to consider sending police leadership and personnel, pending international authorization.",
+    "fs": "Le Kenya envisage un rôle de direction et l'envoi de policiers, sous réserve d'une autorisation internationale.",
+    "body": "In July 2023, Kenya announced its willingness to consider leading a multinational security support mission in Haiti, including a possible deployment of police officers. The announcement came after the Haitian government's October 2022 appeal for outside assistance and amid rising attacks by armed groups. The proposed force drew both diplomatic support and questions about the legal basis of deployment, past foreign interventions and potential rights violations. Kenya sent representatives to assess the situation before the UN Security Council adopted resolution 2699 on 2 October 2023. The July announcement was an expression of willingness, not the final authorization or the arrival of officers; those distinct events should be filed separately under October 2023 and June 2024.",
+    "fb": "En juillet 2023, le Kenya annonce qu'il envisage de diriger une mission multinationale de soutien à la sécurité en Haïti, avec un possible déploiement de policiers. Cette annonce suit la demande d'aide du gouvernement haïtien en octobre 2022 et une hausse des attaques armées. La proposition reçoit un appui diplomatique, mais suscite aussi des questions sur sa base juridique, les interventions étrangères antérieures et le respect des droits humains. Le Kenya entreprend ensuite une évaluation avant l'adoption de la résolution 2699 le 2 octobre 2023. L'intention exprimée en juillet doit être distinguée de l'autorisation et du déploiement ultérieurs.",
     "sources": [
       [
-        "Security Council Report",
-        "https://www.securitycouncilreport.org/un-documents/haiti"
+        "U.S. Department of State, Kenya considering leading multinational force, August 2023",
+        "https://2021-2025.state.gov/kenya-considering-leading-a-multinational-force-in-haiti/"
       ]
     ]
   }
