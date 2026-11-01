@@ -4,7 +4,7 @@ import L from "@/components/L";
 import ExploreClient from "@/components/ExploreClient";
 import { formatDate, formatDateFr, getContent, periodFor, sortEvents } from "@/lib/data";
 
-export const metadata: Metadata = { title: "Explore", description: "Explore Haitian history by decade, event, figure or subject, or search everything." };
+export const metadata: Metadata = { title: "Explore", description: "Explore Haitian history through decades, subjects and notable figures, or search the archive." };
 
 export default async function ExplorePage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const sp = await searchParams;
@@ -30,13 +30,12 @@ export default async function ExplorePage({ searchParams }: { searchParams: Prom
   return (
     <div className="mx-auto max-w-[1240px] px-5 pt-10 sm:px-8 sm:pt-12">
       <h1 className="text-d-2"><L en="Explore" fr="Explorer" /></h1>
-      <p className="read mt-4"><L en="Four ways into Haiti’s history, or search everything at once." fr="Quatre portes d’entrée dans l’histoire d’Haïti, ou une recherche dans tout à la fois." /></p>
-      <ul className="mt-10 grid grid-cols-2 gap-3 lg:grid-cols-4">
+      <p className="read mt-4"><L en="Explore Haitian history through decades, subjects, and notable figures." fr="Parcourez l’histoire d’Haïti par décennie, par thème ou à travers les personnalités marquantes." /></p>
+      <ul className="mt-10 grid gap-3 sm:grid-cols-3">
         {[
-          { href: "/decades", title: <L en="Decades" fr="Décennies" />, line: <L en={`${c.periods.length} periods, each a year-by-year timeline`} fr={`${c.periods.length} périodes, chacune année par année`} /> },
-          { href: "/events", title: <L en="Events" fr="Événements" />, line: <L en={`${c.events.length} moments on one timeline`} fr={`${c.events.length} moments sur une seule frise`} /> },
-          { href: "/people", title: <L en="Figures" fr="Personnages" />, line: <L en={`${c.people.length} people who shaped Haiti`} fr={`${c.people.length} personnes qui ont façonné Haïti`} /> },
-          { href: "/subjects", title: <L en="Subjects" fr="Thèmes" />, line: <L en={`${c.categories.length} subjects through the centuries`} fr={`${c.categories.length} thèmes à travers les siècles`} /> },
+          { href: "/decades", title: <L en="Decades" fr="Décennies" />, line: <L en={`${c.periods.length} historical periods to explore year by year`} fr={`${c.periods.length} périodes historiques à explorer année par année`} /> },
+          { href: "/subjects", title: <L en="Subjects" fr="Thèmes" />, line: <L en={`${c.categories.length} subjects spanning Haiti's history`} fr={`${c.categories.length} thèmes couvrant l’histoire d’Haïti`} /> },
+          { href: "/people", title: <L en="Notable Figures" fr="Personnalités marquantes" />, line: <L en={`${c.people.length} people connected to Haiti's history`} fr={`${c.people.length} personnes liées à l’histoire d’Haïti`} /> },
         ].map((x) => (
           <li key={x.href}>
             <Link href={x.href} className="flex h-full flex-col rounded-2xl border border-rule p-5 transition-colors hover:border-fg">
@@ -46,7 +45,7 @@ export default async function ExplorePage({ searchParams }: { searchParams: Prom
           </li>
         ))}
       </ul>
-      <section id="search" className="mt-20 scroll-mt-24">
+      <section id="search" className="mt-16 scroll-mt-24">
         <h2 className="mb-6 text-lg"><L en="Search everything" fr="Tout rechercher" /></h2>
       <ExploreClient
         items={items}
