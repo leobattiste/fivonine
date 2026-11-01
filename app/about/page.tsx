@@ -34,12 +34,11 @@ export default async function AboutPage() {
 
       <section className="mt-20 border-t border-rule pt-10">
         <h2 className="text-d-3"><L en="How it’s organized" fr="Comment c’est organisé" /></h2>
-        <ul className="mt-8 grid gap-3 sm:grid-cols-2">
+        <ul className="mt-8 grid gap-3 sm:grid-cols-3">
           {[
-            { href: "/decades", t: <L en="Decades" fr="Décennies" />, d: <L en="Every period has its own year-by-year timeline." fr="Chaque période a sa propre frise année par année." /> },
-            { href: "/events", t: <L en="Events" fr="Événements" />, d: <L en="Every moment, created once and linked everywhere it belongs." fr="Chaque moment, créé une fois et relié partout où il a sa place." /> },
-            { href: "/people", t: <L en="Figures" fr="Personnages" />, d: <L en="Each person connected to every moment and decade they shaped." fr="Chaque personne reliée à chaque moment et à chaque décennie qu’elle a façonnés." /> },
-            { href: "/subjects", t: <L en="Subjects" fr="Thèmes" />, d: <L en={`${c.categories.length} subjects, from Politics & Government to Environment & Geography.`} fr={`${c.categories.length} thèmes, de la politique et du gouvernement à l’environnement et à la géographie.`} /> },
+            { href: "/decades", t: <L en="Decades" fr="Décennies" />, d: <L en="Follow the history year by year through each period." fr="Suivez l’histoire année par année à travers chaque période." /> },
+            { href: "/subjects", t: <L en="Subjects" fr="Thèmes" />, d: <L en={`Browse ${c.categories.length} subjects across Haitian history.`} fr={`Parcourez ${c.categories.length} thèmes de l’histoire haïtienne.`} /> },
+            { href: "/people", t: <L en="Notable Figures" fr="Personnalités marquantes" />, d: <L en="Discover people who shaped Haiti, at home and abroad." fr="Découvrez les personnes qui ont marqué Haïti, sur place et à l’étranger." /> },
           ].map((x) => (
             <li key={x.href}>
               <Link href={x.href} className="block h-full rounded-2xl border border-rule p-6 hover:border-fg">
