@@ -68,6 +68,28 @@ function parseQuery(raw: string, today?: { month: number; day: number } | null):
     year = Number(iso[1]);
     month = Number(iso[2]);
     day = Number(iso[3]);
+    ignored.add(iso[2]);
+    ignored.add(String(month));
+  }
+
+  // Support unambiguous numeric dates too: 5/18/1803 and 18/5/1803.
+  // For ambiguous dates (e.g. 5/6/1803), require a named month instead of guessing.
+  const numericDate = !iso ? raw.match(/\b(\d{1,2})[\/-](\d{1,2})[\/-](1\d{3}|20\d{2})\b/) : null;
+  if (numericDate) {
+    const first = Number(numericDate[1]);
+    const second = Number(numericDate[2]);
+    if (first >= 1 && first <= 12 && second > 12 && second <= 31) {
+      month = first;
+      day = second;
+    } else if (first > 12 && first <= 31 && second >= 1 && second <= 12) {
+      day = first;
+      month = second;
+    }
+    if (month && day) {
+      year = Number(numericDate[3]);
+      ignored.add(numericDate[1]);
+      ignored.add(numericDate[2]);
+    }
   }
 
   if (!month) {
@@ -87,6 +109,7 @@ function parseQuery(raw: string, today?: { month: number; day: number } | null):
         tokens[monthTokenIndex + 1],
         tokens[monthTokenIndex - 1],
         tokens[monthTokenIndex + 2],
+        tokens[monthTokenIndex - 2],
       ];
       const numericDay = candidates.find((token) => token && /^\d{1,2}$/.test(token) && Number(token) >= 1 && Number(token) <= 31);
       if (numericDay) day = Number(numericDay);
