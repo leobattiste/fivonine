@@ -364,7 +364,9 @@ const drafts: Draft[] = [
 ];
 export const contemporaryResearch: HistEvent[] = drafts.map((e) => ({
   slug: e.slug, date: e.date, precision: e.precision, dimension: e.dimension, categories: e.categories,
-  location: e.location, countries: e.countries, title: e.title, summary: e.summary, body: e.body,
+  location: e.location, countries: e.countries,
+  people: e.slug === "parliament-lapses-haiti-2020" ? ["jovenel-moise"] : undefined,
+  title: e.title, summary: e.summary, body: e.body,
   fr: { title: e.ft, summary: e.fs, body: e.fb },
   sources: e.sources.map(([title,url]) => ({title,url})), status: "documented" as const,
   editorial: { verification: "corroborated" as const, dateBasis: e.precision === "day" ? "date of documented action" : "month of documented development",
