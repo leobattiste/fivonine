@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import L from "@/components/L";
+import { SUBJECT_OVERVIEWS } from "@/lib/subject-overviews";
 import { getContent, sortEvents, yearOf } from "@/lib/data";
 
 export const metadata: Metadata = { title: "Subjects", description: "Follow politics, music, the economy, the diaspora and more through every decade of Haitian history." };
@@ -15,13 +16,13 @@ export default async function SubjectsPage() {
       <ul className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {c.categories.map((cat) => {
           const evs = sortEvents(c.events.filter((e) => e.categories.includes(cat.slug)));
-          const notes = c.periods.filter((p) => p.notes?.[cat.slug]).length;
           const span = evs.length ? <L en={`${yearOf(evs[0])} to ${yearOf(evs[evs.length - 1])}`} fr={`${yearOf(evs[0])} à ${yearOf(evs[evs.length - 1])}`} /> : <L en="Being researched" fr="En cours de recherche" />;
           return (
             <li key={cat.slug}>
               <Link href={`/subjects/${cat.slug}`} className="flex h-full min-h-[9rem] flex-col rounded-2xl border border-rule p-5 transition-colors hover:border-fg">
                 <span className="text-xl leading-tight"><L en={cat.name} fr={cat.nameFr} /></span>
-                <span className="mt-auto pt-4 text-sm tabular-nums text-dim">
+                <span className="mt-3 text-sm leading-relaxed text-dim"><L en={SUBJECT_OVERVIEWS[cat.slug]?.en ?? cat.name} fr={SUBJECT_OVERVIEWS[cat.slug]?.fr ?? cat.nameFr} /></span>
+                <span className="mt-auto pt-6 text-sm tabular-nums text-dim">
                   <L en={`${evs.length} ${evs.length === 1 ? "moment" : "moments"}`} fr={`${evs.length} ${evs.length === 1 ? "moment" : "moments"}`} />
                 </span>
                 <span className="text-sm tabular-nums text-dim">{span}</span>
