@@ -82,12 +82,12 @@ export default function SiteHeader() {
       </header>
       {menu && (
         <div id="phone-menu" className="fixed inset-x-0 bottom-0 top-[60px] z-40 overflow-y-auto bg-base px-5 pb-10 pt-4 lg:hidden">
-          <p className="label"><L en="Browse history" fr="Parcourir l’histoire" /></p>
+          <h1 className="text-d-4"><L en="Explore" fr="Explorer" /></h1>
           <ul className="mt-2">
             {BROWSE.map((item) => (
               <li key={item.href}>
                 <Link href={item.href} aria-current={active(item.href) ? "page" : undefined} onClick={() => setMenu(false)} className="block border-b border-rule py-3.5">
-                  <span className="block text-lg font-semibold text-fg">{t(item.titleEn, item.titleFr)}</span>
+                  <span className="block text-base font-normal leading-relaxed text-fg">{t(item.titleEn, item.titleFr)}</span>
                   <span className="mt-1 block text-sm text-dim">{t(item.detailEn, item.detailFr)}</span>
                 </Link>
               </li>
@@ -99,7 +99,7 @@ export default function SiteHeader() {
           <ul className="mt-8 space-y-1">
             {OTHER.map((item) => (
               <li key={item.href}>
-                <Link href={item.href} aria-current={active(item.href) ? "page" : undefined} onClick={() => setMenu(false)} className="block py-2 text-xl font-medium">{item.label}</Link>
+                <Link href={item.href} aria-current={active(item.href) ? "page" : undefined} onClick={() => setMenu(false)} className="block py-2"><h1 className="text-d-4">{item.label}</h1></Link>
               </li>
             ))}
           </ul>
