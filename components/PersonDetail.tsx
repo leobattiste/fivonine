@@ -23,6 +23,18 @@ export default function PersonDetail({ p, c, inModal = false }: { p: Person; c: 
       <H className={`mt-2 max-w-4xl ${inModal ? "text-d-3" : "text-d-2"}`}>{p.name}</H>
       <p className="mt-3 text-lg text-dim"><L en={p.roles.join(", ")} fr={p.fr?.roles?.join(", ")} /></p>
       <p className="read mt-6"><L en={p.bio} fr={p.fr?.bio} /></p>
+      {p.sources && p.sources.length > 0 && (
+        <section className="mt-8">
+          <h3 className="text-lg"><L en="Sources and further reading" fr="Sources et lectures complémentaires" /></h3>
+          <ul className="mt-3 space-y-2 text-sm text-dim">
+            {p.sources.map((source, i) => (
+              <li key={source.url ?? `${source.title}-${i}`}>
+                {source.url ? <a href={source.url} target="_blank" rel="noopener noreferrer" className="underline underline-offset-4 hover:text-fg">{source.title}</a> : source.title}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       {periods.length > 0 && (
         <div className="mt-8 flex flex-wrap gap-2">
