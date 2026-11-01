@@ -195,14 +195,6 @@ export default function PersonModalProvider({ children }: { children: React.Reac
                     </ul>
                   </section>
                 )}
-                {(ev.sources.length > 0 || ev.editorial?.verification === "inventory") && (
-                  <section className="mt-7">
-                    <h3 className="text-sm font-medium"><L en="Sources" fr="Sources" /></h3>{ev.editorial?.verification === "inventory" && <p className="mt-2 text-sm text-dim"><L en="Verification: archival inventory only. Full manuscript not examined." fr="Vérification : inventaire d’archives uniquement. Manuscrit intégral non examiné." /></p>}
-                    <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-dim">
-                      {ev.sources.map((s) => <li key={s.title}>{s.url ? <a href={s.url} target="_blank" rel="noreferrer" className="underline underline-offset-4">{s.title}</a> : s.title}</li>)}
-                    </ul>
-                  </section>
-                )}
                 <div className="mt-8 flex items-center gap-4">
                   <ShareButton title={ev.title} path={`/events/${ev.slug}`} />
                   <Link href={`/events/${ev.slug}`} className="text-sm underline underline-offset-4 hover:text-dim"><L en="Open as a page" fr="Ouvrir comme page" /></Link>
@@ -218,7 +210,6 @@ export default function PersonModalProvider({ children }: { children: React.Reac
                 {record.body && <p className="read mt-4"><L en={record.body} fr={record.fr?.body} /></p>}
                 {recordData.events.length > 0 && <section className="mt-8"><h3 className="text-lg"><L en="Connected events" fr="Événements liés" /></h3><ul className="mt-3 border-t border-rule">{recordData.events.map((x) => <li key={x.slug} className="border-b border-rule py-3"><EventLink slug={x.slug} className="font-medium hover:text-dim"><L en={x.title} fr={x.titleFr} /></EventLink><span className="block text-sm text-dim"><L en={x.label} fr={x.labelFr} /></span></li>)}</ul></section>}
                 {recordData.related.length > 0 && <section className="mt-8"><h3 className="text-lg"><L en="Related records" fr="Notices associées" /></h3><ul className="mt-3 border-t border-rule">{recordData.related.map((x) => <li key={x.slug} className="border-b border-rule py-3"><RecordLink slug={x.slug} className="font-medium hover:text-dim"><L en={x.title} fr={x.titleFr} /></RecordLink><span className="block text-xs uppercase tracking-wide text-dim">{x.type}</span></li>)}</ul></section>}
-                {record.sources.length > 0 && <section className="mt-8"><h3 className="text-lg"><L en="Sources" fr="Sources" /></h3><ul className="mt-3 list-disc space-y-2 pl-5 text-sm text-dim">{record.sources.map((s) => <li key={s.title}>{s.url ? <a href={s.url} target="_blank" rel="noreferrer" className="underline underline-offset-4">{s.title}</a> : s.title}</li>)}</ul></section>}
                 <div className="mt-8"><Link href={`/records/${record.slug}`} className="text-sm underline underline-offset-4"><L en="Open as a page" fr="Ouvrir comme une page" /></Link></div>
               </div>
             )}
@@ -258,18 +249,6 @@ export default function PersonModalProvider({ children }: { children: React.Reac
                               <span className="block text-sm text-dim"><L en={e.label} fr={e.labelFr} />, {e.location}</span>
                             </span>
                           </EventLink>
-                        </li>
-                      ))}
-                    </ul>
-                  </section>
-                )}
-                {p.sources && p.sources.length > 0 && (
-                  <section className="mt-8">
-                    <h3 className="text-lg"><L en="Sources" fr="Sources" /></h3>
-                    <ul className="mt-3 space-y-2 text-sm text-dim">
-                      {p.sources.map((source, i) => (
-                        <li key={source.url ?? `${source.title}-${i}`}>
-                          {source.url ? <a href={source.url} target="_blank" rel="noopener noreferrer" className="underline underline-offset-4 hover:text-fg">{source.title}</a> : source.title}
                         </li>
                       ))}
                     </ul>
