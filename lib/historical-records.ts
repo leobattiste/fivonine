@@ -58,7 +58,7 @@ export const historicalRecords: HistoricalRecord[] = [
       summary: "Le drapeau national est issu de la lutte révolutionnaire et demeure un symbole de la souveraineté haïtienne.",
       body: "Le drapeau bleu et rouge est traditionnellement associé au Congrès de l'Arcahaie du 18 mai 1803, lorsque les chefs révolutionnaires adoptèrent un étendard distinct du tricolore français. Selon le récit le plus connu, la bande blanche du drapeau français fut retirée et les deux autres couleurs réunies. Les détails de cet épisode proviennent de récits transmis ultérieurement et doivent être distingués de ce que les documents contemporains conservés permettent d'établir indépendamment. Le drapeau devint un symbole central de l'armée révolutionnaire et de la nation indépendante."
     },
-    eventSlugs: ["haitian-independence-1804"], related: ["indigenous-army"],
+    eventSlugs: ["haitian-independence-1804", "arcahaie-flag"], related: ["indigenous-army"],
     sources: [{ title: "Archives numériques de la Révolution haïtienne (ANRHA)", url: "https://anrha.com/" }]
   }
 ];

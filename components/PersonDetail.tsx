@@ -1,4 +1,5 @@
 import L from "@/components/L";
+import { RecordLink } from "@/components/PersonModal";
 import { dateNode } from "@/components/dates";
 import Link from "next/link";
 import ShareButton from "@/components/ShareButton";
@@ -10,6 +11,7 @@ import type { Content, Person } from "@/lib/types";
 export default function PersonDetail({ p, c, inModal = false }: { p: Person; c: Content; inModal?: boolean }) {
   const evs = sortEvents(c.events.filter((e) => e.people?.includes(p.slug)));
   const periods = [...new Map(evs.map((e) => periodFor(e, c.periods)).filter(Boolean).map((x) => [x!.slug, x!])).values()];
+  const records = (c.records ?? []).filter((r) => (r.eventSlugs ?? []).some((s) => evs.some((e) => e.slug === s)));
   const H = inModal ? "h2" : "h1";
 
   return (
@@ -47,6 +49,12 @@ export default function PersonDetail({ p, c, inModal = false }: { p: Person; c: 
               </li>
             ))}
           </ul>
+        </section>
+      )}
+      {records.length > 0 && (
+        <section className={inModal ? "mt-8" : "mt-10"}>
+          <h3 className="text-lg"><L en="Connected records" fr="Notices associées" /></h3>
+          <ul className="mt-3 flex flex-wrap gap-2">{records.map((r) => <li key={r.slug}><RecordLink slug={r.slug} className="pill"><L en={r.title} fr={r.fr?.title} /></RecordLink></li>)}</ul>
         </section>
       )}
       {inModal && (

@@ -25,6 +25,7 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
   const period = periodFor(e, c.periods);
   const people = c.people.filter((p) => e.people?.includes(p.slug));
   const records = (e.records ?? []).map((s) => c.records?.find((r) => r.slug === s)).filter(Boolean);
+  const placeRecord = records.find((r) => r?.type === "place");
   const related = c.events.filter((x) => e.related?.includes(x.slug) || x.related?.includes(e.slug));
   return (
     <article className="mx-auto max-w-[1240px] px-5 pt-8 sm:px-8">
@@ -34,7 +35,7 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
         <h1 className="mt-3 text-d-2 leading-tight"><L en={e.title} fr={e.fr?.title} /></h1>
         <dl className="mt-5 grid grid-cols-2 gap-4 text-sm">
           <div><dt className="text-dim"><L en="Date" fr="Date" /></dt><dd><L en={formatDate(e)} fr={formatDateFr(e)} /></dd></div>
-          <div><dt className="text-dim"><L en="Place" fr="Lieu" /></dt><dd>{e.location}</dd></div>
+          <div><dt className="text-dim"><L en="Place" fr="Lieu" /></dt><dd>{placeRecord ? <RecordLink slug={placeRecord.slug} className="underline underline-offset-4">{e.location}</RecordLink> : e.location}</dd></div>
         </dl>
         <p className="read mt-7"><L en={e.summary} fr={e.fr?.summary} /></p>
         {e.context && <><h2 className="mt-8 text-lg"><L en="Background" fr="Contexte" /></h2><p className="read mt-2"><L en={e.context} fr={e.fr?.context} /></p></>}

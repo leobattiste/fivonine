@@ -10,7 +10,14 @@ import { historicalRecords, haitianIndependenceEvent } from "./historical-record
  * the database (rows are assembled into the same shape as lib/content.ts). Without it,
  * the bundled content is used, so the site works on first deploy.
  */
-const localContent: Content = { ...bundled, events: [...bundled.events, haitianIndependenceEvent], records: historicalRecords };
+const localContent: Content = {
+  ...bundled,
+  events: [
+    ...bundled.events.map((e) => ({ ...e, records: historicalRecords.filter((r) => r.eventSlugs?.includes(e.slug)).map((r) => r.slug) })),
+    haitianIndependenceEvent,
+  ],
+  records: historicalRecords,
+};
 
 export const getContent = cache(async (): Promise<Content> => {
   if (!hasSupabase()) return localContent;

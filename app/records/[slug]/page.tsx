@@ -29,7 +29,7 @@ export default async function RecordPage({ params }: { params: Promise<{ slug: s
     <article className="mx-auto max-w-[1240px] px-5 pt-8 sm:px-8">
       <Link href="/explore" className="text-sm text-dim underline underline-offset-4"><L en="Explore history" fr="Explorer l'histoire" /></Link>
       <header className="max-w-3xl border-b border-rule pb-10 pt-8">
-        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-dim">{record.type}</p>
+        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-dim"><L en={record.type} fr={record.type === "place" ? "Lieu" : record.type === "document" ? "Document" : record.type === "institution" ? "Institution" : record.type === "organization" ? "Organisation" : record.type === "object" ? "Objet" : record.type === "work" ? "Œuvre" : "Autre"} /></p>
         <h1 className="mt-3 text-d-2"><L en={record.title} fr={record.fr?.title} /></h1>
         {(record.dates || record.location) && <p className="mt-4 text-sm text-dim"><L en={record.dates ?? ""} fr={record.fr?.dates} />{record.dates && record.location ? " · " : ""}<L en={record.location ?? ""} fr={record.fr?.location} /></p>}
         <p className="read mt-7"><L en={record.summary} fr={record.fr?.summary} /></p>
