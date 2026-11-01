@@ -15,6 +15,7 @@ import { chaptersC, eventsC, legacyC, periodInfoC } from "./chapters-c";
 import { SECTIONS, notesToSections, toSections } from "./sections";
 import { archivalEvents1793 } from "./archival-research-1793";
 import { additionalArchivalEvents } from "./archival-events-more";
+import { earlyStateStudies } from "./early-state-studies";
 import { archivalBiographies } from "./archival-biographies";
 
 /**
@@ -896,7 +897,7 @@ export const people: Person[] = [
 ];
 
 // Merge the second batch, newest additions last; pages sort chronologically.
-events.push(...moreEvents, ...yearEvents, ...events1790s, ...eventsA, ...eventsB, ...eventsC, ...archivalEvents1793, ...additionalArchivalEvents);
+events.push(...moreEvents, ...yearEvents, ...events1790s, ...eventsA, ...eventsB, ...eventsC, ...archivalEvents1793, ...additionalArchivalEvents, ...earlyStateStudies);
 people.push(...morePeople, ...yearPeople, ...people1790s);
 
 for (const e of events) if (events1790sFr[e.slug]) e.fr = { ...e.fr, ...events1790sFr[e.slug] };
