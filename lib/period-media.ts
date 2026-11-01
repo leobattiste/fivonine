@@ -112,6 +112,7 @@ export const periodMedia: Record<string, PeriodMedia[]> = {
     { title: "MINUSTAH resources and earthquake records", description: "United Nations briefings, photographs, statements and reports relating to the 2010 earthquake and the mission's work through 2017.", url: "https://minustah.unmissions.org/en/resources" },
   ],
   "2020s": [
+    { title: "Human Rights Watch, World Report 2026: Haiti", description: "A review of 2025 documenting armed-group abuses, displacement, humanitarian needs, transitional politics and the proposed election timetable.", url: "https://www.hrw.org/world-report/2026/country-chapters/haiti" },
     { title: "REDOP: Public Documentation of Haiti", description: "An open catalogue of Haitian public documents and international publications, with coverage from 1890 to 2026, including laws, budgets, reports and public policy.", url: "https://redop.charesso.org/" },
     { title: "United Nations Integrated Office in Haiti: 2020 report", description: "A dated UN Secretary-General report providing a primary institutional record of political and security developments in 2020.", url: "https://digitallibrary.un.org/record/3885639?ln=en" },
     { title: "COVID-19 in Haiti: World Bank country background", description: "A World Bank report documenting the first confirmed cases on 19 March 2020, the national health emergency and the early economic response.", url: "https://documents1.worldbank.org/curated/en/346091609822078760/pdf/Final-Report.pdf" },
