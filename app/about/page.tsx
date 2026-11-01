@@ -54,7 +54,7 @@ export default async function AboutPage() {
       <section className="mt-20 border-t border-rule pt-10">
         <h2 className="text-d-3"><L en="Our standards" fr="Nos principes" /></h2>
         <div className="read mt-6">
-          <p><L en="Every entry is sourced, and the sources are listed at the bottom of each period page." fr="Chaque entrée est sourcée, et les sources figurent au bas de chaque page de période." /></p>
+          <p><L en="References and archival materials used across the site are gathered on the dedicated Sources page." fr="Les références et les documents d’archives utilisés sur le site sont réunis sur la page Sources." /></p>
         </div>
         <div className="read mt-6">
           <p>
