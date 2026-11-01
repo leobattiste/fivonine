@@ -319,19 +319,14 @@ export default function SmartSearch({ entries, initialQuery = "", initialType = 
   const suggestionsOpen = focused && normalize(query).length >= 2 && suggestions.length > 0;
 
   const monthSuggestions = useMemo(() => {
-    if (!today) return [] as { key: string; label: string; labelFr: string; query: string }[];
+    if (!today) return [] as { key: string; label: string; labelFr: string; href: string }[];
     const relevant = entries.filter((entry) => entry.kind === "event" && entry.month === today.month && entry.day != null);
     const byDay = [...relevant].sort((a, b) =>
       Math.abs((a.day ?? 0) - today.day) - Math.abs((b.day ?? 0) - today.day) ||
       (a.day ?? 0) - (b.day ?? 0)
     );
     const seen = new Set<number>();
-    const output: { key: string; label: string; labelFr: string; query: string }[] = [];
-    if (today.month === 5) {
-      // Haiti's Flag Day falls on May 18. Show it as a search prompt, never as an invented archive result.
-      output.push({ key: "flag-day", label: "May 18 · Haitian Flag Day", labelFr: "18 mai · Fête du Drapeau", query: "What happened on May 18?" });
-      seen.add(18);
-    }
+    const output: { key: string; label: string; labelFr: string; href: string }[] = [];
     for (const entry of byDay) {
       if (output.length >= 4) break;
       const day = entry.day!;
@@ -343,7 +338,7 @@ export default function SmartSearch({ entries, initialQuery = "", initialType = 
         key: entry.id,
         label: date + " · " + entry.title,
         labelFr: dateFr + " · " + (entry.titleFr ?? entry.title),
-        query: date,
+        href: entry.href,
       });
     }
     return output;
@@ -467,10 +462,10 @@ export default function SmartSearch({ entries, initialQuery = "", initialType = 
               <p className="mt-2 text-sm text-dim"><L en="Calendar-based suggestions from the historical archive." fr="Suggestions liées au calendrier et aux archives historiques." /></p>
               <div className="mt-5 grid gap-2 sm:grid-cols-2">
                 {monthSuggestions.map((suggestion) => (
-                  <button type="button" key={suggestion.key} onClick={() => applyQuery(suggestion.query)}
+                  <Link key={suggestion.key} href={suggestion.href}
                     className="rounded-xl border border-rule px-4 py-4 text-left text-sm leading-relaxed hover:border-fg">
                     <L en={suggestion.label} fr={suggestion.labelFr} />
-                  </button>
+                  </Link>
                 ))}
               </div>
             </section>
