@@ -9,7 +9,7 @@ import Essay, { EssayBlocks } from "@/components/Essay";
 import { MarkExplored } from "@/components/Progress";
 import L from "@/components/L";
 import { dateNode } from "@/components/dates";
-import { eventsInPeriod, formatDate, getContent, yearOf } from "@/lib/data";
+import { eventsInPeriod, getContent, yearOf } from "@/lib/data";
 import { SECTIONS } from "@/lib/sections";
 import type { EssayBlock } from "@/lib/types";
 
@@ -32,9 +32,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 /** Splits a chapter into its introduction and its year sections. */
 function splitChapter(blocks: EssayBlock[] = []) {
   const intro: EssayBlock[] = [];
-  const years: { year: number; title: string; blocks: EssayBlock[] }[] = [];
+  const years: { year: number; title: string; titleFr?: string; blocks: EssayBlock[] }[] = [];
   for (const b of blocks) {
-    if (b.type === "year") years.push({ year: parseInt(b.year, 10), title: b.title, blocks: [] });
+    if (b.type === "year") years.push({ year: parseInt(b.year, 10), title: b.title, titleFr: b.fr?.title, blocks: [] });
     else if (years.length) years[years.length - 1].blocks.push(b);
     else intro.push(b);
   }
@@ -64,18 +64,15 @@ export default async function PeriodPage({ params }: { params: Promise<{ slug: s
 
   const { intro, years: chapterYears } = splitChapter(p.essay);
   const thematic = (p.essay?.length ?? 0) > 0 && chapterYears.length === 0; // e.g. Indigenous Ayiti
+  const historicalEssays = chapterYears.filter((chapter) => chapter.blocks.some((block) => block.type !== "biblio"));
 
   // Every year of a decade is listed; eras list the years that have a story or a moment.
   const yearNums = p.kind === "decade"
     ? Array.from({ length: p.end - p.start + 1 }, (_, k) => p.start + k)
     : [...new Set([...chapterYears.map((y) => y.year), ...evs.map(yearOf)])].sort((a, b) => a - b);
   const years: TLYear[] = yearNums.map((yr) => {
-    const ch = chapterYears.find((y) => y.year === yr);
-    const story = ch?.blocks;
     return {
       year: yr,
-      title: ch?.title,
-      content: story && story.length ? <EssayBlocks blocks={story} /> : undefined,
       events: evs.filter((e) => yearOf(e) === yr).map((e) => ({
         slug: e.slug, title: e.title, fr: e.fr, label: dateNode(e), date: e.date, location: e.location, dimension: e.dimension,
         categories: e.categories, status: e.status, highlight: e.highlight,
