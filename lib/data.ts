@@ -43,6 +43,8 @@ export const getContent = cache(async (): Promise<Content> => {
         title: p.title, overview: p.overview ?? "", legacy: p.legacy ?? undefined, researchNote: p.research_note ?? undefined,
         notes: p.notes ?? undefined,
         essay: p.essay ?? undefined,
+        media: bundled.periods.find((bp) => bp.slug === p.slug)?.media,
+        biblio: p.biblio ?? bundled.periods.find((bp) => bp.slug === p.slug)?.biblio,
       })),
       events: (evs.data ?? []).map((e) => ({
         slug: e.slug, title: e.title, date: e.date_text, precision: e.precision, dimension: e.dimension,
