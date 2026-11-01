@@ -12,6 +12,7 @@ export async function GET(_req: Request, { params }: { params: Promise<{ slug: s
   return NextResponse.json(
     {
       person: p,
+      subjects: [...new Set(evs.flatMap((e) => e.categories))],
       records: (c.records ?? []).filter((r) => (r.eventSlugs ?? []).some((s) => evs.some((e) => e.slug === s))).map((r) => ({ slug: r.slug, title: r.title, titleFr: r.fr?.title, type: r.type })),
       periods,
       events: evs.map((e) => ({ slug: e.slug, title: e.title, titleFr: e.fr?.title, labelFr: formatDateFr(e), label: formatDate(e), location: e.location, year: yearOf(e), dimension: e.dimension })),
