@@ -20,8 +20,8 @@ html:not([lang="fr"]) .l-fr { display: none; }
 
 body, input, textarea, select, button { font-family: "Inter", system-ui, sans-serif; }
 
-/* Headings and display numerals */
-h1, [class*="text-d-"], .wdth-tight, .wordmark {
+/* All editorial headings use the same typeface as the page H1, at every size. */
+h1, h2, h3, h4, h5, h6, [role="heading"], [class*="text-d-"], .wdth-tight, .wordmark {
   font-family: "Bowlby One", sans-serif;
   font-weight: 400 !important;
   font-style: normal;
