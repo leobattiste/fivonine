@@ -1,5 +1,6 @@
 "use client";
 import L from "@/components/L";
+import SubjectLinks from "@/components/SubjectLinks";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { DIMENSIONS } from "@/lib/site";
@@ -35,7 +36,6 @@ export default function HistoryTimeline({ items, categories }: { items: Timeline
     return [...m.values()];
   }, [filtered]);
   const count = (slug: string) => items.filter((i) => i.categories.includes(slug)).length;
-  const areaShort = (slug: string) => { const c = categories.find((x) => x.slug === slug); return c ? <L en={c.short} fr={c.shortFr} /> : slug; };
 
   return (
     <div>
@@ -76,9 +76,7 @@ export default function HistoryTimeline({ items, categories }: { items: Timeline
                     <p className="text-sm text-dim"><L en={e.label} fr={e.labelFr} />, {e.location}</p>
                     <Link href={`/events/${e.slug}`} className="mt-0.5 block text-lg font-semibold leading-snug hover:text-dim sm:text-xl"><L en={e.title} fr={e.fr?.title} /></Link>
                     <p className="mt-1.5 max-w-2xl text-[0.95rem] leading-relaxed text-ink line-clamp-3"><L en={e.summary} fr={e.fr?.summary} /></p>
-                    <p className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs text-dim">
-                      {e.categories.map((c) => <button key={c} onClick={() => setSubject(c)} className="hover:text-fg hover:underline">{areaShort(c)}</button>)}
-                    </p>
+                    <SubjectLinks slugs={e.categories} compact className="mt-3" />
                   </div>
                 </li>
               ))}
