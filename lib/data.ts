@@ -5,6 +5,7 @@ import { getServiceClient, hasSupabase } from "./supabase";
 import type { Content, HistEvent, Period } from "./types";
 import { historicalRecords, haitianIndependenceEvent } from "./historical-records";
 import { archivalEvents1793 } from "./archival-research-1793";
+import { additionalArchivalEvents } from "./archival-events-more";
 import { archivalBiographies } from "./archival-biographies";
 
 /**
@@ -67,7 +68,7 @@ export const getContent = cache(async (): Promise<Content> => {
         related: (gl.get(e.slug) ?? []).map((r) => r.to_slug),
         records: localContent.events.find((x) => x.slug === e.slug)?.records,
         sources: (gs.get(e.slug) ?? []).map((r) => ({ title: r.title, url: r.url ?? undefined })),
-      })), ...localContent.events.filter((x) => x.slug === haitianIndependenceEvent.slug || archivalEvents1793.some((a) => a.slug === x.slug) && !(evs.data ?? []).some((row) => row.slug === x.slug))],
+      })), ...localContent.events.filter((x) => x.slug === haitianIndependenceEvent.slug || [...archivalEvents1793, ...additionalArchivalEvents].some((a) => a.slug === x.slug) && !(evs.data ?? []).some((row) => row.slug === x.slug))],
       records: historicalRecords,
       people: (people.data ?? []).map((p) => ({
         slug: p.slug, name: p.name, born: p.born ?? undefined, died: p.died ?? undefined, roles: p.roles ?? [], bio: archivalBiographies[p.slug]?.en ?? p.bio,
