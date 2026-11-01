@@ -61,7 +61,7 @@ export default function FiguresClient({ figures, categories, eras }: { figures: 
           <li key={figure.slug}>
             <PersonLink slug={figure.slug} className="group flex h-full min-h-[16rem] flex-col rounded-2xl border border-rule p-5 transition-colors hover:border-fg">
               <span className="text-xs tabular-nums text-dim">{figure.years}</span>
-              <span className="mt-2 text-xl font-semibold leading-tight group-hover:underline">{figure.name}</span>
+              <h2 className="mt-2 text-xl leading-tight group-hover:underline">{figure.name}</h2>
               <span className="mt-2 text-sm leading-relaxed text-dim"><L en={figure.roles.slice(0, 3).join(", ")} fr={figure.rolesFr?.slice(0, 3).join(", ")} /></span>
               {figure.intro && <span className="mt-4 line-clamp-3 text-sm leading-relaxed text-dim"><L en={figure.intro} fr={figure.introFr} /></span>}
               <span className="mt-auto flex flex-wrap gap-x-3 gap-y-1 pt-5 text-xs text-dim">
