@@ -102,26 +102,36 @@ export default async function PeriodPage({ params }: { params: Promise<{ slug: s
           <p className={`${kicker ? "mt-1" : "mt-8"} max-w-3xl text-d-3`}><L en={headline} fr={headlineFr} /></p>
         </header>
 
-        {/* Overview for pre-decade eras */}
-        {p.kind !== "decade" && (
-          <section aria-labelledby="overview" className="border-t border-rule pt-10">
-            <h2 id="overview" className="label"><L en="Overview" fr="Aperçu" /></h2>
-            {intro.length > 0 ? <div className="-mx-0 mt-2"><EssayBlocks blocks={intro} /></div> : p.overview && <p className="read mt-3"><L en={p.overview} fr={p.fr?.overview} /></p>}
-            {p.researchNote && <p className="read mt-6 border-l-2 border-fg pl-4 !text-[1rem] text-dim">{p.researchNote}</p>}
-          </section>
-        )}
 
-        {/* A thematic chapter (periods before written chronology) */}
-        {thematic && p.essay && (
-          <section className="mt-16 border-t border-rule pt-12">
-            <h2 className="mb-10 text-d-3"><L en="The chapter" fr="Le chapitre" /></h2>
-            <Essay blocks={p.essay} title={p.label} />
-          </section>
-        )}
+        <nav aria-label="In this period" className="sticky top-[60px] z-20 -mx-5 flex gap-2 overflow-x-auto border-y border-rule bg-base/95 px-5 py-3 text-sm backdrop-blur-sm sm:mx-0 sm:flex-wrap sm:px-0">
+          <a href="#overview" className="pill shrink-0"><L en="Overview" fr="Aperçu" /></a>
+          {years.length > 0 && <a href="#timeline" className="pill shrink-0"><L en="Timeline" fr="Chronologie" /></a>}
+          {historicalEssays.length > 0 && <a href="#essays" className="pill shrink-0"><L en="Historical essays" fr="Essais historiques" /></a>}
+          {people.length > 0 && <a href="#people" className="pill shrink-0"><L en="Notable figures" fr="Personnalités marquantes" /></a>}
+          {(p.notes?.next || p.legacy) && <a href="#legacy" className="pill shrink-0"><L en="Legacy" fr="Héritage" /></a>}
+        </nav>
 
-        {/* 2–3. Explore the decade, browse by year, and the year-by-year timeline */}
-        {(years.length > 0) && (
-          <section className="mt-16 border-t border-rule pt-12">
+        <section id="overview" aria-labelledby="overview-heading" className="scroll-mt-36 pt-12 sm:pt-16">
+          <div className="border-b border-rule pb-4">
+            <p className="label"><L en="Historical context" fr="Contexte historique" /></p>
+            <h2 id="overview-heading" className="mt-2 text-2xl font-semibold"><L en="Overview" fr="Aperçu" /></h2>
+          </div>
+          <div className="mt-7">
+            {thematic && p.essay
+              ? <Essay blocks={p.essay} title={p.label} />
+              : intro.length > 0
+                ? <EssayBlocks blocks={intro} />
+                : <p className="read"><L en={p.overview} fr={p.fr?.overview} /></p>}
+          </div>
+          {p.researchNote && (
+            <p className="mx-auto mt-8 max-w-[45rem] border-l-2 border-rule pl-4 text-sm leading-relaxed text-dim">{p.researchNote}</p>
+          )}
+        </section>
+
+        {years.length > 0 && (
+          <section id="timeline" aria-labelledby="timeline-heading" className="scroll-mt-36 mt-20 border-t border-rule pt-10">
+            <p className="label"><L en="Chronological record" fr="Repères chronologiques" /></p>
+            <h2 id="timeline-heading" className="mb-8 mt-2 text-2xl font-semibold"><L en="Timeline" fr="Chronologie" /></h2>
             <DecadeTimeline
               sections={SECTIONS}
               years={years}
@@ -133,19 +143,37 @@ export default async function PeriodPage({ params }: { params: Promise<{ slug: s
           </section>
         )}
 
-        {/* The decade's year-by-year timeline is the main entry point. The overview follows it. */}
-        {p.kind === "decade" && (
-          <section aria-labelledby="overview" className="mt-16 border-t border-rule pt-10">
-            <h2 id="overview" className="label"><L en="Decade overview" fr="Aperçu de la décennie" /></h2>
-            {intro.length > 0 ? <div className="mt-2"><EssayBlocks blocks={intro} /></div> : p.overview && <p className="read mt-3"><L en={p.overview} fr={p.fr?.overview} /></p>}
-            {p.researchNote && <p className="read mt-6 border-l-2 border-fg pl-4 !text-[1rem] text-dim">{p.researchNote}</p>}
+        {historicalEssays.length > 0 && (
+          <section id="essays" aria-labelledby="essays-heading" className="scroll-mt-36 mt-20 border-t border-rule pt-10">
+            <p className="label"><L en="Extended reading" fr="Pour approfondir" /></p>
+            <h2 id="essays-heading" className="mt-2 text-2xl font-semibold"><L en="Historical essays" fr="Essais historiques" /></h2>
+            <p className="mt-3 max-w-2xl text-sm leading-relaxed text-dim">
+              <L en="Read longer accounts organized by year. The timeline above offers a concise chronological index."
+                 fr="Lisez les récits détaillés par année. La chronologie ci-dessus offre un index plus concis des événements." />
+            </p>
+            <nav aria-label="Jump to historical essay" className="mt-6 flex flex-wrap gap-2">
+              {historicalEssays.map((chapter) => (
+                <a key={chapter.year} href={"#essay-year-" + chapter.year} className="pill tabular-nums">{chapter.year}</a>
+              ))}
+            </nav>
+            <div className="mt-10">
+              {historicalEssays.map((chapter) => (
+                <section key={chapter.year} id={"essay-year-" + chapter.year} className="scroll-mt-36 border-t border-rule py-10 first:border-0 first:pt-0">
+                  <div className="mx-auto max-w-[45rem]">
+                    <p className="text-sm tabular-nums text-dim">{chapter.year}</p>
+                    <h3 className="mt-2 text-xl font-semibold leading-snug"><L en={chapter.title} fr={chapter.titleFr} /></h3>
+                  </div>
+                  <div className="mt-4"><EssayBlocks blocks={chapter.blocks} /></div>
+                </section>
+              ))}
+            </div>
           </section>
         )}
 
         {/* 4. People of the decade */}
         {people.length > 0 && (
-          <section aria-labelledby="people" className="mt-20 border-t border-rule pt-10">
-            <h2 id="people" className="text-d-4"><L en={`People who shaped ${label}`} fr={`Les personnes qui ont façonné ${labelFr}`} /></h2>
+          <section id="people" aria-labelledby="people-heading" className="mt-20 scroll-mt-36 border-t border-rule pt-10">
+            <h2 id="people-heading" className="text-2xl font-semibold"><L en={`People who shaped ${label}`} fr={`Les personnes qui ont façonné ${labelFr}`} /></h2>
             <ul className="mt-6 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
               {people.map((x) => (
                 <li key={x.slug}>
@@ -161,8 +189,8 @@ export default async function PeriodPage({ params }: { params: Promise<{ slug: s
 
         {/* Legacy and connections */}
         {(p.notes?.next || p.legacy) && (
-          <section aria-labelledby="legacy" className="mt-20 rounded-[2rem] bg-raise p-8 sm:p-12">
-            <h2 id="legacy" className="label"><L en="Legacy and connections" fr="Héritage et liens" /></h2>
+          <section id="legacy" aria-labelledby="legacy-heading" className="mt-20 scroll-mt-36 border-t border-rule pt-10">
+            <h2 id="legacy-heading" className="text-2xl font-semibold"><L en="Legacy and connections" fr="Héritage et liens" /></h2>
             <p className="mt-4 max-w-3xl text-[1.2rem] leading-snug sm:text-[1.4rem]"><L en={p.notes?.next ?? p.legacy} fr={p.fr?.legacy} /></p>
             {next && <Link href={`/decades/${next.slug}`} className="btn btn-solid mt-6"><L en="Continue to" fr="Continuer vers" /> {next.kind === "decade" ? <L en={`the ${next.start}s`} fr={`les années ${next.start}`} /> : <L en={next.label} fr={next.fr?.label} />}</Link>}
           </section>
