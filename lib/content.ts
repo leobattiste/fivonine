@@ -1,4 +1,4 @@
-import type { Category, Content, HistEvent, Period, Person } from "./types";
+import type { Category, Content, HistEvent, Period, Person } from "./types";\nimport { periodMedia } from "./period-media";
 import { subjectNotes } from "./answers";
 import { moreEvents, morePeople } from "./events-more";
 import { yearEvents, yearPeople } from "./events-years";
