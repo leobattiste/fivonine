@@ -6,7 +6,6 @@ import DecadeSwitcher from "@/components/DecadeSwitcher";
 import DecadeTimeline, { type TLYear } from "@/components/DecadeTimeline";
 import ShareButton from "@/components/ShareButton";
 import Essay, { EssayBlocks } from "@/components/Essay";
-import EssayImage from "@/components/EssayImage";
 import { MarkExplored } from "@/components/Progress";
 import L from "@/components/L";
 import { dateNode } from "@/components/dates";
@@ -52,8 +51,6 @@ export default async function PeriodPage({ params }: { params: Promise<{ slug: s
   const next = c.periods[i + 1];
   const evs = eventsInPeriod(c, p);
   const people = c.people.filter((person) => evs.some((e) => e.people?.includes(person.slug)));
-  const sources = [...new Map(evs.flatMap((e) => e.sources).map((x) => [x.url ?? x.title, x])).values()];
-  const images = (p.essay ?? []).filter((b): b is Extract<EssayBlock, { type: "img" }> => b.type === "img");
 
   const range = p.kind === "decade" ? `${p.start} to ${p.end}` : p.start < 0 ? `Before ${p.end + 1}` : `${p.start} to ${p.end}`;
   const rangeFr = p.kind === "decade" ? `${p.start} à ${p.end}` : p.start < 0 ? `Avant ${p.end + 1}` : `${p.start} à ${p.end}`;
@@ -165,66 +162,7 @@ export default async function PeriodPage({ params }: { params: Promise<{ slug: s
           </section>
         )}
 
-        {/* 5. Historical archives */}
-        {(images.length > 0 || (p.media?.length ?? 0) > 0 || sources.length > 0 || (p.biblio?.length ?? 0) > 0) && (
-          <section aria-labelledby="archives" className="mt-20 border-t border-rule pt-10">
-            <h2 id="archives" className="text-d-4"><L en="Historical archives" fr="Archives historiques" /></h2>
-            {images.length > 0 && (
-              <ul className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {images.map((img) => <li key={img.src}><EssayImage {...img} compact /></li>)}
-              </ul>
-            )}
-            {p.media && p.media.length > 0 && (
-              <div className="mt-8">
-                <p className="text-sm font-medium"><L en="Archives, primary sources and research" fr="Archives, sources primaires et recherche" /></p>
-                <ul className="mt-4 grid gap-4 sm:grid-cols-2">
-                  {p.media.map((item) => (
-                    <li key={item.url + item.title} className="overflow-hidden rounded-2xl border border-rule">
-                      {item.image && (
-                        <a href={item.url} target="_blank" rel="noreferrer" className="block">
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img src={item.image} alt={item.alt ?? item.title} loading="lazy" className="aspect-[16/10] w-full bg-raise object-cover" />
-                        </a>
-                      )}
-                      <div className="p-4">
-                        <a href={item.url} target="_blank" rel="noreferrer" className="font-semibold underline decoration-rule underline-offset-4 hover:decoration-fg">{item.title}</a>
-                        <p className="mt-2 text-sm leading-relaxed text-dim">{item.description}</p>
-                        {item.language && <p className="mt-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-dim">{item.language === "French" ? "Français" : item.language === "Multilingual" ? "Multilingue" : item.language}</p>}
-                        {item.credit && <p className="mt-3 text-xs leading-relaxed text-dim">{item.credit}{item.license ? " · " + item.license : ""}</p>}
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-            {(sources.length > 0 || (p.biblio?.length ?? 0) > 0) && (
-              <div className="mx-auto mt-8 w-full max-w-[45rem]">
-                {sources.length > 0 && <p className="text-sm font-medium"><L en="Documents and sources" fr="Documents et sources" /></p>}
-                <ol className="mt-3 list-decimal space-y-1.5 pl-5 text-[0.95rem] text-dim marker:text-dim/60">
-                  {sources.map((x) => (
-                    <li key={x.title + (x.url ?? "")}>
-                      {x.url ? <a href={x.url} target="_blank" rel="noreferrer" className="underline decoration-rule underline-offset-4 hover:text-fg hover:decoration-fg">{x.title}</a> : x.title}
-                    </li>
-                  ))}
-                </ol>
-                {p.biblio && p.biblio.length > 0 && (
-                  <>
-                    <p className="mt-8 text-sm font-medium"><L en="Further reading" fr="Pour aller plus loin" /></p>
-                    <ul className="mt-3 list-disc space-y-1.5 pl-5 text-[0.95rem] text-dim marker:text-dim/60">
-                      {p.biblio.map((b) => <li key={b}>{b}</li>)}
-                    </ul>
-                  </>
-                )}
-                <p className="mt-4 text-sm text-dim">
-                  <L en={`Have a photograph, document or recording from ${label}?`} fr={`Vous avez une photographie, un document ou un enregistrement de ${labelFr} ?`} />{" "}
-                  <Link href={`/contribute?type=source&page=${encodeURIComponent(`/decades/${p.slug}`)}`} className="underline underline-offset-4 hover:text-fg"><L en="Share it with us" fr="Partagez-le avec nous" /></Link>.
-                </p>
-              </div>
-            )}
-          </section>
-        )}
-
-        {/* 6. Legacy and connections */}
+        {/* Legacy and connections */}
         {(p.notes?.next || p.legacy) && (
           <section aria-labelledby="legacy" className="mt-20 rounded-[2rem] bg-raise p-8 sm:p-12">
             <h2 id="legacy" className="label"><L en="Legacy and connections" fr="Héritage et liens" /></h2>
