@@ -248,29 +248,6 @@ const entries:Entry[]=[
         "https://apnews.com/article/3c24fe0b0134ea2b41b48fc80457215d"
       ]
     ]
-  },
-  {
-    "slug": "research-2026-12-un-october-report-records-displa",
-    "date": "2026-10-12",
-    "dimension": "inside",
-    "categories": [
-      "economy",
-      "society",
-      "education"
-    ],
-    "location": "Haiti",
-    "title": "UN October report records displacement and severe electoral constraints",
-    "ft": "Le rapport de l'ONU d'octobre décrit les déplacements et les obstacles électoraux",
-    "summary": "The report measures violence, displacement and the funding shortfall in Haiti's humanitarian response.",
-    "fs": "Le rapport évalue les violences, les déplacements et le manque de financement de l'aide.",
-    "body": "A report dated 12 October 2026 by the UN Secretary-General described the continuing expansion of armed violence, preparations for elections and a major humanitarian emergency. It estimated about 1.49 million people internally displaced as of August and recorded 1,123 people killed in gang-related violence between 1 July and 1 October. The report also noted that humanitarian funding covered less than half of the annual plan at that time. These statistics describe specific monitoring periods, not a full-year casualty count or a prediction of subsequent developments. The electoral schedule mentioned in the report was overtaken by a new announcement on 29 October; chronology requires keeping those distinct.",
-    "fb": "Un rapport du Secrétaire général daté du 12 octobre 2026 décrit la poursuite des violences armées et la crise humanitaire. Il estime à environ 1,49 million le nombre de déplacés en août et recense 1 123 morts dans des violences liées aux gangs entre le 1er juillet et le 1er octobre. Moins de la moitié du plan humanitaire est alors financée. Ces données concernent des périodes d'observation précises. Le calendrier électoral cité dans le document est ensuite remplacé par une annonce du 29 octobre, qui doit être distinguée de cet état des lieux.",
-    "sources": [
-      [
-        "United Nations / official documentation",
-        "https://www.haitidocs.org/doc/binuh-sg-reports-2026-10"
-      ]
-    ]
   }
 ];
 export const research2026:HistEvent[]=entries.map(e=>({slug:e.slug,date:e.date,precision:(e.date.length===10?"day":e.date.length===7?"month":"year") as DatePrecision,dimension:e.dimension,categories:e.categories,location:e.location,title:e.title,summary:e.summary,body:e.body,fr:{title:e.ft,summary:e.fs,body:e.fb},sources:e.sources.map(([title,url])=>({title,url})),status:"documented",editorial:{verification:"corroborated",dateBasis:"historical event or report as known by 1 Nov 2026",reviewedOn:"2026-11-01"}}));
