@@ -305,8 +305,27 @@ export const eventsC: HistEvent[] = [
     summary: "Martelly's chosen successor became president. The UN peacekeeping mission ended that October.", related: ["minustah", "moise-assassinated"], src: [["Jovenel Moïse", "Jovenel_Mo%C3%AFse"]] }),
   ev({ slug: "peyi-lok-2019", title: "Peyi lòk: the country locked down", date: "2019-09", precision: "month", dimension: "inside", categories: ["society", "politics"], location: "Across Haiti",
     summary: "Protests and barricades against corruption and fuel shortages paralyzed the country for weeks.", related: ["petrocaribe-protests"], src: [["2018–2023 Haitian protests", "2018%E2%80%932023_Haitian_protests"]] }),
-  ev({ slug: "del-rio-2021", title: "Haitian migrants at Del Rio, Texas", date: "2021-09", precision: "month", dimension: "abroad", categories: ["contributions", "foreign-relations"], countries: ["United States"], location: "Del Rio, Texas",
-    summary: "Images of border agents on horseback confronting Haitian migrants drew outrage, as thousands were expelled to Haiti.", src: [["2021 Del Rio, Texas migrant crisis", "2021_Del_Rio,_Texas_migrant_crisis"]] }),
+  {
+    slug: "del-rio-2021",
+    title: "Haitian migrants face mass removals and border confrontation at Del Rio",
+    date: "2021-09", precision: "month", dimension: "abroad",
+    categories: ["abroad", "society", "world"],
+    countries: ["United States", "Haiti", "Mexico"],
+    location: "Del Rio, Texas, United States",
+    summary: "Thousands of mainly Haitian migrants gather near the US–Mexico border, where deportations and images of mounted border officers draw criticism.",
+    body: "In September 2021, thousands of migrants, many of them Haitian, gathered near an international bridge at Del Rio, Texas, after long journeys across the Americas. Many had previously lived in South American countries before traveling north. Images taken on 19 September showed US Border Patrol officers on horseback confronting migrants; the incident prompted investigation and condemnation from the Inter-American Commission on Human Rights and a UN human-rights expert. United States authorities removed large numbers of Haitians, including by flights to Haiti, amid ongoing disputes about the use of public-health expulsion powers. On 30 September, UN agencies called for governments to assess individual protection needs before deportation. These events reveal the intersections of racial discrimination, border enforcement, international migration and the continuing crisis in Haiti. Government actions, legal rulings and allegations of misconduct must be distinguished when evaluating responsibility.",
+    fr: {
+      title: "Les migrants haïtiens confrontés aux expulsions et aux tensions frontalières à Del Rio",
+      summary: "Des milliers de migrants, principalement haïtiens, se regroupent à la frontière américano-mexicaine ; expulsions et images de policiers à cheval suscitent des critiques.",
+      body: "En septembre 2021, des milliers de migrants, dont de nombreux Haïtiens, se rassemblent près d'un pont international à Del Rio, au Texas, après de longs parcours à travers les Amériques. Beaucoup ont auparavant vécu dans des pays d'Amérique du Sud. Des images prises le 19 septembre montrent des agents de la police des frontières américaine à cheval face aux migrants. L'affaire provoque des enquêtes et des critiques de la Commission interaméricaine des droits de l'homme et d'un expert de l'ONU. Les autorités américaines renvoient de nombreuses personnes en Haïti, notamment par avion, en utilisant des dispositifs d'expulsion contestés. Le 30 septembre, des agences de l'ONU demandent l'examen individuel des besoins de protection avant toute expulsion. L'événement met en jeu les politiques frontalières, les discriminations et les migrations haïtiennes."
+    },
+    status: "documented",
+    editorial: { verification: "corroborated", dateBasis: "September 2021; Del Rio situation reported from 17 September onward", reviewedOn: "2026-11-01" },
+    sources: [
+      { title: "IACHR and UN Special Rapporteur, Del Rio and deportations (4 October 2021)", url: "https://www.oas.org/en/IACHR/jsForm/?File=%2Fen%2Fiachr%2Fmedia_center%2FPReleases%2F2021%2F260.asp" },
+      { title: "UNHCR, IOM, UNICEF and OHCHR joint migration statement (30 September 2021)", url: "https://www.unhcr.org/africa/news/press-releases/un-agencies-call-protection-measures-and-comprehensive-regional-approach" }
+    ]
+  },
   ev({ slug: "varreux-2022", title: "Gangs blockade the main fuel terminal", date: "2022-09", precision: "month", dimension: "inside", categories: ["economy", "society", "wars"], location: "Port-au-Prince",
     summary: "A gang coalition blocked the Varreux terminal for about two months, causing severe shortages as cholera returned.", src: [["2018–2023 Haitian protests", "2018%E2%80%932023_Haitian_protests"]] }),
   ev({ slug: "unsc-mss-2023", title: "The UN authorizes a Kenyan-led security mission", date: "2023-10-02", precision: "day", dimension: "foreign", categories: ["foreign-relations", "wars"], countries: ["United Nations", "Kenya"], location: "New York",
