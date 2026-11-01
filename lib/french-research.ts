@@ -67,8 +67,8 @@ export const frenchResearch: Record<string, PeriodMedia[]> = {
       url: "https://findingaids.uflib.ufl.edu/repositories/2/resources/510",
       language: "French",
     },
-  ],
-  "1810s": [      title: "Beaubrun Ardouin, Études sur l’histoire d’Haïti",
+    {
+      title: "Beaubrun Ardouin, Études sur l’histoire d’Haïti",
       description: "Édition numérique de l’œuvre historique en onze volumes publiée entre 1853 et 1860 par l’historien haïtien Beaubrun Ardouin. Le texte est consultable en français et comporte des notes explicatives.",
       url: "https://classiques.uqam.ca/classiques/ardouin_beaubrun/ardouin_beaubrun.html",
       language: "French",
@@ -101,8 +101,8 @@ export const frenchResearch: Record<string, PeriodMedia[]> = {
       url: "https://www.haitidocs.org/series/hti-pradine-recueil?lang=fr",
       language: "French",
     },
-  ],
-  "1830s": [      title: "Thomas Madiou, Histoire d’Haïti : tome VI (1819-1826)",
+    {
+      title: "Thomas Madiou, Histoire d’Haïti : tome VI (1819-1826)",
       description: "Volume de l’historien haïtien Thomas Madiou couvrant notamment le gouvernement de Boyer et l’ordonnance de 1825. Le guide de Duke répertorie l’accès à l’édition numérisée.",
       url: "https://sites.duke.edu/haitilab/french/historiens-haitiens-du-19eme-siecle/",
       language: "French",
