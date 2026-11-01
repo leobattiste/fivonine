@@ -21,6 +21,7 @@ import { historical2020 } from "./decade-2020-research";
 import { historical2021 } from "./decade-2021-research";
 import { historical2021Addenda } from "./decade-2021-addenda";
 import { figures2020 } from "./figures-2020";
+import { figures2021 } from "./figures-2021";
 import { archivalExpansion1793 } from "./archival-expansion-1793";
 import { archivalBiographies } from "./archival-biographies";
 import { biographyResearch } from "./biography-research";
@@ -905,7 +906,7 @@ export const people: Person[] = [
 
 // Merge the second batch, newest additions last; pages sort chronologically.
 events.push(...moreEvents, ...yearEvents, ...events1790s, ...eventsA, ...eventsB, ...eventsC, ...archivalEvents1793, ...additionalArchivalEvents, ...earlyStateStudies, ...contemporaryResearch, ...historical2020, ...historical2021, ...historical2021Addenda, ...archivalExpansion1793);
-people.push(...morePeople, ...yearPeople, ...people1790s, ...figures2020);
+people.push(...morePeople, ...yearPeople, ...people1790s, ...figures2020, ...figures2021);
 
 for (const e of events) if (events1790sFr[e.slug]) e.fr = { ...e.fr, ...events1790sFr[e.slug] };
 for (const pe of people) if (people1790sFr[pe.slug]) pe.fr = { ...pe.fr, ...people1790sFr[pe.slug] };
