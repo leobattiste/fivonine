@@ -4,7 +4,7 @@ import L from "@/components/L";
 import { useT } from "@/components/Prefs";
 
 /** A captioned essay image. If the image can't load, the caption stays and the empty box collapses. */
-export default function EssayImage({ src, alt, caption, credit, license, source, compact = false, captionFr, altFr }: { captionFr?: string; altFr?: string; src: string; alt: string; caption: string; credit: string; license: string; source: string; compact?: boolean }) {
+export default function EssayImage({ src, alt, caption, compact = false, captionFr, altFr }: { captionFr?: string; altFr?: string; src: string; alt: string; caption: string; credit: string; license: string; source: string; compact?: boolean }) {
   const t = useT();
   const [failed, setFailed] = useState(false);
   const ref = useRef<HTMLImageElement>(null);
@@ -30,11 +30,7 @@ export default function EssayImage({ src, alt, caption, credit, license, source,
         />
       )}
       <figcaption className={`${compact ? "text-xs" : "mx-auto max-w-[45rem] text-sm"} leading-relaxed text-dim ${failed ? "" : compact ? "mt-2" : "mt-3"}`}>
-        <span className="text-fg"><L en={caption} fr={captionFr} /></span>{" "}
-        <span>
-          {credit}.{" "}
-          <a href={source} target="_blank" rel="noreferrer" className="underline underline-offset-2 hover:text-fg">{license}, <L en="via Wikimedia Commons" fr="via Wikimedia Commons" /></a>
-        </span>
+        <span className="text-fg"><L en={caption} fr={captionFr} /></span>
       </figcaption>
     </figure>
   );
