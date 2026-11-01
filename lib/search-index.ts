@@ -15,6 +15,7 @@ export interface SearchRecord {
   detailFr?: string;
   terms: string;
   year?: number;
+  yearEnd?: number;
   month?: number;
   day?: number;
   period?: string;
@@ -70,6 +71,7 @@ export function buildSearchIndex(c: Content): SearchRecord[] {
         period.start, period.end, period.kind === "decade" ? "decade decade history" : "era history",
       ].filter(Boolean).join(" ").slice(0, 2000),
       year: period.start,
+      yearEnd: period.end,
       period: period.slug,
     });
   }
@@ -130,7 +132,7 @@ export function buildSearchIndex(c: Content): SearchRecord[] {
       terms: [
         event.slug.replace(/-/g, " "), event.body?.slice(0, 1600), event.fr?.body?.slice(0, 1600),
         event.context?.slice(0, 500), event.fr?.context?.slice(0, 500),
-        event.categories.map((slug) => subjectKeywords[slug] ?? "").join(" "),
+        event.categories.map((slug) => { const cat = c.categories.find((item) => item.slug === slug); return [cat?.name, cat?.nameFr, cat?.short, slug].filter(Boolean).join(" "); }).join(" "),
         event.countries?.join(" "), event.people?.map((slug) => c.people.find((p) => p.slug === slug)?.name).join(" "),
         event.location, event.fr?.location, dateText,
       ].filter(Boolean).join(" "),
