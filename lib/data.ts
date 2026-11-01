@@ -49,19 +49,38 @@ export const getContent = cache(async (): Promise<Content> => {
 
     const localEvents = new Map(localContent.events.map((e) => [e.slug, e]));
     const localPeople = new Map(localContent.people.map((p) => [p.slug, p]));
+    const localPeriods = new Map(localContent.periods.map((p) => [p.slug, p]));
+    const localCategories = new Map(localContent.categories.map((c) => [c.slug, c]));
+    const databasePeriodSlugs = new Set((pers.data ?? []).map((p) => p.slug));
+    const databaseCategorySlugs = new Set((cats.data ?? []).map((c) => c.slug));
     const databaseEventSlugs = new Set((evs.data ?? []).map((e) => e.slug));
     const databasePersonSlugs = new Set((people.data ?? []).map((p) => p.slug));
 
     const result: Content = {
-      categories: (cats.data ?? []).map((c) => ({ slug: c.slug, name: c.name, short: c.short })),
-      periods: (pers.data ?? []).map((p) => ({
-        slug: p.slug, kind: p.kind, label: p.label, start: p.start_year, end: p.end_year,
-        title: p.title, overview: p.overview ?? "", legacy: p.legacy ?? undefined, researchNote: p.research_note ?? undefined,
-        notes: p.notes ?? undefined,
-        essay: p.essay ?? undefined,
-        media: bundled.periods.find((bp) => bp.slug === p.slug)?.media,
-        biblio: p.biblio ?? bundled.periods.find((bp) => bp.slug === p.slug)?.biblio,
-      })),
+      categories: [
+        ...(cats.data ?? []).map((c) => ({
+          ...localCategories.get(c.slug),
+          slug: c.slug,
+          name: c.name ?? localCategories.get(c.slug)?.name ?? c.slug,
+          short: c.short ?? localCategories.get(c.slug)?.short ?? c.slug,
+        })),
+        ...localContent.categories.filter((c) => !databaseCategorySlugs.has(c.slug)),
+      ],
+      periods: [
+        ...(pers.data ?? []).map((p) => ({
+          ...localPeriods.get(p.slug),
+          slug: p.slug, kind: p.kind, label: p.label, start: p.start_year, end: p.end_year,
+          title: p.title ?? localPeriods.get(p.slug)?.title ?? p.label,
+          overview: p.overview ?? localPeriods.get(p.slug)?.overview ?? "",
+          legacy: p.legacy ?? localPeriods.get(p.slug)?.legacy,
+          researchNote: p.research_note ?? localPeriods.get(p.slug)?.researchNote,
+          notes: p.notes ?? localPeriods.get(p.slug)?.notes,
+          essay: p.essay ?? localPeriods.get(p.slug)?.essay,
+          media: localPeriods.get(p.slug)?.media,
+          biblio: p.biblio ?? localPeriods.get(p.slug)?.biblio,
+        })),
+        ...localContent.periods.filter((p) => !databasePeriodSlugs.has(p.slug)),
+      ],
       events: [...(evs.data ?? []).map((e) => ({
         ...localEvents.get(e.slug),
         slug: e.slug, title: e.title, date: e.date_text, precision: e.precision, dimension: e.dimension,
