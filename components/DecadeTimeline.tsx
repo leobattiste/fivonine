@@ -1,6 +1,7 @@
 "use client";
 
 import L from "@/components/L";
+import SubjectLinks from "@/components/SubjectLinks";
 import { EventLink } from "@/components/PersonModal";
 import { useEffect, useMemo, useState } from "react";
 import { DIMENSIONS } from "@/lib/site";
@@ -39,10 +40,6 @@ export default function DecadeTimeline({ sections, years, notes = {}, label, lab
 
   const count = (slug: string) => years.reduce((n, y) => n + y.events.filter((e) => e.categories.includes(slug)).length, 0);
   const visible = useMemo(() => years.filter((y) => !active || y.events.some((e) => e.categories.includes(active))), [years, active]);
-  const shortOf = (slug: string) => {
-    const s = sections.find((x) => x.slug === slug);
-    return s ? <L key={slug} en={s.short} fr={s.shortFr} /> : slug;
-  };
 
   return (
     <div>
@@ -124,7 +121,7 @@ export default function DecadeTimeline({ sections, years, notes = {}, label, lab
                                 </div>
                               </EventLink>
                               <div className="ml-5 mt-2 flex flex-wrap gap-1.5">
-                                {e.categories.map((c) => <span key={c} className="rounded-full border border-rule px-2 py-0.5 text-[10px] text-dim">{shortOf(c)}</span>)}
+                                <SubjectLinks slugs={e.categories} compact />
                                 <span className="rounded-full border border-rule px-2 py-0.5 text-[10px] text-dim"><L en={e.dimension === "inside" ? "Inside Haiti" : e.dimension === "abroad" ? "Haitians abroad" : "World impact"} fr={e.dimension === "inside" ? "En Haïti" : e.dimension === "abroad" ? "Haïtiens à l'étranger" : "Impact mondial"} /></span>
                               </div>
                             </li>
