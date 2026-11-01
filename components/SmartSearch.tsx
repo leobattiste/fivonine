@@ -46,6 +46,7 @@ const QUERY_STOPWORDS = new Set([
   "la", "le", "les", "me", "moi", "nous", "ou", "par", "passe", "passee", "passee", "passe",
   "pour", "que", "quel", "quelle", "quels", "quelles", "qui", "recherche", "sur", "un", "une",
   "evenement", "evenements", "personnes", "faits", "histoire", "annee", "annees",
+  "qu", "s", "l", "d", "c", "se", "etait", "etaient", "ont", "eu", "lieu", "quoi", "passer", "happen",
 ]);
 
 function parseQuery(raw: string, today?: { month: number; day: number } | null): ParsedQuery {
