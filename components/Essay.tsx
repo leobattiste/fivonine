@@ -118,12 +118,9 @@ export function EssayBlocks({ blocks }: { blocks: EssayBlock[] }) {
                   ))}
                 </ul>
               );
+            // Bibliographies are rendered exclusively on /sources.
             case "biblio":
-              return (
-                <ol key={i} className={`${col} mt-5 list-decimal space-y-2.5 pl-6 text-[0.97rem] leading-relaxed text-ink marker:text-dim`}>
-                  {b.items.map((t, j) => <li key={j}>{tx(t, b.fr?.items?.[j])}</li>)}
-                </ol>
-              );
+              return null;
             case "img":
               return <EssayImage key={i} {...b} captionFr={b.fr?.caption} altFr={b.fr?.alt} />;
           }
