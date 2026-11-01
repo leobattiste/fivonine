@@ -792,6 +792,38 @@ const entries: Entry[] = [
         "https://www.elibrary.imf.org/view/journals/002/2022/207/article-A001-en.xml"
       ]
     ]
+  },
+  {
+    "slug": "haiti-2021-tps-designation-may",
+    "date": "2021-05-22",
+    "precision": "day",
+    "dimension": "foreign",
+    "categories": [
+      "world",
+      "abroad",
+      "society"
+    ],
+    "location": "Washington, D.C., United States",
+    "countries": [
+      "United States",
+      "Haiti"
+    ],
+    "title": "United States announces new temporary protected status designation for Haiti",
+    "ft": "Les États-Unis annoncent une nouvelle désignation TPS pour Haïti",
+    "summary": "The U.S. government announces temporary protection for eligible Haitian nationals amid deteriorating conditions in Haiti.",
+    "fs": "Le gouvernement américain annonce une protection temporaire pour les ressortissants haïtiens répondant aux critères.",
+    "body": "On 22 May 2021, the U.S. Department of Homeland Security announced a new 18-month designation of Haiti for Temporary Protected Status (TPS). The government cited insecurity, civil unrest, human-rights concerns, poverty and the COVID-19 pandemic. The designation allowed eligible Haitian nationals already in the United States to apply for temporary protection and work authorization; eligibility and application rules were clarified later in the Federal Register, effective 3 August. TPS was a temporary immigration status subject to statutory conditions, not a route to permanent residence and not an asylum determination. The announcement affected many Haitian families in the United States and helps explain the complex immigration policies in force during the September Del Rio expulsions, which involved people with different individual circumstances.",
+    "fb": "Le 22 mai 2021, le département américain de la Sécurité intérieure annonce une nouvelle désignation d'Haïti au Statut de protection temporaire (TPS) pour une durée de dix-huit mois. Les autorités évoquent l'insécurité, les troubles civils, les atteintes aux droits humains, la pauvreté et la pandémie de COVID-19. Les ressortissants haïtiens répondant aux critères et déjà présents aux États-Unis peuvent demander une protection temporaire et une autorisation de travail. Les modalités sont ensuite précisées au Federal Register, avec une entrée en vigueur le 3 août. Le TPS n'est ni un statut permanent ni une décision d'asile. Cette annonce éclaire les politiques migratoires affectant les familles haïtiennes durant l'année.",
+    "sources": [
+      [
+        "U.S. Department of Homeland Security, May 22 2021 TPS announcement",
+        "https://www.presidency.ucsb.edu/documents/white-house-press-release-secretary-mayorkas-designates-haiti-for-temporary-protected"
+      ],
+      [
+        "USCIS, 30 July 2021 bulletin on Haiti TPS registration",
+        "https://content.govdelivery.com/accounts/USDHSCIS/bulletins/2eab0a8"
+      ]
+    ]
   }
 ];
 
