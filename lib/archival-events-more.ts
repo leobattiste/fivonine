@@ -403,7 +403,7 @@ export const additionalArchivalEvents: HistEvent[] = [
     "status": "documented",
     "sources": [
       {
-        "title": "ANRHA D/XXV/9, dossier 83",
+        "title": "ANRHA D/XXV/9, dossier 84",
         "url": "https://anrha.com/d-xxv-9-inventaire/"
       }
     ],
@@ -434,7 +434,7 @@ export const additionalArchivalEvents: HistEvent[] = [
     "status": "documented",
     "sources": [
       {
-        "title": "ANRHA D/XXV/9, dossier 83",
+        "title": "ANRHA D/XXV/9, dossier 84",
         "url": "https://anrha.com/d-xxv-9-inventaire/"
       }
     ],
@@ -466,7 +466,7 @@ export const additionalArchivalEvents: HistEvent[] = [
     "status": "documented",
     "sources": [
       {
-        "title": "ANRHA D/XXV/9, dossier 83",
+        "title": "ANRHA D/XXV/9, dossier 84",
         "url": "https://anrha.com/d-xxv-9-inventaire/"
       }
     ],
@@ -498,7 +498,7 @@ export const additionalArchivalEvents: HistEvent[] = [
     "status": "documented",
     "sources": [
       {
-        "title": "ANRHA D/XXV/9, dossier 83",
+        "title": "ANRHA D/XXV/9, dossier 84",
         "url": "https://anrha.com/d-xxv-9-inventaire/"
       }
     ],
@@ -530,7 +530,7 @@ export const additionalArchivalEvents: HistEvent[] = [
     "status": "documented",
     "sources": [
       {
-        "title": "ANRHA D/XXV/9, dossier 83",
+        "title": "ANRHA D/XXV/9, dossier 84",
         "url": "https://anrha.com/d-xxv-9-inventaire/"
       }
     ],
