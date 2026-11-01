@@ -160,14 +160,6 @@ export default function PersonModalProvider({ children }: { children: React.Reac
                 {ev.context && <><h3 className="mt-6 text-lg"><L en="Background" fr="Contexte" /></h3><p className="read mt-1"><L en={ev.context} fr={ev.fr?.context} /></p></>}
                 {ev.causes && <><h3 className="mt-6 text-lg"><L en="Causes" fr="Causes" /></h3><p className="read mt-1"><L en={ev.causes} fr={ev.fr?.causes} /></p></>}
                 {ev.consequences && <><h3 className="mt-6 text-lg"><L en="What it changed" fr="Ce que cela a changé" /></h3><p className="read mt-1"><L en={ev.consequences} fr={ev.fr?.consequences} /></p></>}
-                {(ev.sources.length > 0 || ev.editorial?.verification === "inventory") && (
-                  <section className="mt-7">
-                    <h3 className="text-sm font-medium"><L en="Sources" fr="Sources" /></h3>{ev.editorial?.verification === "inventory" && <p className="mt-2 text-sm text-dim"><L en="Verification: archival inventory only. Full manuscript not examined." fr="Vérification : inventaire d’archives uniquement. Manuscrit intégral non examiné." /></p>}
-                    <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-dim">
-                      {ev.sources.map((s) => <li key={s.title}>{s.url ? <a href={s.url} target="_blank" rel="noreferrer" className="underline underline-offset-4">{s.title}</a> : s.title}</li>)}
-                    </ul>
-                  </section>
-                )}
                 {evData.sections.length > 0 && (
                   <div className="mt-6 flex flex-wrap gap-2">{evData.sections.map((x) => <span key={x.en} className="pill"><L en={x.en} fr={x.fr} /></span>)}</div>
                 )}
@@ -200,6 +192,14 @@ export default function PersonModalProvider({ children }: { children: React.Reac
                     </ul>
                   </section>
                 )}
+                {(ev.sources.length > 0 || ev.editorial?.verification === "inventory") && (
+                  <section className="mt-7">
+                    <h3 className="text-sm font-medium"><L en="Sources" fr="Sources" /></h3>{ev.editorial?.verification === "inventory" && <p className="mt-2 text-sm text-dim"><L en="Verification: archival inventory only. Full manuscript not examined." fr="Vérification : inventaire d’archives uniquement. Manuscrit intégral non examiné." /></p>}
+                    <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-dim">
+                      {ev.sources.map((s) => <li key={s.title}>{s.url ? <a href={s.url} target="_blank" rel="noreferrer" className="underline underline-offset-4">{s.title}</a> : s.title}</li>)}
+                    </ul>
+                  </section>
+                )}
                 <div className="mt-8 flex items-center gap-4">
                   <ShareButton title={ev.title} path={`/events/${ev.slug}`} />
                   <Link href={`/events/${ev.slug}`} className="text-sm underline underline-offset-4 hover:text-dim"><L en="Open as a page" fr="Ouvrir comme page" /></Link>
@@ -225,7 +225,8 @@ export default function PersonModalProvider({ children }: { children: React.Reac
                 <h2 className="mt-2 text-d-3">{p.name}</h2>
                 <p className="mt-3 text-lg text-dim"><L en={p.roles.join(", ")} fr={p.fr?.roles?.join(", ")} /></p>
                 <p className="read mt-6"><L en={p.bio} fr={p.fr?.bio} /></p>
-                {p.sources && p.sources.length > 0 && (
+                {data.periods.length > 0 && (
+                  {p.sources && p.sources.length > 0 && (
                   <section className="mt-8">
                     <h3 className="text-lg"><L en="Sources and further reading" fr="Sources et lectures complémentaires" /></h3>
                     <ul className="mt-3 space-y-2 text-sm text-dim">
@@ -237,8 +238,7 @@ export default function PersonModalProvider({ children }: { children: React.Reac
                     </ul>
                   </section>
                 )}
-                {data.periods.length > 0 && (
-                  <div className="mt-8 flex flex-wrap gap-2">
+                <div className="mt-8 flex flex-wrap gap-2">
                     {data.periods.map((x) => <Link key={x.slug} href={`/decades/${x.slug}`} className="pill"><L en={x.label} fr={x.labelFr} /></Link>)}
                   </div>
                 )}
