@@ -20,6 +20,7 @@ import { contemporaryResearch } from "./research-expansion-2020s";
 import { historical2020 } from "./decade-2020-research";
 import { historical2021 } from "./decade-2021-research";
 import { historical2021Addenda } from "./decade-2021-addenda";
+import { historical2022to2026 } from "./research-2022-2026";
 import { figures2020 } from "./figures-2020";
 import { figures2021 } from "./figures-2021";
 import { archivalExpansion1793 } from "./archival-expansion-1793";
@@ -926,7 +927,7 @@ export const people: Person[] = [
 ];
 
 // Merge the second batch, newest additions last; pages sort chronologically.
-events.push(...moreEvents, ...yearEvents, ...events1790s, ...eventsA, ...eventsB, ...eventsC, ...archivalEvents1793, ...additionalArchivalEvents, ...earlyStateStudies, ...contemporaryResearch, ...historical2020, ...historical2021, ...historical2021Addenda, ...archivalExpansion1793);
+events.push(...moreEvents, ...yearEvents, ...events1790s, ...eventsA, ...eventsB, ...eventsC, ...archivalEvents1793, ...additionalArchivalEvents, ...earlyStateStudies, ...contemporaryResearch, ...historical2020, ...historical2021, ...historical2021Addenda, ...historical2022to2026, ...archivalExpansion1793);
 people.push(...morePeople, ...yearPeople, ...people1790s, ...figures2020, ...figures2021);
 
 for (const e of events) if (events1790sFr[e.slug]) e.fr = { ...e.fr, ...events1790sFr[e.slug] };
