@@ -138,6 +138,12 @@ export const frenchResearch: Record<string, PeriodMedia[]> = {
   ],
   "1850s": [
     {
+      title: "Beaubrun Ardouin, Études sur l’histoire d’Haïti (1853-1860)",
+      description: "Onze volumes de l’historien et homme politique haïtien, publiés à Paris entre 1853 et 1860. La version numérique de l’Université du Québec à Montréal permet de consulter les textes en français.",
+      url: "https://classiques.uqam.ca/classiques/ardouin_beaubrun/ardouin_beaubrun.html",
+      language: "French",
+    },
+    {
       title: "Collection Haitiana, Université de Floride",
       description: "Correspondance politique et diplomatique, rapports, lois et documents commerciaux couvrant le XIXe siècle et la première moitié du XXe siècle. Les documents sont en français.",
       url: "https://findingaids.uflib.ufl.edu/repositories/2/resources/510",
@@ -226,11 +232,6 @@ export const frenchResearch: Record<string, PeriodMedia[]> = {
       description: "Guide en français de la bibliothèque numérique de Duke. Il présente des sources haïtiennes et étrangères sur l'occupation, dont En posant les jalons de Sténio Vincent et Les démons du culte voudo d'Arthur Holly.",
       url: "https://sites.duke.edu/haitilab/french/l%E2%80%99occupation-par-les-etats-unis-1915-1934/",
       language: "French",
-    },    {
-      title: "Jean Price-Mars, Ainsi parla l’oncle (1928)",
-      description: "Texte fondateur de l’ethnologie haïtienne, qui valorise les traditions orales, le vodou et l’héritage africain dans la réflexion sur l’identité haïtienne. Cette édition numérisée permet de consulter l’ouvrage en français.",
-      url: "https://archiveshaiti.com/dokiman/ainsi-parla-loncle-essais-dethnographie/",
-      language: "French",
     },
     {
       title: "Bibliographie sur l’occupation américaine",
@@ -240,6 +241,12 @@ export const frenchResearch: Record<string, PeriodMedia[]> = {
     },
   ],
   "1920s": [
+    {
+      title: "Jean Price-Mars, Ainsi parla l’oncle (1928)",
+      description: "Texte fondateur de l’ethnologie haïtienne, qui valorise les traditions orales, le vodou et l’héritage africain dans la réflexion sur l’identité haïtienne. Cette édition numérisée permet de consulter l’ouvrage en français.",
+      url: "https://archiveshaiti.com/dokiman/ainsi-parla-loncle-essais-dethnographie/",
+      language: "French",
+    },
     {
       title: "Bulletin des lois et actes de la République d'Haïti, 1921",
       description: "Volume officiel en français de 254 pages, rassemblant les lois, décrets et arrêtés de 1921.",
@@ -286,11 +293,6 @@ export const frenchResearch: Record<string, PeriodMedia[]> = {
       title: "Bulletin des lois et actes de la République d'Haïti, 1950-1952",
       description: "Compilation officielle en français couvrant les années Magloire, avec des textes relatifs au travail, à la santé et au budget.",
       url: "https://www.haitidocs.org/doc/hti-bulletin-lois-actes-1950-1952?lang=fr",
-      language: "French",
-    },    {
-      title: "Beaubrun Ardouin, Études sur l’histoire d’Haïti (1853-1860)",
-      description: "Onze volumes de l’historien et homme politique haïtien, publiés à Paris entre 1853 et 1860. La version numérique de l’Université du Québec à Montréal permet de consulter les textes en français.",
-      url: "https://classiques.uqam.ca/classiques/ardouin_beaubrun/ardouin_beaubrun.html",
       language: "French",
     },
 
