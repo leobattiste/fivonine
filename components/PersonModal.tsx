@@ -157,15 +157,12 @@ export default function PersonModalProvider({ children }: { children: React.Reac
                 </dl>
                 <p className="read mt-6"><L en={ev.summary} fr={ev.fr?.summary} /></p>
                 {ev.body && <p className="read mt-4"><L en={ev.body} fr={ev.fr?.body} /></p>}
-                {ev.editorial?.verification === "inventory" && (
-                  <p className="mt-5 max-w-2xl border-l-2 border-rule pl-4 text-sm text-dim"><L en="Research note: this entry is based on a dated archival inventory. The full manuscript has not been examined, and the document date does not necessarily establish when its measures took effect." fr="Note de recherche : cette notice repose sur un inventaire d’archives daté. Le manuscrit intégral n’a pas été examiné et la date du document ne prouve pas nécessairement celle de l’application des mesures." /></p>
-                )}
                 {ev.context && <><h3 className="mt-6 text-lg"><L en="Background" fr="Contexte" /></h3><p className="read mt-1"><L en={ev.context} fr={ev.fr?.context} /></p></>}
                 {ev.causes && <><h3 className="mt-6 text-lg"><L en="Causes" fr="Causes" /></h3><p className="read mt-1"><L en={ev.causes} fr={ev.fr?.causes} /></p></>}
                 {ev.consequences && <><h3 className="mt-6 text-lg"><L en="What it changed" fr="Ce que cela a changé" /></h3><p className="read mt-1"><L en={ev.consequences} fr={ev.fr?.consequences} /></p></>}
-                {ev.sources.length > 0 && (
+                {(ev.sources.length > 0 || ev.editorial?.verification === "inventory") && (
                   <section className="mt-7">
-                    <h3 className="text-sm font-medium"><L en="Sources" fr="Sources" /></h3>
+                    <h3 className="text-sm font-medium"><L en="Sources" fr="Sources" /></h3>{ev.editorial?.verification === "inventory" && <p className="mt-2 text-sm text-dim"><L en="Verification: archival inventory only. Full manuscript not examined." fr="Vérification : inventaire d’archives uniquement. Manuscrit intégral non examiné." /></p>}
                     <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-dim">
                       {ev.sources.map((s) => <li key={s.title}>{s.url ? <a href={s.url} target="_blank" rel="noreferrer" className="underline underline-offset-4">{s.title}</a> : s.title}</li>)}
                     </ul>
