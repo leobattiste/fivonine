@@ -11,6 +11,7 @@ const EXPLORE = [
   { href: "/people", label: <L en="Notable Figures" fr="Personnalités marquantes" />, line: <L en="Discover people who shaped Haiti" fr="Découvrir les personnes qui ont marqué Haïti" /> },
 ];
 const MAIN = [
+  { href: "/sources", label: <L en="Sources" fr="Sources" /> },
   { href: "/donate", label: <L en="Donate" fr="Faire un don" /> },
   { href: "/contribute", label: <L en="Contribute" fr="Contribuer" /> },
   { href: "/about", label: <L en="About" fr="À propos" /> },
