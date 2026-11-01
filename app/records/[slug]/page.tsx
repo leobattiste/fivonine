@@ -38,7 +38,6 @@ export default async function RecordPage({ params }: { params: Promise<{ slug: s
       {people.length > 0 && <section className="mt-10"><h2 className="text-d-4"><L en="Notable figures" fr="Personnalités marquantes" /></h2><ul className="mt-4 flex flex-wrap gap-3">{people.map((p) => <li key={p.slug}><PersonLink slug={p.slug} className="pill">{p.name}</PersonLink></li>)}</ul></section>}
       {events.length > 0 && <section className="mt-10"><h2 className="text-d-4"><L en="Connected events" fr="Événements liés" /></h2><ul className="mt-4 space-y-3 border-t border-rule">{events.map((e) => <li key={e.slug} className="border-b border-rule py-3"><EventLink slug={e.slug} className="font-medium"><L en={e.title} fr={e.fr?.title} /></EventLink><p className="mt-1 text-sm text-dim">{e.date}</p></li>)}</ul></section>}
       {related.length > 0 && <section className="mt-10"><h2 className="text-d-4"><L en="Related records" fr="Notices associées" /></h2><ul className="mt-4 flex flex-wrap gap-3">{related.map((r) => r && <li key={r.slug}><RecordLink slug={r.slug} className="pill"><L en={r.title} fr={r.fr?.title} /></RecordLink></li>)}</ul></section>}
-      {record.sources.length > 0 && <section className="mt-10 max-w-3xl"><h2 className="text-d-4"><L en="Sources" fr="Sources" /></h2><ul className="mt-4 list-disc space-y-2 pl-5 text-sm text-dim">{record.sources.map((s) => <li key={s.title}>{s.url ? <a href={s.url} target="_blank" rel="noreferrer" className="underline underline-offset-4">{s.title}</a> : s.title}</li>)}</ul></section>}
     </article>
   );
 }
