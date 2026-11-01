@@ -1,5 +1,5 @@
 import L from "@/components/L";
-import { RecordLink } from "@/components/PersonModal";
+import { EventLink, RecordLink } from "@/components/PersonModal";
 import { dateNode } from "@/components/dates";
 import Link from "next/link";
 import ShareButton from "@/components/ShareButton";
@@ -36,7 +36,7 @@ export default function PersonDetail({ p, c, inModal = false }: { p: Person; c: 
           <ul className="mt-4 border-t border-rule">
             {evs.map((e) => (
               <li key={e.slug}>
-                <Link href={`/events/${e.slug}`} className="group grid grid-cols-[4.25rem_1fr] items-baseline gap-4 border-b border-rule py-3">
+                <EventLink slug={e.slug} className="group grid grid-cols-[4.25rem_1fr] items-baseline gap-4 border-b border-rule py-3">
                   <span className="wdth-tight whitespace-nowrap text-base tabular-nums">
                     <span className="mr-1.5 inline-block h-1.5 w-1.5 -translate-y-[0.25em] rounded-full" style={{ background: DIMENSIONS[e.dimension].color }} aria-hidden />
                     {yearOf(e)}
@@ -45,7 +45,7 @@ export default function PersonDetail({ p, c, inModal = false }: { p: Person; c: 
                     <span className="block font-medium group-hover:text-dim"><L en={e.title} fr={e.fr?.title} /></span>
                     <span className="block text-sm text-dim">{dateNode(e)}, {e.location}</span>
                   </span>
-                </Link>
+                </EventLink>
               </li>
             ))}
           </ul>

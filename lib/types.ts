@@ -62,7 +62,7 @@ export interface Source {
 }
 
 /** French text for a moment, where it has been translated. */
-export interface EventFr { title?: string; summary?: string; context?: string; causes?: string; consequences?: string; location?: string }
+export interface EventFr { title?: string; summary?: string; body?: string; context?: string; causes?: string; consequences?: string; location?: string }
 
 export interface HistEvent {
   fr?: EventFr;
@@ -75,6 +75,7 @@ export interface HistEvent {
   location: string;
   countries?: string[]; // international relationships, e.g. ["France"]
   summary: string;
+  body?: string;
   context?: string;
   causes?: string;
   consequences?: string;

@@ -38,6 +38,7 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
           <div><dt className="text-dim"><L en="Place" fr="Lieu" /></dt><dd>{placeRecord ? <RecordLink slug={placeRecord.slug} className="underline underline-offset-4">{e.location}</RecordLink> : e.location}</dd></div>
         </dl>
         <p className="read mt-7"><L en={e.summary} fr={e.fr?.summary} /></p>
+        {e.body && <p className="read mt-5"><L en={e.body} fr={e.fr?.body} /></p>}
         {e.context && <><h2 className="mt-8 text-lg"><L en="Background" fr="Contexte" /></h2><p className="read mt-2"><L en={e.context} fr={e.fr?.context} /></p></>}
         {e.causes && <><h2 className="mt-8 text-lg"><L en="Causes" fr="Causes" /></h2><p className="read mt-2"><L en={e.causes} fr={e.fr?.causes} /></p></>}
         {e.consequences && <><h2 className="mt-8 text-lg"><L en="Consequences and significance" fr="Conséquences et portée" /></h2><p className="read mt-2"><L en={e.consequences} fr={e.fr?.consequences} /></p></>}
