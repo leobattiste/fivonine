@@ -138,6 +138,7 @@ export const periods: Period[] = [
   }
   periods.sort((a, b) => a.start - b.start);
   for (const p of periods) {
+    if (periodMedia[p.slug]) p.media = periodMedia[p.slug];
     if (subjectNotes[p.slug]) p.notes = subjectNotes[p.slug];
     if (essays[p.slug]) p.essay = essays[p.slug];
     if (periodsFr[p.slug]) p.fr = { ...(p.kind === "decade" ? { label: `Les années ${p.start}` } : {}), ...periodsFr[p.slug] };
