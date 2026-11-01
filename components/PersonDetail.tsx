@@ -59,18 +59,6 @@ export default function PersonDetail({ p, c, inModal = false }: { p: Person; c: 
           <ul className="mt-3 flex flex-wrap gap-2">{records.map((r) => <li key={r.slug}><RecordLink slug={r.slug} className="pill"><L en={r.title} fr={r.fr?.title} /></RecordLink></li>)}</ul>
         </section>
       )}
-      {p.sources && p.sources.length > 0 && (
-        <section className="mt-8">
-          <h3 className="text-lg"><L en="Sources and further reading" fr="Sources et lectures complémentaires" /></h3>
-          <ul className="mt-3 space-y-2 text-sm text-dim">
-            {p.sources.map((source, i) => (
-              <li key={source.url ?? `${source.title}-${i}`}>
-                {source.url ? <a href={source.url} target="_blank" rel="noopener noreferrer" className="underline underline-offset-4 hover:text-fg">{source.title}</a> : source.title}
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
 
       {inModal && (
         <div className="mt-8 flex flex-wrap gap-2">
