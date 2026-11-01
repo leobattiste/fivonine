@@ -19,7 +19,7 @@ export default function SubjectLinks({
   if (!found.length) return null;
 
   return (
-    <nav aria-label="Subjects" className={`flex flex-wrap items-center gap-1.5 ${className}`}>
+    <div role="group" aria-label="Subjects" className={`flex flex-wrap items-center gap-1.5 ${className}`}>
       {found.map((subject) => (
         <Link
           key={subject.slug}
@@ -29,6 +29,6 @@ export default function SubjectLinks({
           <L en={compact ? subject.short : subject.name} fr={compact ? subject.shortFr : subject.nameFr} />
         </Link>
       ))}
-    </nav>
+    </div>
   );
 }
