@@ -22,6 +22,7 @@ export interface PeriodMedia {
   alt?: string;
   credit?: string;
   license?: string;
+  language?: "French" | "English" | "Haitian Creole" | "Spanish" | "Multilingual";
 }
 
 export interface Period {
