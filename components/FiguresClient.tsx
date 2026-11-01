@@ -2,11 +2,11 @@
 import L from "@/components/L";
 import { useT } from "@/components/Prefs";
 import { PersonLink } from "@/components/PersonModal";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { Category } from "@/lib/types";
 
 export type Figure = {
-  slug: string; name: string; rolesFr?: string[]; years: string; roles: string[]; subjects: string[];
+  slug: string; name: string; rolesFr?: string[]; years: string; roles: string[]; subjects: string[]; intro: string; introFr?: string;
   eras: { slug: string; label: string }[]; sortYear: number; count: number;
 };
 
@@ -17,6 +17,11 @@ export default function FiguresClient({ figures, categories, eras }: { figures: 
   const [q, setQ] = useState("");
   const [subject, setSubject] = useState("");
   const [era, setEra] = useState("");
+
+  useEffect(() => {
+    const requested = new URLSearchParams(window.location.search).get("subject");
+    if (requested && categories.some((c) => c.slug === requested)) setSubject(requested);
+  }, [categories]);
 
   const list = useMemo(() => {
     const t = norm(q.trim());
@@ -50,16 +55,21 @@ export default function FiguresClient({ figures, categories, eras }: { figures: 
       </div>
 
       <p className="mt-8 text-sm text-dim" aria-live="polite"><L en={`${list.length} ${list.length === 1 ? "figure" : "figures"}`} fr={`${list.length} ${list.length === 1 ? "personnage" : "personnages"}`} /></p>
+
       <ul className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {list.map((f) => (
-          <li key={f.slug}>
-            <PersonLink slug={f.slug} className="flex h-full flex-col rounded-2xl border border-rule p-5 transition-colors hover:border-fg">
-              <span className="text-sm tabular-nums text-dim">{f.years}</span>
-              <span className="mt-1 text-lg leading-tight">{f.name}</span>
-              <span className="mt-1.5 text-[0.95rem] text-dim"><L en={f.roles.join(", ")} fr={f.rolesFr?.join(", ")} /></span>
-              <span className="mt-auto flex flex-wrap gap-x-3 gap-y-1 pt-4 text-xs text-dim">
-                {f.subjects.slice(0, 3).map((s) => <span key={s}>{name(s)}</span>)}
-                <span className="ml-auto tabular-nums">{f.count} {f.count === 1 ? "moment" : "moments"}</span>
+        {list.map((figure) => (
+          <li key={figure.slug}>
+            <PersonLink slug={figure.slug} className="group flex h-full min-h-[16rem] flex-col rounded-2xl border border-rule p-5 transition-colors hover:border-fg">
+              <span className="text-xs tabular-nums text-dim">{figure.years}</span>
+              <span className="mt-2 text-xl font-semibold leading-tight group-hover:underline">{figure.name}</span>
+              <span className="mt-2 text-sm leading-relaxed text-dim"><L en={figure.roles.slice(0, 3).join(", ")} fr={figure.rolesFr?.slice(0, 3).join(", ")} /></span>
+              {figure.intro && <span className="mt-4 line-clamp-3 text-sm leading-relaxed text-dim"><L en={figure.intro} fr={figure.introFr} /></span>}
+              <span className="mt-auto flex flex-wrap gap-x-3 gap-y-1 pt-5 text-xs text-dim">
+                {figure.subjects.slice(0, 2).map((subjectSlug) => <span key={subjectSlug}>{name(subjectSlug)}</span>)}
+                <span className="ml-auto tabular-nums"><L
+                  en={`${figure.count} ${figure.count === 1 ? "entry" : "entries"}`}
+                  fr={`${figure.count} ${figure.count === 1 ? "notice" : "notices"}`}
+                /></span>
               </span>
             </PersonLink>
           </li>
