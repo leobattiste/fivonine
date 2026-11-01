@@ -14,7 +14,7 @@ export interface Category {
   shortFr?: string;
 }
 
-export interface Period {
+export interface PeriodMedia {\n  title: string;\n  description: string;\n  url: string;\n  image?: string;\n  alt?: string;\n  credit?: string;\n  license?: string;\n}\n\nexport interface Period {
   slug: string; // "1920s" or "saint-domingue"
   kind: "era" | "decade";
   label: string; // "The 1920s"
@@ -26,7 +26,7 @@ export interface Period {
   researchNote?: string; // transparent note when coverage is thin
   essay?: EssayBlock[];
   fr?: { label?: string; title?: string; overview?: string; legacy?: string };
-  biblio?: string[]; // further reading, shown only at the bottom of the page
+  biblio?: string[]; // further reading, shown only at the bottom of the page\n  media?: PeriodMedia[]; // curated archival collections and digitized items for this period
   notes?: Partial<Record<string, string>>; // short note per subject (area slug); "next" leads into the following decade
 }
 
