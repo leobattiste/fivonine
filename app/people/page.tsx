@@ -3,7 +3,7 @@ import L from "@/components/L";
 import FiguresClient, { type Figure } from "@/components/FiguresClient";
 import { getContent, periodFor, yearOf } from "@/lib/data";
 
-export const metadata: Metadata = { title: "Figures", description: "The people who shaped Haiti's history, at home and abroad." };
+export const metadata: Metadata = { title: "Notable Figures", description: "The people who shaped Haiti's history, at home and abroad." };
 export const revalidate = 3600;
 
 export default async function FiguresPage() {
@@ -19,8 +19,8 @@ export default async function FiguresPage() {
 
   return (
     <div className="mx-auto max-w-[1240px] px-5 pt-10 sm:px-8 sm:pt-12">
-      <h1 className="text-d-2"><L en="Figures" fr="Personnages" /></h1>
-      <p className="read mt-4"><L en="The people who shaped Haiti, at home and abroad, in order of when they lived." fr="Les personnes qui ont façonné Haïti, sur place et à l’étranger, dans l’ordre où elles ont vécu." /></p>
+      <h1 className="text-d-2"><L en="Notable Figures" fr="Personnalités marquantes" /></h1>
+      <p className="read mt-4"><L en="Explore the people who shaped Haitian history, in Haiti and around the world." fr="Découvrez les personnalités qui ont marqué l’histoire d’Haïti, dans le pays et à travers le monde." /></p>
       <div className="mt-10">
         <FiguresClient figures={figures} categories={c.categories} eras={c.periods.map((p) => ({ slug: p.slug, label: p.label }))} />
       </div>
