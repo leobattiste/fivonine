@@ -13,6 +13,7 @@ const BROWSE = [
   { href: "/people", titleEn: "Notable Figures", titleFr: "Personnalités marquantes", detailEn: "Explore the people who shaped Haiti", detailFr: "Découvrir les personnalités qui ont marqué Haïti" },
 ];
 const OTHER = [
+  { href: "/search", label: <L en="Search" fr="Recherche" /> },
   { href: "/sources", label: <L en="Sources" fr="Sources" /> },
   { href: "/contribute", label: <L en="Contribute" fr="Contribuer" /> },
   { href: "/donate", label: <L en="Donate" fr="Faire un don" /> },
@@ -50,13 +51,6 @@ function MenuContent({
           </li>
         ))}
       </ul>
-      <Link
-        href="/explore#search"
-        onClick={onNavigate}
-        className="mt-4 block border-b border-rule py-3 text-sm text-dim hover:text-fg"
-      >
-        <L en="Search the archive" fr="Rechercher dans les archives" />
-      </Link>
       <ul className="mt-8 space-y-1">
         {OTHER.map((item) => (
           <li key={item.href}>
