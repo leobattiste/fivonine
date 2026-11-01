@@ -47,6 +47,12 @@ export const frenchResearch: Record<string, PeriodMedia[]> = {
       url: "https://www.persee.fr/doc/outre_1631-0438_2003_num_90_340_4039",
       language: "French",
     },
+    {
+      title: "Thomas Madiou, Histoire d’Haïti : historiens haïtiens du XIXe siècle",
+      description: "Guide de la Bibliothèque numérique sur Haïti vers les volumes numérisés de Madiou. Les premiers tomes couvrent 1492-1807 et constituent une œuvre fondatrice de l’historiographie haïtienne; à confronter aux sources contemporaines et aux travaux récents.",
+      url: "https://sites.duke.edu/haitilab/french/historiens-haitiens-du-19eme-siecle/",
+      language: "French",
+    },
   ],
   "1800s": [
     {
@@ -59,6 +65,12 @@ export const frenchResearch: Record<string, PeriodMedia[]> = {
       title: "Collection Haitiana, Université de Floride",
       description: "Correspondance et documents politiques haïtiens couvrant notamment 1789 et 1805-1954. Les fonds comprennent des lettres de chefs d'État, des rapports, des lois, des accords commerciaux et des dossiers diplomatiques; langue des documents : français.",
       url: "https://findingaids.uflib.ufl.edu/repositories/2/resources/510",
+      language: "French",
+    },
+  ],
+  "1810s": [      title: "Beaubrun Ardouin, Études sur l’histoire d’Haïti",
+      description: "Édition numérique de l’œuvre historique en onze volumes publiée entre 1853 et 1860 par l’historien haïtien Beaubrun Ardouin. Le texte est consultable en français et comporte des notes explicatives.",
+      url: "https://classiques.uqam.ca/classiques/ardouin_beaubrun/ardouin_beaubrun.html",
       language: "French",
     },
   ],
@@ -87,6 +99,12 @@ export const frenchResearch: Record<string, PeriodMedia[]> = {
       title: "Recueil général des lois et actes (Pradine)",
       description: "Textes de loi, décrets et actes de l'État haïtien depuis 1804, utiles pour suivre les décisions publiques et leur mise en œuvre.",
       url: "https://www.haitidocs.org/series/hti-pradine-recueil?lang=fr",
+      language: "French",
+    },
+  ],
+  "1830s": [      title: "Thomas Madiou, Histoire d’Haïti : tome VI (1819-1826)",
+      description: "Volume de l’historien haïtien Thomas Madiou couvrant notamment le gouvernement de Boyer et l’ordonnance de 1825. Le guide de Duke répertorie l’accès à l’édition numérisée.",
+      url: "https://sites.duke.edu/haitilab/french/historiens-haitiens-du-19eme-siecle/",
       language: "French",
     },
   ],
@@ -208,6 +226,11 @@ export const frenchResearch: Record<string, PeriodMedia[]> = {
       description: "Guide en français de la bibliothèque numérique de Duke. Il présente des sources haïtiennes et étrangères sur l'occupation, dont En posant les jalons de Sténio Vincent et Les démons du culte voudo d'Arthur Holly.",
       url: "https://sites.duke.edu/haitilab/french/l%E2%80%99occupation-par-les-etats-unis-1915-1934/",
       language: "French",
+    },    {
+      title: "Jean Price-Mars, Ainsi parla l’oncle (1928)",
+      description: "Texte fondateur de l’ethnologie haïtienne, qui valorise les traditions orales, le vodou et l’héritage africain dans la réflexion sur l’identité haïtienne. Cette édition numérisée permet de consulter l’ouvrage en français.",
+      url: "https://archiveshaiti.com/dokiman/ainsi-parla-loncle-essais-dethnographie/",
+      language: "French",
     },
     {
       title: "Bibliographie sur l’occupation américaine",
@@ -264,7 +287,13 @@ export const frenchResearch: Record<string, PeriodMedia[]> = {
       description: "Compilation officielle en français couvrant les années Magloire, avec des textes relatifs au travail, à la santé et au budget.",
       url: "https://www.haitidocs.org/doc/hti-bulletin-lois-actes-1950-1952?lang=fr",
       language: "French",
+    },    {
+      title: "Beaubrun Ardouin, Études sur l’histoire d’Haïti (1853-1860)",
+      description: "Onze volumes de l’historien et homme politique haïtien, publiés à Paris entre 1853 et 1860. La version numérique de l’Université du Québec à Montréal permet de consulter les textes en français.",
+      url: "https://classiques.uqam.ca/classiques/ardouin_beaubrun/ardouin_beaubrun.html",
+      language: "French",
     },
+
     {
       title: "Collection Haitiana, Université de Floride",
       description: "Correspondance officielle et privée, rapports, lois et documents diplomatiques jusqu'en 1954; les documents sont en français.",
