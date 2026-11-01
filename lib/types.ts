@@ -65,6 +65,8 @@ export interface Source {
 export interface EventFr { title?: string; summary?: string; body?: string; context?: string; causes?: string; consequences?: string; location?: string }
 
 export interface HistEvent {
+  /** What was actually checked. An inventory entry alone does not verify its complete contents. */
+  editorial?: { verification: "inventory" | "full-text" | "corroborated"; dateBasis?: string; reviewedOn?: string; note?: string };
   fr?: EventFr;
   slug: string;
   title: string;
@@ -88,6 +90,8 @@ export interface HistEvent {
 }
 
 export interface Person {
+  sources?: Source[];
+  editorial?: { reviewedOn?: string; note?: string };
   fr?: { bio?: string; roles?: string[] };
   slug: string;
   name: string;
