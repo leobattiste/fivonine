@@ -21,7 +21,7 @@ html:not([lang="fr"]) .l-fr { display: none; }
 body, input, textarea, select, button { font-family: "Inter", system-ui, sans-serif; }
 
 /* Headings and display numerals */
-h1, h2, h3, h4, [class*="text-d-"], .wdth-tight, .wordmark {
+h1, [class*="text-d-"], .wdth-tight, .wordmark {
   font-family: "Bowlby One", sans-serif;
   font-weight: 400 !important;
   font-style: normal;
