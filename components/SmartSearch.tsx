@@ -244,17 +244,45 @@ export default function SmartSearch({ entries, initialQuery = "", initialType = 
     setLimit(24);
   }, [query, kind]);
 
+  const parsedQuery = useMemo(() => parseQuery(query, today), [query, today]);
   const ranked = useMemo<Ranked[]>(() => {
-    if (!normalize(query)) return [];
-    const parsed = parseQuery(query, today);
+    if (!parsedQuery.normalized) return [];
     return entries
-      .map((item) => ({ item, score: score(item, parsed) }))
+      .map((item) => ({ item, score: score(item, parsedQuery) }))
       .filter((hit) => hit.score >= 0)
       .sort((a, b) =>
         b.score - a.score ||
         a.item.title.localeCompare(b.item.title, "en", { sensitivity: "base" })
       );
-  }, [entries, query, today]);
+  }, [entries, parsedQuery]);
+
+  const interpretedSearch = useMemo(() => {
+    if (parsedQuery.month) {
+      const dateEnglish = MONTHS[parsedQuery.month - 1] + (parsedQuery.day ? " " + parsedQuery.day : "");
+      const dateFrench = (parsedQuery.day ? parsedQuery.day + " " : "") + MONTHS_FR[parsedQuery.month - 1];
+      const yearEnglish = parsedQuery.year != null ? ", " + parsedQuery.year : " across recorded years";
+      const yearFrench = parsedQuery.year != null ? " " + parsedQuery.year : ", toutes années confondues";
+      return {
+        en: "Searching dated events for " + dateEnglish + yearEnglish,
+        fr: "Recherche des événements datés du " + dateFrench + yearFrench,
+      };
+    }
+    if (parsedQuery.startYear != null && parsedQuery.endYear != null) {
+      return {
+        en: "Searching records from " + parsedQuery.startYear + " to " + parsedQuery.endYear,
+        fr: "Recherche des notices de " + parsedQuery.startYear + " à " + parsedQuery.endYear,
+      };
+    }
+    if (parsedQuery.year != null) {
+      return {
+        en: "Searching the year " + parsedQuery.year,
+        fr: "Recherche dans l’année " + parsedQuery.year,
+      };
+    }
+    if (parsedQuery.kind === "figure") return { en: "Searching notable figures", fr: "Recherche de personnalités marquantes" };
+    if (parsedQuery.kind === "event") return { en: "Searching historical events", fr: "Recherche d’événements historiques" };
+    return null;
+  }, [parsedQuery]);
 
   const counts = useMemo(() => {
     const output: Partial<Record<SearchKind, number>> = {};
@@ -277,7 +305,7 @@ export default function SmartSearch({ entries, initialQuery = "", initialType = 
     const output: { key: string; label: string; labelFr: string; query: string }[] = [];
     if (today.month === 5) {
       // Haiti's Flag Day falls on May 18. Show it as a search prompt, never as an invented archive result.
-      output.push({ key: "flag-day", label: "May 18 · Haitian Flag Day", labelFr: "18 mai · Fête du Drapeau", query: "flag" });
+      output.push({ key: "flag-day", label: "May 18 · Haitian Flag Day", labelFr: "18 mai · Fête du Drapeau", query: "What happened on May 18?" });
       seen.add(18);
     }
     for (const entry of byDay) {
@@ -298,11 +326,15 @@ export default function SmartSearch({ entries, initialQuery = "", initialType = 
   }, [entries, today]);
 
   const starterQueries = useMemo(() => {
+    const dated = entries.find((entry) => entry.kind === "event" && entry.month && entry.day);
     const available = [
-      { label: "Independence", query: "independence" },
-      { label: "1804", query: "1804" },
-      { label: "Haitian music", query: "music" },
-      { label: "Toussaint Louverture", query: "Toussaint Louverture" },
+      { label: "What happened in 1804?", query: "What happened in 1804?" },
+      { label: "Who was Toussaint Louverture?", query: "Who was Toussaint Louverture?" },
+      { label: "Music in the 1950s", query: "Music in the 1950s" },
+      ...(dated ? [{
+        label: "What happened on " + MONTHS[dated.month! - 1] + " " + dated.day + "?",
+        query: "What happened on " + MONTHS[dated.month! - 1] + " " + dated.day + "?",
+      }] : []),
     ];
     return available.filter((value) => entries.some((entry) => score(entry, parseQuery(value.query)) >= 0));
   }, [entries]);
@@ -447,7 +479,12 @@ export default function SmartSearch({ entries, initialQuery = "", initialType = 
               </button>
             ))}
           </div>
-          <p className="mt-8 text-sm tabular-nums text-dim" aria-live="polite">
+          {interpretedSearch && (
+            <p className="mt-6 text-sm leading-relaxed text-dim" aria-live="polite">
+              <L en={interpretedSearch.en} fr={interpretedSearch.fr} />
+            </p>
+          )}
+          <p className="mt-5 text-sm tabular-nums text-dim" aria-live="polite">
             <L en={filtered.length + (filtered.length === 1 ? " result" : " results")}
                fr={filtered.length + (filtered.length === 1 ? " résultat" : " résultats")} />
           </p>
@@ -482,7 +519,13 @@ export default function SmartSearch({ entries, initialQuery = "", initialType = 
           ) : (
             <div className="mt-6 border-t border-rule pt-7">
               <h2 className="text-xl"><L en="No matching results" fr="Aucun résultat correspondant" /></h2>
-              <p className="mt-3 text-sm text-dim"><L en="Try another spelling, a shorter phrase, or remove the filter." fr="Essayez une autre orthographe, une expression plus courte ou retirez le filtre." /></p>
+              <p className="mt-3 max-w-2xl text-sm leading-relaxed text-dim">
+                {parsedQuery.hasDate
+                  ? <L en="No matching dated entries have been added to this archive yet. Try a broader period or topic. This does not mean nothing happened on that date."
+                       fr="Aucune notice correspondant à cette date n’a encore été ajoutée aux archives. Essayez une période ou un thème plus large. Cela ne signifie pas qu’aucun événement n’a eu lieu." />
+                  : <L en="Try another spelling, a shorter phrase, or remove the filter."
+                       fr="Essayez une autre orthographe, une expression plus courte ou retirez le filtre." />}
+              </p>
               {alternative.length > 0 && (
                 <div className="mt-5 flex flex-wrap items-center gap-2">
                   <span className="text-sm text-dim"><L en="Did you mean" fr="Vouliez-vous dire" /></span>
