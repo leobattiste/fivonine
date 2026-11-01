@@ -40,12 +40,11 @@ export default async function Home() {
       </section>
 
       <section className="mx-auto mb-24 max-w-[1240px] px-5 sm:px-8">
-        <ul className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <ul className="grid gap-3 sm:grid-cols-3">
           {[
-            { href: "/decades", title: <L en="Decades" fr="Décennies" />, line: <L en={`${c.periods.length} periods, each a year-by-year timeline`} fr={`${c.periods.length} périodes, chacune année par année`} /> },
-            { href: "/events", title: <L en="Events" fr="Événements" />, line: <L en={`${c.events.length} moments on one timeline`} fr={`${c.events.length} moments sur une seule frise`} /> },
-            { href: "/people", title: <L en="Figures" fr="Personnages" />, line: <L en={`${c.people.length} people who shaped Haiti`} fr={`${c.people.length} personnes qui ont façonné Haïti`} /> },
-            { href: "/subjects", title: <L en="Subjects" fr="Thèmes" />, line: <L en={`${c.categories.length} subjects through the centuries`} fr={`${c.categories.length} thèmes à travers les siècles`} /> },
+            { href: "/decades", title: <L en="Decades" fr="Décennies" />, line: <L en={`${c.periods.length} historical periods, year by year`} fr={`${c.periods.length} périodes historiques, année par année`} /> },
+          { href: "/subjects", title: <L en="Subjects" fr="Thèmes" />, line: <L en={`${c.categories.length} subjects across Haitian history`} fr={`${c.categories.length} thèmes de l’histoire haïtienne`} /> },
+          { href: "/people", title: <L en="Notable Figures" fr="Personnalités marquantes" />, line: <L en={`${c.people.length} historical figures`} fr={`${c.people.length} personnalités historiques`} /> },
           ].map((x) => (
             <li key={x.href}>
               <Link href={x.href} className="flex h-full flex-col rounded-2xl border border-rule p-5 transition-colors hover:border-fg">
