@@ -1,5 +1,6 @@
 "use client";
 import L from "@/components/L";
+import SubjectLinks from "@/components/SubjectLinks";
 import { useT } from "@/components/Prefs";
 import Link from "next/link";
 import { PersonLink } from "@/components/PersonModal";
@@ -123,8 +124,8 @@ export default function ExploreClient({ items, people, categories, periods, coun
       <p className="mt-10 text-sm text-dim" aria-live="polite">{results.length} {results.length === 1 ? "moment" : "moments"}</p>
       <ul className="mt-3 border-t border-rule">
         {results.map((i) => (
-          <li key={i.slug}>
-            <Link href={`/events/${i.slug}`} className="group grid grid-cols-[4.5rem_1fr] gap-5 border-b border-rule py-5 sm:grid-cols-[6rem_1fr_auto] sm:items-baseline">
+          <li key={i.slug} className="border-b border-rule pb-4">
+            <Link href={`/events/${i.slug}`} className="group grid grid-cols-[4.5rem_1fr] gap-5 py-5 sm:grid-cols-[6rem_1fr_auto] sm:items-baseline">
               <span className="wdth-tight whitespace-nowrap text-2xl tabular-nums"><span className="mr-2 inline-block h-2 w-2 -translate-y-[0.3em] rounded-full align-middle" style={{ background: DIMENSIONS[i.dimension].color }} aria-hidden />{i.year}</span>
               <span className="min-w-0">
                 <span className="block text-lg font-medium leading-snug group-hover:text-dim"><L en={i.title} fr={i.fr?.title} /></span>
@@ -134,6 +135,7 @@ export default function ExploreClient({ items, people, categories, periods, coun
                 {i.location}
               </span>
             </Link>
+            <SubjectLinks slugs={i.categories} compact className="ml-[5.75rem] sm:ml-[7.25rem]" />
           </li>
         ))}
       </ul>
