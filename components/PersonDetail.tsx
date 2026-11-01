@@ -1,4 +1,5 @@
 import L from "@/components/L";
+import SubjectLinks from "@/components/SubjectLinks";
 import { EventLink, RecordLink } from "@/components/PersonModal";
 import { dateNode } from "@/components/dates";
 import Link from "next/link";
@@ -10,6 +11,7 @@ import type { Content, Person } from "@/lib/types";
 /** A figure's profile. Used as a full page and inside the modal. */
 export default function PersonDetail({ p, c, inModal = false }: { p: Person; c: Content; inModal?: boolean }) {
   const evs = sortEvents(c.events.filter((e) => e.people?.includes(p.slug)));
+  const subjects = [...new Set(evs.flatMap((e) => e.categories))];
   const periods = [...new Map(evs.map((e) => periodFor(e, c.periods)).filter(Boolean).map((x) => [x!.slug, x!])).values()];
   const records = (c.records ?? []).filter((r) => (r.eventSlugs ?? []).some((s) => evs.some((e) => e.slug === s)));
   const H = inModal ? "h2" : "h1";
@@ -23,6 +25,7 @@ export default function PersonDetail({ p, c, inModal = false }: { p: Person; c: 
       <H className={`mt-2 max-w-4xl ${inModal ? "text-d-3" : "text-d-2"}`}>{p.name}</H>
       <p className="mt-3 text-lg text-dim"><L en={p.roles.join(", ")} fr={p.fr?.roles?.join(", ")} /></p>
       <p className="read mt-6"><L en={p.bio} fr={p.fr?.bio} /></p>
+      <SubjectLinks slugs={subjects} className="mt-5" />
       {periods.length > 0 && (
         <div className="mt-8 flex flex-wrap gap-2">
           {periods.map((x) => <Link key={x.slug} href={`/decades/${x.slug}`} className="pill"><L en={x.label} fr={x.fr?.label} /></Link>)}
