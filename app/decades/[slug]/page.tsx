@@ -185,7 +185,7 @@ export default async function PeriodPage({ params }: { params: Promise<{ slug: s
             )}
             {p.media && p.media.length > 0 && (
               <div className="mt-8">
-                <p className="text-sm font-medium"><L en="Digitized collections and archival media" fr="Collections numérisées et archives audiovisuelles" /></p>
+                <p className="text-sm font-medium"><L en="Archives, primary sources and research" fr="Archives, sources primaires et recherche" /></p>
                 <ul className="mt-4 grid gap-4 sm:grid-cols-2">
                   {p.media.map((item) => (
                     <li key={item.url + item.title} className="overflow-hidden rounded-2xl border border-rule">
@@ -198,6 +198,7 @@ export default async function PeriodPage({ params }: { params: Promise<{ slug: s
                       <div className="p-4">
                         <a href={item.url} target="_blank" rel="noreferrer" className="font-semibold underline decoration-rule underline-offset-4 hover:decoration-fg">{item.title}</a>
                         <p className="mt-2 text-sm leading-relaxed text-dim">{item.description}</p>
+                        {item.language && <p className="mt-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-dim">{item.language === "French" ? "Français" : item.language === "Multilingual" ? "Multilingue" : item.language}</p>}
                         {item.credit && <p className="mt-3 text-xs leading-relaxed text-dim">{item.credit}{item.license ? " · " + item.license : ""}</p>}
                       </div>
                     </li>
