@@ -52,7 +52,7 @@ export default async function DecadesPage() {
                     >
                       {period.kind === "decade"
                         ? <span className="wdth-tight text-[2.3rem] leading-none tabular-nums">{period.start}s</span>
-                        : <span className="text-lg font-semibold leading-snug"><L en={period.label} fr={period.fr?.label} /></span>}
+                        : <h3 className="text-lg leading-snug"><L en={period.label} fr={period.fr?.label} /></h3>}
                       <span className="mt-3 line-clamp-2 text-sm leading-relaxed text-dim">
                         <L en={headline} fr={headlineFr} />
                       </span>
