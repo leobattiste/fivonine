@@ -484,6 +484,314 @@ const entries: Entry[] = [
         "https://www.nbcolympics.com/news/naomi-osaka-lights-olympic-cauldron-tokyo-opening-ceremony?chrcontext=ktvz"
       ]
     ]
+  },
+  {
+    "slug": "haiti-2021-storm-grace-after-earthquake",
+    "date": "2021-08-16",
+    "precision": "day",
+    "dimension": "inside",
+    "categories": [
+      "environment",
+      "society"
+    ],
+    "location": "South, Nippes and Grand'Anse, Haiti",
+    "title": "Tropical Depression Grace floods earthquake-affected communities",
+    "ft": "La dépression tropicale Grace inonde des zones frappées par le séisme",
+    "summary": "Heavy rainfall and flooding compound the emergency just two days after the August 14 earthquake.",
+    "fs": "De fortes pluies et des inondations aggravent l'urgence deux jours après le séisme du 14 août.",
+    "body": "On 16 August 2021, Tropical Depression Grace crossed southwestern Haiti, bringing intense rain and flooding to an area already devastated by the magnitude 7.2 earthquake of 14 August. Families living in damaged houses or makeshift shelters faced additional exposure, and heavy rain complicated transportation, searches for survivors, medical care and relief distribution. PAHO and other humanitarian agencies warned of increased health and sanitation risks as local systems struggled to meet immediate needs. This was a compound disaster: the earthquake and subsequent rainfall affected the same communities but were separate hazards. A reliable chronology should distinguish the meteorological date, the earthquake's earlier damage and the different phases of the response.",
+    "fb": "Le 16 août 2021, la dépression tropicale Grace traverse le sud-ouest d'Haïti avec de fortes pluies et des inondations, seulement deux jours après le séisme de magnitude 7,2. Les familles installées dans des maisons endommagées ou des abris provisoires sont exposées à de nouveaux dangers. Les pluies compliquent les déplacements, les secours, les soins et la distribution d'aide. Les organisations sanitaires signalent aussi des risques liés à l'eau et à l'assainissement. Le tremblement de terre et Grace constituent deux phénomènes distincts dont les effets se cumulent dans les mêmes communes. La chronologie doit distinguer les dates et les phases de l'intervention.",
+    "sources": [
+      [
+        "PAHO, natural hazards bulletin, 16 August 2021",
+        "https://www.paho.org/en/natural-hazards-monitoring/natural-hazards-monitoring-16-august-2021"
+      ],
+      [
+        "UNICEF, Haiti earthquake situation reports",
+        "https://www.unicef.org/lac/en/reports/earthquake-haiti-humanitarian-situation-reports"
+      ]
+    ]
+  },
+  {
+    "slug": "haiti-2021-haitian-earthquake-aid-recovery",
+    "date": "2021-08",
+    "precision": "month",
+    "dimension": "inside",
+    "categories": [
+      "society",
+      "education",
+      "environment"
+    ],
+    "location": "Les Cayes, Jérémie, Nippes and surrounding communities",
+    "title": "Haitian rescue teams and communities organize relief after the earthquake",
+    "ft": "Les équipes de secours et les communautés haïtiennes organisent l'aide après le séisme",
+    "summary": "Local authorities, residents and humanitarian workers coordinate search, shelter, medical and water assistance after August 14.",
+    "fs": "Les autorités locales, habitants et équipes humanitaires coordonnent les secours, les soins, l'eau et les abris après le 14 août.",
+    "body": "In the days following the 14 August 2021 earthquake, Haitian civil-protection staff, healthcare workers, community members and local organizations searched for survivors, provided first aid and attempted to restore essential services. The immediate response took place amid damaged roads, healthcare facilities, schools and water systems, with Tropical Depression Grace adding rain and flooding. PAHO reported extensive damage to health facilities, while UNICEF and other partners supported mobile medical services, shelter, clean water and assistance to children. International organizations supplied logistics and funding, but the first hours and everyday recovery work also depended on Haitian personnel and neighbors. The recovery effort extended well beyond the initial emergency and should be followed through reconstruction records and local testimony.",
+    "fb": "Dans les jours suivant le séisme du 14 août 2021, la protection civile haïtienne, les soignants, les habitants et des organisations locales recherchent des survivants, assurent les premiers soins et tentent de rétablir les services essentiels. Les routes, les hôpitaux, les écoles et les réseaux d'eau sont endommagés, tandis que Grace apporte de nouvelles pluies. L'OPS signale d'importants dégâts sanitaires ; l'UNICEF et d'autres partenaires appuient les soins mobiles, les abris et l'accès à l'eau. L'aide internationale est importante, mais les premières interventions reposent aussi sur les personnels et les voisins haïtiens. La reconstruction se prolonge bien au-delà de l'urgence immédiate.",
+    "sources": [
+      [
+        "PAHO, Haiti earthquake August 2021",
+        "https://www.paho.org/en/haiti-earthquake-august-2021"
+      ],
+      [
+        "UNICEF, earthquake situation and humanitarian response",
+        "https://www.unicef.org/lac/en/reports/earthquake-haiti-humanitarian-situation-reports"
+      ]
+    ]
+  },
+  {
+    "slug": "haiti-2021-earthquake-schools-damage",
+    "date": "2021-09",
+    "precision": "month",
+    "dimension": "inside",
+    "categories": [
+      "education",
+      "society",
+      "environment"
+    ],
+    "location": "Sud, Nippes and Grand'Anse departments",
+    "title": "Assessments reveal widespread damage to schools after the August earthquake",
+    "ft": "Les évaluations révèlent d'importants dégâts dans les écoles après le séisme d'août",
+    "summary": "Education authorities and humanitarian agencies document major classroom losses before the new academic year.",
+    "fs": "Les autorités éducatives et les organisations humanitaires dressent le bilan des établissements endommagés avant la rentrée.",
+    "body": "During September 2021, Haitian education officials and UNICEF assessed the effects of the August earthquake on schools in Sud, Nippes and Grand'Anse. A UNICEF situation report dated 15 September recorded 906 schools partly or completely destroyed among those assessed at that time, while later surveys reported larger totals as more areas were reached. Damaged classrooms, unsafe buildings, lost teaching materials and disrupted transport put learning at risk, especially for children already affected by the pandemic and insecurity. These are dated assessment figures, not final totals for every school in the region. The damage made safe reopening and reconstruction major concerns for teachers, families and the education authorities.",
+    "fb": "En septembre 2021, les autorités éducatives et l'UNICEF évaluent les dégâts causés aux écoles du Sud, des Nippes et de la Grand'Anse par le séisme d'août. Un rapport du 15 septembre recense 906 établissements partiellement ou totalement détruits parmi les écoles évaluées à ce moment ; des enquêtes ultérieures augmentent ce nombre à mesure que d'autres communes sont visitées. Salles de classe dangereuses, matériel perdu et transports perturbés compromettent l'apprentissage des enfants déjà affectés par la pandémie et l'insécurité. Ces bilans sont datés et ne doivent pas être présentés comme définitifs.",
+    "sources": [
+      [
+        "UNICEF, earthquake humanitarian situation reports",
+        "https://www.unicef.org/lac/en/reports/earthquake-haiti-humanitarian-situation-reports"
+      ],
+      [
+        "UNICEF, early assessment of damaged schools",
+        "https://www.unicef.org/press-releases/early-assessments-show-extensive-quake-damage-schools-haiti"
+      ]
+    ]
+  },
+  {
+    "slug": "haiti-2021-september-political-accord",
+    "date": "2021-09-11",
+    "precision": "day",
+    "dimension": "inside",
+    "categories": [
+      "politics",
+      "society"
+    ],
+    "location": "Port-au-Prince",
+    "people": [
+      "ariel-henry"
+    ],
+    "title": "Ariel Henry signs political agreement on interim governance",
+    "ft": "Ariel Henry signe un accord politique sur la gouvernance intérimaire",
+    "summary": "Representatives of political parties and civil society sign a transition agreement, while other groups continue to dispute the process.",
+    "fs": "Des représentants de partis et de la société civile signent un accord de transition, dont le processus reste contesté.",
+    "body": "On 11 September 2021, Prime Minister Ariel Henry and representatives of political parties and civil-society organizations signed a political agreement concerning interim governance and the preparation of elections. A Haitian government communiqué described the arrangement as a step toward restoring institutions and creating a more stable transitional framework after President Moïse's assassination. The agreement was not endorsed by every political or civic group, and it did not immediately resolve disputes about legitimacy, elections or insecurity. The signatures and the agreement's provisions should be distinguished from implementation. This milestone is relevant to the continued evolution of governing arrangements through 2022 and the later transition debates.",
+    "fb": "Le 11 septembre 2021, le Premier ministre Ariel Henry et des représentants de partis politiques et d'organisations de la société civile signent un accord concernant la gouvernance intérimaire et la préparation des élections. Un communiqué du gouvernement le présente comme une étape vers le rétablissement des institutions après l'assassinat de Jovenel Moïse. Tous les acteurs politiques et associatifs ne soutiennent cependant pas ce dispositif, qui ne règle pas immédiatement les questions de légitimité, de sécurité et d'organisation du scrutin. Il faut distinguer les signatures, le contenu du texte et sa mise en application. Cet accord joue un rôle dans les débats sur la transition des années suivantes.",
+    "sources": [
+      [
+        "Haitian Government, interim governance agreement of 11 September 2021",
+        "https://communication.gouv.ht/in/signature-historique-de-l-accord-politique-pour-une-gouvernance-apaisee-et-efficace-de-la-periode-interimaire/"
+      ],
+      [
+        "BINUH, UN Secretary-General's September 2021 report",
+        "https://www.haitidocs.org/doc/binuh-sg-reports-2021-2?lang=fr"
+      ]
+    ]
+  },
+  {
+    "slug": "haiti-2021-schools-reopen-south-october",
+    "date": "2021-10-04",
+    "precision": "day",
+    "dimension": "inside",
+    "categories": [
+      "education",
+      "society",
+      "environment"
+    ],
+    "location": "South, Nippes and Grand'Anse, Haiti",
+    "title": "Children begin returning to school in earthquake-affected departments",
+    "ft": "Les enfants reprennent progressivement l'école dans les départements frappés par le séisme",
+    "summary": "A delayed academic reopening begins amid extensive damage to school buildings and continuing recovery work.",
+    "fs": "Une rentrée scolaire retardée commence malgré les dégâts dans les établissements et les besoins de reconstruction.",
+    "body": "On 4 October 2021, students began a gradual return to classes in Haiti's southwestern departments following the August earthquake. UNICEF reported that roughly 70 percent of schools in the affected region were damaged or destroyed and that around 300,000 children were expected to return to school over time. Temporary learning spaces, building assessments, teaching materials and school meals were important parts of the response. The reopening was not uniform: some children had safe classrooms, while others remained in temporary accommodation or attended facilities in need of repair. The year illustrates how disasters affect education for months or years after the immediate emergency, particularly where households already struggle with poverty and insecurity.",
+    "fb": "Le 4 octobre 2021, la rentrée scolaire reprend progressivement dans les départements du sud-ouest touchés par le séisme d'août. L'UNICEF indique qu'environ 70 % des écoles de la zone sont endommagées ou détruites et que quelque 300 000 enfants doivent retrouver peu à peu le chemin des classes. Les espaces provisoires, les évaluations des bâtiments, les fournitures et les cantines jouent un rôle important. La reprise reste inégale : certains élèves disposent de salles sûres, tandis que d'autres fréquentent des installations temporaires ou attendent des réparations. Les conséquences éducatives d'une catastrophe se prolongent bien au-delà de la phase de secours.",
+    "sources": [
+      [
+        "UNICEF, back to school in earthquake-affected Haiti, 4 October 2021",
+        "https://www.unicef.org/press-releases/earthquake-leaves-nearly-70-cent-schools-damaged-or-destroyed-southwestern-haiti"
+      ],
+      [
+        "UN Haiti, rehabilitated schools welcome pupils, December 2021",
+        "https://haiti.un.org/en/164433-rehabilitated-schools-welcome-back-students-after-earthquake"
+      ]
+    ]
+  },
+  {
+    "slug": "haiti-2021-binuh-security-council-renewal",
+    "date": "2021-10-15",
+    "precision": "day",
+    "dimension": "foreign",
+    "categories": [
+      "world",
+      "politics"
+    ],
+    "location": "United Nations, New York",
+    "countries": [
+      "United Nations",
+      "Haiti"
+    ],
+    "title": "UN Security Council extends BINUH's mandate into 2022",
+    "ft": "Le Conseil de sécurité prolonge le mandat du BINUH jusqu'en 2022",
+    "summary": "Resolution 2600 renews the political mission and requests a review of its role during Haiti's worsening crisis.",
+    "fs": "La résolution 2600 reconduit la mission politique et demande une évaluation de son rôle dans la crise.",
+    "body": "On 15 October 2021, the UN Security Council unanimously adopted resolution 2600, renewing the mandate of the United Nations Integrated Office in Haiti (BINUH) through 15 July 2022. The resolution called for a review of the mission's responsibilities and emphasized support for political dialogue, human rights, rule of law and elections. The measure came months after the assassination of Haiti's president and amid gang violence, displacement and the aftermath of the August earthquake. BINUH was a political mission, not a replacement government or UN peacekeeping force. Its renewal records continued international involvement while leaving responsibility for Haiti's public security and political institutions primarily with Haitian authorities.",
+    "fb": "Le 15 octobre 2021, le Conseil de sécurité de l'ONU adopte à l'unanimité la résolution 2600, qui renouvelle le mandat du Bureau intégré des Nations unies en Haïti (BINUH) jusqu'au 15 juillet 2022. Le texte demande une évaluation des missions du Bureau et insiste sur le dialogue politique, les droits humains, l'état de droit et les élections. La décision intervient après l'assassinat du président et dans un contexte de violence, de déplacements et de reconstruction après le séisme. Le BINUH est une mission politique et ne remplace ni le gouvernement ni la police haïtienne.",
+    "sources": [
+      [
+        "United Nations Digital Library, Security Council resolution 2600 (2021)",
+        "https://digitallibrary.un.org/record/3944408?ln=en"
+      ]
+    ]
+  },
+  {
+    "slug": "haiti-2021-400-mawozo-missionaries-kidnapped",
+    "date": "2021-10-16",
+    "precision": "day",
+    "dimension": "inside",
+    "categories": [
+      "society",
+      "culture",
+      "politics",
+      "world"
+    ],
+    "location": "Near Croix-des-Bouquets, Ouest",
+    "countries": [
+      "United States",
+      "Canada"
+    ],
+    "title": "Seventeen North American missionaries are abducted in Haiti",
+    "ft": "Dix-sept missionnaires nord-américains sont enlevés en Haïti",
+    "summary": "A kidnapping associated with the 400 Mawozo gang brings new international attention to the wider hostage crisis.",
+    "fs": "Un enlèvement attribué au groupe 400 Mawozo attire l'attention mondiale sur la crise des prises d'otages.",
+    "body": "On 16 October 2021, seventeen members of a Christian missionary group, sixteen U.S. citizens and one Canadian citizen, were abducted near Port-au-Prince. U.S. prosecutors later alleged that members of the 400 Mawozo gang carried out the kidnapping and demanded large ransoms. Several captives were released later in the year and others escaped in December, according to the U.S. Department of Justice. The case received extensive international coverage. Thousands of Haitian residents also faced kidnapping threats, extortion and movement restrictions that often received less attention abroad. A careful history of the event should distinguish allegations against individual suspects from convictions and should place the hostage crisis within broader conditions of public insecurity.",
+    "fb": "Le 16 octobre 2021, dix-sept membres d'un groupe missionnaire chrétien, seize citoyens américains et une personne canadienne, sont enlevés près de Port-au-Prince. Des procureurs américains attribuent ensuite l'enlèvement à des membres du groupe 400 Mawozo et évoquent des demandes de rançon importantes. Certains otages sont libérés, tandis que d'autres s'échappent en décembre, selon le département américain de la Justice. L'affaire attire une grande attention internationale, alors que de nombreux habitants haïtiens subissent aussi des enlèvements et des extorsions. Il importe de distinguer les accusations visant des suspects des décisions judiciaires et de replacer le cas dans l'insécurité générale.",
+    "sources": [
+      [
+        "U.S. Department of Justice, kidnapping investigation",
+        "https://www.justice.gov/usao-dc/pr/haitian-gang-member-charged-hostage-taking-kidnapping-16-us-missionaries-fall-2021"
+      ]
+    ]
+  },
+  {
+    "slug": "haiti-2021-october-november-fuel-disruption",
+    "date": "2021-10",
+    "precision": "month",
+    "dimension": "inside",
+    "categories": [
+      "economy",
+      "society",
+      "politics",
+      "education"
+    ],
+    "location": "Port-au-Prince and nationwide supply routes",
+    "title": "Gang blockade interrupts fuel distribution and essential services",
+    "ft": "Le blocage des carburants perturbe la distribution et les services essentiels",
+    "summary": "A fuel distribution disruption linked to armed groups paralyzes transport, hospitals and economic activity in October and November.",
+    "fs": "Un blocage lié aux groupes armés paralyse les transports, les soins et l'activité économique en octobre et novembre.",
+    "body": "In October and November 2021, armed groups affiliated with the G9 coalition interfered with distribution from major fuel terminals in the Port-au-Prince area, sharply reducing supplies across Haiti. Hospitals and water-pumping systems dependent on generators struggled to operate, and transport costs and availability disrupted schools, commerce and food distribution. The blockade was connected to political demands, including calls for Prime Minister Ariel Henry to resign. Fuel shipments eventually resumed, but the episode demonstrated how control of a few strategic supply routes could affect communities far from the armed clashes. This disruption must be distinguished from the later Varreux blockade in 2022, which followed new fuel-price protests and lasted through a separate period.",
+    "fb": "En octobre et novembre 2021, des groupes armés liés à la coalition G9 perturbent la distribution depuis les principaux terminaux de carburant de la capitale. La pénurie se fait sentir dans tout le pays : hôpitaux, pompes à eau, transports, écoles, commerces et distribution alimentaire sont touchés. Le blocage s'accompagne de revendications politiques, notamment d'appels au départ du Premier ministre Ariel Henry. La reprise de certaines livraisons ne fait pas disparaître la vulnérabilité des réseaux d'approvisionnement. Il faut distinguer cet épisode du nouveau blocage du terminal de Varreux en 2022, survenu dans un contexte différent.",
+    "sources": [
+      [
+        "UN Haiti, humanitarian access and fuel supply, review of 2021–22",
+        "https://haiti.un.org/en/189876-haiti-impact-deteriorating-security-situation-humanitarian-access-background-note-july-2022"
+      ],
+      [
+        "Council on Foreign Relations, Haiti conflict chronology",
+        "https://www.cfr.org/global-conflict-tracker/conflict/instability-haiti"
+      ],
+      [
+        "UN Haiti, December 2021 fuel truck disaster report",
+        "https://haiti.un.org/en/165533-haiti-explosion-fuel-truck-cap-haitien-situation-report-no-1-14-december-2021"
+      ]
+    ]
+  },
+  {
+    "slug": "haiti-2021-cap-haitien-fuel-explosion",
+    "date": "2021-12-14",
+    "precision": "day",
+    "dimension": "inside",
+    "categories": [
+      "environment",
+      "society",
+      "education",
+      "economy"
+    ],
+    "location": "Cap-Haïtien, Nord",
+    "title": "Fuel truck explosion kills dozens in Cap-Haïtien",
+    "ft": "L'explosion d'un camion-citerne tue des dizaines de personnes au Cap-Haïtien",
+    "summary": "A tanker accident and fire produce mass casualties, overwhelming hospitals and prompting national mourning.",
+    "fs": "Un accident de camion-citerne provoque une catastrophe meurtrière, saturant les hôpitaux et entraînant un deuil national.",
+    "body": "Around midnight on 14 December 2021, a fuel tanker overturned at an entrance to Cap-Haïtien and exploded as nearby residents approached the spilled fuel. A United Nations situation report dated 14 December recorded a preliminary toll of at least 61 deaths and dozens of burn injuries; later totals changed as more information became available. The fire damaged homes, vehicles and nearby property. Healthcare workers in Cap-Haïtien struggled to treat severely burned patients, and national and international partners assisted with medical supplies and patient transfers. The disaster occurred after months of fuel scarcity that had intensified the value and risk of accessing gasoline. Investigators should distinguish initial casualty reports, later assessments and the specific circumstances of the accident.",
+    "fb": "Dans la nuit du 13 au 14 décembre 2021, un camion-citerne se renverse à l'entrée du Cap-Haïtien et explose alors que des habitants s'approchent du carburant répandu. Un rapport des Nations unies daté du 14 décembre mentionne un bilan provisoire d'au moins 61 morts et de nombreuses personnes brûlées ; les chiffres évoluent ensuite. L'incendie endommage également des maisons et des véhicules. Les soignants locaux sont débordés, tandis que des partenaires appuient les transferts de patients et l'approvisionnement médical. Cette catastrophe survient après une longue pénurie de carburant. Les bilans initiaux et définitifs doivent être distingués.",
+    "sources": [
+      [
+        "UN Haiti, OCHA situation report on Cap-Haïtien fuel truck explosion",
+        "https://haiti.un.org/en/165533-haiti-explosion-fuel-truck-cap-haitien-situation-report-no-1-14-december-2021"
+      ]
+    ]
+  },
+  {
+    "slug": "haiti-2021-economic-third-year-contraction",
+    "date": "2021",
+    "precision": "year",
+    "dimension": "inside",
+    "categories": [
+      "economy",
+      "society"
+    ],
+    "location": "Haiti",
+    "title": "Haiti's economy contracts for a third consecutive fiscal year",
+    "ft": "L'économie haïtienne recule pour un troisième exercice consécutif",
+    "summary": "IMF figures record a 1.8 percent contraction in real GDP during fiscal 2021, amid insecurity and disasters.",
+    "fs": "Le FMI relève un recul de 1,8 % du PIB réel sur l'exercice 2021, dans un contexte de violences et de catastrophes.",
+    "body": "During Haiti's fiscal year ending 30 September 2021, real economic output contracted by an estimated 1.8 percent, according to the IMF's 2022 review. This was the third consecutive fiscal-year decline after contractions in 2019 and 2020. The report identified political instability, interruptions to supply, the president's assassination, armed violence, weaker investment and subdued household spending among the contributing factors. Remittances from Haitians abroad continued to provide important support, but they could not remove the wider pressures on work, transport and business. The 1.8 percent statistic is specific to fiscal-year real GDP and should not be mixed uncritically with consumer-price inflation or calendar-year estimates.",
+    "fb": "Pour l'exercice budgétaire clos le 30 septembre 2021, l'économie haïtienne enregistre une contraction estimée à 1,8 % du PIB réel, selon le FMI. Il s'agit du troisième exercice de recul consécutif après 2019 et 2020. Le rapport évoque l'instabilité politique, les difficultés d'approvisionnement, l'assassinat du président, les violences armées, la faiblesse de l'investissement et de la consommation. Les transferts de la diaspora soutiennent les ménages sans suffire à compenser ces difficultés. Le chiffre de 1,8 % concerne le PIB réel sur un exercice budgétaire et doit être distingué des statistiques d'inflation ou d'année civile.",
+    "sources": [
+      [
+        "IMF Haiti Staff-Monitored Program, June 2022, economic indicators for FY2021",
+        "https://www.elibrary.imf.org/view/journals/002/2022/207/article-A001-en.xml"
+      ]
+    ]
+  },
+  {
+    "slug": "haiti-2021-remittances-rise-fy",
+    "date": "2021",
+    "precision": "year",
+    "dimension": "abroad",
+    "categories": [
+      "abroad",
+      "economy",
+      "society"
+    ],
+    "location": "Haitian diaspora and households in Haiti",
+    "countries": [
+      "Haiti",
+      "United States",
+      "Canada",
+      "Dominican Republic"
+    ],
+    "title": "Haitian migrants' remittances increase during another year of crisis",
+    "ft": "Les transferts de la diaspora augmentent pendant une nouvelle année de crise",
+    "summary": "IMF data record strong growth in remittance inflows over fiscal 2021, reflecting transnational family support.",
+    "fs": "Les données du FMI montrent une forte progression des envois de fonds durant l'exercice 2021.",
+    "body": "Haitians living abroad sent substantial funds to relatives and communities in Haiti during 2021, even as domestic economic output continued to fall. An IMF economic review published in 2022 recorded an increase of approximately 21.1 percent in the U.S.-dollar value of remittances during fiscal 2021. These flows helped families pay for food, rent, education, healthcare and emergency needs, though their benefits and availability varied widely. Migration, transfer fees, exchange rates and the working conditions of migrants all shaped how support reached households. The increase should be presented as an IMF fiscal-year statistic, not a permanent annual growth rate or a sum of development grants. Remittances are private contributions from people, rather than government-to-government assistance.",
+    "fb": "En 2021, les Haïtiens vivant à l'étranger continuent d'envoyer d'importantes sommes à leurs proches, malgré le recul de l'activité économique nationale. Un rapport du FMI publié en 2022 relève une hausse d'environ 21,1 % de la valeur en dollars des transferts pour l'exercice 2021. Ces ressources servent notamment à payer l'alimentation, le logement, l'école, les soins et les urgences. Leur accès dépend des revenus des migrants, des frais de transfert et des taux de change. Cette progression concerne un exercice précis et ne constitue pas un taux de croissance permanent. Il s'agit de contributions privées des familles, distinctes de l'aide publique internationale.",
+    "sources": [
+      [
+        "IMF Haiti Staff-Monitored Program, FY2021 remittances and GDP table",
+        "https://www.elibrary.imf.org/view/journals/002/2022/207/article-A001-en.xml"
+      ]
+    ]
   }
 ];
 
