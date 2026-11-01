@@ -2,7 +2,7 @@ import type { HistEvent } from "./types";
 /** Source-led archival entries. Titles and dates checked against ANRHA's French D/XXV/9 inventory.
  * Full-text conclusions are deliberately not inferred from inventory descriptions. */
 const inventory = "https://anrha.com/d-xxv-9-inventaire/";
-export const archivalEvents1793: HistEvent[] = [
+const archivalEvents1793Draft: HistEvent[] = [
   { slug: "sonthonax-extraordinary-tribunal-1793", date: "1793-02-13", precision: "day", dimension: "inside", title: "Sonthonax orders an extraordinary criminal tribunal",
     location: "Saint-Domingue", categories: ["politics","society"], status: "documented",
     summary: "The civil commissioner issued a seven-page order concerning an extraordinary criminal tribunal during the revolutionary emergency.", body: "The archival inventory records the tribunal order but not its complete rules. The document is important to the history of judicial institutions and coercive power during the revolution; researchers must consult the full order to establish its jurisdiction and operation.",
@@ -39,7 +39,7 @@ export const archivalEvents1793: HistEvent[] = [
     sources: [{ title: "ANRHA, fonds D/XXV/9, inventaire de documents de 1793 (français)", url: inventory }]
   },
   { slug: "hospitals-proclamation-1793", date: "1793-07-03", precision: "day", dimension: "inside", title: "Civil commissioners issue a proclamation on hospitals",
-    location: "Saint-Domingue", categories: ["education","society"], status: "documented",
+    location: "Saint-Domingue", categories: ["society"], status: "documented",
     summary: "A dated proclamation concerning hospitals appears in the commissioners' archival inventory.", body: "Health and hospitals formed part of government activity during the revolutionary emergency. The inventory verifies that the document exists but does not reproduce its provisions. It would be misleading to attribute specific hospital reforms to it without reading the original.",
     
     fr: { title: "Les commissaires civils publient une proclamation sur les hôpitaux", summary: "Une proclamation datée concernant les hôpitaux figure dans l'inventaire des archives des commissaires.", body: "La santé et les hôpitaux font partie de l'action publique pendant la crise révolutionnaire. L'inventaire confirme l'existence du document, sans en reproduire les dispositions. Il serait trompeur de lui attribuer des réformes précises sans consulter l'original." },
@@ -74,3 +74,27 @@ export const archivalEvents1793: HistEvent[] = [
     sources: [{ title: "ANRHA, fonds D/XXV/9, inventaire de documents de 1793 (français)", url: inventory }]
   }
 ];
+
+/** Catalogue verification: the date labels the document, not necessarily its effects. */
+const dossiers: Record<string, number> = {
+  "sonthonax-extraordinary-tribunal-1793": 86,
+  "slave-discipline-proclamation-1793": 89,
+  "church-property-republic-1793": 89,
+  "divorce-law-saint-domingue-1793": 90,
+  "freedom-for-republican-combatants-1793": 90,
+  "hospitals-proclamation-1793": 91,
+  "polverel-marriage-status-1793": 91,
+  "cap-francais-republican-festival-1793": 91,
+  "civil-status-law-registration-1793": 91,
+  "combatant-emancipation-order-1793": 91,
+};
+export const archivalEvents1793: HistEvent[] = archivalEvents1793Draft.map((e) => ({
+  ...e,
+  sources: [{ title: `ANRHA, D/XXV/9, dossier ${dossiers[e.slug]} (French inventory)`, url: inventory }],
+  editorial: {
+    verification: "inventory",
+    dateBasis: "date of archived document",
+    reviewedOn: "2026-11-01",
+    note: "Document existence and date checked against inventory; complete manuscript not examined.",
+  },
+}));
