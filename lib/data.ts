@@ -4,9 +4,6 @@ import { content as bundled } from "./content";
 import { getServiceClient, hasSupabase } from "./supabase";
 import type { Content, HistEvent, Period } from "./types";
 import { historicalRecords, haitianIndependenceEvent } from "./historical-records";
-import { archivalEvents1793 } from "./archival-research-1793";
-import { additionalArchivalEvents } from "./archival-events-more";
-import { earlyStateStudies } from "./early-state-studies";
 import { archivalBiographies } from "./archival-biographies";
 
 /**
@@ -17,7 +14,7 @@ import { archivalBiographies } from "./archival-biographies";
 const localContent: Content = {
   ...bundled,
   events: [
-    ...bundled.events.map((e) => ({ ...e, records: historicalRecords.filter((r) => r.eventSlugs?.includes(e.slug)).map((r) => r.slug) })),
+    ...bundled.events.map((e) => ({ ...e, records: [...new Set([...(e.records ?? []), ...historicalRecords.filter((r) => r.eventSlugs?.includes(e.slug)).map((r) => r.slug)])] })),
     haitianIndependenceEvent,
   ],
   records: historicalRecords,
@@ -50,6 +47,11 @@ export const getContent = cache(async (): Promise<Content> => {
     const gl = group(links.data, "from_slug");
     const gs = group(srcs.data, "event_slug");
 
+    const localEvents = new Map(localContent.events.map((e) => [e.slug, e]));
+    const localPeople = new Map(localContent.people.map((p) => [p.slug, p]));
+    const databaseEventSlugs = new Set((evs.data ?? []).map((e) => e.slug));
+    const databasePersonSlugs = new Set((people.data ?? []).map((p) => p.slug));
+
     const result: Content = {
       categories: (cats.data ?? []).map((c) => ({ slug: c.slug, name: c.name, short: c.short })),
       periods: (pers.data ?? []).map((p) => ({
@@ -61,20 +63,26 @@ export const getContent = cache(async (): Promise<Content> => {
         biblio: p.biblio ?? bundled.periods.find((bp) => bp.slug === p.slug)?.biblio,
       })),
       events: [...(evs.data ?? []).map((e) => ({
+        ...localEvents.get(e.slug),
         slug: e.slug, title: e.title, date: e.date_text, precision: e.precision, dimension: e.dimension,
-        location: e.location, countries: e.countries ?? [], summary: e.summary, context: e.context ?? undefined,
-        causes: e.causes ?? undefined, consequences: e.consequences ?? undefined, status: e.status,
-        categories: (gc.get(e.slug) ?? []).map((r) => r.category_slug),
-        people: (gp.get(e.slug) ?? []).map((r) => r.person_slug),
-        related: (gl.get(e.slug) ?? []).map((r) => r.to_slug),
-        records: localContent.events.find((x) => x.slug === e.slug)?.records,
-        sources: (gs.get(e.slug) ?? []).map((r) => ({ title: r.title, url: r.url ?? undefined })),
-      })), ...localContent.events.filter((x) => x.slug === haitianIndependenceEvent.slug || [...archivalEvents1793, ...additionalArchivalEvents, ...earlyStateStudies].some((a) => a.slug === x.slug) && !(evs.data ?? []).some((row) => row.slug === x.slug))],
+        location: e.location, countries: e.countries ?? localEvents.get(e.slug)?.countries ?? [], summary: e.summary,
+        body: e.body ?? localEvents.get(e.slug)?.body,
+        fr: e.fr ?? localEvents.get(e.slug)?.fr,
+        highlight: e.highlight ?? localEvents.get(e.slug)?.highlight,
+        context: e.context ?? localEvents.get(e.slug)?.context,
+        causes: e.causes ?? localEvents.get(e.slug)?.causes, consequences: e.consequences ?? localEvents.get(e.slug)?.consequences, status: e.status,
+        categories: (gc.get(e.slug) ?? []).length ? (gc.get(e.slug) ?? []).map((r) => r.category_slug) : localEvents.get(e.slug)?.categories ?? [],
+        people: (gp.get(e.slug) ?? []).length ? (gp.get(e.slug) ?? []).map((r) => r.person_slug) : localEvents.get(e.slug)?.people ?? [],
+        related: (gl.get(e.slug) ?? []).length ? (gl.get(e.slug) ?? []).map((r) => r.to_slug) : localEvents.get(e.slug)?.related ?? [],
+        records: localEvents.get(e.slug)?.records,
+        sources: (gs.get(e.slug) ?? []).length ? (gs.get(e.slug) ?? []).map((r) => ({ title: r.title, url: r.url ?? undefined })) : localEvents.get(e.slug)?.sources ?? [],
+      })), ...localContent.events.filter((x) => !databaseEventSlugs.has(x.slug))],
       records: historicalRecords,
-      people: (people.data ?? []).map((p) => ({
+      people: [...(people.data ?? []).map((p) => ({
+        ...localPeople.get(p.slug),
         slug: p.slug, name: p.name, born: p.born ?? undefined, died: p.died ?? undefined, roles: p.roles ?? [], bio: archivalBiographies[p.slug]?.en ?? p.bio,
-        fr: archivalBiographies[p.slug] ? { bio: archivalBiographies[p.slug].fr } : undefined,
-      })),
+        fr: archivalBiographies[p.slug] ? { ...localPeople.get(p.slug)?.fr, bio: archivalBiographies[p.slug].fr } : localPeople.get(p.slug)?.fr,
+      })), ...localContent.people.filter((p) => !databasePersonSlugs.has(p.slug))],
     };
     // An empty database (not yet seeded) falls back to bundled content.
     return result.events.length ? result : localContent;
