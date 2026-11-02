@@ -8,7 +8,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "seed": "tsx scripts/seed.ts"
+    "seed": "tsx scripts/seed.ts",
+    "test": "TSX_TSCONFIG_PATH=tests/tsconfig.json node --import tsx --test tests/*.test.ts"
   },
   "dependencies": {
     "@fontsource-variable/bricolage-grotesque": "^5.3.0",

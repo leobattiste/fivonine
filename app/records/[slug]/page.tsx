@@ -1,3 +1,4 @@
+import ArchiveMediaGallery from "@/components/ArchiveMediaGallery";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -33,6 +34,7 @@ export default async function RecordPage({ params }: { params: Promise<{ slug: s
         <h1 className="mt-3 text-d-2"><L en={record.title} fr={record.fr?.title} /></h1>
         {(record.dates || record.location) && <p className="mt-4 text-sm text-dim"><L en={record.dates ?? ""} fr={record.fr?.dates} />{record.dates && record.location ? " · " : ""}<L en={record.location ?? ""} fr={record.fr?.location} /></p>}
         <p className="read mt-7"><L en={record.summary} fr={record.fr?.summary} /></p>
+        <ArchiveMediaGallery items={record.attachments} compact />
         {record.body && <p className="read mt-5"><L en={record.body} fr={record.fr?.body} /></p>}
       </header>
       {people.length > 0 && <section className="mt-10"><h2 className="text-d-4"><L en="Notable figures" fr="Personnalités marquantes" /></h2><ul className="mt-4 flex flex-wrap gap-3">{people.map((p) => <li key={p.slug}><PersonLink slug={p.slug} className="pill">{p.name}</PersonLink></li>)}</ul></section>}
@@ -41,3 +43,4 @@ export default async function RecordPage({ params }: { params: Promise<{ slug: s
     </article>
   );
 }
+

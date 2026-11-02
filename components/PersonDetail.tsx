@@ -1,3 +1,4 @@
+import ArchiveMediaGallery from "@/components/ArchiveMediaGallery";
 import L from "@/components/L";
 import SubjectLinks from "@/components/SubjectLinks";
 import { EventLink, RecordLink } from "@/components/PersonModal";
@@ -51,6 +52,7 @@ export default function PersonDetail({ p, c, inModal = false }: { p: Person; c: 
         {subjects.length > 0 && <SubjectLinks slugs={subjects} className="mt-6" />}
       </header>
 
+      <ArchiveMediaGallery items={p.attachments} />
       <nav aria-label="In this biography" className="mt-10 flex flex-wrap gap-2 border-y border-rule py-3">
         <a href="#biography" className="pill"><L en="Biography" fr="Biographie" /></a>
         {selected.length > 0 && <a href="#selected-moments" className="pill"><L en="Key moments" fr="Moments clés" /></a>}
@@ -131,3 +133,4 @@ export default function PersonDetail({ p, c, inModal = false }: { p: Person; c: 
     </div>
   );
 }
+

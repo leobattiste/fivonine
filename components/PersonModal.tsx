@@ -1,4 +1,5 @@
 "use client";
+import ArchiveMediaGallery from "@/components/ArchiveMediaGallery";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
@@ -159,6 +160,7 @@ export default function PersonModalProvider({ children }: { children: React.Reac
                 </dl>
                 <SubjectLinks slugs={ev.categories} compact className="mt-5" />
                 <p className="read mt-6"><L en={ev.summary} fr={ev.fr?.summary} /></p>
+                <ArchiveMediaGallery items={ev.attachments} compact />
                 {ev.body && <p className="read mt-4"><L en={ev.body} fr={ev.fr?.body} /></p>}
                 {ev.context && <><h3 className="mt-6 text-lg"><L en="Background" fr="Contexte" /></h3><p className="read mt-1"><L en={ev.context} fr={ev.fr?.context} /></p></>}
                 {ev.causes && <><h3 className="mt-6 text-lg"><L en="Causes" fr="Causes" /></h3><p className="read mt-1"><L en={ev.causes} fr={ev.fr?.causes} /></p></>}
@@ -207,6 +209,7 @@ export default function PersonModalProvider({ children }: { children: React.Reac
                 <h2 className="mt-2 text-d-4 leading-tight"><L en={record.title} fr={record.fr?.title} /></h2>
                 {(record.dates || record.location) && <dl className="mt-5 grid grid-cols-2 gap-x-6 gap-y-3 text-sm">{record.dates && <div><dt className="text-dim"><L en="Date" fr="Date" /></dt><dd className="mt-0.5"><L en={record.dates} fr={record.fr?.dates} /></dd></div>}{record.location && <div><dt className="text-dim"><L en="Location" fr="Lieu" /></dt><dd className="mt-0.5"><L en={record.location} fr={record.fr?.location} /></dd></div>}</dl>}
                 <p className="read mt-6"><L en={record.summary} fr={record.fr?.summary} /></p>
+                <ArchiveMediaGallery items={record.attachments} compact />
                 {record.body && <p className="read mt-4"><L en={record.body} fr={record.fr?.body} /></p>}
                 {recordData.events.length > 0 && <section className="mt-8"><h3 className="text-lg"><L en="Connected events" fr="Événements liés" /></h3><ul className="mt-3 border-t border-rule">{recordData.events.map((x) => <li key={x.slug} className="border-b border-rule py-3"><EventLink slug={x.slug} className="font-medium hover:text-dim"><L en={x.title} fr={x.titleFr} /></EventLink><span className="block text-sm text-dim"><L en={x.label} fr={x.labelFr} /></span></li>)}</ul></section>}
                 {recordData.related.length > 0 && <section className="mt-8"><h3 className="text-lg"><L en="Related records" fr="Notices associées" /></h3><ul className="mt-3 border-t border-rule">{recordData.related.map((x) => <li key={x.slug} className="border-b border-rule py-3"><RecordLink slug={x.slug} className="font-medium hover:text-dim"><L en={x.title} fr={x.titleFr} /></RecordLink><span className="block text-xs uppercase tracking-wide text-dim">{x.type}</span></li>)}</ul></section>}
@@ -218,6 +221,7 @@ export default function PersonModalProvider({ children }: { children: React.Reac
                 <p className="tabular-nums text-dim"><L en={[p.born, p.died].filter(Boolean).join(" to ") || "Dates uncertain"} fr={[p.born, p.died].filter(Boolean).join(" à ") || "Dates incertaines"} /></p>
                 <h2 className="mt-2 text-d-3">{p.name}</h2>
                 <p className="mt-3 text-lg text-dim"><L en={p.roles.join(", ")} fr={p.fr?.roles?.join(", ")} /></p>
+                <ArchiveMediaGallery items={p.attachments} compact />
                 <p className="read mt-6"><L en={p.bio} fr={p.fr?.bio} /></p>
                 <SubjectLinks slugs={data.subjects ?? []} compact className="mt-5" />
                 {data.periods.length > 0 && (
@@ -289,3 +293,4 @@ export function EventLink({ slug, className, children }: { slug: string; classNa
 export function RecordLink({ slug, className, children }: { slug: string; className?: string; children: React.ReactNode }) {
   return <a {...useModalLink("records", slug)} className={className}>{children}</a>;
 }
+

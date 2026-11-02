@@ -26,6 +26,7 @@ export interface PeriodMedia {
 }
 
 export interface Period {
+  attachments?: ArchiveMedia[];
   slug: string; // "1920s" or "saint-domingue"
   kind: "era" | "decade";
   label: string; // "The 1920s"
@@ -65,6 +66,7 @@ export interface Source {
 export interface EventFr { title?: string; summary?: string; body?: string; context?: string; causes?: string; consequences?: string; location?: string }
 
 export interface HistEvent {
+  attachments?: ArchiveMedia[];
   /** What was actually checked. An inventory entry alone does not verify its complete contents. */
   editorial?: { verification: "inventory" | "full-text" | "corroborated"; dateBasis?: string; reviewedOn?: string; note?: string };
   fr?: EventFr;
@@ -90,6 +92,7 @@ export interface HistEvent {
 }
 
 export interface Person {
+  attachments?: ArchiveMedia[];
   sources?: Source[];
   editorial?: { reviewedOn?: string; note?: string };
   fr?: { bio?: string; roles?: string[] };
@@ -104,6 +107,7 @@ export interface Person {
 export type HistoricalRecordType = "place" | "document" | "institution" | "organization" | "object" | "work" | "other";
 
 export interface HistoricalRecord {
+  attachments?: ArchiveMedia[];
   slug: string;
   type: HistoricalRecordType;
   title: string;
@@ -123,4 +127,20 @@ export interface Content {
   events: HistEvent[];
   people: Person[];
   records?: HistoricalRecord[];
+}
+
+
+/** A curated reproduction or a document held by an identified archive. */
+export interface ArchiveMedia {
+  id: string;
+  kind: "image" | "document" | "archive";
+  title: string;
+  description: string;
+  url: string;
+  publisher: string;
+  date: string;
+  language?: string;
+  image?: { src: string; width: number; height: number; alt: string; credit: string; license: string; licenseUrl: string; changes: string };
+  format?: "PDF" | "HTML";
+  fr: { title: string; description: string; alt?: string; changes?: string };
 }

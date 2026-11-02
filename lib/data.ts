@@ -1,3 +1,4 @@
+import { attachArchiveMedia } from "./archive-media";
 import { consolidateEvents } from "./event-aliases";
 import "server-only";
 import { cache } from "react";
@@ -13,14 +14,14 @@ import { toSections } from "./sections";
  * the database (rows are assembled into the same shape as lib/content.ts). Without it,
  * the bundled content is used, so the site works on first deploy.
  */
-const localContent: Content = {
+const localContent: Content = attachArchiveMedia({
   ...bundled,
   events: [
     ...bundled.events.map((e) => ({ ...e, records: [...new Set([...(e.records ?? []), ...historicalRecords.filter((r) => r.eventSlugs?.includes(e.slug)).map((r) => r.slug)])] })),
     haitianIndependenceEvent,
   ],
   records: historicalRecords,
-};
+});
 
 export const getContent = cache(async (): Promise<Content> => {
   if (!hasSupabase()) return localContent;
@@ -97,7 +98,7 @@ export const getContent = cache(async (): Promise<Content> => {
       })), ...localContent.people.filter((p) => !databasePersonSlugs.has(p.slug))],
     };
     // An empty database (not yet seeded) falls back to bundled content.
-    return result.events.length ? { ...result, events: consolidateEvents(result.events) } : localContent;
+    return result.events.length ? attachArchiveMedia({ ...result, events: consolidateEvents(result.events) }) : localContent;
   } catch (e) {
     console.error("[fivonine] Supabase read failed, using bundled content", e);
     return localContent;

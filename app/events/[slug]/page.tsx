@@ -1,3 +1,4 @@
+import ArchiveMediaGallery from "@/components/ArchiveMediaGallery";
 import { canonicalEventSlug } from "@/lib/event-aliases";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
@@ -41,6 +42,7 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
         </dl>
         <SubjectLinks slugs={e.categories} className="mt-6" />
         <p className="read mt-7"><L en={e.summary} fr={e.fr?.summary} /></p>
+        <ArchiveMediaGallery items={e.attachments} compact />
         {e.body && <p className="read mt-5"><L en={e.body} fr={e.fr?.body} /></p>}
         {e.context && <><h2 className="mt-8 text-lg"><L en="Background" fr="Contexte" /></h2><p className="read mt-2"><L en={e.context} fr={e.fr?.context} /></p></>}
         {e.causes && <><h2 className="mt-8 text-lg"><L en="Causes" fr="Causes" /></h2><p className="read mt-2"><L en={e.causes} fr={e.fr?.causes} /></p></>}

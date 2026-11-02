@@ -1,3 +1,4 @@
+import ArchiveMediaGallery from "@/components/ArchiveMediaGallery";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
@@ -102,6 +103,7 @@ export default async function PeriodPage({ params }: { params: Promise<{ slug: s
 
 
         <nav aria-label="In this period" className="sticky top-[60px] z-20 -mx-5 flex gap-2 overflow-x-auto border-y border-rule bg-base/95 px-5 py-3 text-sm backdrop-blur-sm sm:mx-0 sm:flex-wrap sm:px-0">
+          {Boolean(p.attachments?.length) && <a href="#archive" className="pill shrink-0"><L en="Images & documents" fr="Images et documents" /></a>}
           <a href="#overview" className="pill shrink-0"><L en="Overview" fr="Aperçu" /></a>
           {years.length > 0 && <a href="#timeline" className="pill shrink-0"><L en="Timeline" fr="Chronologie" /></a>}
           {historicalEssays.length > 0 && <a href="#essays" className="pill shrink-0"><L en="Historical essays" fr="Essais historiques" /></a>}
@@ -167,6 +169,12 @@ export default async function PeriodPage({ params }: { params: Promise<{ slug: s
             </div>
           </section>
         )}
+
+        {Boolean(p.attachments?.length) && <section id="archive" aria-labelledby="archive-heading" className="mt-20 scroll-mt-36 border-t border-rule pt-10">
+          <h2 id="archive-heading" className="text-2xl font-semibold"><L en="Images & documents" fr="Images et documents" /></h2>
+          <p className="mt-3 max-w-2xl text-sm leading-relaxed text-dim"><L en="Photographs, original documents and archival records connected to this decade. Captions distinguish the date of an image from the event it illustrates." fr="Photographies, documents originaux et notices d’archives liés à cette décennie. Les légendes distinguent la date d’une image de l’événement qu’elle illustre." /></p>
+          <ArchiveMediaGallery items={p.attachments} heading={false} />
+        </section>}
 
         {/* 4. People of the decade */}
         {people.length > 0 && (

@@ -53,23 +53,32 @@ export function collectSources(content: Content): SourceEntry[] {
     for (const source of sources ?? []) add(kind, source.title, source.url, use);
   };
 
+  const addMedia = (items: import("./types").ArchiveMedia[] | undefined, use: SourceUse) => {
+    for (const media of items ?? []) add(media.kind === "image" ? "images" : "records", media.title, media.url, use, {
+      description: media.description, credit: media.image?.credit ?? media.publisher, license: media.image?.license, language: media.language,
+    });
+  };
   for (const event of content.events) {
+    addMedia(event.attachments, { kind: "event", href: `/events/${event.slug}`, title: event.title });
     addList(event.sources, "events", {
       kind: "event", href: `/events/${event.slug}`, title: event.title,
     });
   }
   for (const figure of content.people) {
+    addMedia(figure.attachments, { kind: "figure", href: `/people/${figure.slug}`, title: figure.name });
     addList(figure.sources, "figures", {
       kind: "figure", href: `/people/${figure.slug}`, title: figure.name,
     });
   }
   for (const record of content.records ?? []) {
+    addMedia(record.attachments, { kind: "record", href: `/records/${record.slug}`, title: record.title });
     addList(record.sources, "records", {
       kind: "record", href: `/records/${record.slug}`, title: record.title,
     });
   }
   for (const period of content.periods) {
     const use: SourceUse = { kind: "period", href: `/decades/${period.slug}`, title: period.label };
+    addMedia(period.attachments, use);
     for (const title of period.biblio ?? []) add("reading", title, undefined, use);
     for (const media of period.media ?? []) {
       add("collections", media.title, media.url, use, {
@@ -91,3 +100,4 @@ export function collectSources(content: Content): SourceEntry[] {
     a.kind.localeCompare(b.kind)
   );
 }
+
