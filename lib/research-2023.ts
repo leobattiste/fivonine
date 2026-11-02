@@ -65,14 +65,14 @@ const entries:Entry[]=[
     "fb": "Le 5 juin 2023, un mécanisme de financement du patrimoine immatériel de l'UNESCO approuve une aide d'urgence aux artistes et artisans du métal découpé de Noailles, à Croix-des-Bouquets. Cette tradition utilise notamment des fûts métalliques recyclés et se transmet depuis plusieurs générations. L'insécurité a déplacé des créateurs et perturbé les ateliers, les ventes et la formation. Un montant de 280 092 dollars est approuvé pour un projet prévu d'octobre 2023 à octobre 2026. L'attribution des fonds ne prouve pas à elle seule les résultats obtenus par la suite.",
     "sources": [
       [
-        "UNESCO",
-        "https://ich.unesco.org/en/project?projectID=00464"
+        "UNESCO, aide aux artisans de Noailles (français)",
+        "https://ich.unesco.org/fr/actualites/le-bureau-accorde-973-539-dollars-des-etats-unis-pour-soutenir-la-sauvegarde-du-patrimoine-vivant-dans-neuf-etats-parties-13474"
       ]
     ]
   },
   {
     "slug": "research-2023-05-monica-sorelle-s-mountains-premieres",
-    "date": "2023-06-09",
+    "date": "2023-06",
     "dimension": "abroad",
     "categories": [
       "arts",
@@ -110,8 +110,8 @@ const entries:Entry[]=[
     "fb": "Le 22 juillet 2023, l'équipe féminine d'Haïti dispute contre l'Angleterre son premier match de Coupe du monde, après sa qualification aux barrages. La rencontre se conclut par une défaite 1-0 mais attire l'attention sur la qualité des joueuses haïtiennes. L'équipe affronte ensuite la Chine et le Danemark. Melchie Dumornay, Nérilia Mondésir, Kerly Théus et leurs coéquipières participent à une première historique malgré les difficultés du football national. Les résultats sportifs doivent être distingués de la qualification obtenue en février.",
     "sources": [
       [
-        "Concacaf/FIFA",
-        "https://es.concacaf.com/news/dumornay-brace-qualifies-haiti-for-first-women-s-world-cup"
+        "The Football Association, England–Haiti match report (English)",
+        "https://www.englandfootball.com/england/womens-senior-team/fixtures-results/2023/england-womens-haiti-fifa-womens-world-cup-group-saturday-22-july-2023"
       ]
     ]
   },
@@ -185,3 +185,4 @@ const entries:Entry[]=[
   }
 ];
 export const research2023:HistEvent[]=entries.map(e=>({slug:e.slug,date:e.date,precision:(e.date.length===10?"day":e.date.length===7?"month":"year") as DatePrecision,dimension:e.dimension,categories:e.categories,location:e.location,title:e.title,summary:e.summary,body:e.body,fr:{title:e.ft,summary:e.fs,body:e.fb},sources:e.sources.map(([title,url])=>({title,url})),status:"documented",editorial:{verification:"corroborated",dateBasis:"date or month supported by linked sources",reviewedOn:"2026-11-01"}}));
+

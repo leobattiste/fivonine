@@ -4,7 +4,7 @@ type Entry={slug:string;date:string;dimension:Dimension;categories:string[];loca
 const entries:Entry[]=[
   {
     "slug": "research-2026-01-un-humanitarian-plan-estimates-6",
-    "date": "2026-01",
+    "date": "2026",
     "dimension": "inside",
     "categories": [
       "society",
@@ -20,15 +20,15 @@ const entries:Entry[]=[
     "fb": "Le Plan des besoins et de la réponse humanitaire des Nations unies estime qu'en 2026, 6,4 millions de personnes en Haïti, soit plus de la moitié de la population, ont besoin d'une aide humanitaire. Il relie ce besoin à la violence armée, à la faim, aux déplacements et aux difficultés d'accès aux écoles et aux soins, dans un contexte de risques climatiques. Cette estimation ne correspond pas au nombre réel de bénéficiaires. Les objectifs, les besoins recensés et l'aide effectivement distribuée doivent être présentés séparément, en tenant compte des contraintes de financement et de sécurité.",
     "sources": [
       [
-        "United Nations / official documentation",
-        "https://www.un.org/en/node/216734"
+        "United Nations, 2026 humanitarian needs and response plan (English)",
+        "https://www.un.org/en/spotlight-on-haiti/resources"
       ]
     ]
   },
   {
     "slug": "research-2026-02-un-security-council-renews-binuh",
     "date": "2026-01-29",
-    "dimension": "abroad",
+    "dimension": "foreign",
     "categories": [
       "world",
       "politics"
@@ -42,15 +42,15 @@ const entries:Entry[]=[
     "fb": "Le 29 janvier 2026, le Conseil de sécurité adopte la résolution 2814 et prolonge jusqu'au 31 janvier 2027 le mandat du Bureau intégré des Nations unies en Haïti (BINUH). Cette mission politique soutient le dialogue, les institutions et le suivi des droits humains. Elle est distincte des dispositifs internationaux de sécurité autorisés par d'autres résolutions. La décision intervient peu avant la fin prévue du Conseil présidentiel de transition et dans un contexte d'incertitude électorale. La prolongation du mandat ne signifie pas que les difficultés politiques ou sécuritaires aient été résolues.",
     "sources": [
       [
-        "United Nations / official documentation",
-        "https://www.securitycouncilreport.org/un-documents/haiti"
+        "UN Security Council, resolution 2814 (2026)",
+        "https://digitallibrary.un.org/record/4101173?ln=en"
       ]
     ]
   },
   {
     "slug": "research-2026-03-united-states-renews-hope-help-a",
     "date": "2026-02-03",
-    "dimension": "abroad",
+    "dimension": "foreign",
     "categories": [
       "economy",
       "world",
@@ -65,7 +65,7 @@ const entries:Entry[]=[
     "fb": "Le 3 février 2026, une loi américaine prolonge jusqu'au 31 décembre 2026 certains avantages des programmes HOPE et HELP pour les exportations haïtiennes, avec des dispositions de remboursement rétroactif de droits perçus depuis octobre 2025. Les douanes américaines publient ensuite les instructions d'application. Ces mesures concernent un secteur textile soumis à l'insécurité et aux difficultés de transport. La prolongation ne garantit pas automatiquement une hausse de l'emploi ou de la production. Il faut distinguer la loi, son application administrative et ses conséquences économiques.",
     "sources": [
       [
-        "US Customs and Border Protection",
+        "US Customs and Border Protection, HOPE/HELP extension (English)",
         "https://content.govdelivery.com/accounts/USDHSCBP/bulletins/41cabec"
       ]
     ]
@@ -155,7 +155,7 @@ const entries:Entry[]=[
     "fb": "Lors d'une visite en Haïti en juin 2026, le Secrétaire général des Nations unies António Guterres décrit une crise humanitaire parmi les plus graves de la région. Le 16 juin, il affirme que 6,4 millions de personnes ont besoin d'aide et que près de 1,5 million sont déplacées par la violence. Il évoque la faim, les violences sexuelles et le recrutement d'enfants par des groupes armés, tout en saluant les travailleurs humanitaires haïtiens. Ces chiffres constituent un bilan daté et non la conclusion de l'année.",
     "sources": [
       [
-        "United Nations / official documentation",
+        "United Nations, Secretary-General’s visit (English and French)",
         "https://www.un.org/sg/en/content/sg/press-events/2026-06-16/secretary-generals-press-encounter-haiti"
       ]
     ]
@@ -207,7 +207,7 @@ const entries:Entry[]=[
   {
     "slug": "research-2026-10-security-council-renews-haiti-sa",
     "date": "2026-10-14",
-    "dimension": "abroad",
+    "dimension": "foreign",
     "categories": [
       "world",
       "politics"
@@ -221,7 +221,7 @@ const entries:Entry[]=[
     "fb": "Le 14 octobre 2026, le Conseil de sécurité adopte la résolution 2831, qui prolonge les interdictions de voyager, gels d'avoirs et mesures d'embargo sur les armes concernant Haïti. Il étend aussi le mandat du Groupe d'experts chargé d'enquêter sur les réseaux liés à la violence et sur l'application des sanctions. Le vote réunit 14 voix pour et une abstention. Cette décision juridique est distincte de la prolongation de la Force de répression des gangs en septembre et ne prouve pas que le trafic d'armes ait cessé.",
     "sources": [
       [
-        "United Nations / official documentation",
+        "UN Security Council, resolution 2831 (2026)",
         "https://main.un.org/securitycouncil/en/content/sres28312026"
       ]
     ]
@@ -251,3 +251,4 @@ const entries:Entry[]=[
   }
 ];
 export const research2026:HistEvent[]=entries.map(e=>({slug:e.slug,date:e.date,precision:(e.date.length===10?"day":e.date.length===7?"month":"year") as DatePrecision,dimension:e.dimension,categories:e.categories,location:e.location,title:e.title,summary:e.summary,body:e.body,fr:{title:e.ft,summary:e.fs,body:e.fb},sources:e.sources.map(([title,url])=>({title,url})),status:"documented",editorial:{verification:"corroborated",dateBasis:"historical event or report as known by 1 Nov 2026",reviewedOn:"2026-11-01"}}));
+

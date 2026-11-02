@@ -1,3 +1,4 @@
+import { consolidateEvents } from "./event-aliases";
 import "server-only";
 import { cache } from "react";
 import { content as bundled } from "./content";
@@ -65,9 +66,9 @@ export const getContent = cache(async (): Promise<Content> => {
           title: p.title ?? localPeriods.get(p.slug)?.title ?? p.label,
           overview: p.overview ?? localPeriods.get(p.slug)?.overview ?? "",
           legacy: p.legacy ?? localPeriods.get(p.slug)?.legacy,
-          researchNote: p.research_note ?? localPeriods.get(p.slug)?.researchNote,
+          researchNote: p.slug === "2020s" ? localPeriods.get(p.slug)?.researchNote : p.research_note ?? localPeriods.get(p.slug)?.researchNote,
           notes: p.notes ?? localPeriods.get(p.slug)?.notes,
-          essay: p.essay ?? localPeriods.get(p.slug)?.essay,
+          essay: p.slug === "2020s" ? localPeriods.get(p.slug)?.essay : p.essay ?? localPeriods.get(p.slug)?.essay,
           media: localPeriods.get(p.slug)?.media,
           biblio: p.biblio ?? localPeriods.get(p.slug)?.biblio,
         })),
@@ -96,7 +97,7 @@ export const getContent = cache(async (): Promise<Content> => {
       })), ...localContent.people.filter((p) => !databasePersonSlugs.has(p.slug))],
     };
     // An empty database (not yet seeded) falls back to bundled content.
-    return result.events.length ? result : localContent;
+    return result.events.length ? { ...result, events: consolidateEvents(result.events) } : localContent;
   } catch (e) {
     console.error("[fivonine] Supabase read failed, using bundled content", e);
     return localContent;
@@ -158,3 +159,4 @@ export function connectedEvents(c: Content, e: HistEvent) {
   for (const other of c.events) if (other.related?.includes(e.slug)) out.add(other.slug);
   return sortEvents(c.events.filter((x) => out.has(x.slug) && x.slug !== e.slug));
 }
+

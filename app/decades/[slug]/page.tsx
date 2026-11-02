@@ -67,7 +67,7 @@ export default async function PeriodPage({ params }: { params: Promise<{ slug: s
 
   // Every year of a decade is listed; eras list the years that have a story or a moment.
   const yearNums = p.kind === "decade"
-    ? Array.from({ length: p.end - p.start + 1 }, (_, k) => p.start + k)
+    ? Array.from({ length: (p.slug === "2020s" ? Math.min(p.end, 2026) : p.end) - p.start + 1 }, (_, k) => p.start + k)
     : [...new Set([...chapterYears.map((y) => y.year), ...evs.map(yearOf)])].sort((a, b) => a - b);
   const years: TLYear[] = yearNums.map((yr) => {
     return {
@@ -213,3 +213,4 @@ export default async function PeriodPage({ params }: { params: Promise<{ slug: s
     </>
   );
 }
+

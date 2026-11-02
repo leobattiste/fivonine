@@ -1,10 +1,11 @@
+import { canonicalEventSlug } from "@/lib/event-aliases";
 import { NextResponse } from "next/server";
 import { connectedEvents, formatDate, formatDateFr, getContent, periodFor, yearOf } from "@/lib/data";
 
 export async function GET(_req: Request, { params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const c = await getContent();
-  const e = c.events.find((x) => x.slug === slug);
+  const e = c.events.find((x) => x.slug === canonicalEventSlug(slug));
   if (!e) return NextResponse.json({ error: "Not found" }, { status: 404 });
   const period = periodFor(e, c.periods);
   return NextResponse.json({
@@ -16,3 +17,4 @@ export async function GET(_req: Request, { params }: { params: Promise<{ slug: s
     linked: connectedEvents(c, e).map((x) => ({ slug: x.slug, title: x.title, titleFr: x.fr?.title, label: formatDate(x), labelFr: formatDateFr(x) })),
   }, { headers: { "cache-control": "public, s-maxage=3600, stale-while-revalidate=86400" } });
 }
+

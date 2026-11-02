@@ -4,7 +4,7 @@ type Entry={slug:string;date:string;dimension:Dimension;categories:string[];loca
 const entries:Entry[]=[
   {
     "slug": "research-2025-01-armed-groups-attack-communities-i",
-    "date": "2025-01-26",
+    "date": "2025-01",
     "dimension": "inside",
     "categories": [
       "society",
@@ -20,8 +20,8 @@ const entries:Entry[]=[
     "fb": "Du 26 au 29 janvier 2025, des groupes alliés à Viv Ansanm attaquent des localités de Kenscoff, au sud de Port-au-Prince. Les investigations de l'ONU documentent d'autres offensives jusqu'en avril, avec des morts parmi les civils, des blessés, des maisons incendiées et des milliers de déplacés. Les groupes armés visent notamment les routes et les territoires reliant la capitale au Sud-Est. Les bilans de janvier ne doivent pas être confondus avec les chiffres couvrant plusieurs mois. L'histoire doit intégrer les familles rurales, les agriculteurs et les habitants privés d'école ou de marchés.",
     "sources": [
       [
-        "UN / institutional report",
-        "https://main.un.org/securitycouncil/en/content/viv-ansanm"
+        "United Nations in Haiti, Kenscoff attacks (English)",
+        "https://haiti.un.org/en/292260-least-262-people-killed-over-two-months-brutal-attacks-kenscoff-heights-port-au-prince"
       ]
     ]
   },
@@ -50,7 +50,7 @@ const entries:Entry[]=[
   },
   {
     "slug": "research-2025-03-gang-offensives-take-over-mirebal",
-    "date": "2025-03-31",
+    "date": "2025-03",
     "dimension": "inside",
     "categories": [
       "politics",
@@ -202,8 +202,8 @@ const entries:Entry[]=[
     "fb": "Lors de sa réunion de 2025 à New Delhi, le Comité intergouvernemental de l'UNESCO inscrit le compas d'Haïti sur la Liste représentative du patrimoine culturel immatériel de l'humanité. La reconnaissance concerne une tradition vivante de musique et de danse, ses rythmes, ses pratiques et sa transmission par les musiciens, familles, danseurs et institutions. Elle souligne des influences africaines, européennes et autochtones ainsi que l'importance du compas lors des célébrations en Haïti et dans la diaspora. L'inscription ne signifie pas que le genre a été créé en 2025 ; son histoire s'étend sur plusieurs générations.",
     "sources": [
       [
-        "UNESCO",
-        "https://ich.unesco.org/en/RL/the-compas-of-haiti-02273"
+        "UNESCO, Le compas d’Haïti (français)",
+        "https://ich.unesco.org/fr/RL/le-compas-d-haiti-02273"
       ]
     ]
   },
@@ -224,10 +224,11 @@ const entries:Entry[]=[
     "fb": "Le 1er décembre 2025, le Conseil présidentiel de transition publie un décret électoral dans Le Moniteur. Le texte encadre l'inscription des électeurs, les candidatures, les autorités électorales, le financement des campagnes et les opérations de vote. Le Conseil électoral provisoire annonce ensuite un premier calendrier pour 2026, modifié plus tard. L'adoption d'un décret ne signifie pas que des élections ont eu lieu. Cet acte marque une tentative de rétablir un cadre juridique électoral dans un contexte d'insécurité et avant l'expiration prévue du mandat du Conseil en février 2026.",
     "sources": [
       [
-        "Le Moniteur",
-        "https://www.haitidocs.org/doc/cep-decret-electoral-2025-12"
+        "CEP, décret électoral du 1er décembre 2025 (français)",
+        "https://cephaiti.ht/wp-content/uploads/2026/06/Decret_electoral_-1e-Decembre-2025.pdf"
       ]
     ]
   }
 ];
 export const research2025:HistEvent[]=entries.map(e=>({slug:e.slug,date:e.date,precision:(e.date.length===10?"day":e.date.length===7?"month":"year") as DatePrecision,dimension:e.dimension,categories:e.categories,location:e.location,title:e.title,summary:e.summary,body:e.body,fr:{title:e.ft,summary:e.fs,body:e.fb},sources:e.sources.map(([title,url])=>({title,url})),status:"documented",editorial:{verification:"corroborated",dateBasis:"event date or dated institutional reporting period",reviewedOn:"2026-11-01"}}));
+

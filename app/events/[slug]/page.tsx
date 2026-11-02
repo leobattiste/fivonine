@@ -1,3 +1,4 @@
+import { canonicalEventSlug } from "@/lib/event-aliases";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -14,14 +15,14 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const e = (await getContent()).events.find((x) => x.slug === slug);
+  const e = (await getContent()).events.find((x) => x.slug === canonicalEventSlug(slug));
   return e ? { title: e.title, description: e.summary } : {};
 }
 
 export default async function EventPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const c = await getContent();
-  const e = c.events.find((x) => x.slug === slug);
+  const e = c.events.find((x) => x.slug === canonicalEventSlug(slug));
   if (!e) notFound();
   const period = periodFor(e, c.periods);
   const people = c.people.filter((p) => e.people?.includes(p.slug));
@@ -52,3 +53,4 @@ export default async function EventPage({ params }: { params: Promise<{ slug: st
     </article>
   );
 }
+

@@ -109,14 +109,14 @@ const entries:Entry[]=[
     "fb": "Le 3 octobre 2024, des membres du groupe armé Gran Grif attaquent Pont-Sondé dans le département de l'Artibonite. Des civils sont tués dans leurs maisons ou dans la rue, et des milliers de personnes cherchent refuge à Saint-Marc et dans les environs. Les bilans évoluent au fil des recherches : des autorités locales évoquent au moins 115 morts le 9 octobre, tandis que l'ONU publie ensuite ses propres chiffres vérifiés. L'attaque témoigne de l'extension des violences au-delà de la capitale et de la vulnérabilité des communautés agricoles.",
     "sources": [
       [
-        "Associated Press",
-        "https://apnews.com/article/1a45faafb929a605f30af4efd8454aeb"
+        "RNDDH, massacre au Pont-Sondé (français)",
+        "https://web.rnddh.org/massacre-au-pont-sonde-le-rnddh-exige-des-autorites-etatiques-la-protection-immediate-de-la-population-haitienne/"
       ]
     ]
   },
   {
     "slug": "research-2024-06-unesco-recognizes-cassava-bread-t",
-    "date": "2024-12-04",
+    "date": "2024-12",
     "dimension": "abroad",
     "categories": [
       "culture",
@@ -132,8 +132,8 @@ const entries:Entry[]=[
     "fb": "Le 4 décembre 2024, l'UNESCO inscrit sur la Liste du patrimoine culturel immatériel les savoir-faire et pratiques liés à la production et à la consommation de la cassave. Haïti partage la candidature avec Cuba, la République dominicaine, le Honduras et le Venezuela. Le kasav repose sur des techniques transmises dans les familles et les communautés et renvoie à des héritages autochtones et africains. L'inscription valorise des pratiques de fabrication et leur transmission, sans reconnaître une propriété exclusive à un pays. Elle permet de raconter l'histoire des cultivateurs, artisans et marchés.",
     "sources": [
       [
-        "UNESCO",
-        "https://ich.unesco.org/en/RL/traditional-knowledge-and-practices-for-the-making-and-consumption-of-cassava-bread-02118"
+        "UNESCO, savoir-faire de la cassave (français)",
+        "https://ich.unesco.org/fr/RL/le-savoir-faire-et-les-pratiques-traditionnels-lies-a-la-fabrication-et-a-la-consommation-de-la-cassave-02118"
       ]
     ]
   },
@@ -155,8 +155,8 @@ const entries:Entry[]=[
     "fb": "Entre le 6 et le 11 décembre 2024, le gang de Wharf Jérémie exécute au moins 207 personnes à Port-au-Prince, selon une enquête commune du BINUH et du Haut-Commissariat de l'ONU aux droits de l'homme. Parmi les victimes figurent des personnes âgées accusées de sorcellerie ou de liens avec le Vodou, leurs proches et des habitants soupçonnés d'avoir parlé aux journalistes. Les enquêteurs décrivent plusieurs lieux de crime et des tentatives de dissimulation des corps. Les accusations lancées par les assaillants ne constituent aucune preuve contre les victimes. L'événement révèle l'emprise de groupes criminels et l'impunité.",
     "sources": [
       [
-        "UN BINUH",
-        "https://binuh.unmissions.org/en/press-releases/united-nations-investigation-report-brings-to-207-the-number-of-people"
+        "BINUH / OHCHR, rapport du 23 décembre 2024 (français)",
+        "https://binuh.unmissions.org/sites/default/files/flash_report_20241223_wharf_jeremie_fr.pdf"
       ]
     ]
   },
@@ -170,18 +170,19 @@ const entries:Entry[]=[
       "economy"
     ],
     "location": "Haiti",
-    "title": "UN reports more than 5,600 deaths amid nationwide violence in 2024",
-    "ft": "L'ONU recense plus de 5 600 morts dans les violences de 2024",
+    "title": "More than 5,600 people killed in violence during 2024, according to UN figures",
+    "ft": "Plus de 5 600 personnes tuées dans les violences en 2024, selon l’ONU",
     "summary": "Annual UN figures document a grave increase in killings, kidnappings and displacement.",
     "fs": "Les chiffres annuels de l'ONU documentent une forte augmentation des meurtres, des enlèvements et des déplacements.",
     "body": "A United Nations human-rights assessment published early in 2025 reported that at least 5,626 people were killed and more than 2,200 injured in Haiti during 2024 in violence involving armed groups, security operations and self-defense groups. It also documented 1,494 kidnappings for ransom during the year. These figures are based on UN monitoring procedures and a defined calendar-year reporting period, not a comprehensive tally of all harm suffered by the population. The rise in violence disrupted education, healthcare, agriculture, transport and normal civic life. This annual entry helps contextualize individual attacks, but careful historical writing should avoid double-counting the same victims when combining it with incident-specific reports.",
     "fb": "Un bilan des Nations unies publié au début de 2025 recense au moins 5 626 morts, plus de 2 200 blessés et 1 494 enlèvements contre rançon en Haïti durant 2024. Ces chiffres reposent sur des méthodes de suivi de l'ONU et une période définie, sans représenter toutes les souffrances subies par les habitants. L'extension des violences affecte l'école, les soins, l'agriculture, les transports et la vie civique. Ce bilan annuel aide à replacer les événements particuliers dans leur contexte, tout en évitant de compter plusieurs fois les mêmes victimes.",
     "sources": [
       [
-        "UN BINUH",
-        "https://www.unmissions.org/en/binuh/press-releases/haiti-the-human-rights-situation-remains-very-alarming"
+        "OHCHR, 2024 violence figures published 7 January 2025 (English)",
+        "https://www.ohchr.org/en/press-releases/2025/01/haiti-over-5600-killed-gang-violence-2024-un-figures-show"
       ]
     ]
   }
 ];
 export const research2024:HistEvent[]=entries.map(e=>({slug:e.slug,date:e.date,precision:(e.date.length===10?"day":e.date.length===7?"month":"year") as DatePrecision,dimension:e.dimension,categories:e.categories,location:e.location,title:e.title,summary:e.summary,body:e.body,fr:{title:e.ft,summary:e.fs,body:e.fb},sources:e.sources.map(([title,url])=>({title,url})),status:"documented",editorial:{verification:"corroborated",dateBasis:"documented event or year-end UN assessment",reviewedOn:"2026-11-01"}}));
+

@@ -1,3 +1,11 @@
+import { expand2020sEssay } from "./essay-2020s-completion";
+import { consolidateEvents } from "./event-aliases";
+import { completion2020s } from "./research-2020s-completion";
+import { research2022 } from "./research-2022";
+import { research2023 } from "./research-2023";
+import { research2024 } from "./research-2024";
+import { research2025 } from "./research-2025";
+import { research2026 } from "./research-2026";
 import type { Category, Content, HistEvent, Period, Person } from "./types";
 import { periodMedia } from "./period-media";
 import { frenchResearch } from "./french-research";
@@ -163,6 +171,10 @@ export const periods: Period[] = [
     const info = periodInfoB[p.slug] ?? periodInfoC[p.slug];
     if (info) { Object.assign(p, info); p.researchNote = undefined; }
     if (!p.legacy && legacyC[p.slug]) p.legacy = legacyC[p.slug];
+    if (p.slug === "2020s") {
+      p.essay = expand2020sEssay(p.essay ?? []);
+      p.researchNote = "Documented coverage through 1 November 2026. The decade is ongoing; later years and announced plans are not completed history.";
+    }
   }
 })();
 
@@ -943,8 +955,9 @@ for (const pe of people) {
 }
 
 // File every moment under the 10 sections, and merge decade notes the same way.
-const sectionedEvents = events.map(toSections);
+const sectionedEvents = consolidateEvents([...events, ...research2022, ...research2023, ...research2024, ...research2025, ...research2026, ...completion2020s]).map(toSections);
 for (const p of periods) p.notes = notesToSections(p.notes);
 const sections = SECTIONS.map(({ items, ...c }) => c);
 
 export const content: Content = { categories: sections, periods, events: sectionedEvents, people };
+

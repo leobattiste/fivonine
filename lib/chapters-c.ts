@@ -5,7 +5,7 @@ const wiki = (t: string) => `https://en.wikipedia.org/wiki/${t}`;
 const y = (year: string, title: string): EssayBlock => ({ type: "year", year, title });
 const p = (text: string): EssayBlock => ({ type: "p", text });
 type E = Omit<HistEvent, "status" | "sources"> & { status?: HistEvent["status"]; src: [string, string][] };
-const ev = ({ src, status = "documented", ...e }: E): HistEvent => ({ ...e, status, sources: src.map(([title, page]) => ({ title, url: wiki(page) })) });
+const ev = ({ src, status = "documented", ...e }: E): HistEvent => ({ ...e, status, sources: src.map(([title, page]) => ({ title, url: page.startsWith("https://") ? page : wiki(page) })) });
 
 export const periodInfoC: Record<string, Pick<Period, "title" | "overview" | "legacy">> = {
   "1960s": {
@@ -185,7 +185,7 @@ export const chaptersC: Record<string, EssayBlock[]> = {
   ],
 
   "2020s": [
-    p("The 2020s have so far been among the hardest years in Haiti's modern history. A president was assassinated, an earthquake struck the south, and armed gangs took control of much of the capital and its roads. Haiti went years without elected officials, and international security missions were authorized while hundreds of thousands were displaced. This chapter is ongoing and records events through 1 November 2026."),
+    { type: "p", text: "The 2020s have so far been among the hardest years in Haiti's modern history. A president was assassinated, an earthquake struck the south, and armed gangs took control of much of the capital and its roads. Haiti went years without elected officials, and international security missions were authorized while hundreds of thousands were displaced. This chapter is ongoing and records events through 1 November 2026.", fr: { text: "La décennie 2020 est marquée par l’assassinat d’un président, un séisme dans le Sud, l’expansion des groupes armés, une crise des institutions élues et des déplacements massifs. Les pratiques culturelles, les solidarités et les parcours de la diaspora font également partie de cette histoire. Ce chapitre en cours documente les événements jusqu’au 1er novembre 2026." } },
     {"type":"year","year":"2020","title":"A country without a legislature faces a pandemic","fr":{"title":"Crise parlementaire, pandémie et bouleversements sociaux"}},
     {"type":"sub","title":"Overview of 2020","fr":{"title":"Aperçu de 2020"}},
     {"type":"p","text":"At the opening of the decade, Haiti was still recovering from the 2019 peyi lòk shutdown, which had interrupted schools, transportation and economic activity. In 2020, a political vacuum coincided with the COVID-19 pandemic. Meanwhile, armed groups consolidated alliances in parts of Port-au-Prince, and households confronted inflation, insecurity and additional weather-related losses. Yet the year also saw efforts to establish a national social protection policy, support education during the pandemic and sustain family networks across borders. The events below document 2020 across ten subjects rather than treating the country only through government crises.","fr":{"text":"Au début de la décennie, Haïti subit encore les effets du peyi lòk de 2019, qui a perturbé les écoles, les transports et l'activité économique. En 2020, un vide institutionnel coïncide avec la pandémie de COVID-19. Dans la capitale, des groupes armés renforcent leurs alliances, tandis que les ménages affrontent l'inflation, l'insécurité et les dégâts causés par les intempéries. L'année est aussi marquée par l'adoption d'une politique de protection sociale, des initiatives éducatives et la solidarité transnationale des familles. La chronologie documente ces évolutions selon dix thèmes."}},
@@ -431,16 +431,16 @@ export const eventsC: HistEvent[] = [
       { title: "UNHCR, IOM, UNICEF and OHCHR joint migration statement (30 September 2021)", url: "https://www.unhcr.org/africa/news/press-releases/un-agencies-call-protection-measures-and-comprehensive-regional-approach" }
     ]
   },
-  ev({ slug: "varreux-2022", title: "Gangs blockade the main fuel terminal", date: "2022-09", precision: "month", dimension: "inside", categories: ["economy", "society", "wars"], location: "Port-au-Prince",
+  ev({ slug: "varreux-2022", fr: {"title": "Des gangs bloquent le principal terminal pétrolier", "summary": "Une coalition de gangs bloque le terminal Varreux pendant environ deux mois, provoquant de graves pénuries au moment du retour du choléra."}, title: "Gangs blockade the main fuel terminal", date: "2022-09", precision: "month", dimension: "inside", categories: ["economy", "society", "wars"], location: "Port-au-Prince",
     summary: "A gang coalition blocked the Varreux terminal for about two months, causing severe shortages as cholera returned.", src: [["2018–2023 Haitian protests", "2018%E2%80%932023_Haitian_protests"]] }),
   ev({ slug: "unsc-mss-2023", title: "The UN authorizes a Kenyan-led security mission", date: "2023-10-02", precision: "day", dimension: "foreign", categories: ["foreign-relations", "wars"], countries: ["United Nations", "Kenya"], location: "New York",
     summary: "The Security Council authorized the Multinational Security Support mission to help Haitian police fight armed gangs.", related: ["mss-kenya-2024"], src: [["Multinational Security Support Mission in Haiti", "Multinational_Security_Support_Mission_in_Haiti"]] }),
   ev({ slug: "henry-resigns-2024", title: "Ariel Henry resigns; a transitional council takes office", date: "2024-04", precision: "month", dimension: "inside", categories: ["politics"], location: "Port-au-Prince",
     summary: "After gangs attacked prisons and the airport in March, the prime minister agreed to step down, and a Transitional Presidential Council took power.", related: ["mss-kenya-2024"], src: [["Ariel Henry", "Ariel_Henry"]] }),
-  ev({ slug: "springfield-2024", title: "False claims target Haitians in Springfield, Ohio", date: "2024-09", precision: "month", dimension: "abroad", categories: ["contributions", "society"], countries: ["United States"], location: "Springfield, Ohio",
-    summary: "Baseless claims about Haitian immigrants, amplified by prominent politicians, led to bomb threats and harassment of the community.", src: [["Springfield, Ohio, cat-eating hoax", "Springfield,_Ohio,_cat-eating_hoax"]] }),
+  ev({ slug: "springfield-2024", fr: {"title": "De fausses accusations visent les Haïtiens de Springfield, dans l’Ohio", "summary": "Des accusations sans fondement contre les immigrés haïtiens, amplifiées par des responsables politiques, s’accompagnent de menaces à la bombe et de harcèlement de la communauté."}, title: "False claims target Haitians in Springfield, Ohio", date: "2024-09", precision: "month", dimension: "abroad", categories: ["contributions", "society"], countries: ["United States"], location: "Springfield, Ohio",
+    summary: "Baseless claims about Haitian immigrants, amplified by prominent politicians, led to bomb threats and harassment of the community.", src: [["Reuters, Springfield evacuation after bomb threat, 12 September 2024", "https://www.reuters.com/world/us/bomb-threat-city-heart-trump-immigrant-rumors-sparks-evacuation-2024-09-12/"]] }),
   {
-    slug: "haiti-covid-first-cases-2020",
+    slug: "haiti-covid-first-cases-2020", fr: {"title": "Haïti confirme ses premiers cas de COVID-19", "summary": "Haïti confirme ses premiers cas de COVID-19 et déclare l’urgence sanitaire nationale. La pandémie accroît la pression sur un système de santé fragile et perturbe le travail, l’éducation et le commerce."},
     title: "Haiti confirms its first COVID-19 cases",
     date: "2020-03-19",
     precision: "day",
@@ -477,7 +477,7 @@ export const eventsC: HistEvent[] = [
     sources: [{ title: "UN Panel of Experts interim report, S/2026/241", url: "https://www.ecoi.net/en/document/2139062.html" }, { title: "Reuters, Haiti enters political limbo as transition government's mandate ends", url: "https://www.reuters.com/world/americas/haiti-enters-political-limbo-transition-governments-mandate-ends-2026-02-07/" }],
   },
   {
-    slug: "haiti-national-pact-2026",
+    slug: "haiti-national-pact-2026", fr: {"title": "Des acteurs politiques adoptent un Pacte national pour la stabilité et les élections", "summary": "Des acteurs politiques haïtiens adoptent un Pacte national destiné à renforcer la transition et à soutenir l’organisation des élections après la fin du mandat du Conseil présidentiel de transition."},
     title: "Political actors adopt a National Pact for Stability and Elections",
     date: "2026-02-23",
     precision: "day",
@@ -514,3 +514,4 @@ export const eventsC: HistEvent[] = [
     sources: [{ title: "Reuters, Haiti postpones first presidential election in a decade to July 2027", url: "https://www.reuters.com/world/americas/haiti-postpones-first-presidential-election-decade-july-2027-2026-10-29/" }],
   },
 ];
+

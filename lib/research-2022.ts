@@ -19,7 +19,7 @@ const entries:Entry[] = [
     "fb": "À la fin d'avril 2022, des groupes armés se disputent des territoires à Croix-des-Bouquets, Tabarre et dans des quartiers voisins. Les tirs et les attaques provoquent des déplacements, la fermeture d'écoles et des dommages aux habitations. Ces affrontements aggravent l'insécurité sur des voies de circulation importantes. Les évaluations humanitaires documentent des difficultés d'accès aux marchés, aux soins et aux services publics. Il s'agit du début d'une nouvelle phase de violence et non de la fin des combats. Les récits des habitants et les bilans établis par des organismes identifiables doivent être distingués des estimations provisoires.",
     "sources": [
       [
-        "Institutional research",
+        "IACHR, Annual Report 2022 (English)",
         "https://www.oas.org/en/iachr/docs/annual/2022/chapters/6-ia2022_cap_4a_en.pdf"
       ]
     ]
@@ -48,7 +48,7 @@ const entries:Entry[] = [
   },
   {
     "slug": "haiti-2022-research-03-fuel-subsidy-reductions-trigger-nat",
-    "date": "2022-09-11",
+    "date": "2022-09",
     "dimension": "inside",
     "categories": [
       "economy",
@@ -64,8 +64,8 @@ const entries:Entry[] = [
     "fb": "En septembre 2022, le gouvernement du Premier ministre Ariel Henry annonce d'importantes modifications des prix subventionnés du carburant. Des manifestations et barrages commencent autour du 12 septembre dans plusieurs villes, alors que les ménages subissent déjà la hausse de l'alimentation et du transport. Les revendications économiques et les actions des groupes armés ne doivent pas être confondues. La crise touche les travailleurs, les commerçants, les établissements scolaires et les services de santé. Une évaluation de l'OCHA décrit les perturbations de l'eau, de l'électricité et de l'aide humanitaire.",
     "sources": [
       [
-        "Institutional research",
-        "https://haiti.un.org/en/201531-fuel-crisis-and-social-unrest-impact-humanitarian-situation"
+        "UN Haiti, humanitarian access appeal (English)",
+        "https://haiti.un.org/en/202244-un-and-its-partners-haiti-call-creation-humanitarian-corridor"
       ]
     ]
   },
@@ -87,7 +87,7 @@ const entries:Entry[] = [
     "fb": "Le 6 octobre 2022, les Nations unies et leurs partenaires humanitaires demandent un couloir permettant la sortie du carburant de Varreux. Des groupes armés bloquent le principal terminal pétrolier, perturbant l'eau potable, les hôpitaux, les télécommunications et les transports. Les premiers cas de choléra viennent d'être signalés. Cette demande humanitaire ne signifie pas qu'un couloir a aussitôt été ouvert. L'épisode montre combien l'accès au carburant conditionne les services essentiels et comment le contrôle armé d'une infrastructure menace des civils dans tout le pays.",
     "sources": [
       [
-        "Institutional research",
+        "Institutional report: haiti.un.org",
         "https://haiti.un.org/en/202244-un-and-its-partners-haiti-call-creation-humanitarian-corridor"
       ]
     ]
@@ -110,8 +110,8 @@ const entries:Entry[] = [
     "fb": "L'évaluation d'octobre 2022 estime que 4,7 millions de personnes sont confrontées à une insécurité alimentaire de niveau Crise ou supérieur. À Cité Soleil, environ 19 200 personnes se trouvent dans la catégorie Catastrophe de l'IPC. La violence, les difficultés d'acheminement, le coût des aliments et la perte de revenus se renforcent. Ces résultats ne constituent pas une déclaration de famine généralisée à tout le pays. Les chiffres correspondent à une période précise et doivent être rapportés comme tels. Ils soulignent les conséquences inégales de l'insécurité sur les familles.",
     "sources": [
       [
-        "ACAPS",
-        "https://www.haitidocs.org/doc/acaps-haiti-2022"
+        "World Food Programme, catastrophic hunger assessment (English)",
+        "https://www.wfp.org/news/catastrophic-hunger-levels-recorded-first-time-haiti"
       ]
     ]
   },
@@ -132,8 +132,8 @@ const entries:Entry[] = [
     "fb": "Au début d'octobre 2022, le gouvernement d'Ariel Henry demande un appui international pour affronter les groupes armés et rétablir la circulation des approvisionnements. L'appel intervient pendant les manifestations, le blocus de Varreux et le retour du choléra. Des organisations politiques et civiles haïtiennes expriment des positions divergentes, notamment en raison de l'histoire des interventions étrangères. La demande n'autorise pas elle-même une force internationale. Les sanctions de 2022 et l'autorisation d'une mission en 2023 sont des actes juridiques distincts.",
     "sources": [
       [
-        "Institutional research",
-        "https://www.oas.org/en/iachr/docs/annual/2022/chapters/6-ia2022_cap_4a_en.pdf"
+        "UN Secretary-General, statement in English and French, 9 October 2022",
+        "https://www.un.org/sg/en/content/sg/statements/2022-10-09/statement-attributable-the-spokesperson-for-the-secretary-general-haiti-scroll-down-for-french"
       ]
     ]
   },
@@ -177,7 +177,7 @@ const entries:Entry[] = [
     "fb": "Le 3 novembre 2022, la Police nationale d'Haïti annonce avoir repris l'accès au terminal de Varreux après 56 jours de blocus total. Depuis septembre, les pénuries de carburant ont interrompu la distribution d'eau, le fonctionnement de centres de santé, les entreprises et les opérations humanitaires. L'OCHA souligne que la reprise des marchés et des services est progressive et que des entreprises ont déjà licencié des travailleurs. La récupération d'un terminal ne signifie ni la fin des violences ni un retour immédiat à un approvisionnement normal.",
     "sources": [
       [
-        "Institutional research",
+        "Institutional report: haiti.un.org",
         "https://haiti.un.org/en/206570-haiti-humanitarian-situation-and-cholera-%E2%80%93-flash-update-5-7-november-2022"
       ]
     ]
@@ -199,8 +199,8 @@ const entries:Entry[] = [
     "fb": "Le romancier haïtien Makenzy Orcel publie Une somme humaine en 2022 et figure parmi les quatre finalistes du prix Goncourt. Brigitte Giraud remporte finalement le prix pour Vivre vite. La sélection attire l'attention sur la littérature haïtienne au-delà de l'actualité politique et sur ses liens avec les réseaux éditoriaux caribéens et européens. La chronologie doit distinguer la parution du roman, les étapes de sélection et le prix attribué, sans présenter Orcel comme lauréat de cette édition.",
     "sources": [
       [
-        "Gazette Haiti",
-        "https://gazettehaiti.com/index.php/node/8953"
+        "Ambassade d’Haïti en France, Makenzy Orcel (français)",
+        "https://ambassadehaiti-france.org/communique-lecrivain-mackenzy-orcel-honore-par-le-senat-de-la-republique-francaise-sur-proposition-de-lambassade-dhaiti-en-france/"
       ]
     ]
   },
@@ -229,3 +229,4 @@ const entries:Entry[] = [
   }
 ];
 export const research2022: HistEvent[] = entries.map(e=>({slug:e.slug,date:e.date,precision:(e.date.length===10?"day":e.date.length===7?"month":"year") as DatePrecision,dimension:e.dimension,categories:e.categories,location:e.location,title:e.title,summary:e.summary,body:e.body,fr:{title:e.ft,summary:e.fs,body:e.fb},sources:e.sources.map(([title,url])=>({title,url})),status:"documented",editorial:{verification:"corroborated",dateBasis:"date or period given in cited contemporary research",reviewedOn:"2026-11-01"}}));
+
