@@ -1,0 +1,83 @@
+import type { Campaign } from "./domain";
+const examples = [
+  [
+    "A classroom full of possibilities",
+    "education",
+    "Jacmel",
+    "Haiti",
+    "Help a neighborhood learning space welcome more students.",
+    "Learning supplies, books and classroom repairs.",
+  ],
+  [
+    "Care that brings us closer",
+    "medical",
+    "Cap-Haïtien",
+    "Haiti",
+    "A family shares a need for medical care and recovery support.",
+    "Appointments, transport and recovery essentials.",
+  ],
+  [
+    "A fresh start after the storm",
+    "emergencies",
+    "Les Cayes",
+    "Haiti",
+    "A community comes together to help families rebuild everyday life.",
+    "Temporary essentials and repairs to safe living spaces.",
+  ],
+  [
+    "Growing something together",
+    "community",
+    "Gonaïves",
+    "Haiti",
+    "An example of neighbors creating a shared growing space.",
+    "Garden tools, seedlings and training sessions.",
+  ],
+  [
+    "A little stability goes a long way",
+    "personal",
+    "Miami",
+    "United States",
+    "An illustrative family support campaign in the Haitian diaspora.",
+    "Essential living expenses during a difficult transition.",
+  ],
+  [
+    "New opportunities, shared roots",
+    "education",
+    "Montréal",
+    "Canada",
+    "A fictional student-support initiative connecting generations.",
+    "Course materials and educational expenses.",
+  ],
+] as const;
+export const demoCampaigns: Campaign[] = examples.map(
+  ([title, category, region, country, story, intended_use], i) => ({
+    id: `example-${i + 1}`,
+    status: "published",
+    featured: i < 3,
+    created_at: "2026-11-01T12:00:00Z",
+    updated_at: "2026-11-08T12:00:00Z",
+    contact_confirmed: false,
+    links_checked_at: null,
+    organization_reviewed_at: null,
+    demo: true,
+    public_content: {
+      title,
+      category,
+      region,
+      country,
+      story: `${story}\n\nThis is an illustrative campaign for exploring fivonine. No real individual, organization or fundraising request is represented.`,
+      intended_use,
+      language: "en",
+      organizer_name: "Example organizer",
+      relationship: "Illustrative community representative",
+      beneficiary: "Example beneficiaries",
+      distribution:
+        "An actual organizer would explain who receives support and how it reaches the beneficiary.",
+      support_text:
+        "This is an illustrative campaign. Do not send money. Real reviewed campaigns will provide the organizer’s support instructions here.",
+      photo_url: `/illustrations/cause-${i + 1}.svg`,
+      goal: null,
+      currency: "USD",
+    },
+  }),
+);

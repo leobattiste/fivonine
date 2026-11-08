@@ -1,48 +1,48 @@
-# Fivonine
+# fivonine
 
-Haiti through the decades. A connected history of Haiti and Haitians, organized so that every period is told three ways: inside Haiti, Haitians abroad, and the world acting on Haiti.
+A Haitian community fundraising discovery platform, built from Pheelm's Next.js/Supabase foundation. Organizers publish their story and **text support instructions with HTTPS links**. fivonine does not collect, hold, transfer or distribute donations.
 
-Stack: Next.js 15 (App Router) on **Vercel**, **Supabase** (Postgres) for content and subscribers, **Resend** for email.
+## Run
 
-## What's in it
-
-- **Time scrubber** (home): drag through 1490 to today; the year and nearest documented moment update live. Keyboard accessible.
-- **Every period**: Indigenous Ayiti, Conquest, Saint-Domingue, then every decade 1790s to 2020s. Decades without researched entries say so instead of inventing content.
-- **Decade pages**: overview, people, threads, year-by-year timeline with dimension and subject filters, legacy, earlier/later navigation.
-- **Event pages**: date, place, dimension, evidence status (documented, interpretation, disputed, under investigation), background, consequences, sources, connected moments (graph edges in both directions), JSON-LD.
-- **Threads**: connections between decades, drawn as a sequence with the years between each step.
-- **Search**: by keyword, year, person, place, subject, period, country. URLs are shareable.
-- **Reasons to come back**: on-this-day module, a personal "periods explored" meter (stored on the device), a Sunday email built from upcoming anniversaries.
-- **Reasons to share**: native share sheet with WhatsApp, X, Facebook and copy-link fallbacks; a generated share image for every event, decade and thread (`/api/og`).
-- SEO: sitemap, robots, per-page metadata.
-
-## Run locally
-
-```bash
-npm install
-cp .env.example .env.local   # optional: runs on bundled content with no keys
+```sh
+npm ci
+cp .env.example .env.local
 npm run dev
 ```
 
-Without Supabase keys the site reads `lib/content.ts`. Subscriptions return a clear "not configured" message.
+Open http://localhost:3000. The default language is Haitian Creole; `/fr` and `/en` are also available.
 
-## Launch
+**Without Supabase configuration, the app runs in explicit preview mode.** Sample campaigns are fictional, contain no donation destinations, and are never inserted into a database. Forms remain visible but cannot submit or claim success. The admin preview shows the dashboard structure without exposing data.
 
-1. **Supabase**: create a project, open the SQL editor, run `supabase/migrations/0001_fivonine.sql`. Then seed:
-   ```bash
-   NEXT_PUBLIC_SUPABASE_URL=... SUPABASE_SERVICE_ROLE_KEY=... npm run seed
-   ```
-2. **Resend**: add and verify your sending domain (e.g. `fivonine.com`), create an API key.
-3. **Vercel**: import the repo and set the environment variables from `.env.example`. Set `CRON_SECRET` to any long random string. `vercel.json` schedules the Sunday letter at 13:00 UTC.
+## Included
 
-## Adding history
+- Responsive public homepage, search and category/country/region filters, campaign detail pages, sharing and image fallbacks.
+- Haitian Creole, French and English interface and informational pages; original campaign-language labeling.
+- Text-and-link support instructions; safe external destinations; no payment integrations.
+- Email-link organizer authentication and server-side protected organizer/admin actions, ready for Supabase configuration.
+- Submission/revision queue, reviewed updates, private organizer contacts, removal requests, reports and moderation audit history.
+- Native mobile menu with blur, 24.5px icons, shared 340px panel width and 10px spacing from the 60px bottom bar.
+- Supabase schema with RLS, atomic publication/review RPCs, private email outbox and aggregate outbound-link metrics.
+- Optional Turnstile and transactional email worker; no marketing mail or donor tracking.
+- Unit, browser and disposable PostgreSQL role/workflow tests; GitHub Actions checks.
 
-Edit `lib/content.ts` (or the Supabase tables directly) and re-run `npm run seed`. Each event needs a date and precision, one dimension, categories, a location, a summary, an evidence status and at least one source. Link events with `related` to build the graph; add `people` slugs to connect biographies. Pages revalidate hourly.
+## Setup and continuation
 
-Editorial rules built into the product: nothing is invented to fill a decade, every entry is sourced, and anything that is an interpretation, disputed or under investigation is labelled.
+Read **[docs/HANDOFF.md](docs/HANDOFF.md)** first in the next chat, then **[docs/SUPABASE-SETUP.md](docs/SUPABASE-SETUP.md)**. Credentials belong in environment settings, never commits or chat.
 
-## Design system
+The owner requested **GitHub and Vercel only for this handoff**, with Supabase to be connected later. No existing Supabase project was changed. Connecting a project requires applying the schema, configuring auth, adding the environment variables, and rebuilding.
 
-- Colors: base `#0B2321`, raise `#11302D`, rule `#1F4541`, text `#E7EFEA`, muted `#8DA79F`. Dimensions: mint `#7FE0C2` (inside Haiti), sun `#F4C76A` (Haitians abroad), periwinkle `#A9B5FF` (world acting on Haiti).
-- Type: Bricolage Grotesque (variable width, used condensed for numerals) and Newsreader for reading. Both self-hosted via Fontsource.
-- One signature motion: the year counts up to 1804 on first load. Respects reduced motion.
+## Checks
+
+```sh
+npm test
+npm run build
+npm run start -- --port 3040
+npm run test:browser
+```
+
+Browser checks default to `/usr/bin/chromium`; set `CHROMIUM_PATH` if needed. See the GitHub workflow for disposable PostgreSQL checks. `tests/bootstrap.sql` is a **local test shim only** and must never be run on Supabase.
+
+## Before public fundraising launch
+
+Keep `PUBLIC_LAUNCH=false`. Policies and multilingual copy are draft material requiring owner/legal/native-speaker review. Complete live authentication, mail delivery, reporting and authenticated browser verification after Supabase is connected. See the handoff's launch checklist.

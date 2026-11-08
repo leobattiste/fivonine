@@ -1,6 +1,21 @@
 import type { MetadataRoute } from "next";
-import { SITE } from "@/lib/site";
-
+import { SITE_URL, supabaseEnabled } from "@/lib/supabase/config";
 export default function robots(): MetadataRoute.Robots {
-  return { rules: { userAgent: "*", allow: "/", disallow: "/api/" }, sitemap: `${SITE.url}/sitemap.xml` };
+  return {
+    rules:
+      process.env.PUBLIC_LAUNCH === "true" && supabaseEnabled
+        ? {
+            userAgent: "*",
+            allow: "/",
+            disallow: [
+              "/*/admin",
+              "/*/dashboard",
+              "/*/login",
+              "/*/report",
+              "/api/",
+            ],
+          }
+        : { userAgent: "*", disallow: "/" },
+    sitemap: `${SITE_URL}/sitemap.xml`,
+  };
 }
