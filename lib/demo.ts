@@ -53,7 +53,7 @@ export const demoCampaigns: Campaign[] = examples.map(
   ([title, category, region, country, story, intended_use], i) => ({
     id: `example-${i + 1}`,
     status: "published",
-    featured: i < 3,
+    featured: i < 2 || i === 3,
     created_at: "2026-11-01T12:00:00Z",
     updated_at: "2026-11-08T12:00:00Z",
     contact_confirmed: false,
@@ -75,7 +75,14 @@ export const demoCampaigns: Campaign[] = examples.map(
         "An actual organizer would explain who receives support and how it reaches the beneficiary.",
       support_text:
         "This is an illustrative campaign. Do not send money. Real reviewed campaigns will provide the organizer’s support instructions here.",
-      photo_url: `/illustrations/cause-${i + 1}.svg`,
+      photo_url: [
+        "/photos/learning.webp",
+        "/photos/care.webp",
+        "/photos/growing.webp",
+        "/photos/growing.webp",
+        "/photos/together.webp",
+        "/photos/learning.webp",
+      ][i],
       goal: null,
       currency: "USD",
     },

@@ -1,27 +1,26 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import Icon from "./Icon";
 import { t, type Locale } from "@/lib/i18n";
 export default function Navigation({ locale }: { locale: Locale }) {
-  const d = t(locale),
-    path = usePathname(),
-    dialog = useRef<HTMLDialogElement>(null);
-  const [scrolled, setScrolled] = useState(false);
+  const d = t(locale);
+  const path = usePathname();
+  const dialog = useRef<HTMLDialogElement>(null);
   useEffect(() => {
     dialog.current?.close();
-    const read = () => setScrolled(scrollY > 300);
-    read();
-    addEventListener("scroll", read, { passive: true });
-    return () => removeEventListener("scroll", read);
   }, [path]);
-  const tabs = [
-    ["explore", "search", d.explore],
-    ["submit", "plus", d.submit],
-    ["dashboard", "userCircle", d.dashboard],
-    ["about", "heart", d.about],
-  ] as const;
+  const link = (href: string, label: string) => (
+    <Link
+      key={href}
+      href={`/${locale}/${href}`}
+      aria-current={path.startsWith(`/${locale}/${href}`) ? "page" : undefined}
+      onClick={() => dialog.current?.close()}
+    >
+      {label}
+    </Link>
+  );
   return (
     <>
       <header className="site-header">
@@ -32,70 +31,52 @@ export default function Navigation({ locale }: { locale: Locale }) {
         >
           fivonine<span className="brand-dot">.</span>
         </Link>
-        <span className="header-note">{d.tagline}</span>
-        <label className="language">
-          <Icon name="globe" />
-          <select
-            aria-label="Language"
-            value={locale}
-            onChange={(e) =>
-              location.assign(
-                path.replace(/^\/(ht|en|fr)(?=\/|$)/, `/${e.target.value}`) +
-                  location.search,
-              )
-            }
-          >
-            <option value="ht">Kreyòl</option>
-            <option value="fr">Français</option>
-            <option value="en">English</option>
-          </select>
-        </label>
-      </header>
-      <nav className="tab-bar" aria-label={d.explore}>
-        {tabs.map(([href, icon, label]) => (
-          <Link
-            key={href}
-            href={`/${locale}/${href}`}
-            aria-label={label}
-            title={label}
-            aria-current={
-              path.startsWith(`/${locale}/${href}`) ? "page" : undefined
-            }
-          >
-            <Icon name={icon} />
+        <nav className="desktop-nav" aria-label={d.menu}>
+          {link("explore", d.explore)}
+          {link("how-it-works", d.how)}
+          {link("about", d.about)}
+          {link("dashboard", d.dashboard)}
+        </nav>
+        <div className="header-actions">
+          <label className="language">
+            <Icon name="globe" />
+            <select
+              aria-label="Language"
+              value={locale}
+              onChange={(e) =>
+                location.assign(
+                  path.replace(/^\/(ht|en|fr)(?=\/|$)/, `/${e.target.value}`) +
+                    location.search,
+                )
+              }
+            >
+              <option value="ht">Kreyòl</option>
+              <option value="fr">Français</option>
+              <option value="en">English</option>
+            </select>
+          </label>
+          <Link className="header-signin" href={`/${locale}/login`}>
+            {d.login}
           </Link>
-        ))}
-        <button
-          type="button"
-          aria-label={d.menu}
-          title={d.menu}
-          onClick={() => dialog.current?.showModal()}
-        >
-          <Icon name="moreCircle" />
-        </button>
-      </nav>
-      {scrolled && (
-        <button
-          type="button"
-          className="back-to-top"
-          aria-label={d.top}
-          title={d.top}
-          onClick={() => {
-            scrollTo({
-              top: 0,
-              behavior: matchMedia("(prefers-reduced-motion: reduce)").matches
-                ? "instant"
-                : "smooth",
-            });
-            document
-              .querySelector<HTMLElement>("#main")
-              ?.focus({ preventScroll: true });
-          }}
-        >
-          <Icon name="arrowUp" />
-        </button>
-      )}
+          <Link className="button header-submit" href={`/${locale}/submit`}>
+            {d.create}
+          </Link>
+          <button
+            type="button"
+            className="menu-toggle"
+            aria-label={d.menu}
+            aria-haspopup="dialog"
+            aria-controls="site-menu"
+            onClick={() => dialog.current?.showModal()}
+          >
+            <span />
+            <span />
+            <span />
+          </button>
+        </div>
+      </header>
       <dialog
+        id="site-menu"
         className="menu-sheet"
         ref={dialog}
         aria-label={d.menu}
@@ -106,6 +87,7 @@ export default function Navigation({ locale }: { locale: Locale }) {
         <div className="modal-head">
           <span className="wordmark">fivonine.</span>
           <button
+            type="button"
             className="bare"
             aria-label={d.close}
             onClick={() => dialog.current?.close()}
@@ -115,34 +97,18 @@ export default function Navigation({ locale }: { locale: Locale }) {
         </div>
         <nav className="menu-list">
           {[
-            ["help", d.help],
+            ["explore", d.explore],
+            ["submit", d.create],
+            ["dashboard", d.dashboard],
             ["how-it-works", d.how],
+            ["about", d.about],
+            ["help", d.help],
             ["contact", d.contact],
             ["admin", d.admin],
             ["login", d.login],
-          ].map(([href, label]) => (
-            <Link
-              key={href}
-              href={`/${locale}/${href}`}
-              onClick={() => dialog.current?.close()}
-            >
-              {label}
-              <Icon name="arrowRight" />
-            </Link>
-          ))}
+          ].map(([href, label]) => link(href, label))}
         </nav>
-        <div className="menu-foot">
-          {["about", "contact", "legal"].map((href, i) => (
-            <Link
-              key={href}
-              href={`/${locale}/${href}`}
-              onClick={() => dialog.current?.close()}
-            >
-              {[d.about, d.contact, d.terms][i]}
-            </Link>
-          ))}
-          <p>{d.rights}</p>
-        </div>
+        <p className="menu-foot">{d.tagline}</p>
       </dialog>
     </>
   );

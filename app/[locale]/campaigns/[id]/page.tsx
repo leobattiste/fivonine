@@ -66,6 +66,10 @@ export default async function CampaignPage({
           </span>
         </div>
       </header>
+      <a className="button mobile-support-jump" href="#support">
+        {d.support}
+        <Icon name="arrowRight" />
+      </a>
       <div className="campaign-detail-grid">
         <div className="campaign-main">
           <Media
@@ -104,7 +108,7 @@ export default async function CampaignPage({
             )}
           </section>
         </div>
-        <aside className="support-panel">
+        <aside className="support-panel" id="support">
           <div className="support-card">
             <span className="eyebrow">{d.support}</span>
             {c.goal && (

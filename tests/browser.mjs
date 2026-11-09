@@ -40,7 +40,12 @@ try {
       path: `test-results/home-${width}.png`,
       fullPage: true,
     });
-    await page.locator('.tab-bar a[href="/en/explore"]').click();
+    if (width < 960) {
+      await page.locator(".menu-toggle").click();
+      await page.locator('.menu-list a[href="/en/explore"]').click();
+    } else {
+      await page.locator('.desktop-nav a[href="/en/explore"]').click();
+    }
     await page.waitForURL("**/en/explore");
     assert.equal(await page.locator(".campaign-card").count(), 6);
     await page.locator("input[name=q]").fill("classroom");
@@ -55,24 +60,47 @@ try {
         "Do not send money",
       ),
     );
-    await page.locator(".tab-bar button").click();
-    await page.locator("dialog").waitFor({ state: "visible" });
-    const geometry = await page.evaluate(() => {
-      const n = document.querySelector(".tab-bar").getBoundingClientRect(),
-        m = document.querySelector("dialog").getBoundingClientRect();
-      return { gap: n.top - m.bottom, nav: n.width, modal: m.width };
+    await page.screenshot({
+      path: `test-results/campaign-${width}.png`,
+      fullPage: true,
     });
-    assert.ok(Math.abs(geometry.gap - 10) < 1);
-    assert.equal(geometry.nav, geometry.modal);
-    await page.getByRole("button", { name: "Close", exact: true }).click();
+    if (width < 960) {
+      await page.locator(".menu-toggle").click();
+      await page.locator("dialog").waitFor({ state: "visible" });
+      assert.equal(
+        await page
+          .locator("dialog")
+          .evaluate((el) => el.getBoundingClientRect().right <= innerWidth),
+        true,
+      );
+      await page.keyboard.press("Escape");
+      await page.locator("dialog").waitFor({ state: "hidden" });
+      assert.equal(
+        await page
+          .locator(".menu-toggle")
+          .evaluate((el) => el === document.activeElement),
+        true,
+      );
+    }
     await page.goto(base + "/en/submit");
     assert.equal(await page.locator("[name=support_text]").count(), 1);
+    assert.equal(await page.locator("fieldset:visible").count(), 1);
+    await page.getByRole("button", { name: "Continue", exact: true }).click();
+    assert.equal(
+      await page.locator("fieldset:visible legend").innerText(),
+      "02 · Organizer",
+    );
+    await page.getByRole("button", { name: "Continue", exact: true }).click();
+    assert.equal(await page.locator("[name=support_text]").isVisible(), true);
+    await page.getByRole("button", { name: "Continue", exact: true }).click();
     assert.equal(
       await page
         .getByRole("button", { name: "Submit for review", exact: true })
         .isDisabled(),
       true,
     );
+    await page.getByRole("button", { name: "Back", exact: true }).click();
+    assert.equal(await page.locator("[name=support_text]").isVisible(), true);
     assert.equal(
       await page.evaluate(
         () => document.documentElement.scrollWidth > innerWidth,
@@ -95,10 +123,24 @@ try {
       assert.ok(
         (await page.getByRole("heading", { level: 1 }).innerText()).length > 0,
       );
+      await page.goto(`${base}/${locale}`);
+      assert.equal(
+        await page.evaluate(
+          () => document.documentElement.scrollWidth > innerWidth,
+        ),
+        false,
+      );
+      await page.goto(`${base}/${locale}/submit`);
+      assert.equal(
+        await page.evaluate(
+          () => document.documentElement.scrollWidth > innerWidth,
+        ),
+        false,
+      );
     }
     assert.deepEqual(errors, []);
     console.log(
-      `PASS ${width}px: homepage, search, campaign disclosure, modal/menu gap, preview form guards, admin tabs and locale pages`,
+      `PASS ${width}px: homepage, responsive navigation, search, campaign disclosure, accessible menu, submission steps, preview form guards, admin tabs and locale pages`,
     );
     await page.close();
   }
