@@ -20,12 +20,9 @@ export default async function Home({
   const cards = (featured.length ? featured : items).slice(0, 3);
   return (
     <>
-      <section className="hero page">
+      <section className="hero page giving-hero">
         <div className="hero-copy">
-          <span className="eyebrow">
-            <span className="eyebrow-rule" />
-            {d.tagline}
-          </span>
+          <span className="eyebrow">{d.tagline}</span>
           <h1>
             {d.hero.split("\n").map((line, i) => (
               <span key={line} className={i ? "hero-accent" : ""}>
@@ -35,15 +32,49 @@ export default async function Home({
           </h1>
           <p className="lead">{d.intro}</p>
           <div className="actions">
-            <Link className="button" href={`/${locale}/explore`}>
-              {d.browse}
-              <Icon name="arrowRight" />
-            </Link>
-            <Link className="button secondary" href={`/${locale}/submit`}>
+            <Link className="button" href={`/${locale}/submit`}>
               {d.create}
               <Icon name="plus" />
             </Link>
+            <Link className="text-link" href={`/${locale}/explore`}>
+              {d.browse}
+              <Icon name="arrowRight" />
+            </Link>
           </div>
+        </div>
+        <div className="cause-orbit" aria-label={d.categories}>
+          {categoryKeys.map((category, i) => (
+            <Link
+              className={`orbit-cause orbit-cause-${i}`}
+              key={category}
+              href={`/${locale}/explore?category=${category}`}
+            >
+              <span className="orbit-photo">
+                <Image
+                  src={
+                    [
+                      "/photos/learning.webp",
+                      "/photos/care.webp",
+                      "/photos/growing.webp",
+                      "/photos/together.webp",
+                      "/photos/learning.webp",
+                    ][i]
+                  }
+                  alt=""
+                  fill
+                  priority={i < 2}
+                  sizes="(max-width: 520px) 110px, (max-width: 959px) 140px, 200px"
+                />
+              </span>
+              <span className="orbit-label">
+                {d[category]}
+                <Icon name="arrowRight" />
+              </span>
+            </Link>
+          ))}
+        </div>
+        <div className="hero-community-line">
+          <p>Men anpil, chay pa lou.</p>
           <div className="hero-facts">
             <span>
               <Icon name="globe" />
@@ -63,27 +94,6 @@ export default async function Home({
             </span>
           </div>
         </div>
-        <figure className="hero-visual">
-          <Image
-            src="/photos/together.webp"
-            alt={copy.heroAlt}
-            fill
-            priority
-            sizes="(max-width: 799px) 100vw, 50vw"
-          />
-          <div className="hero-image-shade" />
-          <figcaption>
-            <span>{copy.sharedRoots}</span>
-            <strong>
-              Men anpil,
-              <br />
-              chay pa lou.
-            </strong>
-          </figcaption>
-          <div className="hero-image-index" aria-hidden="true">
-            HT / 509
-          </div>
-        </figure>
       </section>
       <div className="principles-strip">
         <div className="page principles-inner">
@@ -101,10 +111,48 @@ export default async function Home({
           </span>
         </div>
       </div>
-      <section className="section page">
+      <section className="section page home-discovery">
+        <header className="discovery-heading">
+          <p className="eyebrow">{copy.discover}</p>
+          <h2>{d.categories}</h2>
+        </header>
+        <form
+          className="home-search search-field"
+          action={`/${locale}/explore`}
+        >
+          <Icon name="search" />
+          <input name="q" aria-label={d.search} placeholder={d.searchHint} />
+          <button className="button" type="submit">
+            {d.search}
+            <Icon name="arrowRight" />
+          </button>
+        </form>
+        <nav className="discovery-categories" aria-label={d.categories}>
+          <Link
+            className="category-chip category-chip-all"
+            href={`/${locale}/explore`}
+          >
+            {d.any}
+          </Link>
+          {categoryKeys.map((category, i) => (
+            <Link
+              className="category-chip"
+              key={category}
+              href={`/${locale}/explore?category=${category}`}
+            >
+              <Icon
+                name={
+                  (["bookmark", "heart", "sparkle", "users", "door"] as const)[
+                    i
+                  ]
+                }
+              />
+              {d[category]}
+            </Link>
+          ))}
+        </nav>
         <div className="section-head">
           <div>
-            <p className="eyebrow">{copy.discover}</p>
             <h2>{d.featured}</h2>
           </div>
           <Link className="text-link" href={`/${locale}/explore`}>
@@ -112,7 +160,7 @@ export default async function Home({
             <Icon name="arrowRight" />
           </Link>
         </div>
-        <div className="campaign-grid">
+        <div className="campaign-grid home-campaigns">
           {cards.map((c, i) => (
             <CampaignCard
               key={c.id}
@@ -123,26 +171,6 @@ export default async function Home({
           ))}
         </div>
         {!cards.length && <p className="empty">{d.empty}</p>}
-      </section>
-      <section className="category-section section page">
-        <h2>{d.categories}</h2>
-        <div className="category-grid">
-          {categoryKeys.map((c, i) => (
-            <Link key={c} href={`/${locale}/explore?category=${c}`}>
-              <span className={`category-symbol symbol-${i}`}>
-                <Icon
-                  name={
-                    (
-                      ["bookmark", "heart", "sparkle", "users", "door"] as const
-                    )[i]
-                  }
-                />
-              </span>
-              <span>{d[c]}</span>
-              <Icon name="arrowRight" />
-            </Link>
-          ))}
-        </div>
       </section>
       <section className="how-section section page">
         <div>

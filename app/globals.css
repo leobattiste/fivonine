@@ -2119,3 +2119,397 @@ fieldset:disabled {
 .campaign-byline > span:last-child {
   color: var(--blue);
 }
+/* Fundraising homepage: centered invitation and cause-led discovery. */
+.giving-hero {
+  display: block;
+  position: relative;
+  isolation: isolate;
+  padding-block: 65px 30px;
+  min-height: 620px;
+}
+.giving-hero .hero-copy {
+  position: relative;
+  z-index: 2;
+  max-width: 570px;
+  margin: 0 auto;
+  justify-items: center;
+  text-align: center;
+  gap: 24px;
+}
+.giving-hero .eyebrow {
+  justify-content: center;
+}
+.giving-hero h1 {
+  font-size: clamp(48px, 5vw, 72px);
+  letter-spacing: -0.06em;
+  line-height: 1.04;
+}
+.giving-hero .lead {
+  max-width: 460px;
+  font-size: 15px;
+  line-height: 1.75;
+}
+.giving-hero .actions {
+  justify-content: center;
+  gap: 12px;
+  flex-direction: column;
+}
+.giving-hero .actions > .button {
+  padding-inline: 28px;
+  min-height: 52px;
+  font-size: 14px;
+}
+.giving-hero .actions > .text-link {
+  font-size: 12px;
+}
+.cause-orbit {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+.orbit-cause {
+  position: absolute;
+  display: block;
+  width: 160px;
+  pointer-events: auto;
+}
+.orbit-photo {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border: 5px solid var(--bg);
+  border-radius: 50%;
+  outline: 1px solid var(--line);
+}
+.orbit-photo img {
+  object-fit: cover;
+  transition: transform 0.3s var(--ease);
+}
+.orbit-cause:hover img {
+  transform: scale(1.05);
+}
+.orbit-label {
+  position: absolute;
+  bottom: 2px;
+  left: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.orbit-label .icon {
+  width: 13px;
+  height: 13px;
+  color: var(--green);
+}
+.orbit-cause-0 {
+  left: 7%;
+  top: 48px;
+  width: 165px;
+}
+.orbit-cause-1 {
+  right: 6%;
+  top: 55px;
+  width: 175px;
+}
+.orbit-cause-2 {
+  left: 3%;
+  top: 270px;
+  width: 145px;
+}
+.orbit-cause-3 {
+  right: 2%;
+  top: 290px;
+  width: 155px;
+}
+.orbit-cause-4 {
+  left: 17%;
+  top: 410px;
+  width: 125px;
+}
+.hero-community-line {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 30px;
+}
+.hero-community-line > p {
+  color: var(--green);
+  font-size: 14px;
+  font-weight: 550;
+}
+.hero-community-line .hero-facts {
+  margin: 0;
+  justify-content: center;
+}
+.discovery-heading {
+  text-align: center;
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+  margin-bottom: 28px;
+}
+.discovery-heading h2 {
+  font-size: clamp(28px, 3vw, 38px);
+}
+.home-search {
+  max-width: 720px;
+  margin: 0 auto 26px;
+  border-radius: var(--pill);
+  background: white;
+  padding: 6px 6px 6px 22px;
+  gap: 12px;
+}
+.home-search input {
+  border: 0;
+  outline-offset: 0;
+  background: transparent;
+  flex: 1;
+  width: 0;
+  min-height: 44px;
+  padding: 9px 0;
+  font-size: 14px;
+}
+.home-search .button {
+  min-height: 44px;
+  padding: 10px 18px;
+  font-size: 12px;
+  flex: none;
+}
+.home-search .button .icon {
+  width: 17px;
+  height: 17px;
+}
+.discovery-categories {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  padding-bottom: 44px;
+  margin-bottom: 38px;
+  border-bottom: 1px solid var(--line);
+}
+.category-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 10px 16px;
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: var(--pill);
+  font-size: 12px;
+}
+.category-chip .icon {
+  width: 17px;
+  height: 17px;
+  color: var(--green);
+}
+.category-chip:hover {
+  background: var(--surface);
+  border-color: var(--green);
+}
+.category-chip-all {
+  font-weight: 600;
+}
+.home-campaigns .campaign-cover {
+  aspect-ratio: 1.8;
+}
+.home-campaigns .card-content {
+  gap: 10px;
+  padding-top: 16px;
+}
+.home-campaigns .card-content h3 {
+  font-size: 20px;
+}
+.home-campaigns .card-story {
+  font-size: 12px;
+}
+.home-campaigns .card-bottom {
+  padding-top: 12px;
+}
+.home-discovery {
+  padding-top: 50px;
+}
+@media (max-width: 1150px) {
+  .giving-hero .hero-copy {
+    max-width: 490px;
+  }
+  .giving-hero h1 {
+    font-size: 59px;
+  }
+  .orbit-cause-0 {
+    left: 5%;
+    width: 135px;
+  }
+  .orbit-cause-1 {
+    right: 4%;
+    width: 140px;
+  }
+  .orbit-cause-2 {
+    left: 2%;
+    width: 120px;
+  }
+  .orbit-cause-3 {
+    right: 2%;
+    width: 125px;
+  }
+  .orbit-cause-4 {
+    left: 14%;
+    width: 110px;
+  }
+}
+@media (max-width: 959px) {
+  .giving-hero {
+    min-height: 0;
+    padding-block: 45px 32px;
+  }
+  .giving-hero .hero-copy {
+    max-width: 620px;
+  }
+  .giving-hero h1 {
+    font-size: 60px;
+  }
+  .giving-hero .lead {
+    max-width: 520px;
+  }
+  .cause-orbit {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    gap: 22px;
+    padding-block: 28px 0;
+  }
+  .orbit-cause {
+    position: relative;
+    inset: auto;
+    width: 110px;
+    flex: 0 1 110px;
+    min-width: 0;
+  }
+  .orbit-label {
+    position: static;
+    background: transparent;
+    border: 0;
+    padding: 10px 0 0;
+    justify-content: center;
+    font-size: 10px;
+    white-space: normal;
+    text-align: center;
+  }
+  .orbit-label .icon {
+    display: none;
+  }
+  .hero-community-line {
+    margin-top: 22px;
+  }
+}
+@media (max-width: 520px) {
+  .giving-hero {
+    padding-top: 35px;
+  }
+  .giving-hero h1 {
+    font-size: clamp(38px, 10.5vw, 52px);
+  }
+  .giving-hero .hero-copy {
+    gap: 20px;
+  }
+  .giving-hero .actions {
+    width: 100%;
+    align-items: center;
+    gap: 6px;
+  }
+  .giving-hero .actions > .button {
+    width: auto;
+    min-width: 220px;
+  }
+  .giving-hero .lead {
+    font-size: 14px;
+  }
+  .cause-orbit {
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+    padding-top: 24px;
+  }
+  .orbit-cause {
+    flex: 0 0 calc((100% - 24px) / 3);
+    max-width: 96px;
+    width: 96px;
+  }
+  .orbit-cause:nth-child(n + 4) {
+    max-width: 85px;
+  }
+  .orbit-label {
+    font-size: 10px;
+    padding-top: 8px;
+  }
+  .hero-community-line > p {
+    font-size: 13px;
+  }
+  .hero-facts {
+    gap: 15px;
+  }
+  .home-discovery {
+    padding-top: 38px;
+  }
+  .discovery-heading {
+    margin-bottom: 22px;
+  }
+  .discovery-heading h2 {
+    font-size: 29px;
+  }
+  .home-search {
+    gap: 8px;
+    padding-left: 15px;
+    margin-bottom: 22px;
+  }
+  .home-search > .icon {
+    width: 19px;
+    height: 19px;
+  }
+  .home-search input {
+    font-size: 12px;
+  }
+  .home-search .button {
+    padding: 10px 13px;
+    font-size: 0;
+    gap: 0;
+    min-width: 44px;
+  }
+  .home-search .button .icon {
+    width: 19px;
+    height: 19px;
+  }
+  .discovery-categories {
+    justify-content: start;
+    gap: 8px;
+    margin-bottom: 28px;
+    padding-bottom: 28px;
+  }
+  .category-chip {
+    padding: 9px 12px;
+    font-size: 11px;
+    gap: 6px;
+  }
+  .home-campaigns .card-content h3 {
+    font-size: 21px;
+  }
+  .home-campaigns .card-story {
+    font-size: 13px;
+  }
+}
