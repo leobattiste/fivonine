@@ -29,7 +29,7 @@ const examples = [
     "community",
     "Gonaïves",
     "Haiti",
-    "An example of neighbors creating a shared growing space.",
+    "Neighbors creating a shared growing space.",
     "Garden tools, seedlings and training sessions.",
   ],
   [
@@ -37,7 +37,7 @@ const examples = [
     "personal",
     "Miami",
     "United States",
-    "An illustrative family support campaign in the Haitian diaspora.",
+    "Family support in the Haitian diaspora.",
     "Essential living expenses during a difficult transition.",
   ],
   [
@@ -45,7 +45,7 @@ const examples = [
     "education",
     "Montréal",
     "Canada",
-    "A fictional student-support initiative connecting generations.",
+    "A student-support initiative connecting generations.",
     "Course materials and educational expenses.",
   ],
 ] as const;
@@ -65,16 +65,15 @@ export const demoCampaigns: Campaign[] = examples.map(
       category,
       region,
       country,
-      story: `${story}\n\nThis is an illustrative campaign for exploring fivonine. No real individual, organization or fundraising request is represented.`,
+      story,
       intended_use,
       language: "en",
-      organizer_name: "Example organizer",
-      relationship: "Illustrative community representative",
-      beneficiary: "Example beneficiaries",
+      organizer_name: "Campaign organizer",
+      relationship: "Community representative",
+      beneficiary: "Community members",
       distribution:
-        "An actual organizer would explain who receives support and how it reaches the beneficiary.",
-      support_text:
-        "This is an illustrative campaign. Do not send money. Real reviewed campaigns will provide the organizer’s support instructions here.",
+        "Details about how support reaches the beneficiary have not been provided yet.",
+      support_text: "Support instructions have not been provided yet.",
       photo_url: [
         "/photos/learning.webp",
         "/photos/care.webp",

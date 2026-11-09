@@ -3,7 +3,6 @@ export const designCopy = {
     heroAlt:
       "People joining hands in a circle, a photograph illustrating community support",
     sharedRoots: "SHARED ROOTS. SHARED POSSIBILITY.",
-    stock: "Illustrative photography",
     community: "Haiti and its diaspora, connected",
     reviewed: "Human review before publication",
     direct: "Support arranged outside fivonine",
@@ -16,7 +15,6 @@ export const designCopy = {
     heroAlt:
       "Des personnes unissent leurs mains, une photographie illustrant l’entraide",
     sharedRoots: "DES RACINES COMMUNES. UN AVENIR PARTAGÉ.",
-    stock: "Photographie illustrative",
     community: "Haïti et sa diaspora, ensemble",
     reviewed: "Examen humain avant publication",
     direct: "Soutien organisé hors de fivonine",
@@ -30,7 +28,6 @@ export const designCopy = {
     heroAlt:
       "Moun mete men yo ansanm nan yon sèk, yon foto ki montre solidarite",
     sharedRoots: "MENM RASIN. MENM ESPWA.",
-    stock: "Foto pou ilistrasyon",
     community: "Ayiti ak dyaspora a, ansanm",
     reviewed: "Ekip nou egzamine chak demann",
     direct: "Sipò fèt andeyò fivonine",

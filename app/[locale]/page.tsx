@@ -79,7 +79,6 @@ export default async function Home({
               <br />
               chay pa lou.
             </strong>
-            <small>{copy.stock}</small>
           </figcaption>
           <div className="hero-image-index" aria-hidden="true">
             HT / 509

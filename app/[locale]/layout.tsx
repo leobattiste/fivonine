@@ -51,7 +51,6 @@ export default async function Layout({
               : "Skip to content"}
         </a>
         <Navigation locale={locale} />
-        {preview && <div className="preview-banner">{d.demo}</div>}
         <main id="main" tabIndex={-1}>
           {children}
         </main>

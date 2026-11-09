@@ -30,6 +30,10 @@ try {
     assert.equal(await page.locator("html").getAttribute("lang"), "en");
     assert.equal(await page.locator(".campaign-card").count(), 3);
     assert.equal(
+      await page.locator(".preview-banner, .campaign-label").count(),
+      0,
+    );
+    assert.equal(
       await page.evaluate(
         () => document.documentElement.scrollWidth > innerWidth,
       ),
@@ -57,7 +61,7 @@ try {
     assert.equal(await page.locator(".support-text a").count(), 0);
     assert.ok(
       (await page.locator(".support-text").innerText()).includes(
-        "Do not send money",
+        "Support instructions have not been provided yet.",
       ),
     );
     await page.screenshot({

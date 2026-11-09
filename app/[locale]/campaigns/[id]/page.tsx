@@ -78,7 +78,6 @@ export default async function CampaignPage({
             category={c.category}
             priority
           />
-          {campaign.demo && <p className="notice">{d.demo}</p>}
           <section className="prose" lang={c.language}>
             <h2>{d.story}</h2>
             <p className="preserve-lines">{c.story}</p>
