@@ -1,5 +1,6 @@
 "use client";
-import { useActionState } from "react";
+import { useActionState, useRef, useState } from "react";
+import SupportText from "./SupportText";
 import {
   loginAction,
   messageAction,
@@ -35,6 +36,38 @@ export function CampaignForm({
 }) {
   const d = t(locale);
   const [state, action, pending] = useActionState(submitCampaign, initialState);
+  const [step, setStep] = useState(0);
+  const [review, setReview] = useState<Record<string, string>>({});
+  const form = useRef<HTMLFormElement>(null);
+  const stepHeading = useRef<HTMLHeadingElement>(null);
+  const steps = [
+    d.story,
+    d.organizer,
+    d.support,
+    locale === "ht" ? "Revize" : locale === "fr" ? "Vérifier" : "Review",
+  ];
+  const advance = () => {
+    const section = form.current?.querySelectorAll("fieldset")[step];
+    const invalid = Array.from(
+      section?.querySelectorAll<
+        HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+      >("input, textarea, select") ?? [],
+    ).find((el) => !el.checkValidity());
+    if (invalid) {
+      invalid.reportValidity();
+      return;
+    }
+    if (step === 2 && form.current) {
+      const fields = Array.from(
+        form.current.querySelectorAll<
+          HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+        >("input, textarea, select"),
+      );
+      setReview(Object.fromEntries(fields.map((el) => [el.name, el.value])));
+    }
+    setStep((current) => Math.min(current + 1, 3));
+    requestAnimationFrame(() => stepHeading.current?.focus());
+  };
   if (state.ok)
     return (
       <div className="notice success" role="status">
@@ -43,10 +76,65 @@ export function CampaignForm({
       </div>
     );
   return (
-    <form action={action} className="form campaign-form">
+    <form
+      ref={form}
+      noValidate
+      action={action}
+      className="form campaign-form"
+      onSubmit={(e) => {
+        if (step < 3) {
+          e.preventDefault();
+          advance();
+          return;
+        }
+        const invalid = Array.from(
+          form.current?.querySelectorAll<
+            HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+          >("input, textarea, select") ?? [],
+        ).find((el) => !el.checkValidity());
+        if (invalid) {
+          e.preventDefault();
+          const sections = Array.from(
+            form.current?.querySelectorAll("fieldset") ?? [],
+          );
+          const index = sections.findIndex((section) =>
+            section.contains(invalid),
+          );
+          if (index >= 0) setStep(index);
+          requestAnimationFrame(() => {
+            invalid.focus();
+            invalid.reportValidity();
+          });
+        }
+      }}
+    >
+      <ol
+        className="submission-steps"
+        aria-label={
+          locale === "ht"
+            ? "Etap yo"
+            : locale === "fr"
+              ? "Étapes"
+              : "Submission steps"
+        }
+      >
+        {steps.map((label, index) => (
+          <li
+            key={label}
+            aria-current={step === index ? "step" : undefined}
+            className={index < step ? "completed" : ""}
+          >
+            <span>{index + 1}</span>
+            {label}
+          </li>
+        ))}
+      </ol>
+      <h2 className="form-step-title" ref={stepHeading} tabIndex={-1}>
+        {steps[step]}
+      </h2>
       <input type="hidden" name="locale" value={locale} />
       {id && <input type="hidden" name="campaign_id" value={id} />}
-      <fieldset disabled={!enabled || pending}>
+      <fieldset hidden={step !== 0} disabled={!enabled || pending}>
         <legend>01 · {d.story}</legend>
         <Field label={d.title}>
           <input
@@ -115,7 +203,7 @@ export function CampaignForm({
           </Field>
         </div>
       </fieldset>
-      <fieldset disabled={!enabled || pending}>
+      <fieldset hidden={step !== 1} disabled={!enabled || pending}>
         <legend>02 · {d.organizer}</legend>
         <Field label={d.name}>
           <input
@@ -142,7 +230,7 @@ export function CampaignForm({
           />
         </Field>
       </fieldset>
-      <fieldset disabled={!enabled || pending}>
+      <fieldset hidden={step !== 2} disabled={!enabled || pending}>
         <legend>03 · {d.support}</legend>
         <Field label={d.use}>
           <textarea
@@ -200,14 +288,97 @@ export function CampaignForm({
           {d.accuracy}
         </label>
       </fieldset>
+      {step === 3 && (
+        <section className="submission-review">
+          <p className="hint">
+            {locale === "ht"
+              ? "Revize enfòmasyon yo anvan ou voye yo bay ekip nou an."
+              : locale === "fr"
+                ? "Vérifiez les informations avant de les envoyer à notre équipe."
+                : "Check your information before sending it to our review team."}
+          </p>
+          <h3>{review.title || d.title}</h3>
+          <p className="preserve-lines">{review.story}</p>
+          <dl>
+            <div>
+              <dt>{d.organizer}</dt>
+              <dd>{review.organizer_name}</dd>
+            </div>
+            <div>
+              <dt>{d.beneficiary}</dt>
+              <dd>{review.beneficiary}</dd>
+            </div>
+            <div>
+              <dt>{d.region}</dt>
+              <dd>
+                {[review.region, review.country].filter(Boolean).join(", ")}
+              </dd>
+            </div>
+            <div>
+              <dt>{d.use}</dt>
+              <dd>{review.intended_use}</dd>
+            </div>
+            <div>
+              <dt>{d.distribution}</dt>
+              <dd>{review.distribution}</dd>
+            </div>
+          </dl>
+          <dl>
+            <div>
+              <dt>{d.category}</dt>
+              <dd>
+                {categoryKeys.includes(
+                  review.category as (typeof categoryKeys)[number],
+                )
+                  ? d[review.category as (typeof categoryKeys)[number]]
+                  : review.category}
+              </dd>
+            </div>
+            <div>
+              <dt>{d.relationship}</dt>
+              <dd>{review.relationship}</dd>
+            </div>
+            <div>
+              <dt>{d.amount}</dt>
+              <dd>{review.goal ? `${review.currency} ${review.goal}` : "—"}</dd>
+            </div>
+          </dl>
+          <h3>{d.support}</h3>
+          <SupportText text={review.support_text ?? ""} />
+        </section>
+      )}
       {state.message && (
         <p className="notice error" role="alert">
           {state.message}
         </p>
       )}
-      <button className="button" disabled={!enabled || pending}>
-        {pending ? d.sending : d.send}
-      </button>
+      <div className="form-step-actions">
+        {step > 0 && (
+          <button
+            type="button"
+            className="button secondary"
+            onClick={() => {
+              setStep(step - 1);
+              requestAnimationFrame(() => stepHeading.current?.focus());
+            }}
+          >
+            {locale === "ht" ? "Retounen" : locale === "fr" ? "Retour" : "Back"}
+          </button>
+        )}
+        {step < 3 ? (
+          <button type="button" className="button" onClick={advance}>
+            {locale === "ht"
+              ? "Kontinye"
+              : locale === "fr"
+                ? "Continuer"
+                : "Continue"}
+          </button>
+        ) : (
+          <button className="button" disabled={!enabled || pending}>
+            {pending ? d.sending : d.send}
+          </button>
+        )}
+      </div>
     </form>
   );
 }

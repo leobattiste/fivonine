@@ -20,15 +20,15 @@ Latest instruction: **use the existing GitHub and Vercel projects; the owner wil
 
 Three-language interface (`ht` default, `fr`, `en`), public landing/explore pages, keyword/category/country/region filtering, campaign details, support instructions, sharing, reporting/contact pages, organizer submission and management, admin revision/update review and moderation, Help/About/How it works and draft policy pages.
 
-The current database-free deployment is explicit **preview mode**. Six locally illustrated campaigns are fictional and provide no donation links. Submissions, login, contact/report delivery and real moderation remain disabled until the app's own database is configured. Do not describe this preview as accepting live campaigns.
+The current database-free deployment is explicit **preview mode**. Six preview campaigns with illustrative stock photography are fictional and provide no donation links. Submissions, login, contact/report delivery and real moderation remain disabled until the app's own database is configured. Do not describe this preview as accepting live campaigns.
 
 After setup, the backend supports confirmed-email organizers, atomic submission/revision approval, removal requests, reviewed updates, suspension/archive/feature actions, private reports/contacts, moderation history, aggregate outbound clicks and a transactional email queue. These were tested against disposable PostgreSQL with simulated Supabase roles, not a live Supabase Auth integration.
 
 ## Where to work
 
 - `app/[locale]`: localized routes; `layout.tsx` provides locale-specific HTML lang and shared navigation/footer.
-- `components/Navigation.tsx`: Pheelm-style glass bottom bar and native dialog menu, 24.5px icons, 60px height, 10px panel gap.
-- `components/Forms.tsx`: submission, login, report/contact and moderation forms.
+- `components/Navigation.tsx`: Desktop navigation, language selection, account links and an accessible native mobile menu dialog.
+- `components/Forms.tsx`: four-step submission (story, organizer, support, review), login, report/contact and moderation forms.
 - `lib/domain.ts`: content validation and support URL parsing. Text is rendered through React; no raw HTML or payment embeds.
 - `lib/data.ts`: preview/live data boundary; never mixes demo campaigns into live results.
 - `lib/i18n.ts`, `lib/content.ts`: interface and draft informational translations.
@@ -69,3 +69,11 @@ Disposable PostgreSQL 17: schema applies; unpublished campaigns stay private; co
 ## Continue prompt
 
 “Continue building fivonine from `docs/HANDOFF.md`. Keep Pheelm and other Supabase projects untouched. The platform publishes fundraising stories and organizer-written text/link support instructions; it never processes donations. First check what infrastructure is configured, then complete the next unfinished setup or pilot task.”
+
+## November 9 editorial redesign
+
+The interface now uses ivory/white surfaces, charcoal text, deep green actions, photographic campaign cards, a conventional desktop header, and an accessible mobile menu. The homepage includes an illustrative community photograph, discovery cards, categories, process explanation and a submission invitation. Campaign pages retain a sticky desktop support panel and provide a mobile jump to support instructions.
+
+Campaign form fields stay mounted across four steps so all values reach the existing server action. Each step validates its inputs, supports back navigation, and shows a final text/link review. Preview submissions remain disabled. Stock photography is optimized locally as WebP and identified in ATTRIBUTION.md; it must never be presented as actual campaign media.
+
+Browser coverage includes 320/390/768/1440px, all three locale layouts, keyboard dismissal/focus return for the mobile menu, discovery/search, campaign disclosures, step navigation and offline guards. A separate isolated DOM fixture exercises form validation and complete FormData retention without a server write. Live authentication, email and database integration still require the original dedicated setup.

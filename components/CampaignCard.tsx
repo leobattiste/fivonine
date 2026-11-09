@@ -23,6 +23,7 @@ export default function CampaignCard({
           category={c.category}
           priority={priority}
         />
+        {campaign.demo && <span className="campaign-label">{d.example}</span>}
         <div className="card-content">
           <div className="eyebrow">
             <span>{d[c.category]}</span>

@@ -21,7 +21,7 @@ Open http://localhost:3000. The default language is Haitian Creole; `/fr` and `/
 - Text-and-link support instructions; safe external destinations; no payment integrations.
 - Email-link organizer authentication and server-side protected organizer/admin actions, ready for Supabase configuration.
 - Submission/revision queue, reviewed updates, private organizer contacts, removal requests, reports and moderation audit history.
-- Native mobile menu with blur, 24.5px icons, shared 340px panel width and 10px spacing from the 60px bottom bar.
+- Editorial visual design with optimized photography, desktop navigation, accessible mobile dialog, and a four-step submission with review.
 - Supabase schema with RLS, atomic publication/review RPCs, private email outbox and aggregate outbound-link metrics.
 - Optional Turnstile and transactional email worker; no marketing mail or donor tracking.
 - Unit, browser and disposable PostgreSQL role/workflow tests; GitHub Actions checks.
