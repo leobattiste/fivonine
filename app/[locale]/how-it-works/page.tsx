@@ -1,5 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import ResourceCards from "@/components/ResourceCards";
+import { platform } from "@/lib/platform-content";
 import { isLocale, t } from "@/lib/i18n";
 export default async function How({
   params,
@@ -9,6 +11,7 @@ export default async function How({
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
   const d = t(locale);
+  const p = platform[locale];
   return (
     <article className="page narrow section">
       <header className="page-head">
@@ -33,10 +36,17 @@ export default async function How({
         <Link className="button" href={`/${locale}/submit`}>
           {d.create}
         </Link>
+        <Link className="text-link" href={`/${locale}/safety`}>
+          {p.safety} →
+        </Link>
         <Link className="text-link" href={`/${locale}/help`}>
           {d.help} →
         </Link>
       </div>
+      <section className="how-resources">
+        <h2>{p.resources}</h2>
+        <ResourceCards locale={locale} limit={3} />
+      </section>
     </article>
   );
 }

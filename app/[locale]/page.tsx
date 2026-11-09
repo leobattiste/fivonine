@@ -5,6 +5,8 @@ import { publicCampaigns } from "@/lib/data";
 import CampaignCard from "@/components/CampaignCard";
 import Icon from "@/components/Icon";
 import Image from "next/image";
+import ResourceCards from "@/components/ResourceCards";
+import { platform } from "@/lib/platform-content";
 import { designCopy } from "@/lib/design-copy";
 export default async function Home({
   params,
@@ -15,6 +17,7 @@ export default async function Home({
   if (!isLocale(locale)) notFound();
   const d = t(locale);
   const copy = designCopy[locale];
+  const p = platform[locale];
   const { items } = await publicCampaigns();
   const featured = items.filter((c) => c.featured);
   const cards = (featured.length ? featured : items).slice(0, 3);
@@ -47,7 +50,7 @@ export default async function Home({
             <Link
               className={`orbit-cause orbit-cause-${i}`}
               key={category}
-              href={`/${locale}/explore?category=${category}`}
+              href={`/${locale}/causes/${category}`}
             >
               <span className="orbit-photo">
                 <Image
@@ -189,6 +192,16 @@ export default async function Home({
             </article>
           ))}
         </div>
+      </section>
+      <section className="page section">
+        <div className="section-head">
+          <h2>{p.resources}</h2>
+          <Link className="text-link" href={`/${locale}/resources`}>
+            {d.all}
+            <Icon name="arrowRight" />
+          </Link>
+        </div>
+        <ResourceCards locale={locale} limit={3} />
       </section>
       <section className="community-cta page">
         <div>

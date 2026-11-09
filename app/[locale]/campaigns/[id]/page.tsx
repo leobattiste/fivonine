@@ -2,12 +2,15 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { isLocale, t } from "@/lib/i18n";
-import { publicCampaign } from "@/lib/data";
+import { publicCampaign, publicCampaigns } from "@/lib/data";
 import { getServerClient } from "@/lib/supabase/server";
 import Media from "@/components/Media";
 import Icon from "@/components/Icon";
 import SupportText from "@/components/SupportText";
 import ShareButton from "@/components/ShareButton";
+import ShareTools from "@/components/ShareTools";
+import CampaignCard from "@/components/CampaignCard";
+import { platform } from "@/lib/platform-content";
 export async function generateMetadata({
   params,
 }: {
@@ -34,6 +37,10 @@ export default async function CampaignPage({
   if (!campaign) notFound();
   const d = t(locale),
     c = campaign.public_content;
+  const p = platform[locale];
+  const related = (await publicCampaigns({ category: c.category })).items
+    .filter((item) => item.id !== id)
+    .slice(0, 3);
   const db = await getServerClient();
   const updates = campaign.demo
     ? []
@@ -78,7 +85,13 @@ export default async function CampaignPage({
             category={c.category}
             priority
           />
-          <section className="prose" lang={c.language}>
+          <nav className="campaign-section-nav" aria-label={p.overview}>
+            <a href="#story">{p.storyTab}</a>
+            <a href="#updates">{p.updatesTab}</a>
+            <a href="#organizer">{p.organizerTab}</a>
+            <a href="#share">{d.share}</a>
+          </nav>
+          <section id="story" className="prose" lang={c.language}>
             <h2>{d.story}</h2>
             <p className="preserve-lines">{c.story}</p>
             <h2>{d.use}</h2>
@@ -88,7 +101,7 @@ export default async function CampaignPage({
             <h2>{d.distribution}</h2>
             <p className="preserve-lines">{c.distribution}</p>
           </section>
-          <section className="prose">
+          <section id="updates" className="prose">
             <h2>{d.updates}</h2>
             {updates.length ? (
               updates.map((u) => (
@@ -105,6 +118,30 @@ export default async function CampaignPage({
             ) : (
               <p className="muted">{d.noUpdates}</p>
             )}
+          </section>
+          <section id="organizer" className="prose organizer-profile">
+            <h2>{p.organizer}</h2>
+            <div className="organizer-identity">
+              <span className="organizer-avatar" aria-hidden="true">
+                {Array.from(c.organizer_name)[0]}
+              </span>
+              <div>
+                <h3>{c.organizer_name}</h3>
+                <p>{c.relationship}</p>
+                <p className="muted">
+                  {c.region}, {c.country}
+                </p>
+              </div>
+            </div>
+            <dl className="organizer-beneficiary">
+              <dt>{p.recipient}</dt>
+              <dd>{c.beneficiary}</dd>
+            </dl>
+          </section>
+          <section id="share" className="prose">
+            <h2>{p.shareTitle}</h2>
+            <p>{p.shareBody}</p>
+            <ShareTools title={c.title} locale={locale} />
           </section>
         </div>
         <aside className="support-panel" id="support">
@@ -171,6 +208,25 @@ export default async function CampaignPage({
           </Link>
         </aside>
       </div>
+      {related.length > 0 && (
+        <section className="related-campaigns">
+          <div className="section-head">
+            <h2>{p.related}</h2>
+            <Link
+              className="text-link"
+              href={`/${locale}/causes/${c.category}`}
+            >
+              {d[c.category]}
+              <Icon name="arrowRight" />
+            </Link>
+          </div>
+          <div className="campaign-grid">
+            {related.map((item) => (
+              <CampaignCard key={item.id} campaign={item} locale={locale} />
+            ))}
+          </div>
+        </section>
+      )}
     </article>
   );
 }

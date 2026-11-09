@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import Navigation from "@/components/Navigation";
+import { platform } from "@/lib/platform-content";
 import { isLocale, t, locales } from "@/lib/i18n";
 import { preview } from "@/lib/data";
 import { SITE_URL } from "@/lib/supabase/config";
@@ -40,6 +41,7 @@ export default async function Layout({
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
   const d = t(locale);
+  const p = platform[locale];
   return (
     <html lang={locale}>
       <body>
@@ -63,6 +65,11 @@ export default async function Layout({
           </div>
           <nav aria-label={d.help}>
             {[
+              ["causes", p.causes],
+              ["resources", p.resources],
+              ["safety", p.safety],
+              ["pricing", p.pricing],
+              ["dashboard", d.dashboard],
               ["about", d.about],
               ["how-it-works", d.how],
               ["help", d.help],

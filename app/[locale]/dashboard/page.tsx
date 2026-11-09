@@ -3,6 +3,9 @@ import { notFound, redirect } from "next/navigation";
 import { isLocale, t } from "@/lib/i18n";
 import { currentUser, ownCampaigns, preview } from "@/lib/data";
 import { OrganizerRequest } from "@/components/Forms";
+import ShareTools from "@/components/ShareTools";
+import { platform } from "@/lib/platform-content";
+import Icon from "@/components/Icon";
 import { signOut } from "@/app/actions";
 export const metadata = { robots: { index: false, follow: false } };
 export default async function Dashboard({
@@ -13,6 +16,7 @@ export default async function Dashboard({
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
   const d = t(locale);
+  const p = platform[locale];
   const user = await currentUser();
   if (!user && !preview) redirect(`/${locale}/login`);
   const campaigns = await ownCampaigns();
@@ -32,6 +36,24 @@ export default async function Dashboard({
           </form>
         </div>
       )}
+      <div className="organizer-summary">
+        <div>
+          <strong>{campaigns.length}</strong>
+          <span>{d.dashboard}</span>
+        </div>
+        <div>
+          <strong>
+            {campaigns.filter((c) => c.status === "published").length}
+          </strong>
+          <span>{d.published}</span>
+        </div>
+        <div>
+          <strong>
+            {campaigns.filter((c) => c.status === "pending").length}
+          </strong>
+          <span>{d.pending}</span>
+        </div>
+      </div>
       <Link className="button" href={`/${locale}/submit`}>
         {d.create}
       </Link>
@@ -73,6 +95,16 @@ export default async function Dashboard({
                   <OrganizerRequest locale={locale} id={c.id} />
                 </details>
               )}
+              {c.status === "published" && (
+                <details>
+                  <summary>{p.share}</summary>
+                  <ShareTools
+                    locale={locale}
+                    title={c.public_content.title}
+                    path={`/${locale}/campaigns/${c.id}`}
+                  />
+                </details>
+              )}
               {!["archived", "removal_requested"].includes(c.status) && (
                 <details>
                   <summary className="danger">{d.requestRemoval}</summary>
@@ -83,6 +115,24 @@ export default async function Dashboard({
           );
         })}
       </div>
+      <section className="organizer-next">
+        <h2>{p.next}</h2>
+        <div className="organizer-next-grid">
+          {[
+            ["tell-your-story", p.edit],
+            ["share-your-fundraiser", p.share],
+            ["campaign-updates", p.updates],
+          ].map(([slug, title]) => (
+            <Link key={slug} href={`/${locale}/resources/${slug}`}>
+              <h3>{title}</h3>
+              <span>
+                {p.guide}
+                <Icon name="arrowRight" />
+              </span>
+            </Link>
+          ))}
+        </div>
+      </section>
     </section>
   );
 }

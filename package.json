@@ -8,7 +8,7 @@
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "test": "node tests/domain.mjs",
-    "test:browser": "node tests/browser.mjs && node tests/submission-design.mjs"
+    "test:browser": "node tests/browser.mjs && node tests/submission-design.mjs && node tests/platform-browser.mjs"
   },
   "dependencies": {
     "@hugeicons/core-free-icons": "^4.4.0",

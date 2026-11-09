@@ -3,14 +3,42 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
 import Icon from "./Icon";
-import { t, type Locale } from "@/lib/i18n";
+import { t, categoryKeys, type Locale } from "@/lib/i18n";
+import { platform } from "@/lib/platform-content";
 export default function Navigation({ locale }: { locale: Locale }) {
   const d = t(locale);
+  const p = platform[locale];
   const path = usePathname();
   const dialog = useRef<HTMLDialogElement>(null);
   useEffect(() => {
     dialog.current?.close();
+    document
+      .querySelectorAll(".nav-dropdown[open]")
+      .forEach((el) => el.removeAttribute("open"));
   }, [path]);
+  useEffect(() => {
+    const closeOutside = (event: PointerEvent) =>
+      document
+        .querySelectorAll<HTMLDetailsElement>(".nav-dropdown[open]")
+        .forEach((el) => {
+          if (!el.contains(event.target as Node)) el.open = false;
+        });
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape")
+        document
+          .querySelectorAll<HTMLDetailsElement>(".nav-dropdown[open]")
+          .forEach((el) => {
+            el.open = false;
+            el.querySelector<HTMLElement>("summary")?.focus();
+          });
+    };
+    document.addEventListener("pointerdown", closeOutside);
+    document.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.removeEventListener("pointerdown", closeOutside);
+      document.removeEventListener("keydown", closeOnEscape);
+    };
+  }, []);
   const link = (href: string, label: string) => (
     <Link
       key={href}
@@ -33,8 +61,31 @@ export default function Navigation({ locale }: { locale: Locale }) {
         </Link>
         <nav className="desktop-nav" aria-label={d.menu}>
           {link("explore", d.explore)}
-          {link("how-it-works", d.how)}
-          {link("about", d.about)}
+          <details className="nav-dropdown">
+            <summary>
+              {p.fundraise}
+              <span aria-hidden="true">⌄</span>
+            </summary>
+            <div className="nav-dropdown-panel">
+              <Link href={`/${locale}/causes`}>{p.causes}</Link>
+              {categoryKeys.map((c) => link(`causes/${c}`, d[c]))}
+              {link("resources", p.resources)}
+              {link("how-it-works", d.how)}
+            </div>
+          </details>
+          <details className="nav-dropdown">
+            <summary>
+              {d.about}
+              <span aria-hidden="true">⌄</span>
+            </summary>
+            <div className="nav-dropdown-panel">
+              {link("about", d.about)}
+              {link("safety", p.safety)}
+              {link("pricing", p.pricing)}
+              {link("help", d.help)}
+              {link("contact", d.contact)}
+            </div>
+          </details>
           {link("dashboard", d.dashboard)}
         </nav>
         <div className="header-actions">
@@ -100,6 +151,10 @@ export default function Navigation({ locale }: { locale: Locale }) {
             ["explore", d.explore],
             ["submit", d.create],
             ["dashboard", d.dashboard],
+            ["causes", p.causes],
+            ["resources", p.resources],
+            ["safety", p.safety],
+            ["pricing", p.pricing],
             ["how-it-works", d.how],
             ["about", d.about],
             ["help", d.help],

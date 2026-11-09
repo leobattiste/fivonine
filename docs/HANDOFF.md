@@ -77,3 +77,13 @@ The interface now uses ivory/white surfaces, charcoal text, deep green actions, 
 Campaign form fields stay mounted across four steps so all values reach the existing server action. Each step validates its inputs, supports back navigation, and shows a final text/link review. Preview submissions remain disabled. Stock photography is optimized locally as WebP and identified in ATTRIBUTION.md; it must never be presented as actual campaign media.
 
 Browser coverage includes 320/390/768/1440px, all three locale layouts, keyboard dismissal/focus return for the mobile menu, discovery/search, campaign disclosures, step navigation and offline guards. A separate isolated DOM fixture exercises form validation and complete FormData retention without a server write. Live authentication, email and database integration still require the original dedicated setup.
+
+## Fundraising platform expansion
+
+The owner requested GoFundMe-style pages and features and explicitly reconfirmed **text instructions and external links only**, with no donation processing or payouts. Original Fivonine copy and branding are retained.
+
+New public routes in all three locales: `/causes`, five `/causes/[category]` pages, `/resources`, six `/resources/[slug]` guides, `/safety`, and `/pricing`. Navigation and footer expose them. A category landing page preselects the category on `/submit?category=...`. The help center supports local topic search and expandable answers. Campaign pages include section navigation, organizer/beneficiary information, social-share drafts, copy-link actions and related campaigns. Organizer dashboards show actual listing counts and published-campaign sharing tools plus guide links.
+
+`lib/platform-content.ts` holds the new localized content. `tests/platform-browser.mjs` verifies the new pages and interactions at 320/390/768/1440px in all three locales. Social sharing is tested through an isolated popup/clipboard fixture; no messages are sent. The test suite preserves preview guards and checks invalid guide/category URLs return 404.
+
+These changes do not connect Supabase, publish real listings, create recipient accounts, verify organizations, or enable email delivery. There are no donor totals, refunds, donation guarantees, on-site payments, or payout flows. Live setup, media uploads, campaign subscriptions, public organization profiles and broader catalog pagination remain separate unfinished work. Read the dedicated setup instructions before any database change; leave other projects untouched.

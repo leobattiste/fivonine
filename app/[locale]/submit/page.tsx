@@ -1,16 +1,24 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { isLocale, t } from "@/lib/i18n";
+import { isLocale, t, categoryKeys, type Category } from "@/lib/i18n";
 import { currentUser, preview } from "@/lib/data";
 import { CampaignForm } from "@/components/Forms";
+import { platform } from "@/lib/platform-content";
 export const dynamic = "force-dynamic";
 export default async function Submit({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<{ category?: string }>;
 }) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
+  const requested = (await searchParams).category;
+  const category = categoryKeys.includes(requested as Category)
+    ? (requested as Category)
+    : undefined;
+  const p = platform[locale];
   const d = t(locale),
     user = await currentUser();
   return (
@@ -29,7 +37,25 @@ export default async function Submit({
           </p>
         )
       )}
-      <CampaignForm locale={locale} enabled={!!user && !preview} />
+      <details className="submission-checklist">
+        <summary>{p.checklist}</summary>
+        <ul>
+          {p.checklistItems.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
+        </ul>
+        <Link
+          className="text-link"
+          href={`/${locale}/resources/tell-your-story`}
+        >
+          {p.guide} →
+        </Link>
+      </details>
+      <CampaignForm
+        locale={locale}
+        enabled={!!user && !preview}
+        defaultCategory={category}
+      />
       <p className="disclosure">{d.disclosure}</p>
     </section>
   );

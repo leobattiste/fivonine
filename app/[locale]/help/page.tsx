@@ -2,6 +2,8 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { isLocale, t } from "@/lib/i18n";
 import { helpCopy } from "@/lib/content";
+import HelpTopics from "@/components/HelpTopics";
+import { platform } from "@/lib/platform-content";
 export default async function Page({
   params,
 }: {
@@ -10,20 +12,18 @@ export default async function Page({
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
   const d = t(locale);
-  const ids: string[] = [];
+  const p = platform[locale];
   return (
     <article className="page narrow section">
       <header className="page-head">
         <p className="eyebrow">{d.tagline}</p>
         <h1>{d.help}</h1>
       </header>
-      <div className="prose">
-        {helpCopy[locale].map((s, i) => (
-          <section key={s.heading} id={ids[i]}>
-            <h2>{s.heading}</h2>
-            <p>{s.body}</p>
-          </section>
-        ))}
+      <HelpTopics locale={locale} topics={helpCopy[locale]} />
+      <div className="help-shortcuts">
+        <Link href={`/${locale}/resources`}>{p.resources} →</Link>
+        <Link href={`/${locale}/safety`}>{p.safety} →</Link>
+        <Link href={`/${locale}/pricing`}>{p.pricing} →</Link>
       </div>
       <Link className="button secondary" href={`/${locale}/contact`}>
         {d.contact}

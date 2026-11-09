@@ -9,7 +9,7 @@ import {
   moderate,
 } from "@/app/actions";
 import { initialState, type CampaignContent } from "@/lib/domain";
-import { t, categoryKeys, type Locale } from "@/lib/i18n";
+import { t, categoryKeys, type Locale, type Category } from "@/lib/i18n";
 import Turnstile from "./Turnstile";
 const Field = ({
   label,
@@ -28,8 +28,10 @@ export function CampaignForm({
   initial,
   id,
   enabled,
+  defaultCategory,
 }: {
   locale: Locale;
+  defaultCategory?: Category;
   initial?: CampaignContent;
   id?: string;
   enabled: boolean;
@@ -148,7 +150,7 @@ export function CampaignForm({
           <Field label={d.category}>
             <select
               name="category"
-              defaultValue={initial?.category ?? "education"}
+              defaultValue={initial?.category ?? defaultCategory ?? "education"}
             >
               {categoryKeys.map((c) => (
                 <option key={c} value={c}>
