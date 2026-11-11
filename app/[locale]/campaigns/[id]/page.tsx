@@ -1,3 +1,5 @@
+import { brief } from "@/lib/brief";
+import { safeExternal, supportParts } from "@/lib/domain";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -37,7 +39,15 @@ export default async function CampaignPage({
   if (!campaign) notFound();
   const d = t(locale),
     c = campaign.public_content;
-  const p = platform[locale];
+  const p = platform[locale],
+    b = brief[locale];
+  const external =
+    safeExternal(c.fundraising_url ?? "") ??
+    supportParts(c.support_text).find((part) => part.url)?.url;
+  const outbound =
+    external && !campaign.demo
+      ? `/api/out?campaign=${encodeURIComponent(id)}&url=${encodeURIComponent(external)}`
+      : null;
   const related = (await publicCampaigns({ category: c.category })).items
     .filter((item) => item.id !== id)
     .slice(0, 3);
@@ -73,8 +83,13 @@ export default async function CampaignPage({
           </span>
         </div>
       </header>
-      <a className="button mobile-support-jump" href="#support">
-        {d.support}
+      <a
+        className="button mobile-support-jump"
+        href={outbound ?? "#support"}
+        target={outbound ? "_blank" : undefined}
+        rel={outbound ? "noopener noreferrer nofollow ugc" : undefined}
+      >
+        {outbound ? b.view : d.support}
         <Icon name="arrowRight" />
       </a>
       <div className="campaign-detail-grid">
@@ -146,6 +161,25 @@ export default async function CampaignPage({
         </div>
         <aside className="support-panel" id="support">
           <div className="support-card">
+            {outbound && (
+              <>
+                <p className="hosted-label">
+                  {b.hosted}{" "}
+                  <strong>
+                    {new URL(external!).hostname.replace(/^www\./, "")}
+                  </strong>
+                </p>
+                <a
+                  className="button"
+                  href={outbound}
+                  target="_blank"
+                  rel="noopener noreferrer nofollow ugc"
+                >
+                  {b.view}
+                  <Icon name="external" />
+                </a>
+              </>
+            )}
             <span className="eyebrow">{d.support}</span>
             {c.goal && (
               <div className="goal">
@@ -208,6 +242,19 @@ export default async function CampaignPage({
           </Link>
         </aside>
       </div>
+      {outbound && (
+        <div className="mobile-campaign-action">
+          <a
+            className="button"
+            href={outbound}
+            target="_blank"
+            rel="noopener noreferrer nofollow ugc"
+          >
+            {b.view}
+            <Icon name="external" />
+          </a>
+        </div>
+      )}
       {related.length > 0 && (
         <section className="related-campaigns">
           <div className="section-head">

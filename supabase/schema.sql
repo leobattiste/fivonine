@@ -9,7 +9,7 @@ create function public.is_fivonine_admin() returns boolean language sql stable s
 revoke all on function public.is_fivonine_admin() from public,anon;
 grant execute on function public.is_fivonine_admin() to authenticated;
 create table public.organizer_profiles(user_id uuid primary key references auth.users(id) on delete cascade,display_name text not null,email text not null,created_at timestamptz not null default now());
-create table public.campaigns(id uuid primary key default gen_random_uuid(),owner_id uuid not null references auth.users(id),status text not null default 'pending' check(status in('pending','published','needs_changes','declined','suspended','archived','removal_requested')),public_content jsonb not null default '{}',featured boolean not null default false,contact_confirmed boolean not null default false,links_checked_at timestamptz,organization_reviewed_at timestamptz,created_at timestamptz not null default now(),updated_at timestamptz not null default now(),search_document tsvector generated always as(to_tsvector('simple',coalesce(public_content->>'title','')||' '||coalesce(public_content->>'story','')||' '||coalesce(public_content->>'organizer_name','')||' '||coalesce(public_content->>'region',''))) stored);
+create table public.campaigns(id uuid primary key default gen_random_uuid(),owner_id uuid not null references auth.users(id),status text not null default 'pending' check(status in('pending','published','needs_changes','declined','suspended','archived','removal_requested')),public_content jsonb not null default '{}',featured boolean not null default false,contact_confirmed boolean not null default false,links_checked_at timestamptz,organization_reviewed_at timestamptz,created_at timestamptz not null default now(),updated_at timestamptz not null default now(),search_document tsvector generated always as(to_tsvector('simple',coalesce(public_content->>'title','')||' '||coalesce(public_content->>'story','')||' '||coalesce(public_content->>'organizer_name','')||' '||coalesce(public_content->>'region','')||' '||coalesce(public_content->>'country','')||' '||coalesce(public_content->>'category',''))) stored);
 create table public.campaign_revisions(id uuid primary key default gen_random_uuid(),campaign_id uuid not null references public.campaigns on delete cascade,content jsonb not null,status text not null default 'pending' check(status in('pending','approved','needs_changes','declined','superseded')),review_note text,consent_confirmed_at timestamptz not null default now(),policy_version text not null default 'draft-2026-11-08',created_at timestamptz not null default now(),reviewed_at timestamptz);
 create unique index one_pending_revision on public.campaign_revisions(campaign_id) where status='pending';
 create table public.campaign_updates(id uuid primary key default gen_random_uuid(),campaign_id uuid not null references public.campaigns on delete cascade,title text not null,body text not null,status text not null default 'pending' check(status in('pending','approved','declined')),created_at timestamptz not null default now());
@@ -52,7 +52,7 @@ create function public.submit_campaign(content jsonb,campaign_id uuid default nu
 declare actor uuid:=auth.uid(); cid uuid; current_row public.campaigns; clean jsonb; contact text;
 begin
  if actor is null then raise exception 'Sign in required';end if;
- if coalesce(content->>'consent','')<>'true' or coalesce(content->>'accuracy','')<>'true' then raise exception 'Consent required';end if;
+ if coalesce(content->>'consent','')<>'true' or coalesce(content->>'accuracy','')<>'true' or coalesce(content->>'terms','')<>'true' then raise exception 'Consent required';end if;
  if octet_length(content::text)>120000 then raise exception 'Submission too large';end if;
  select email into contact from auth.users where id=actor and email_confirmed_at is not null;
  if contact is null then raise exception 'Confirm email first';end if;
@@ -62,7 +62,9 @@ begin
  if jsonb_typeof(content->'goal')<>'number' then raise exception 'Invalid goal';end if;
  if (content->>'goal')::numeric<=0 or (content->>'goal')::numeric>100000000 then raise exception 'Invalid goal';end if;end if;
  if (select count(*) from public.campaign_revisions r join public.campaigns c on c.id=r.campaign_id where c.owner_id=actor and r.created_at>now()-interval '1 hour')>=10 then raise exception 'Please try later';end if;
- select jsonb_object_agg(key,value) into clean from jsonb_each(content) where key in('title','story','category','country','region','organizer_name','relationship','beneficiary','intended_use','distribution','support_text','photo_url','goal','currency','language');
+ if coalesce(content->>'lifecycle','active') not in('active','completed') then raise exception 'Invalid campaign status';end if;
+ if coalesce(content->>'fundraising_url','')<>'' and (length(content->>'fundraising_url')>1000 or content->>'fundraising_url' !~ '^https://[^[:space:]]+') then raise exception 'Invalid fundraising URL';end if;
+ select jsonb_object_agg(key,value) into clean from jsonb_each(content) where key in('title','story','category','country','region','organizer_name','relationship','beneficiary','intended_use','distribution','support_text','photo_url','goal','currency','language','fundraising_url','lifecycle');
  insert into public.organizer_profiles(user_id,display_name,email) values(actor,clean->>'organizer_name',contact) on conflict(user_id) do update set display_name=excluded.display_name,email=excluded.email;
  if campaign_id is null then insert into public.campaigns(owner_id) values(actor) returning id into cid;
  else select * into current_row from public.campaigns where id=campaign_id for update;
@@ -72,7 +74,7 @@ begin
  insert into public.campaign_revisions(campaign_id,content) values(cid,clean);
  update public.campaigns set status=case when status='published' then status else 'pending' end,updated_at=now() where id=cid;
  insert into public.review_events(campaign_id,actor_id,action) values(cid,actor,'submission');
- insert into public.email_outbox(recipient,subject,body) values(contact,'fivonine: submission received','Your campaign is waiting for review. Sign in to fivonine to follow its status.');
+ insert into public.email_outbox(recipient,subject,body) values(contact,'Pote Kole: submission received','Your campaign is waiting for review. Sign in to Pote Kole to follow its status.');
  return cid;
 end $$;
 create function public.organizer_request(campaign_id uuid,request_kind text,update_title text default '',update_body text default '') returns void language plpgsql security definer set search_path='' as $$
@@ -117,7 +119,7 @@ begin
  else raise exception 'Invalid action';end if;
  insert into public.review_events(campaign_id,actor_id,action,note) values(cid,auth.uid(),record_kind||':'||decision,review_note);
  if cid is not null then select p.email into owner_contact from public.organizer_profiles p join public.campaigns c on c.owner_id=p.user_id where c.id=cid;
- insert into public.email_outbox(recipient,subject,body) values(owner_contact,'fivonine: campaign review update','Decision: '||decision||E'\n'||review_note||E'\nSign in to view your campaign status.');end if;
+ insert into public.email_outbox(recipient,subject,body) values(owner_contact,'Pote Kole: campaign review update','Decision: '||decision||E'\n'||review_note||E'\nSign in to view your campaign status.');end if;
 end $$;
 revoke all on function public.submit_campaign(jsonb,uuid),public.organizer_request(uuid,text,text,text),public.moderate_campaign(uuid,text,text,text,boolean,boolean) from public,anon;
 grant execute on function public.submit_campaign(jsonb,uuid),public.organizer_request(uuid,text,text,text),public.moderate_campaign(uuid,text,text,text,boolean,boolean) to authenticated;

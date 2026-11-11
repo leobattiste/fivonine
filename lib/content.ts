@@ -4,7 +4,7 @@ export const aboutCopy: Record<Locale, Section[]> = {
   en: [
     {
       heading: "Connection is a kind of strength.",
-      body: "fivonine is a place for Haitian individuals, families and communities to share their needs and find support, in Haiti and throughout the diaspora. The name is a nod to Haiti’s +509 calling code—and to the connections that cross borders.",
+      body: "Pote Kole is a place for Haitian individuals, families and communities to share their needs and find support, in Haiti and throughout the diaspora. The name is a nod to Haiti’s +509 calling code—and to the connections that cross borders.",
     },
     {
       heading: "A place to be seen.",
@@ -18,7 +18,7 @@ export const aboutCopy: Record<Locale, Section[]> = {
   fr: [
     {
       heading: "Les liens font notre force.",
-      body: "fivonine permet aux personnes, familles et communautés haïtiennes de partager leurs besoins et de trouver du soutien, en Haïti et dans la diaspora. Son nom évoque l’indicatif +509 et les liens qui traversent les frontières.",
+      body: "Pote Kole permet aux personnes, familles et communautés haïtiennes de partager leurs besoins et de trouver du soutien, en Haïti et dans la diaspora. Son nom évoque l’indicatif +509 et les liens qui traversent les frontières.",
     },
     {
       heading: "Un espace pour être visible.",
@@ -32,7 +32,7 @@ export const aboutCopy: Record<Locale, Section[]> = {
   ht: [
     {
       heading: "Koneksyon se yon fòs.",
-      body: "fivonine se yon espas kote moun, fanmi ak kominote ayisyen yo pataje bezwen yo epi jwenn sipò, ann Ayiti ak nan dyaspora a. Non an fè referans ak kòd telefòn +509 Ayiti a ak koneksyon ki travèse fwontyè yo.",
+      body: "Pote Kole se yon espas kote moun, fanmi ak kominote ayisyen yo pataje bezwen yo epi jwenn sipò, ann Ayiti ak nan dyaspora a. Non an fè referans ak kòd telefòn +509 Ayiti a ak koneksyon ki travèse fwontyè yo.",
     },
     {
       heading: "Yon espas pou moun wè ou.",
@@ -52,11 +52,11 @@ export const helpCopy: Record<Locale, Section[]> = {
     },
     {
       heading: "How do donations work?",
-      body: "Read the organizer’s instructions and decide whether and how to proceed outside fivonine. Confirm the recipient and any provider’s rules. We do not process payments, issue donation receipts or resolve payment disputes.",
+      body: "Read the organizer’s instructions and decide whether and how to proceed outside Pote Kole. Confirm the recipient and any provider’s rules. We do not process payments, issue donation receipts or resolve payment disputes.",
     },
     {
       heading: "Can someone in Haiti submit a campaign?",
-      body: "Yes, once submissions are enabled. The organizer must explain the beneficiary, intended use and distribution arrangement. Any external service’s country and payout rules still apply; fivonine does not bypass them.",
+      body: "Yes, once submissions are enabled. The organizer must explain the beneficiary, intended use and distribution arrangement. Any external service’s country and payout rules still apply; Pote Kole does not bypass them.",
     },
     {
       heading: "What does review mean?",
@@ -78,7 +78,7 @@ export const helpCopy: Record<Locale, Section[]> = {
     },
     {
       heading: "Comment fonctionnent les dons ?",
-      body: "Lisez les instructions et poursuivez en dehors de fivonine. Confirmez le bénéficiaire et les règles du service utilisé. Nous ne traitons pas les paiements, ne délivrons pas de reçus fiscaux et ne réglons pas les litiges de paiement.",
+      body: "Lisez les instructions et poursuivez en dehors de Pote Kole. Confirmez le bénéficiaire et les règles du service utilisé. Nous ne traitons pas les paiements, ne délivrons pas de reçus fiscaux et ne réglons pas les litiges de paiement.",
     },
     {
       heading: "Peut-on soumettre une collecte depuis Haïti ?",
@@ -104,7 +104,7 @@ export const helpCopy: Record<Locale, Section[]> = {
     },
     {
       heading: "Kijan don yo mache?",
-      body: "Li enstriksyon òganizatè a epi deside si ou vle ede deyò fivonine. Konfime moun k ap resevwa sipò a ak règ sèvis la. Nou pa trete peman, bay resi fiskal oswa regle konfli peman.",
+      body: "Li enstriksyon òganizatè a epi deside si ou vle ede deyò Pote Kole. Konfime moun k ap resevwa sipò a ak règ sèvis la. Nou pa trete peman, bay resi fiskal oswa regle konfli peman.",
     },
     {
       heading: "Èske yon moun ann Ayiti ka soumèt yon kanpay?",
@@ -136,7 +136,7 @@ export const legalCopy: Record<Locale, Section[]> = {
     },
     {
       heading: "Terms",
-      body: "Submit accurate information you have permission to publish. You remain responsible for your campaign and support instructions. fivonine is an independent publishing and discovery service, not a payment processor, escrow agent or guarantor. External services have their own terms. We may decline, suspend or remove listings that violate these policies.",
+      body: "Submit accurate information you have permission to publish. You remain responsible for your campaign and support instructions. Pote Kole is an independent publishing and discovery service, not a payment processor, escrow agent or guarantor. External services have their own terms. We may decline, suspend or remove listings that violate these policies.",
     },
     {
       heading: "Fundraising guidelines",
@@ -148,7 +148,7 @@ export const legalCopy: Record<Locale, Section[]> = {
     },
     {
       heading: "Donation disclosures",
-      body: "fivonine does not collect, hold, transfer or distribute donations. Support is arranged directly with an organizer or external service. The organizer may control how proceeds reach a beneficiary. Confirm the recipient, fees, availability, payout eligibility and dispute process before proceeding. Do not assume contributions are tax deductible. No live donation amount or progress is inferred.",
+      body: "Pote Kole does not collect, hold, transfer or distribute donations. Support is arranged directly with an organizer or external service. The organizer may control how proceeds reach a beneficiary. Confirm the recipient, fees, availability, payout eligibility and dispute process before proceeding. Do not assume contributions are tax deductible. No live donation amount or progress is inferred.",
     },
   ],
   fr: [
@@ -162,7 +162,7 @@ export const legalCopy: Record<Locale, Section[]> = {
     },
     {
       heading: "Conditions",
-      body: "Fournissez des informations exactes que vous avez le droit de publier. Vous êtes responsable de votre collecte et de ses instructions. fivonine est un service indépendant de publication, pas un prestataire de paiement ni un garant. Les services externes appliquent leurs propres règles. Les annonces contraires aux politiques peuvent être retirées.",
+      body: "Fournissez des informations exactes que vous avez le droit de publier. Vous êtes responsable de votre collecte et de ses instructions. Pote Kole est un service indépendant de publication, pas un prestataire de paiement ni un garant. Les services externes appliquent leurs propres règles. Les annonces contraires aux politiques peuvent être retirées.",
     },
     {
       heading: "Règles des collectes",
@@ -174,7 +174,7 @@ export const legalCopy: Record<Locale, Section[]> = {
     },
     {
       heading: "Informations sur les dons",
-      body: "fivonine ne reçoit, ne conserve et ne transfère aucun don. Le soutien se fait directement avec un organisateur ou un service externe. Confirmez le destinataire, les frais, l’éligibilité aux retraits et les recours. Ne présumez pas de déduction fiscale. Aucun montant collecté en temps réel n’est déduit.",
+      body: "Pote Kole ne reçoit, ne conserve et ne transfère aucun don. Le soutien se fait directement avec un organisateur ou un service externe. Confirmez le destinataire, les frais, l’éligibilité aux retraits et les recours. Ne présumez pas de déduction fiscale. Aucun montant collecté en temps réel n’est déduit.",
     },
   ],
   ht: [
@@ -188,7 +188,7 @@ export const legalCopy: Record<Locale, Section[]> = {
     },
     {
       heading: "Kondisyon",
-      body: "Soumèt enfòmasyon ki kòrèk ou gen dwa pibliye. Ou responsab kanpay ou ak enstriksyon yo. fivonine se yon sèvis piblikasyon endepandan, li pa trete peman ni garanti kanpay. Sèvis ekstèn yo gen pwòp règ yo. Nou ka retire kanpay ki pa respekte règleman yo.",
+      body: "Soumèt enfòmasyon ki kòrèk ou gen dwa pibliye. Ou responsab kanpay ou ak enstriksyon yo. Pote Kole se yon sèvis piblikasyon endepandan, li pa trete peman ni garanti kanpay. Sèvis ekstèn yo gen pwòp règ yo. Nou ka retire kanpay ki pa respekte règleman yo.",
     },
     {
       heading: "Règ kanpay yo",
@@ -200,7 +200,7 @@ export const legalCopy: Record<Locale, Section[]> = {
     },
     {
       heading: "Enfòmasyon sou don",
-      body: "fivonine pa resevwa, kenbe oswa transfere don. Sipò a fèt dirèkteman ak yon òganizatè oswa sèvis ekstèn. Konfime moun k ap resevwa lajan an, frè yo, règ retrè ak pwosesis konfli yo. Pa sipoze don yo dediktib nan taks. Nou pa devine kantite don yo.",
+      body: "Pote Kole pa resevwa, kenbe oswa transfere don. Sipò a fèt dirèkteman ak yon òganizatè oswa sèvis ekstèn. Konfime moun k ap resevwa lajan an, frè yo, règ retrè ak pwosesis konfli yo. Pa sipoze don yo dediktib nan taks. Nou pa devine kantite don yo.",
     },
   ],
 };

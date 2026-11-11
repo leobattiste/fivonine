@@ -18,14 +18,14 @@ export const platform = {
     safetyIntro:
       "Understand the organizer, the request, and the way your support will reach the beneficiary.",
     pricingIntro: "Free to share. Free to discover.",
-    free: "No Fivonine listing fee",
+    free: "No Pote Kole listing fee",
     freeBody:
-      "Creating a listing, browsing campaigns, and sharing fundraiser links are free. Fivonine takes no percentage of contributions.",
+      "Creating a listing, browsing campaigns, and sharing fundraiser links are free. Pote Kole takes no percentage of contributions.",
     external: "External service fees",
     externalBody:
       "A payment or transfer provider may charge its own fees, apply exchange rates, or set eligibility and withdrawal rules. Check its terms before contributing.",
     noPayments:
-      "Support goes directly through the organizer’s instructions. Fivonine does not receive or process donations.",
+      "Support goes directly through the organizer’s instructions. Pote Kole does not receive or process donations.",
     before: "Before you support",
     beforeItems: [
       "Read who organized the campaign and who benefits.",
@@ -35,7 +35,7 @@ export const platform = {
     ],
     responsible: "A review is not a guarantee",
     responsibleBody:
-      "A reviewed listing is not a guarantee of identity, need, use of funds, or outcome. Indicators on a campaign describe the checks actually completed. Fivonine does not provide donation protection or refunds for payments made elsewhere.",
+      "A reviewed listing is not a guarantee of identity, need, use of funds, or outcome. Indicators on a campaign describe the checks actually completed. Pote Kole does not provide donation protection or refunds for payments made elsewhere.",
     privacy: "Protect personal information",
     privacyBody:
       "Share only what the story needs. Keep identity documents, medical records, banking credentials, private addresses, and children’s identifying details off public pages. Get permission before posting another person’s story or photo.",
@@ -95,14 +95,14 @@ export const platform = {
     safetyIntro:
       "Comprenez qui organise la collecte, son objectif et comment votre soutien parviendra au bénéficiaire.",
     pricingIntro: "Partager et découvrir, gratuitement.",
-    free: "Aucun frais de publication Fivonine",
+    free: "Aucun frais de publication Pote Kole",
     freeBody:
-      "Créer une annonce, découvrir les collectes et partager leurs liens est gratuit. Fivonine ne prélève aucun pourcentage des contributions.",
+      "Créer une annonce, découvrir les collectes et partager leurs liens est gratuit. Pote Kole ne prélève aucun pourcentage des contributions.",
     external: "Frais des services externes",
     externalBody:
       "Un prestataire de paiement ou de transfert peut appliquer des frais, un taux de change et des conditions de retrait ou d’éligibilité. Consultez ses conditions avant de contribuer.",
     noPayments:
-      "Le soutien suit les instructions de l’organisateur. Fivonine ne reçoit et ne traite aucun don.",
+      "Le soutien suit les instructions de l’organisateur. Pote Kole ne reçoit et ne traite aucun don.",
     before: "Avant de contribuer",
     beforeItems: [
       "Lisez qui organise la collecte et qui en bénéficie.",
@@ -112,7 +112,7 @@ export const platform = {
     ],
     responsible: "Un examen n’est pas une garantie",
     responsibleBody:
-      "Une annonce examinée ne garantit ni l’identité, ni le besoin, ni l’utilisation des fonds, ni le résultat. Les indicateurs décrivent les vérifications effectuées. Fivonine ne protège et ne rembourse pas les paiements externes.",
+      "Une annonce examinée ne garantit ni l’identité, ni le besoin, ni l’utilisation des fonds, ni le résultat. Les indicateurs décrivent les vérifications effectuées. Pote Kole ne protège et ne rembourse pas les paiements externes.",
     privacy: "Protégez les informations personnelles",
     privacyBody:
       "Publiez uniquement ce qui est nécessaire. Ne partagez pas de pièces d’identité, dossiers médicaux, identifiants bancaires, adresses privées ou informations identifiant des enfants. Demandez l’accord pour les récits et photos.",
@@ -172,14 +172,14 @@ export const platform = {
     safetyIntro:
       "Konprann kiyès ki òganize kanpay la, bezwen an ak fason sipò a ap rive jwenn benefisyè a.",
     pricingIntro: "Pataje gratis. Dekouvri gratis.",
-    free: "Pa gen frè pou pibliye sou Fivonine",
+    free: "Pa gen frè pou pibliye sou Pote Kole",
     freeBody:
-      "Kreye yon kanpay, dekouvri lòt kanpay ak pataje lyen yo gratis. Fivonine pa pran okenn pousantaj nan kontribisyon yo.",
+      "Kreye yon kanpay, dekouvri lòt kanpay ak pataje lyen yo gratis. Pote Kole pa pran okenn pousantaj nan kontribisyon yo.",
     external: "Frè sèvis ekstèn yo",
     externalBody:
       "Yon sèvis peman oswa transfè ka gen frè, to chanj ak kondisyon pou kalifye oswa retire lajan. Li kondisyon sèvis la anvan w kontribye.",
     noPayments:
-      "Sipò fèt dapre enstriksyon òganizatè a. Fivonine pa resevwa ni trete don.",
+      "Sipò fèt dapre enstriksyon òganizatè a. Pote Kole pa resevwa ni trete don.",
     before: "Anvan ou bay sipò",
     beforeItems: [
       "Li kiyès ki òganize kanpay la ak kiyès ki benefisye.",
@@ -189,7 +189,7 @@ export const platform = {
     ],
     responsible: "Yon revizyon pa yon garanti",
     responsibleBody:
-      "Yon kanpay ki pase revizyon pa garanti idantite, bezwen, itilizasyon lajan oswa rezilta. Endikatè yo dekri verifikasyon ki fèt yo. Fivonine pa garanti ni ranbouse peman ki fèt lòt kote.",
+      "Yon kanpay ki pase revizyon pa garanti idantite, bezwen, itilizasyon lajan oswa rezilta. Endikatè yo dekri verifikasyon ki fèt yo. Pote Kole pa garanti ni ranbouse peman ki fèt lòt kote.",
     privacy: "Pwoteje enfòmasyon pèsonèl",
     privacyBody:
       "Pataje sèlman sa istwa a bezwen. Pa mete dokiman idantite, dosye medikal, kòd bank, adrès prive oswa detay ki idantifye timoun sou paj piblik. Mande pèmisyon pou istwa ak foto lòt moun.",
@@ -464,7 +464,7 @@ export const guides: Record<Locale, Guide[]> = {
         },
         {
           heading: "Explain outside services",
-          body: "Payments, refunds, eligibility and withdrawals follow the external service’s rules. Fivonine does not process these payments. Tell supporters to review fees and terms before contributing.",
+          body: "Payments, refunds, eligibility and withdrawals follow the external service’s rules. Pote Kole does not process these payments. Tell supporters to review fees and terms before contributing.",
         },
         {
           heading: "Keep changes transparent",
@@ -483,7 +483,7 @@ export const guides: Record<Locale, Guide[]> = {
         },
         {
           heading: "Be precise about amounts",
-          body: "Only describe amounts you can confirm. Separate a goal from contributions received. Fivonine does not track donations or provide a live amount raised.",
+          body: "Only describe amounts you can confirm. Separate a goal from contributions received. Pote Kole does not track donations or provide a live amount raised.",
         },
         {
           heading: "Close the loop",
@@ -507,7 +507,7 @@ export const guides: Record<Locale, Guide[]> = {
         },
         {
           heading: "Respond to concerns",
-          body: "If someone asks you to correct or remove information about them, respond promptly. They can contact Fivonine or report the listing directly from the campaign page.",
+          body: "If someone asks you to correct or remove information about them, respond promptly. They can contact Pote Kole or report the listing directly from the campaign page.",
         },
       ],
     },
@@ -582,7 +582,7 @@ export const guides: Record<Locale, Guide[]> = {
         },
         {
           heading: "Expliquez les services externes",
-          body: "Paiements, retraits et remboursements dépendent du prestataire. Fivonine ne traite pas ces paiements. Invitez à consulter les frais et conditions.",
+          body: "Paiements, retraits et remboursements dépendent du prestataire. Pote Kole ne traite pas ces paiements. Invitez à consulter les frais et conditions.",
         },
         {
           heading: "Expliquez les changements",
@@ -601,7 +601,7 @@ export const guides: Record<Locale, Guide[]> = {
         },
         {
           heading: "Précisez les montants",
-          body: "Indiquez uniquement les sommes confirmées et distinguez objectif et contributions. Fivonine ne suit pas les dons en temps réel.",
+          body: "Indiquez uniquement les sommes confirmées et distinguez objectif et contributions. Pote Kole ne suit pas les dons en temps réel.",
         },
         {
           heading: "Expliquez le résultat",
@@ -624,7 +624,7 @@ export const guides: Record<Locale, Guide[]> = {
         },
         {
           heading: "Répondez aux préoccupations",
-          body: "Répondez rapidement à une demande de correction ou de retrait. La personne concernée peut contacter Fivonine ou signaler la page.",
+          body: "Répondez rapidement à une demande de correction ou de retrait. La personne concernée peut contacter Pote Kole ou signaler la page.",
         },
       ],
     },
@@ -699,7 +699,7 @@ export const guides: Record<Locale, Guide[]> = {
         },
         {
           heading: "Esplike sèvis ekstèn yo",
-          body: "Peman, retrè ak ranbousman suiv kondisyon sèvis la. Fivonine pa trete peman sa yo. Fè moun konnen pou yo li frè ak kondisyon yo.",
+          body: "Peman, retrè ak ranbousman suiv kondisyon sèvis la. Pote Kole pa trete peman sa yo. Fè moun konnen pou yo li frè ak kondisyon yo.",
         },
         {
           heading: "Fè chanjman yo klè",
@@ -718,7 +718,7 @@ export const guides: Record<Locale, Guide[]> = {
         },
         {
           heading: "Fè kantite lajan yo presi",
-          body: "Pataje sèlman kantite ou ka konfime epi separe objektif ak kontribisyon. Fivonine pa swiv don an tan reyèl.",
+          body: "Pataje sèlman kantite ou ka konfime epi separe objektif ak kontribisyon. Pote Kole pa swiv don an tan reyèl.",
         },
         {
           heading: "Esplike rezilta a",
@@ -741,7 +741,7 @@ export const guides: Record<Locale, Guide[]> = {
         },
         {
           heading: "Reponn enkyetid yo",
-          body: "Reponn vit lè yon moun mande koreksyon oswa retrè. Moun nan ka kontakte Fivonine oswa rapòte paj la dirèkteman.",
+          body: "Reponn vit lè yon moun mande koreksyon oswa retrè. Moun nan ka kontakte Pote Kole oswa rapòte paj la dirèkteman.",
         },
       ],
     },

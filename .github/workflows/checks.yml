@@ -1,4 +1,4 @@
-name: Fivonine checks
+name: Pote Kole checks
 on: [push, pull_request]
 jobs:
   app:
@@ -15,7 +15,7 @@ jobs:
       - run: npm run build
       - run: npx playwright-core install --with-deps chromium
       - run: npm run start -- --port 3040 > /tmp/fivonine-server.log 2>&1 &
-      - run: node tests/browser.mjs
+      - run: npm run test:browser
   database:
     runs-on: ubuntu-latest
     services:

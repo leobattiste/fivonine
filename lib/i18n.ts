@@ -5,7 +5,7 @@ export const isLocale = (v: string): v is Locale =>
 const en = {
   home: "Home",
   explore: "Explore",
-  submit: "Start a fundraiser",
+  submit: "Submit a fundraiser",
   dashboard: "My campaigns",
   about: "About",
   help: "Help",
@@ -16,7 +16,7 @@ const en = {
   intro:
     "Discover and share fundraisers for Haitian individuals, families and communities—wherever we call home.",
   browse: "Explore fundraisers",
-  create: "Share your fundraiser",
+  create: "Submit a fundraiser",
   featured: "Community in action",
   all: "View all",
   categories: "Find a cause close to your heart",
@@ -39,9 +39,10 @@ const en = {
   step2: "A thoughtful review",
   step2body: "Our team reviews each listing before it appears here.",
   step3: "Connect directly",
-  step3body: "Supporters follow the organizer’s instructions outside fivonine.",
+  step3body:
+    "Supporters follow the organizer’s instructions outside Pote Kole.",
   disclosure:
-    "fivonine does not collect, hold or transfer donations. Support is arranged directly with the organizer or an external service.",
+    "Pote Kole does not collect, hold or transfer donations. Support is arranged directly with the organizer or an external service.",
   demo: "Preview with illustrative campaigns. These are not real donation requests.",
   example: "Illustrative campaign",
   empty: "No fundraisers found. Try another search or category.",
@@ -84,7 +85,7 @@ const en = {
   consent:
     "I have permission to share this story and image, and agree to the fundraising guidelines.",
   accuracy:
-    "The information is accurate. I understand that fivonine does not handle donations.",
+    "The information is accurate. I understand that Pote Kole does not handle donations.",
   send: "Submit for review",
   sending: "Sending…",
   saved: "Your submission is in the review queue.",
@@ -139,11 +140,11 @@ const en = {
   message: "Message",
   reportSent: "Your report was received for review.",
   contactIntro:
-    "Questions about fivonine, your listing or your privacy? Send our team a message.",
+    "Questions about Pote Kole, your listing or your privacy? Send our team a message.",
   contactSent: "Your message was received.",
   sendMessage: "Send message",
   footer: "A community built on connection.",
-  rights: "© 2026 fivonine. All rights reserved.",
+  rights: "© 2026 Pote Kole. All rights reserved.",
   previous: "Previous",
   results: "fundraisers",
   safety: "Support with care",
@@ -168,7 +169,7 @@ const fr: Dictionary = {
   intro:
     "Découvrez et partagez des collectes pour les personnes, les familles et les communautés haïtiennes, où que nous vivions.",
   browse: "Explorer les collectes",
-  create: "Partager votre collecte",
+  create: "Soumettre une collecte",
   featured: "La communauté en action",
   all: "Tout voir",
   categories: "Trouvez une cause qui vous tient à cœur",
@@ -191,9 +192,10 @@ const fr: Dictionary = {
   step2: "Un examen attentif",
   step2body: "Notre équipe examine chaque annonce avant sa publication.",
   step3: "Un lien direct",
-  step3body: "Suivez les instructions de l’organisateur en dehors de fivonine.",
+  step3body:
+    "Suivez les instructions de l’organisateur en dehors de Pote Kole.",
   disclosure:
-    "fivonine ne collecte, ne conserve et ne transfère aucun don. Le soutien se fait directement avec l’organisateur ou un service externe.",
+    "Pote Kole ne collecte, ne conserve et ne transfère aucun don. Le soutien se fait directement avec l’organisateur ou un service externe.",
   demo: "Aperçu avec des collectes fictives. Il ne s’agit pas de demandes de dons réelles.",
   example: "Collecte fictive",
   empty: "Aucune collecte trouvée. Essayez une autre recherche.",
@@ -235,7 +237,7 @@ const fr: Dictionary = {
   consent:
     "J’ai l’autorisation de partager ce récit et cette image, et j’accepte les règles.",
   accuracy:
-    "Les informations sont exactes. Je comprends que fivonine ne gère pas les dons.",
+    "Les informations sont exactes. Je comprends que Pote Kole ne gère pas les dons.",
   send: "Soumettre pour examen",
   sending: "Envoi…",
   saved: "Votre demande est en attente d’examen.",
@@ -290,11 +292,11 @@ const fr: Dictionary = {
   message: "Message",
   reportSent: "Votre signalement a été reçu.",
   contactIntro:
-    "Une question sur fivonine, votre collecte ou votre vie privée ? Écrivez-nous.",
+    "Une question sur Pote Kole, votre collecte ou votre vie privée ? Écrivez-nous.",
   contactSent: "Votre message a été reçu.",
   sendMessage: "Envoyer",
   footer: "Une communauté fondée sur les liens.",
-  rights: "© 2026 fivonine. Tous droits réservés.",
+  rights: "© 2026 Pote Kole. Tous droits réservés.",
   previous: "Précédent",
   results: "collectes",
   safety: "Soutenir avec prudence",
@@ -318,7 +320,7 @@ const ht: Dictionary = {
   intro:
     "Dekouvri epi pataje kanpay pou moun, fanmi ak kominote ayisyen yo, kèlkeswa kote yo ye.",
   browse: "Dekouvri kanpay yo",
-  create: "Pataje kanpay ou",
+  create: "Soumèt yon kanpay",
   featured: "Kominote a an aksyon",
   all: "Wè tout",
   categories: "Jwenn yon koz ki touche kè ou",
@@ -341,9 +343,9 @@ const ht: Dictionary = {
   step2: "Yon revizyon atantif",
   step2body: "Ekip nou an egzamine chak kanpay anvan li parèt sou sit la.",
   step3: "Konekte dirèkteman",
-  step3body: "Moun ki vle ede yo suiv enstriksyon òganizatè a deyò fivonine.",
+  step3body: "Moun ki vle ede yo suiv enstriksyon òganizatè a deyò Pote Kole.",
   disclosure:
-    "fivonine pa resevwa, kenbe oswa transfere don. Sipò a fèt dirèkteman ak òganizatè a oswa yon sèvis ekstèn.",
+    "Pote Kole pa resevwa, kenbe oswa transfere don. Sipò a fèt dirèkteman ak òganizatè a oswa yon sèvis ekstèn.",
   demo: "Aperçu ak kanpay egzanp. Sa yo pa demann don reyèl.",
   example: "Kanpay egzanp",
   empty: "Nou pa jwenn kanpay. Eseye yon lòt rechèch.",
@@ -384,7 +386,7 @@ const ht: Dictionary = {
     "Ekri enstriksyon senp. Ou ka mete lyen HTTPS. Pa mete modpas, enfòmasyon bankè oswa dokiman medikal sansib.",
   consent:
     "Mwen gen pèmisyon pataje istwa ak imaj sa a, epi mwen dakò ak règ kanpay yo.",
-  accuracy: "Enfòmasyon yo kòrèk. Mwen konprann fivonine pa jere don.",
+  accuracy: "Enfòmasyon yo kòrèk. Mwen konprann Pote Kole pa jere don.",
   send: "Voye pou revizyon",
   sending: "Ap voye…",
   saved: "Demann ou nan lis pou revizyon.",
@@ -439,11 +441,11 @@ const ht: Dictionary = {
   message: "Mesaj",
   reportSent: "Nou resevwa siyalman ou.",
   contactIntro:
-    "Ou gen kesyon sou fivonine, kanpay ou oswa vi prive ou? Ekri nou.",
+    "Ou gen kesyon sou Pote Kole, kanpay ou oswa vi prive ou? Ekri nou.",
   contactSent: "Nou resevwa mesaj ou.",
   sendMessage: "Voye mesaj",
   footer: "Yon kominote ki bati sou koneksyon.",
-  rights: "© 2026 fivonine. Tout dwa rezève.",
+  rights: "© 2026 Pote Kole. Tout dwa rezève.",
   previous: "Anvan",
   results: "kanpay",
   safety: "Ede avèk prekosyon",

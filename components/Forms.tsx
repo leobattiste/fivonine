@@ -1,6 +1,9 @@
 "use client";
 import { useActionState, useRef, useState } from "react";
 import SupportText from "./SupportText";
+import Link from "next/link";
+import Icon from "./Icon";
+import { brief } from "@/lib/brief";
 import {
   loginAction,
   messageAction,
@@ -29,53 +32,63 @@ export function CampaignForm({
   id,
   enabled,
   defaultCategory,
+  email,
 }: {
   locale: Locale;
-  defaultCategory?: Category;
   initial?: CampaignContent;
   id?: string;
   enabled: boolean;
+  defaultCategory?: Category;
+  email?: string;
 }) {
-  const d = t(locale);
+  const d = t(locale),
+    b = brief[locale];
   const [state, action, pending] = useActionState(submitCampaign, initialState);
   const [step, setStep] = useState(0);
   const [review, setReview] = useState<Record<string, string>>({});
-  const form = useRef<HTMLFormElement>(null);
-  const stepHeading = useRef<HTMLHeadingElement>(null);
-  const steps = [
-    d.story,
-    d.organizer,
-    d.support,
-    locale === "ht" ? "Revize" : locale === "fr" ? "Vérifier" : "Review",
-  ];
+  const form = useRef<HTMLFormElement>(null),
+    heading = useRef<HTMLHeadingElement>(null);
+  const steps = [b.fundraiser, b.details, b.organizer, b.review];
+  const go = (next: number) => {
+    setStep(next);
+    requestAnimationFrame(() => heading.current?.focus());
+  };
   const advance = () => {
     const section = form.current?.querySelectorAll("fieldset")[step];
     const invalid = Array.from(
       section?.querySelectorAll<
         HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-      >("input, textarea, select") ?? [],
+      >("input,textarea,select") ?? [],
     ).find((el) => !el.checkValidity());
     if (invalid) {
       invalid.reportValidity();
       return;
     }
-    if (step === 2 && form.current) {
-      const fields = Array.from(
-        form.current.querySelectorAll<
-          HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-        >("input, textarea, select"),
+    if (step === 2 && form.current)
+      setReview(
+        Object.fromEntries(
+          Array.from(
+            form.current.querySelectorAll<
+              HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+            >("input,textarea,select"),
+          ).map((el) => [el.name, el.value]),
+        ),
       );
-      setReview(Object.fromEntries(fields.map((el) => [el.name, el.value])));
-    }
-    setStep((current) => Math.min(current + 1, 3));
-    requestAnimationFrame(() => stepHeading.current?.focus());
+    go(Math.min(step + 1, 3));
   };
   if (state.ok)
     return (
-      <div className="notice success" role="status">
-        {state.message}
-        <a href={`/${locale}/dashboard`}>{d.dashboard} →</a>
-      </div>
+      <section className="submission-confirmation" role="status">
+        <span className="confirmation-icon">
+          <Icon name="check" />
+        </span>
+        <h2>{b.confirmation}</h2>
+        <p>{b.confirmationBody}</p>
+        <Link className="button" href={`/${locale}/dashboard`}>
+          {b.manage}
+          <Icon name="arrowRight" />
+        </Link>
+      </section>
     );
   return (
     <form
@@ -92,17 +105,14 @@ export function CampaignForm({
         const invalid = Array.from(
           form.current?.querySelectorAll<
             HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-          >("input, textarea, select") ?? [],
+          >("input,textarea,select") ?? [],
         ).find((el) => !el.checkValidity());
         if (invalid) {
           e.preventDefault();
-          const sections = Array.from(
+          const index = Array.from(
             form.current?.querySelectorAll("fieldset") ?? [],
-          );
-          const index = sections.findIndex((section) =>
-            section.contains(invalid),
-          );
-          if (index >= 0) setStep(index);
+          ).findIndex((el) => el.contains(invalid));
+          if (index >= 0) go(index);
           requestAnimationFrame(() => {
             invalid.focus();
             invalid.reportValidity();
@@ -110,147 +120,54 @@ export function CampaignForm({
         }
       }}
     >
-      <ol
-        className="submission-steps"
-        aria-label={
-          locale === "ht"
-            ? "Etap yo"
-            : locale === "fr"
-              ? "Étapes"
-              : "Submission steps"
-        }
-      >
-        {steps.map((label, index) => (
+      <ol className="submission-steps" aria-label={b.manage}>
+        {steps.map((label, i) => (
           <li
             key={label}
-            aria-current={step === index ? "step" : undefined}
-            className={index < step ? "completed" : ""}
+            aria-current={step === i ? "step" : undefined}
+            className={step > i ? "completed" : ""}
           >
-            <span>{index + 1}</span>
+            <span>{step > i ? <Icon name="check" /> : i + 1}</span>
             {label}
           </li>
         ))}
       </ol>
-      <h2 className="form-step-title" ref={stepHeading} tabIndex={-1}>
+      <h2 className="form-step-title" ref={heading} tabIndex={-1}>
         {steps[step]}
       </h2>
       <input type="hidden" name="locale" value={locale} />
       {id && <input type="hidden" name="campaign_id" value={id} />}
       <fieldset hidden={step !== 0} disabled={!enabled || pending}>
-        <legend>01 · {d.story}</legend>
+        <legend>01 · {b.fundraiser}</legend>
+        <Field label={b.url}>
+          <input
+            name="fundraising_url"
+            type="url"
+            placeholder="https://"
+            maxLength={1000}
+            defaultValue={initial?.fundraising_url ?? ""}
+          />
+        </Field>
+        <p className="hint">{b.urlHint}</p>
         <Field label={d.title}>
           <input
             name="title"
-            maxLength={160}
             required
+            maxLength={160}
             defaultValue={initial?.title}
           />
         </Field>
-        <div className="form-row">
-          <Field label={d.category}>
-            <select
-              name="category"
-              defaultValue={initial?.category ?? defaultCategory ?? "education"}
-            >
-              {categoryKeys.map((c) => (
-                <option key={c} value={c}>
-                  {d[c]}
-                </option>
-              ))}
-            </select>
-          </Field>
-          <Field label={d.sourceLanguage}>
-            <select name="language" defaultValue={initial?.language ?? locale}>
-              <option value="ht">Kreyòl</option>
-              <option value="fr">Français</option>
-              <option value="en">English</option>
-            </select>
-          </Field>
-        </div>
-        <Field label={d.description}>
-          <textarea
-            name="story"
-            rows={7}
-            required
-            maxLength={10000}
-            defaultValue={initial?.story}
-          />
-        </Field>
-        <Field label={d.photo}>
-          <input
-            name="photo_url"
-            type="url"
-            maxLength={1000}
-            placeholder="https://"
-            defaultValue={initial?.photo_url}
-          />
-        </Field>
-        <p className="hint">{d.photoHint}</p>
-        <div className="form-row">
-          <Field label={d.country}>
-            <input
-              name="country"
-              required
-              maxLength={80}
-              defaultValue={initial?.country}
-            />
-          </Field>
-          <Field label={d.region}>
-            <input
-              name="region"
-              required
-              maxLength={100}
-              defaultValue={initial?.region}
-            />
-          </Field>
-        </div>
-      </fieldset>
-      <fieldset hidden={step !== 1} disabled={!enabled || pending}>
-        <legend>02 · {d.organizer}</legend>
-        <Field label={d.name}>
-          <input
-            name="organizer_name"
-            required
-            maxLength={160}
-            defaultValue={initial?.organizer_name}
-          />
-        </Field>
-        <Field label={d.relationship}>
-          <input
-            name="relationship"
-            required
-            maxLength={200}
-            defaultValue={initial?.relationship}
-          />
-        </Field>
-        <Field label={d.beneficiaryName}>
-          <input
-            name="beneficiary"
-            required
-            maxLength={300}
-            defaultValue={initial?.beneficiary}
-          />
-        </Field>
-      </fieldset>
-      <fieldset hidden={step !== 2} disabled={!enabled || pending}>
-        <legend>03 · {d.support}</legend>
-        <Field label={d.use}>
-          <textarea
-            name="intended_use"
-            required
-            rows={3}
-            maxLength={3000}
-            defaultValue={initial?.intended_use}
-          />
-        </Field>
-        <Field label={d.distribution}>
-          <textarea
-            name="distribution"
-            required
-            rows={3}
-            maxLength={3000}
-            defaultValue={initial?.distribution}
-          />
+        <Field label={d.category}>
+          <select
+            name="category"
+            defaultValue={initial?.category ?? defaultCategory ?? "education"}
+          >
+            {categoryKeys.map((c) => (
+              <option key={c} value={c}>
+                {d[c]}
+              </option>
+            ))}
+          </select>
         </Field>
         <div className="form-row">
           <Field label={d.amount}>
@@ -271,11 +188,119 @@ export function CampaignForm({
             </select>
           </Field>
         </div>
+        {id && (
+          <Field label={b.status}>
+            <select
+              name="lifecycle"
+              defaultValue={initial?.lifecycle ?? "active"}
+            >
+              <option value="active">{b.active}</option>
+              <option value="completed">{b.completed}</option>
+            </select>
+          </Field>
+        )}
+      </fieldset>
+      <fieldset hidden={step !== 1} disabled={!enabled || pending}>
+        <legend>02 · {b.details}</legend>
+        <Field label={d.description}>
+          <textarea
+            name="story"
+            required
+            rows={7}
+            maxLength={10000}
+            defaultValue={initial?.story}
+          />
+        </Field>
+        <Field label={d.sourceLanguage}>
+          <select name="language" defaultValue={initial?.language ?? locale}>
+            <option value="ht">Kreyòl</option>
+            <option value="fr">Français</option>
+            <option value="en">English</option>
+          </select>
+        </Field>
+        <div className="form-row">
+          <Field label={d.country}>
+            <input
+              name="country"
+              required
+              maxLength={80}
+              defaultValue={initial?.country}
+            />
+          </Field>
+          <Field label={d.region}>
+            <input
+              name="region"
+              required
+              maxLength={100}
+              defaultValue={initial?.region}
+            />
+          </Field>
+        </div>
+        <Field label={d.photo}>
+          <input
+            name="photo_url"
+            type="url"
+            placeholder="https://"
+            maxLength={1000}
+            defaultValue={initial?.photo_url}
+          />
+        </Field>
+        <p className="hint">{d.photoHint}</p>
+        <Field label={d.use}>
+          <textarea
+            name="intended_use"
+            required
+            rows={3}
+            maxLength={3000}
+            defaultValue={initial?.intended_use}
+          />
+        </Field>
+        <Field label={d.distribution}>
+          <textarea
+            name="distribution"
+            required
+            rows={3}
+            maxLength={3000}
+            defaultValue={initial?.distribution}
+          />
+        </Field>
+      </fieldset>
+      <fieldset hidden={step !== 2} disabled={!enabled || pending}>
+        <legend>03 · {b.organizer}</legend>
+        <Field label={d.name}>
+          <input
+            name="organizer_name"
+            required
+            maxLength={160}
+            defaultValue={initial?.organizer_name}
+          />
+        </Field>
+        {email && (
+          <Field label={d.email}>
+            <input type="email" value={email} readOnly autoComplete="email" />
+          </Field>
+        )}
+        <Field label={d.relationship}>
+          <input
+            name="relationship"
+            required
+            maxLength={200}
+            defaultValue={initial?.relationship}
+          />
+        </Field>
+        <Field label={d.beneficiaryName}>
+          <input
+            name="beneficiary"
+            required
+            maxLength={300}
+            defaultValue={initial?.beneficiary}
+          />
+        </Field>
         <Field label={d.support}>
           <textarea
             name="support_text"
             required
-            rows={6}
+            rows={5}
             maxLength={4000}
             defaultValue={initial?.support_text}
           />
@@ -285,70 +310,57 @@ export function CampaignForm({
           <input name="consent" type="checkbox" required />
           {d.consent}
         </label>
+      </fieldset>
+      <fieldset hidden={step !== 3} disabled={!enabled || pending}>
+        <legend>04 · {b.review}</legend>
+        <section className="submission-review">
+          <h3>{review.title || d.title}</h3>
+          <p className="preserve-lines">{review.story}</p>
+          <dl>
+            {[
+              [d.organizer, review.organizer_name],
+              [d.beneficiary, review.beneficiary],
+              [
+                b.location,
+                [review.region, review.country].filter(Boolean).join(", "),
+              ],
+              [d.use, review.intended_use],
+              [d.distribution, review.distribution],
+              [
+                d.category,
+                categoryKeys.includes(review.category as Category)
+                  ? d[review.category as Category]
+                  : review.category,
+              ],
+              [
+                d.amount,
+                review.goal ? `${review.currency} ${review.goal}` : "—",
+              ],
+            ].map(([label, value]) => (
+              <div key={label}>
+                <dt>{label}</dt>
+                <dd>{value}</dd>
+              </div>
+            ))}
+          </dl>
+          {review.fundraising_url && (
+            <SupportText text={review.fundraising_url} />
+          )}
+          <h3>{d.support}</h3>
+          <SupportText text={review.support_text ?? ""} />
+        </section>
         <label className="check">
           <input name="accuracy" type="checkbox" required />
           {d.accuracy}
         </label>
+        <label className="check">
+          <input name="terms" type="checkbox" required />
+          <span>
+            {b.terms} <Link href={`/${locale}/legal#terms`}>{d.terms}</Link> ·{" "}
+            <Link href={`/${locale}/legal#guidelines`}>{d.guidelines}</Link>
+          </span>
+        </label>
       </fieldset>
-      {step === 3 && (
-        <section className="submission-review">
-          <p className="hint">
-            {locale === "ht"
-              ? "Revize enfòmasyon yo anvan ou voye yo bay ekip nou an."
-              : locale === "fr"
-                ? "Vérifiez les informations avant de les envoyer à notre équipe."
-                : "Check your information before sending it to our review team."}
-          </p>
-          <h3>{review.title || d.title}</h3>
-          <p className="preserve-lines">{review.story}</p>
-          <dl>
-            <div>
-              <dt>{d.organizer}</dt>
-              <dd>{review.organizer_name}</dd>
-            </div>
-            <div>
-              <dt>{d.beneficiary}</dt>
-              <dd>{review.beneficiary}</dd>
-            </div>
-            <div>
-              <dt>{d.region}</dt>
-              <dd>
-                {[review.region, review.country].filter(Boolean).join(", ")}
-              </dd>
-            </div>
-            <div>
-              <dt>{d.use}</dt>
-              <dd>{review.intended_use}</dd>
-            </div>
-            <div>
-              <dt>{d.distribution}</dt>
-              <dd>{review.distribution}</dd>
-            </div>
-          </dl>
-          <dl>
-            <div>
-              <dt>{d.category}</dt>
-              <dd>
-                {categoryKeys.includes(
-                  review.category as (typeof categoryKeys)[number],
-                )
-                  ? d[review.category as (typeof categoryKeys)[number]]
-                  : review.category}
-              </dd>
-            </div>
-            <div>
-              <dt>{d.relationship}</dt>
-              <dd>{review.relationship}</dd>
-            </div>
-            <div>
-              <dt>{d.amount}</dt>
-              <dd>{review.goal ? `${review.currency} ${review.goal}` : "—"}</dd>
-            </div>
-          </dl>
-          <h3>{d.support}</h3>
-          <SupportText text={review.support_text ?? ""} />
-        </section>
-      )}
       {state.message && (
         <p className="notice error" role="alert">
           {state.message}
@@ -359,21 +371,19 @@ export function CampaignForm({
           <button
             type="button"
             className="button secondary"
-            onClick={() => {
-              setStep(step - 1);
-              requestAnimationFrame(() => stepHeading.current?.focus());
-            }}
+            onClick={() => go(step - 1)}
           >
-            {locale === "ht" ? "Retounen" : locale === "fr" ? "Retour" : "Back"}
+            {locale === "en" ? "Back" : locale === "fr" ? "Retour" : "Retounen"}
           </button>
         )}
         {step < 3 ? (
           <button type="button" className="button" onClick={advance}>
-            {locale === "ht"
-              ? "Kontinye"
+            {locale === "en"
+              ? "Continue"
               : locale === "fr"
                 ? "Continuer"
-                : "Continue"}
+                : "Kontinye"}
+            <Icon name="arrowRight" />
           </button>
         ) : (
           <button className="button" disabled={!enabled || pending}>
@@ -586,7 +596,7 @@ export function ReviewForm({
       <input type="hidden" name="record_id" value={id} />
       <input type="hidden" name="record_kind" value={kind} />
       <Field label={d.note}>
-        <textarea name="review_note" rows={2} maxLength={2000} />
+        <textarea name="review_note" rows={2} maxLength={2000} required />
       </Field>
       {kind === "revision" && (
         <>

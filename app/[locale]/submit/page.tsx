@@ -55,6 +55,7 @@ export default async function Submit({
         locale={locale}
         enabled={!!user && !preview}
         defaultCategory={category}
+        email={user?.email}
       />
       <p className="disclosure">{d.disclosure}</p>
     </section>

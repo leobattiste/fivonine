@@ -10,8 +10,11 @@ export async function GET(request: NextRequest) {
     !campaign ||
     campaign.demo ||
     !url ||
-    !supportParts(campaign.public_content.support_text).some(
-      (part) => part.url === url,
+    !(
+      safeExternal(campaign.public_content.fundraising_url ?? "") === url ||
+      supportParts(campaign.public_content.support_text).some(
+        (part) => part.url === url,
+      )
     )
   )
     return new NextResponse("Unavailable destination", { status: 404 });

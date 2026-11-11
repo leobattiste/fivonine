@@ -57,6 +57,7 @@ const values = {
   language: "ht",
   consent: "on",
   accuracy: "on",
+  terms: "on",
 };
 const form = (changes = {}) => {
   const f = new FormData();
@@ -64,9 +65,22 @@ const form = (changes = {}) => {
   return f;
 };
 assert.equal(domain.parseCampaign(form()).goal, 1200.5);
+assert.equal(
+  domain.parseCampaign(
+    form({
+      fundraising_url: "https://example.com/fund",
+      lifecycle: "completed",
+    }),
+  ).lifecycle,
+  "completed",
+);
 assert.equal(domain.parseCampaign(form({ goal: "" })).goal, null);
 for (const change of [
   { consent: "" },
+  { terms: "" },
+  { fundraising_url: "javascript:alert(1)" },
+  { fundraising_url: "http://example.com" },
+  { lifecycle: "invented" },
   { accuracy: "" },
   { goal: "-20" },
   { goal: "NaN" },
@@ -107,4 +121,47 @@ for (const table of [
   );
 console.log(
   "PASS: support-link safety, text preservation, campaign validation, locale coverage and schema safeguards",
+);
+
+const demo = load("lib/demo.ts");
+const previewData = load("lib/data.ts", {
+  "server-only": {},
+  "@supabase/supabase-js": {
+    createClient: () => {
+      throw new Error("Preview must not query a live database");
+    },
+  },
+  "./supabase/server": { getServerClient: async () => null },
+  "./supabase/config": {
+    supabaseEnabled: false,
+    SUPABASE_URL: "",
+    SUPABASE_ANON_KEY: "",
+  },
+  "./demo": demo,
+});
+assert.equal((await previewData.publicCampaigns({ q: "Jacmel" })).count, 1);
+assert.equal(
+  (await previewData.publicCampaigns({ category: "education" })).count,
+  2,
+);
+demo.demoCampaigns[0].public_content.lifecycle = "completed";
+assert.equal(
+  (await previewData.publicCampaigns({ lifecycle: "completed" })).count,
+  1,
+);
+assert.equal(
+  (await previewData.publicCampaigns({ location: "Canada" })).count,
+  1,
+);
+demo.demoCampaigns[0].updated_at = "2030-01-01T00:00:00Z";
+assert.equal(
+  (await previewData.publicCampaigns({ sort: "updated" })).items[0].id,
+  "example-1",
+);
+for (let i = 0; i < 16; i++)
+  demo.demoCampaigns.push({ ...demo.demoCampaigns[0], id: `pagination-${i}` });
+assert.equal((await previewData.publicCampaigns()).items.length, 12);
+assert.equal((await previewData.publicCampaigns({ page: 2 })).items.length, 22);
+console.log(
+  "PASS: location/category search, active/completed filters, updated sorting and 12-item pagination",
 );

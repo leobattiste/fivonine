@@ -16,7 +16,7 @@ export default async function Safety({
   return (
     <section className="page section">
       <header className="page-head">
-        <p className="eyebrow">fivonine</p>
+        <p className="eyebrow">Pote Kole</p>
         <h1>{p.safety}</h1>
         <p className="lead">{p.safetyIntro}</p>
       </header>

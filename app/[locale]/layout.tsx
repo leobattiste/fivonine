@@ -1,3 +1,4 @@
+import { GeistSans } from "geist/font/sans";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
@@ -20,15 +21,15 @@ export async function generateMetadata({
   return {
     metadataBase: new URL(SITE_URL),
     title: {
-      default: "fivonine — " + t(locale).tagline,
-      template: "%s | fivonine",
+      default: "Pote Kole — " + t(locale).tagline,
+      template: "%s | Pote Kole",
     },
     description: t(locale).intro,
     robots: {
       index: process.env.PUBLIC_LAUNCH === "true" && !preview,
       follow: process.env.PUBLIC_LAUNCH === "true" && !preview,
     },
-    openGraph: { siteName: "fivonine", type: "website" },
+    openGraph: { siteName: "Pote Kole", type: "website" },
   };
 }
 export default async function Layout({
@@ -44,7 +45,7 @@ export default async function Layout({
   const p = platform[locale];
   return (
     <html lang={locale}>
-      <body>
+      <body className={GeistSans.variable}>
         <a className="skip" href="#main">
           {locale === "ht"
             ? "Ale nan kontni an"
@@ -59,7 +60,7 @@ export default async function Layout({
         <footer className="footer">
           <div>
             <Link className="wordmark" href={`/${locale}`}>
-              fivonine.
+              pote kole.
             </Link>
             <p>{d.footer}</p>
           </div>

@@ -4,8 +4,10 @@ insert into auth.users values('10000000-0000-0000-0000-000000000001','owner@exam
 insert into public.platform_admins values('10000000-0000-0000-0000-000000000003');
 set role authenticated;
 select set_config('request.jwt.claim.sub','10000000-0000-0000-0000-000000000001',false);
-select set_config('test.content','{"title":"QA classroom","story":"A campaign story.","support_text":"Visit https://example.com/help","category":"education","language":"ht","country":"Haiti","region":"Jacmel","organizer_name":"QA Organizer","beneficiary":"Students","relationship":"Teacher","intended_use":"Books","distribution":"Local delivery","currency":"USD","goal":1200,"photo_url":"","consent":true,"accuracy":true}',false);
+select set_config('test.content','{"title":"QA classroom","story":"A campaign story.","support_text":"Visit https://example.com/help","category":"education","language":"ht","country":"Haiti","region":"Jacmel","organizer_name":"QA Organizer","beneficiary":"Students","relationship":"Teacher","intended_use":"Books","distribution":"Local delivery","currency":"USD","goal":1200,"photo_url":"","consent":true,"accuracy":true,"terms":true,"lifecycle":"active","fundraising_url":"https://example.com/fundraiser"}',false);
+do $$begin begin perform public.submit_campaign(current_setting('test.content')::jsonb - 'terms',null);raise exception 'Missing terms accepted';exception when raise_exception then if sqlerrm='Missing terms accepted' then raise;end if;end;end$$;
 select set_config('test.campaign',public.submit_campaign(current_setting('test.content')::jsonb,null)::text,false);
+do $$begin if (select content->>'lifecycle' from public.campaign_revisions limit 1)<>'active' or (select content->>'fundraising_url' from public.campaign_revisions limit 1)<>'https://example.com/fundraiser' then raise exception 'Listing fields lost';end if;end$$;
 do $$begin if (select count(*) from public.campaign_revisions)<>1 then raise exception 'Owner cannot read revision';end if;begin update public.campaigns set status='published';raise exception 'Direct publish allowed';exception when insufficient_privilege then null;end;end$$;
 reset role;
 set role anon;
@@ -18,6 +20,7 @@ select set_config('request.jwt.claim.sub','10000000-0000-0000-0000-000000000003'
 select public.moderate_campaign((select id from public.campaign_revisions limit 1),'revision','approve','Checked',true,false);
 reset role;set role anon;
 do $$begin if (select count(*) from public.campaigns where public_content->>'title'='QA classroom')<>1 then raise exception 'Approved campaign missing';end if;end$$;
+do $$begin if not exists(select 1 from public.campaigns where search_document @@ websearch_to_tsquery('simple','Haiti education')) then raise exception 'Location/category search missing';end if;end$$;
 reset role;set role authenticated;
 select set_config('request.jwt.claim.sub','10000000-0000-0000-0000-000000000001',false);
 select public.submit_campaign(jsonb_set(current_setting('test.content')::jsonb,'{support_text}','"Changed support instructions"'),current_setting('test.campaign')::uuid);

@@ -1,4 +1,5 @@
 "use server";
+import { brief } from "@/lib/brief";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getServerClient } from "@/lib/supabase/server";
@@ -59,7 +60,7 @@ export async function submitCampaign(
   const id = String(f.get("campaign_id") ?? "") || null;
   if (id && !/^[a-f\d-]{36}$/i.test(id)) return failed(l);
   const { data, error } = await db.rpc("submit_campaign", {
-    content: { ...content, consent: true, accuracy: true },
+    content: { ...content, consent: true, accuracy: true, terms: true },
     campaign_id: id,
   });
   if (error) return failed(l);
@@ -131,6 +132,7 @@ export async function moderate(
   const l = localeOf(f),
     db = await getServerClient();
   if (!db) return failed(l);
+  if (!String(f.get("review_note") ?? "").trim()) return failed(l);
   const { error } = await db.rpc("moderate_campaign", {
     record_id: String(f.get("record_id")),
     record_kind: String(f.get("record_kind")),
@@ -143,4 +145,68 @@ export async function moderate(
   revalidatePath(`/${l}/admin`);
   revalidatePath(`/${l}/explore`);
   return { ok: true, message: t(l).saved };
+}
+
+export async function bulkModerate(
+  _: ActionState,
+  f: FormData,
+): Promise<ActionState> {
+  const l = localeOf(f),
+    db = await getServerClient();
+  if (!db || !(await db.rpc("is_fivonine_admin")).data) return failed(l);
+  const records = [...new Set(f.getAll("records").map(String))];
+  const decision = String(f.get("decision") ?? "");
+  const note = String(f.get("review_note") ?? "")
+    .trim()
+    .slice(0, 2000);
+  if (
+    !records.length ||
+    records.length > 25 ||
+    !note ||
+    ![
+      "approve",
+      "changes",
+      "decline",
+      "suspend",
+      "archive",
+      "feature",
+      "unfeature",
+    ].includes(decision)
+  )
+    return failed(l);
+  let updated = 0;
+  for (const entry of records) {
+    const [kind, id] = entry.split(":");
+    if (
+      !["revision", "update", "campaign"].includes(kind) ||
+      !/^[a-f\d-]{36}$/i.test(id ?? "")
+    )
+      continue;
+    const valid =
+      kind === "campaign"
+        ? ["suspend", "archive", "feature", "unfeature"]
+        : kind === "update"
+          ? ["approve", "decline"]
+          : ["approve", "changes", "decline"];
+    if (!valid.includes(decision)) continue;
+    const { error } = await db.rpc("moderate_campaign", {
+      record_id: id,
+      record_kind: kind,
+      decision,
+      review_note: note,
+      links_checked: false,
+      organization_checked: false,
+    });
+    if (!error) updated++;
+  }
+  for (const locale of ["ht", "fr", "en"]) {
+    revalidatePath(`/${locale}`);
+    revalidatePath(`/${locale}/admin`);
+    revalidatePath(`/${locale}/explore`);
+    revalidatePath(`/${locale}/campaigns/[id]`, "page");
+  }
+  return {
+    ok: updated === records.length,
+    message: `${updated}/${records.length} ${updated === records.length ? brief[l].bulkDone : brief[l].bulkFailed}`,
+  };
 }

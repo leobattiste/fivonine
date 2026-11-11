@@ -1,5 +1,7 @@
 import { categoryKeys, isLocale, type Category, type Locale } from "./i18n";
 export type CampaignContent = {
+  fundraising_url?: string;
+  lifecycle?: "active" | "completed";
   title: string;
   story: string;
   category: Category;
@@ -80,13 +82,25 @@ export function parseCampaign(form: FormData): CampaignContent {
   const photo = read("photo_url", 1000);
   if (photo && !safeExternal(photo))
     throw new Error("The image needs a valid HTTPS URL.");
-  if (form.get("consent") !== "on" || form.get("accuracy") !== "on")
+  if (
+    form.get("consent") !== "on" ||
+    form.get("accuracy") !== "on" ||
+    form.get("terms") !== "on"
+  )
     throw new Error("Confirm permissions and accuracy.");
   const support = read("support_text", 4000, true);
   for (const u of support.match(/https?:\/\/[^\s<>]+/g) ?? [])
     if (!safeExternal(u.replace(/[.,;!?)]+$/, "")))
       throw new Error("Support links must use HTTPS and a public website.");
+  const link = read("fundraising_url", 1000);
+  if (link && !safeExternal(link))
+    throw new Error("Use a public HTTPS fundraising link.");
+  const lifecycle = read("lifecycle", 20) || "active";
+  if (!["active", "completed"].includes(lifecycle))
+    throw new Error("Choose a campaign status.");
   return {
+    fundraising_url: link,
+    lifecycle: lifecycle as "active" | "completed",
     title: read("title", 160, true),
     story: read("story", 10000, true),
     category: category as Category,

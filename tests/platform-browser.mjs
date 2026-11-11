@@ -85,12 +85,8 @@ try {
       links[1].startsWith("https://www.facebook.com/sharer/sharer.php?u="),
     );
     assert.ok(!links.join("").includes("source%3Dtest"));
-    if (width === 1440) {
-      await page.locator(".nav-dropdown summary").first().click();
-      assert.equal(await page.locator(".nav-dropdown[open]").count(), 1);
-      await page.keyboard.press("Escape");
-      assert.equal(await page.locator(".nav-dropdown[open]").count(), 0);
-    }
+    if (width === 1440)
+      assert.equal(await page.locator(".desktop-nav a").count(), 3);
     const invalidCause = await page.goto(base + "/en/causes/invalid");
     assert.equal(invalidCause.status(), 404);
     const invalidGuide = await page.goto(base + "/en/resources/invalid");

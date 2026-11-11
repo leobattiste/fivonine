@@ -42,7 +42,7 @@ export default function Media({
       ) : (
         <div className="cover-fallback" role="img" aria-label={alt}>
           <Icon name="heart" />
-          <span>fivonine.</span>
+          <span>Pote Kole.</span>
         </div>
       )}
     </div>

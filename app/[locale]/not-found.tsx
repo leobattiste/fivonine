@@ -8,7 +8,7 @@ export default function NotFound() {
         disponible.
       </p>
       <Link className="button" href="/ht">
-        fivonine →
+        Pote Kole →
       </Link>
     </section>
   );

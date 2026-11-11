@@ -1,5 +1,15 @@
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
+  Menu01Icon,
+  FilterHorizontalIcon,
+  DashboardSquareIcon,
+  Task01Icon,
+  Shield01Icon,
+  ChartHistogramIcon,
+  Settings01Icon,
+  File01Icon,
+  Building03Icon,
+  Mail01Icon,
   Add01Icon,
   ArrowLeft01Icon,
   ArrowRight01Icon,
@@ -21,6 +31,16 @@ import {
   UserIcon,
 } from "@hugeicons/core-free-icons";
 const icons = {
+  menu: Menu01Icon,
+  filters: FilterHorizontalIcon,
+  overview: DashboardSquareIcon,
+  reviews: Task01Icon,
+  shield: Shield01Icon,
+  analytics: ChartHistogramIcon,
+  settings: Settings01Icon,
+  content: File01Icon,
+  organization: Building03Icon,
+  mail: Mail01Icon,
   plus: Add01Icon,
   arrowLeft: ArrowLeft01Icon,
   arrowRight: ArrowRight01Icon,
@@ -41,13 +61,14 @@ const icons = {
   users: UserGroupIcon,
   user: UserIcon,
 };
+export type IconName = keyof typeof icons;
 export default function Icon({ name }: { name: keyof typeof icons }) {
   return (
     <HugeiconsIcon
       icon={icons[name]}
       className="icon"
-      size={24.5}
-      strokeWidth={1.6}
+      size={20}
+      strokeWidth={1.7}
       aria-hidden="true"
     />
   );

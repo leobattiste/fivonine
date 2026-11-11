@@ -28,7 +28,7 @@ try {
     await page.goto(base + "/en");
     await page.getByRole("heading", { level: 1 }).waitFor();
     assert.equal(await page.locator("html").getAttribute("lang"), "en");
-    assert.equal(await page.locator(".campaign-card").count(), 3);
+    assert.equal(await page.locator(".campaign-card").count(), 6);
     assert.equal(
       await page.locator(".preview-banner, .campaign-label").count(),
       0,
@@ -53,7 +53,7 @@ try {
     await page.waitForURL("**/en/explore");
     assert.equal(await page.locator(".campaign-card").count(), 6);
     await page.locator("input[name=q]").fill("classroom");
-    await page.locator(".explore-filters button").click();
+    await page.locator(".explore-search-submit").click();
     await page.waitForURL("**/en/explore?q=**");
     assert.equal(await page.locator(".campaign-card").count(), 1);
     await page.locator(".campaign-card a").click();
@@ -92,7 +92,7 @@ try {
     await page.getByRole("button", { name: "Continue", exact: true }).click();
     assert.equal(
       await page.locator("fieldset:visible legend").innerText(),
-      "02 · Organizer",
+      "02 · Story",
     );
     await page.getByRole("button", { name: "Continue", exact: true }).click();
     assert.equal(await page.locator("[name=support_text]").isVisible(), true);
@@ -116,7 +116,7 @@ try {
       fullPage: true,
     });
     await page.goto(base + "/en/admin");
-    assert.equal(await page.locator(".admin .tabs a").count(), 5);
+    assert.equal(await page.locator(".admin .tabs a").count(), 9);
     assert.equal(
       await page.locator("meta[name=robots]").getAttribute("content"),
       "noindex, nofollow",

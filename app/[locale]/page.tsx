@@ -1,13 +1,11 @@
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { isLocale, t, categoryKeys } from "@/lib/i18n";
+import { brief } from "@/lib/brief";
 import { publicCampaigns } from "@/lib/data";
 import CampaignCard from "@/components/CampaignCard";
 import Icon from "@/components/Icon";
-import Image from "next/image";
-import ResourceCards from "@/components/ResourceCards";
-import { platform } from "@/lib/platform-content";
-import { designCopy } from "@/lib/design-copy";
 export default async function Home({
   params,
 }: {
@@ -15,134 +13,58 @@ export default async function Home({
 }) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
-  const d = t(locale);
-  const copy = designCopy[locale];
-  const p = platform[locale];
+  const d = t(locale),
+    b = brief[locale];
   const { items } = await publicCampaigns();
-  const featured = items.filter((c) => c.featured);
-  const cards = (featured.length ? featured : items).slice(0, 3);
+  const featured = items.filter((c) => c.featured).slice(0, 3);
+  const recent = items
+    .filter((c) => !featured.some((f) => f.id === c.id))
+    .slice(0, 3);
   return (
     <>
-      <section className="hero page giving-hero">
+      <section className="page home-hero" data-home-section="hero">
         <div className="hero-copy">
-          <span className="eyebrow">{d.tagline}</span>
-          <h1>
-            {d.hero.split("\n").map((line, i) => (
-              <span key={line} className={i ? "hero-accent" : ""}>
-                {line}
-              </span>
-            ))}
-          </h1>
-          <p className="lead">{d.intro}</p>
+          <p className="eyebrow">{b.eyebrow}</p>
+          <h1>{b.hero}</h1>
+          <p className="lead">{b.intro}</p>
           <div className="actions">
-            <Link className="button" href={`/${locale}/submit`}>
-              {d.create}
-              <Icon name="plus" />
-            </Link>
-            <Link className="text-link" href={`/${locale}/explore`}>
+            <Link className="button" href={`/${locale}/explore`}>
               {d.browse}
               <Icon name="arrowRight" />
             </Link>
-          </div>
-        </div>
-        <div className="cause-orbit" aria-label={d.categories}>
-          {categoryKeys.map((category, i) => (
-            <Link
-              className={`orbit-cause orbit-cause-${i}`}
-              key={category}
-              href={`/${locale}/causes/${category}`}
-            >
-              <span className="orbit-photo">
-                <Image
-                  src={
-                    [
-                      "/photos/learning.webp",
-                      "/photos/care.webp",
-                      "/photos/growing.webp",
-                      "/photos/together.webp",
-                      "/photos/learning.webp",
-                    ][i]
-                  }
-                  alt=""
-                  fill
-                  priority={i < 2}
-                  sizes="(max-width: 520px) 110px, (max-width: 959px) 140px, 200px"
-                />
-              </span>
-              <span className="orbit-label">
-                {d[category]}
-                <Icon name="arrowRight" />
-              </span>
+            <Link className="button secondary" href={`/${locale}/submit`}>
+              {d.create}
             </Link>
-          ))}
-        </div>
-        <div className="hero-community-line">
-          <p>Men anpil, chay pa lou.</p>
-          <div className="hero-facts">
-            <span>
-              <Icon name="globe" />
-              {locale === "ht"
-                ? "Ayiti ak dyaspora a"
-                : locale === "fr"
-                  ? "Haïti et sa diaspora"
-                  : "Haiti & the diaspora"}
-            </span>
-            <span>
-              <Icon name="heart" />
-              {locale === "ht"
-                ? "Kominote an premye"
-                : locale === "fr"
-                  ? "La communauté d’abord"
-                  : "Community first"}
-            </span>
           </div>
         </div>
+        <figure className="hero-photo">
+          <Image
+            src="/photos/together.webp"
+            alt={
+              locale === "en"
+                ? "People joining hands in a circle"
+                : locale === "fr"
+                  ? "Des personnes unissent leurs mains"
+                  : "Moun mete men yo ansanm"
+            }
+            fill
+            priority
+            sizes="(max-width: 799px) 100vw, 45vw"
+          />
+          <figcaption>Men anpil, chay pa lou.</figcaption>
+        </figure>
       </section>
-      <div className="principles-strip">
-        <div className="page principles-inner">
-          <span>
-            <Icon name="globe" />
-            {copy.community}
-          </span>
-          <span>
-            <Icon name="users" />
-            {copy.reviewed}
-          </span>
-          <span>
-            <Icon name="external" />
-            {copy.direct}
-          </span>
-        </div>
-      </div>
-      <section className="section page home-discovery">
-        <header className="discovery-heading">
-          <p className="eyebrow">{copy.discover}</p>
-          <h2>{d.categories}</h2>
-        </header>
-        <form
-          className="home-search search-field"
-          action={`/${locale}/explore`}
-        >
-          <Icon name="search" />
-          <input name="q" aria-label={d.search} placeholder={d.searchHint} />
-          <button className="button" type="submit">
-            {d.search}
+      <section className="page home-categories" data-home-section="categories">
+        <div className="section-head">
+          <h2>{b.categories}</h2>
+          <Link className="text-link" href={`/${locale}/causes`}>
+            {d.all}
             <Icon name="arrowRight" />
-          </button>
-        </form>
-        <nav className="discovery-categories" aria-label={d.categories}>
-          <Link
-            className="category-chip category-chip-all"
-            href={`/${locale}/explore`}
-          >
-            {d.any}
           </Link>
-          {categoryKeys.map((category, i) => (
-            <Link
-              className="category-chip"
-              key={category}
-              href={`/${locale}/explore?category=${category}`}
-            >
+        </div>
+        <div className="category-grid">
+          {categoryKeys.map((c, i) => (
+            <Link key={c} href={`/${locale}/causes/${c}`}>
               <Icon
                 name={
                   (["bookmark", "heart", "sparkle", "users", "door"] as const)[
@@ -150,68 +72,91 @@ export default async function Home({
                   ]
                 }
               />
-              {d[category]}
+              <span>{d[c]}</span>
+              <Icon name="arrowRight" />
             </Link>
           ))}
-        </nav>
+        </div>
+      </section>
+      <section className="page section" data-home-section="featured">
         <div className="section-head">
-          <div>
-            <h2>{d.featured}</h2>
-          </div>
+          <h2>{b.featured}</h2>
           <Link className="text-link" href={`/${locale}/explore`}>
             {d.all}
             <Icon name="arrowRight" />
           </Link>
         </div>
-        <div className="campaign-grid home-campaigns">
-          {cards.map((c, i) => (
-            <CampaignCard
-              key={c.id}
-              campaign={c}
-              locale={locale}
-              priority={i < 3}
-            />
+        <div className="campaign-grid">
+          {featured.map((c) => (
+            <CampaignCard key={c.id} campaign={c} locale={locale} />
           ))}
         </div>
-        {!cards.length && <p className="empty">{d.empty}</p>}
+        {!featured.length && <p className="empty">{d.empty}</p>}
       </section>
-      <section className="how-section section page">
-        <div>
-          <p className="eyebrow">{copy.simple}</p>
+      <section
+        className="page section recent-section"
+        data-home-section="recent"
+      >
+        <div className="section-head">
+          <h2>{b.recent}</h2>
+          <Link className="text-link" href={`/${locale}/explore?sort=created`}>
+            {d.all}
+            <Icon name="arrowRight" />
+          </Link>
+        </div>
+        <div className="campaign-grid">
+          {(recent.length ? recent : items.slice(0, 3)).map((c) => (
+            <CampaignCard key={c.id} campaign={c} locale={locale} />
+          ))}
+        </div>
+      </section>
+      <section className="page section home-how" data-home-section="how">
+        <div className="section-head">
           <h2>{d.how}</h2>
-          <p className="muted">{d.disclosure}</p>
+          <Link className="text-link" href={`/${locale}/how-it-works`}>
+            {d.all}
+            <Icon name="arrowRight" />
+          </Link>
         </div>
         <div className="steps">
           {[1, 2, 3].map((n) => (
             <article key={n}>
               <span>0{n}</span>
               <div>
-                <h3>{d[`step${n}` as "step1"]}</h3>
-                <p>{d[`step${n}body` as "step1body"]}</p>
+                <h3>{b[`step${n}` as "step1"]}</h3>
+                <p>{b[`step${n}body` as "step1body"]}</p>
               </div>
             </article>
           ))}
         </div>
       </section>
-      <section className="page section">
-        <div className="section-head">
-          <h2>{p.resources}</h2>
-          <Link className="text-link" href={`/${locale}/resources`}>
-            {d.all}
+      <section className="trust-statement" data-home-section="trust">
+        <div className="page">
+          <span className="trust-icon">
+            <Icon name="shield" />
+          </span>
+          <div>
+            <h2>{b.trust}</h2>
+            <p>{b.trustBody}</p>
+          </div>
+          <Link className="text-link" href={`/${locale}/safety`}>
+            {d.safety}
             <Icon name="arrowRight" />
           </Link>
         </div>
-        <ResourceCards locale={locale} limit={3} />
       </section>
-      <section className="community-cta page">
+      <section
+        className="page section submit-invitation"
+        data-home-section="submit"
+      >
         <div>
-          <p className="eyebrow">{d.tagline}</p>
-          <h2>{copy.cta}</h2>
-          <p>{copy.ctaBody}</p>
+          <p className="eyebrow">pote kole.</p>
+          <h2>{b.cta}</h2>
+          <p>{b.ctaBody}</p>
         </div>
         <Link className="button" href={`/${locale}/submit`}>
           {d.create}
-          <Icon name="arrowRight" />
+          <Icon name="plus" />
         </Link>
       </section>
     </>

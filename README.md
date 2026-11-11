@@ -1,6 +1,8 @@
-# fivonine
+# Pote Kole
 
-A Haitian community fundraising discovery platform, built from Pheelm's Next.js/Supabase foundation. Organizers publish their story and **text support instructions with HTTPS links**. fivonine does not collect, hold, transfer or distribute donations.
+Repository and hosting project: `fivonine`.
+
+Pote Kole is a Haitian community fundraising discovery platform, built from Pheelm's Next.js/Supabase foundation. Organizers publish their story and **text support instructions with HTTPS links**. Pote Kole does not collect, hold, transfer or distribute donations.
 
 ## Run
 
@@ -46,3 +48,9 @@ Browser checks default to `/usr/bin/chromium`; set `CHROMIUM_PATH` if needed. Se
 ## Before public fundraising launch
 
 Keep `PUBLIC_LAUNCH=false`. Policies and multilingual copy are draft material requiring owner/legal/native-speaker review. Complete live authentication, mail delivery, reporting and authenticated browser verification after Supabase is connected. See the handoff's launch checklist.
+
+## November 11 design direction
+
+Geist is self-hosted through `geist/font/sans`; Hugeicons remain the icon family at 20px. The homepage follows Hero → Categories → Featured → Recent → How it works → Trust → Submit. Explore supports location, category, active/completed status, created/updated sorting, and 12-item pages. The header has three public links and a full-height mobile sheet; language preference is saved in a first-party cookie.
+
+The four-step form is Fundraiser → Story → Organizer → Review. It preserves text support instructions, accepts a checked HTTPS fundraising URL, and requires consent, accuracy, and policy agreement. The fresh-project schema preserves the URL and campaign lifecycle. Do not apply it over an existing database; use the dedicated setup workflow. No live database was modified during this redesign.

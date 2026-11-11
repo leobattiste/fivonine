@@ -16,18 +16,27 @@ export async function publicCampaigns(
     country?: string;
     region?: string;
     page?: number;
+    sort?: "created" | "updated";
+    lifecycle?: "active" | "completed";
+    location?: string;
   } = {},
 ) {
   const page = Math.max(1, Math.min(100, filters.page ?? 1));
-  const size = 6;
+  const size = 12;
   if (preview) {
     const all = demoCampaigns.filter((c) => {
       const d = c.public_content;
       return (
         (!filters.q ||
-          `${d.title} ${d.story} ${d.organizer_name}`
+          `${d.title} ${d.story} ${d.organizer_name} ${d.category} ${d.region} ${d.country}`
             .toLowerCase()
             .includes(filters.q.toLowerCase())) &&
+        (!filters.location ||
+          `${d.region} ${d.country}`
+            .toLowerCase()
+            .includes(filters.location.toLowerCase())) &&
+        (!filters.lifecycle ||
+          (d.lifecycle ?? "active") === filters.lifecycle) &&
         (!filters.category || d.category === filters.category) &&
         (!filters.country ||
           d.country.toLowerCase().includes(filters.country.toLowerCase())) &&
@@ -35,6 +44,13 @@ export async function publicCampaigns(
           d.region.toLowerCase().includes(filters.region.toLowerCase()))
       );
     });
+    all.sort(
+      (a, b) =>
+        (filters.sort === "updated"
+          ? b.updated_at.localeCompare(a.updated_at)
+          : b.created_at.localeCompare(a.created_at)) ||
+        a.id.localeCompare(b.id),
+    );
     return {
       items: all.slice(0, page * size),
       hasMore: all.length > page * size,
@@ -48,7 +64,9 @@ export async function publicCampaigns(
     .from("campaigns")
     .select("*", { count: "exact" })
     .eq("status", "published")
-    .order("created_at", { ascending: false })
+    .order(filters.sort === "updated" ? "updated_at" : "created_at", {
+      ascending: false,
+    })
     .order("id")
     .range(0, page * size - 1);
   if (filters.q)
@@ -56,6 +74,18 @@ export async function publicCampaigns(
       type: "websearch",
       config: "simple",
     });
+  if (filters.lifecycle === "completed")
+    query = query.eq("public_content->>lifecycle", "completed");
+  if (filters.lifecycle === "active")
+    query = query.or(
+      "public_content->>lifecycle.is.null,public_content->>lifecycle.eq.active",
+    );
+  if (filters.location) {
+    const location = filters.location.replace(/[^\p{L}\p{N}\s-]/gu, "");
+    query = query.or(
+      `public_content->>region.ilike.%${location}%,public_content->>country.ilike.%${location}%`,
+    );
+  }
   if (filters.category)
     query = query.eq("public_content->>category", filters.category);
   if (filters.country)

@@ -3,43 +3,22 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
 import Icon from "./Icon";
-import { t, categoryKeys, type Locale } from "@/lib/i18n";
+import { t, type Locale } from "@/lib/i18n";
 import { platform } from "@/lib/platform-content";
 export default function Navigation({ locale }: { locale: Locale }) {
-  const d = t(locale);
-  const p = platform[locale];
-  const path = usePathname();
+  const d = t(locale),
+    p = platform[locale],
+    path = usePathname();
   const dialog = useRef<HTMLDialogElement>(null);
   useEffect(() => {
     dialog.current?.close();
-    document
-      .querySelectorAll(".nav-dropdown[open]")
-      .forEach((el) => el.removeAttribute("open"));
   }, [path]);
-  useEffect(() => {
-    const closeOutside = (event: PointerEvent) =>
-      document
-        .querySelectorAll<HTMLDetailsElement>(".nav-dropdown[open]")
-        .forEach((el) => {
-          if (!el.contains(event.target as Node)) el.open = false;
-        });
-    const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape")
-        document
-          .querySelectorAll<HTMLDetailsElement>(".nav-dropdown[open]")
-          .forEach((el) => {
-            el.open = false;
-            el.querySelector<HTMLElement>("summary")?.focus();
-          });
-    };
-    document.addEventListener("pointerdown", closeOutside);
-    document.addEventListener("keydown", closeOnEscape);
-    return () => {
-      document.removeEventListener("pointerdown", closeOutside);
-      document.removeEventListener("keydown", closeOnEscape);
-    };
-  }, []);
-  const link = (href: string, label: string) => (
+  const links = [
+    ["explore", d.explore],
+    ["how-it-works", d.how],
+    ["about", d.about],
+  ];
+  const renderLink = ([href, label]: string[]) => (
     <Link
       key={href}
       href={`/${locale}/${href}`}
@@ -52,83 +31,58 @@ export default function Navigation({ locale }: { locale: Locale }) {
   return (
     <>
       <header className="site-header">
-        <Link
-          href={`/${locale}`}
-          className="wordmark"
-          aria-label="fivonine home"
-        >
-          fivonine<span className="brand-dot">.</span>
-        </Link>
-        <nav className="desktop-nav" aria-label={d.menu}>
-          {link("explore", d.explore)}
-          <details className="nav-dropdown">
-            <summary>
-              {p.fundraise}
-              <span aria-hidden="true">⌄</span>
-            </summary>
-            <div className="nav-dropdown-panel">
-              <Link href={`/${locale}/causes`}>{p.causes}</Link>
-              {categoryKeys.map((c) => link(`causes/${c}`, d[c]))}
-              {link("resources", p.resources)}
-              {link("how-it-works", d.how)}
-            </div>
-          </details>
-          <details className="nav-dropdown">
-            <summary>
-              {d.about}
-              <span aria-hidden="true">⌄</span>
-            </summary>
-            <div className="nav-dropdown-panel">
-              {link("about", d.about)}
-              {link("safety", p.safety)}
-              {link("pricing", p.pricing)}
-              {link("help", d.help)}
-              {link("contact", d.contact)}
-            </div>
-          </details>
-          {link("dashboard", d.dashboard)}
-        </nav>
-        <div className="header-actions">
-          <label className="language">
-            <Icon name="globe" />
-            <select
-              aria-label="Language"
-              value={locale}
-              onChange={(e) =>
-                location.assign(
-                  path.replace(/^\/(ht|en|fr)(?=\/|$)/, `/${e.target.value}`) +
-                    location.search,
-                )
-              }
-            >
-              <option value="ht">Kreyòl</option>
-              <option value="fr">Français</option>
-              <option value="en">English</option>
-            </select>
-          </label>
-          <Link className="header-signin" href={`/${locale}/login`}>
-            {d.login}
-          </Link>
-          <Link className="button header-submit" href={`/${locale}/submit`}>
-            {d.create}
-          </Link>
-          <button
-            type="button"
-            className="menu-toggle"
-            aria-label={d.menu}
-            aria-haspopup="dialog"
-            aria-controls="site-menu"
-            onClick={() => dialog.current?.showModal()}
+        <div className="header-inner">
+          <Link
+            className="wordmark"
+            href={`/${locale}`}
+            aria-label="Pote Kole home"
           >
-            <span />
-            <span />
-            <span />
-          </button>
+            pote kole<span>.</span>
+          </Link>
+          <nav className="desktop-nav" aria-label={d.menu}>
+            {links.map(renderLink)}
+          </nav>
+          <div className="header-actions">
+            <label className="language">
+              <Icon name="globe" />
+              <select
+                aria-label="Language"
+                value={locale}
+                onChange={(e) => {
+                  document.cookie = `pote-kole-locale=${e.target.value};path=/;max-age=31536000;SameSite=Lax`;
+                  location.assign(
+                    path.replace(
+                      /^\/(ht|en|fr)(?=\/|$)/,
+                      `/${e.target.value}`,
+                    ) + location.search,
+                  );
+                }}
+              >
+                <option value="ht">Kreyòl</option>
+                <option value="fr">Français</option>
+                <option value="en">English</option>
+              </select>
+            </label>
+            <Link className="button header-submit" href={`/${locale}/submit`}>
+              {d.create}
+              <Icon name="plus" />
+            </Link>
+            <button
+              className="menu-toggle bare"
+              type="button"
+              aria-label={d.menu}
+              aria-controls="site-menu"
+              aria-haspopup="dialog"
+              onClick={() => dialog.current?.showModal()}
+            >
+              <Icon name="menu" />
+            </button>
+          </div>
         </div>
       </header>
       <dialog
-        id="site-menu"
         className="menu-sheet"
+        id="site-menu"
         ref={dialog}
         aria-label={d.menu}
         onClick={(e) => {
@@ -136,10 +90,12 @@ export default function Navigation({ locale }: { locale: Locale }) {
         }}
       >
         <div className="modal-head">
-          <span className="wordmark">fivonine.</span>
+          <Link className="wordmark" href={`/${locale}`}>
+            pote kole.
+          </Link>
           <button
-            type="button"
             className="bare"
+            type="button"
             aria-label={d.close}
             onClick={() => dialog.current?.close()}
           >
@@ -148,21 +104,22 @@ export default function Navigation({ locale }: { locale: Locale }) {
         </div>
         <nav className="menu-list">
           {[
-            ["explore", d.explore],
-            ["submit", d.create],
-            ["dashboard", d.dashboard],
-            ["causes", p.causes],
+            ...links,
+            ["help", d.help],
             ["resources", p.resources],
             ["safety", p.safety],
-            ["pricing", p.pricing],
-            ["how-it-works", d.how],
-            ["about", d.about],
-            ["help", d.help],
-            ["contact", d.contact],
-            ["admin", d.admin],
+            ["dashboard", d.dashboard],
             ["login", d.login],
-          ].map(([href, label]) => link(href, label))}
+          ].map(renderLink)}
         </nav>
+        <Link
+          className="button menu-submit"
+          href={`/${locale}/submit`}
+          onClick={() => dialog.current?.close()}
+        >
+          {d.create}
+          <Icon name="plus" />
+        </Link>
         <p className="menu-foot">{d.tagline}</p>
       </dialog>
     </>
