@@ -1,7 +1,7 @@
 import { chromium } from "playwright-core";
 import assert from "node:assert/strict";
 import fs from "node:fs";
-const base = process.env.BASE_URL ?? "http://localhost:3080";
+const base = process.env.BASE_URL ?? "http://localhost:3040";
 const browser = await chromium.launch({
   executablePath: "/usr/bin/chromium",
   args: ["--no-sandbox"],
