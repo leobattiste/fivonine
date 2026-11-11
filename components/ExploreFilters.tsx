@@ -2,6 +2,8 @@
 import { useRef } from "react";
 import { useRouter } from "next/navigation";
 import { t, categoryKeys, type Locale } from "@/lib/i18n";
+import { editorial } from "@/lib/editorial";
+import Link from "next/link";
 import { brief } from "@/lib/brief";
 import Icon from "./Icon";
 export type ExploreValues = {
@@ -75,6 +77,8 @@ export default function ExploreFilters({
             <input
               ref={search}
               name="q"
+              type="search"
+              enterKeyHint="search"
               aria-label={d.search}
               placeholder={d.searchHint}
               defaultValue={values.q}
@@ -98,6 +102,44 @@ export default function ExploreFilters({
           <Fields locale={locale} values={values} />
         </div>
       </form>
+      {Object.entries(values).some(
+        ([key, value]) =>
+          value && ["q", "category", "location", "lifecycle"].includes(key),
+      ) && (
+        <nav
+          className="filter-chips"
+          aria-label={editorial[locale].activeFilters}
+        >
+          {Object.entries(values)
+            .filter(
+              ([key, value]) =>
+                value &&
+                ["q", "category", "location", "lifecycle"].includes(key),
+            )
+            .map(([key, value]) => {
+              const params = new URLSearchParams();
+              Object.entries(values).forEach(([k, v]) => {
+                if (
+                  k !== key &&
+                  v &&
+                  ["q", "category", "location", "lifecycle", "sort"].includes(k)
+                )
+                  params.set(k, v);
+              });
+              return (
+                <Link key={key} href={`/${locale}/explore?${params}`}>
+                  {key === "category"
+                    ? d[value as "education"]
+                    : key === "lifecycle"
+                      ? b[value as "active"]
+                      : value}
+                  <Icon name="close" />
+                  <span className="sr-only">{editorial[locale].clear}</span>
+                </Link>
+              );
+            })}
+        </nav>
+      )}
       <dialog
         className="filter-sheet"
         ref={dialog}

@@ -1,6 +1,9 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
+import Link from "next/link";
 import { isLocale, t } from "@/lib/i18n";
-import { preview } from "@/lib/data";
+import { editorial } from "@/lib/editorial";
+import { currentUser, preview } from "@/lib/data";
+import { returnPath } from "@/lib/return-path";
 import { LoginForm } from "@/components/Forms";
 export const metadata = { robots: { index: false, follow: false } };
 export default async function Login({
@@ -8,28 +11,41 @@ export default async function Login({
   searchParams,
 }: {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ error?: string }>;
+  searchParams: Promise<{ error?: string; next?: string }>;
 }) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
   const d = t(locale),
-    sp = await searchParams;
+    e = editorial[locale],
+    sp = await searchParams,
+    next = returnPath(sp.next, locale);
+  if (await currentUser()) redirect(next);
   return (
-    <section className="page narrow section">
-      <header className="page-head">
-        <h1>{d.login}</h1>
-        <p className="lead">{d.loginIntro}</p>
-      </header>
-      {sp.error && (
-        <p className="notice error" role="alert">
-          {locale === "ht"
-            ? "Lyen an ekspire oswa li pa valab. Mande yon nouvo lyen."
-            : locale === "fr"
-              ? "Ce lien a expiré ou n’est plus valide. Demandez-en un nouveau."
-              : "This link expired or is invalid. Request a new one."}
-        </p>
-      )}
-      <LoginForm locale={locale} enabled={!preview} />
+    <section className="page task-page login-page">
+      <div className="task-layout">
+        <header className="task-aside">
+          <p className="eyebrow">{d.login}</p>
+          <h1>{e.loginTitle}</h1>
+          <p className="lead">{e.loginAside}</p>
+        </header>
+        <div className="task-surface">
+          {sp.error && (
+            <p className="notice error" role="alert">
+              {locale === "en"
+                ? "This sign-in link has expired. Request a new one."
+                : locale === "fr"
+                  ? "Ce lien a expiré. Demandez-en un nouveau."
+                  : "Lyen koneksyon sa a ekspire. Mande yon lòt."}
+            </p>
+          )}
+          <LoginForm locale={locale} enabled={!preview} next={next} />
+          <nav className="task-legal">
+            <Link href={`/${locale}/legal#privacy`}>{d.privacy}</Link>
+            <Link href={`/${locale}/legal#terms`}>{d.terms}</Link>
+            <Link href={`/${locale}/help`}>{d.help}</Link>
+          </nav>
+        </div>
+      </div>
     </section>
   );
 }

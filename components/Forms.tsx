@@ -1,5 +1,7 @@
 "use client";
-import { useActionState, useRef, useState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
+import PhotoUpload from "./PhotoUpload";
+import Media from "./Media";
 import SupportText from "./SupportText";
 import Link from "next/link";
 import Icon from "./Icon";
@@ -11,6 +13,7 @@ import {
   organizerAction,
   moderate,
 } from "@/app/actions";
+import { editorial } from "@/lib/editorial";
 import { initialState, type CampaignContent } from "@/lib/domain";
 import { t, categoryKeys, type Locale, type Category } from "@/lib/i18n";
 import Turnstile from "./Turnstile";
@@ -46,8 +49,69 @@ export function CampaignForm({
   const [state, action, pending] = useActionState(submitCampaign, initialState);
   const [step, setStep] = useState(0);
   const [review, setReview] = useState<Record<string, string>>({});
+  const [draftMessage, setDraftMessage] = useState("");
+  const draftKey = email
+    ? `pote-kole:draft:v1:${email}:${locale}:${id ?? "new"}`
+    : null;
   const form = useRef<HTMLFormElement>(null),
     heading = useRef<HTMLHeadingElement>(null);
+  useEffect(() => {
+    if (!draftKey || !form.current) return;
+    try {
+      const stored = localStorage.getItem(draftKey);
+      if (!stored) return;
+      const draft = JSON.parse(stored);
+      if (draft.version !== 1 || !draft.values) return;
+      for (const field of Array.from(
+        form.current.querySelectorAll<
+          HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+        >("[name]"),
+      )) {
+        if (
+          ["locale", "campaign_id", "consent", "accuracy", "terms"].includes(
+            field.name,
+          ) ||
+          field.type === "file"
+        )
+          continue;
+        if (typeof draft.values[field.name] === "string") {
+          field.value = draft.values[field.name];
+          field.dispatchEvent(new Event("input", { bubbles: true }));
+        }
+      }
+      setDraftMessage(editorial[locale].draftRestored);
+    } catch {}
+  }, [draftKey, initial, locale]);
+  useEffect(() => {
+    if (state.ok && draftKey) {
+      try {
+        localStorage.removeItem(draftKey);
+      } catch {}
+    }
+  }, [state.ok, draftKey]);
+  const saveDraft = () => {
+    if (!form.current || !draftKey) return;
+    try {
+      const values: Record<string, string> = {};
+      for (const field of Array.from(
+        form.current.querySelectorAll<
+          HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+        >("[name]"),
+      )) {
+        if (
+          !["locale", "campaign_id", "consent", "accuracy", "terms"].includes(
+            field.name,
+          ) &&
+          field.type !== "file"
+        )
+          values[field.name] = field.value;
+      }
+      localStorage.setItem(draftKey, JSON.stringify({ version: 1, values }));
+      setDraftMessage(editorial[locale].draftSaved);
+    } catch {
+      setDraftMessage(editorial[locale].draftFailed);
+    }
+  };
   const steps = [b.fundraiser, b.details, b.organizer, b.review];
   const go = (next: number) => {
     setStep(next);
@@ -83,7 +147,23 @@ export function CampaignForm({
           <Icon name="check" />
         </span>
         <h2>{b.confirmation}</h2>
+        <div className="confirmation-summary">
+          <span className="status-pill">{d.pending}</span>
+          <h3>{review.title}</h3>
+          <p>
+            {review.organizer_name} · {review.region}, {review.country}
+          </p>
+        </div>
         <p>{b.confirmationBody}</p>
+        {state.id && (
+          <Link
+            className="text-link"
+            href={`/${locale}/dashboard/${state.id}/preview`}
+          >
+            {editorial[locale].preview}
+            <Icon name="arrowRight" />
+          </Link>
+        )}
         <Link className="button" href={`/${locale}/dashboard`}>
           {b.manage}
           <Icon name="arrowRight" />
@@ -120,6 +200,31 @@ export function CampaignForm({
         }
       }}
     >
+      {draftKey && (
+        <div className="draft-controls">
+          <button
+            type="button"
+            onClick={saveDraft}
+            disabled={!enabled || pending}
+          >
+            {editorial[locale].draft}
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              try {
+                localStorage.removeItem(draftKey);
+                setDraftMessage("");
+              } catch {
+                setDraftMessage(editorial[locale].draftFailed);
+              }
+            }}
+          >
+            {editorial[locale].discard}
+          </button>
+          {draftMessage && <p role="status">{draftMessage}</p>}
+        </div>
+      )}
       <ol className="submission-steps" aria-label={b.manage}>
         {steps.map((label, i) => (
           <li
@@ -236,16 +341,11 @@ export function CampaignForm({
             />
           </Field>
         </div>
-        <Field label={d.photo}>
-          <input
-            name="photo_url"
-            type="url"
-            placeholder="https://"
-            maxLength={1000}
-            defaultValue={initial?.photo_url}
-          />
-        </Field>
-        <p className="hint">{d.photoHint}</p>
+        <PhotoUpload
+          locale={locale}
+          initial={initial?.photo_url}
+          enabled={enabled && !pending}
+        />
         <Field label={d.use}>
           <textarea
             name="intended_use"
@@ -314,6 +414,9 @@ export function CampaignForm({
       <fieldset hidden={step !== 3} disabled={!enabled || pending}>
         <legend>04 · {b.review}</legend>
         <section className="submission-review">
+          {review.photo_url && (
+            <Media src={review.photo_url} alt={review.title} />
+          )}
           <h3>{review.title || d.title}</h3>
           <p className="preserve-lines">{review.story}</p>
           <dl>
@@ -397,15 +500,30 @@ export function CampaignForm({
 export function LoginForm({
   locale,
   enabled,
+  next,
 }: {
   locale: Locale;
   enabled: boolean;
+  next?: string;
 }) {
-  const d = t(locale);
+  const d = t(locale),
+    e = editorial[locale];
   const [state, action, pending] = useActionState(loginAction, initialState);
+  if (state.ok)
+    return (
+      <section className="submission-confirmation" role="status">
+        <span className="confirmation-icon">
+          <Icon name="mail" />
+        </span>
+        <h2>{e.inbox}</h2>
+        <p>{e.inboxBody}</p>
+        <p className="hint">{state.message}</p>
+      </section>
+    );
   return (
-    <form action={action} className="form">
+    <form action={action} className="form login-form">
       <input type="hidden" name="locale" value={locale} />
+      <input type="hidden" name="next" value={next ?? `/${locale}/dashboard`} />
       <Field label={d.email}>
         <input
           type="email"
@@ -478,6 +596,37 @@ export function MessageForm({
           disabled={!enabled}
         />
       </Field>
+      {!campaignId && (
+        <Field label={d.reason}>
+          <select name="reason" disabled={!enabled}>
+            {(locale === "en"
+              ? [
+                  ["general", "General question"],
+                  ["submission", "My submission"],
+                  ["privacy", "Privacy or removal"],
+                  ["feedback", "Feedback"],
+                ]
+              : locale === "fr"
+                ? [
+                    ["general", "Question générale"],
+                    ["submission", "Ma collecte"],
+                    ["privacy", "Confidentialité ou retrait"],
+                    ["feedback", "Commentaire"],
+                  ]
+                : [
+                    ["general", "Kesyon jeneral"],
+                    ["submission", "Kanpay mwen"],
+                    ["privacy", "Konfidansyalite oswa retrè"],
+                    ["feedback", "Kòmantè"],
+                  ]
+            ).map(([value, label]) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
+          </select>
+        </Field>
+      )}
       {campaignId && (
         <Field label={d.reason}>
           <select name="reason" disabled={!enabled}>

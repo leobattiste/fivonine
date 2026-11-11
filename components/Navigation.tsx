@@ -1,4 +1,5 @@
 "use client";
+import { editorial } from "@/lib/editorial";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
@@ -9,6 +10,7 @@ export default function Navigation({ locale }: { locale: Locale }) {
   const d = t(locale),
     p = platform[locale],
     path = usePathname();
+  const focused = /\/(submit|login|dashboard|admin)(\/|$)/.test(path);
   const dialog = useRef<HTMLDialogElement>(null);
   useEffect(() => {
     dialog.current?.close();
@@ -39,9 +41,18 @@ export default function Navigation({ locale }: { locale: Locale }) {
           >
             pote kole<span>.</span>
           </Link>
-          <nav className="desktop-nav" aria-label={d.menu}>
-            {links.map(renderLink)}
-          </nav>
+          {focused && (
+            <span className="task-header-label">
+              {path.includes("/admin")
+                ? editorial[locale].admin
+                : editorial[locale].workspace}
+            </span>
+          )}
+          {!focused && (
+            <nav className="desktop-nav" aria-label={d.menu}>
+              {links.map(renderLink)}
+            </nav>
+          )}
           <div className="header-actions">
             <label className="language">
               <Icon name="globe" />
@@ -63,25 +74,37 @@ export default function Navigation({ locale }: { locale: Locale }) {
                 <option value="en">English</option>
               </select>
             </label>
-            <Link className="button header-submit" href={`/${locale}/submit`}>
-              {d.create}
-              <Icon name="plus" />
-            </Link>
-            <button
-              className="menu-toggle bare"
-              type="button"
-              aria-label={d.menu}
-              aria-controls="site-menu"
-              aria-haspopup="dialog"
-              onClick={() => dialog.current?.showModal()}
-            >
-              <Icon name="menu" />
-            </button>
+            {focused ? (
+              <Link className="text-link" href={`/${locale}/explore`}>
+                {d.explore}
+                <Icon name="arrowRight" />
+              </Link>
+            ) : (
+              <>
+                <Link
+                  className="button header-submit"
+                  href={`/${locale}/submit`}
+                >
+                  {d.create}
+                  <Icon name="plus" />
+                </Link>
+                <button
+                  className="menu-toggle bare"
+                  type="button"
+                  aria-label={d.menu}
+                  aria-controls="site-menu"
+                  aria-haspopup="dialog"
+                  onClick={() => dialog.current?.showModal()}
+                >
+                  <Icon name="menu" />
+                </button>
+              </>
+            )}
           </div>
         </div>
       </header>
       <dialog
-        className="menu-sheet"
+        className="menu-dialog"
         id="site-menu"
         ref={dialog}
         aria-label={d.menu}

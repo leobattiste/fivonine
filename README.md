@@ -37,3 +37,13 @@ npm run test:browser
 The GitHub workflow tests a disposable PostgreSQL instance. `tests/bootstrap.sql` is a local-only auth shim: never run it on Supabase. The optional connected-browser scripts require a deliberately provisioned temporary QA identity, create private test records, and must be followed by cleanup. They never publish campaigns or send email.
 
 Read [docs/HANDOFF.md](docs/HANDOFF.md) and [docs/SUPABASE-SETUP.md](docs/SUPABASE-SETUP.md) for operational configuration and remaining email setup.
+
+## Editorial redesign
+
+The current design uses a typographic homepage, a cause index, compact search/filter controls, distinct editorial page layouts, and a green footer. The stock-photo hero is removed. Geist, Hugeicons and the three-color palette remain.
+
+Organizer improvements include an explicit device-local draft save/restore, image cropping and private cover uploads, and an authenticated listing preview before publication. Drafts are scoped to the organizer/locale/listing and cleared after a successful submission. They are not cloud-synced.
+
+`covers` is a private Storage bucket with owner writes and owner/moderator reads. The JWT-verified `campaign-cover` Edge Function serves a photo only if a currently published campaign points to its exact reference. The Next.js `/api/cover` adapter uses server-side `SUPABASE_EDGE_ANON_KEY`; no service-role key is sent to the browser. The function uses its built-in service credentials only after the public RLS publication check. New bucket policies are in `supabase/cover-storage.sql` and are already applied to the dedicated project.
+
+The review queue now has a document workspace with existing/proposed values, review history and decision controls. Settings and Content remain informational summaries, not a CMS. Sign-in preserves safe return destinations; mail delivery configuration still needs owner verification.

@@ -71,7 +71,6 @@ try {
     path: "test-results/connected-admin-1440.png",
     fullPage: true,
   });
-  await page.locator(".admin-table-wrap details summary").first().click();
   const reviewForm = page
     .locator("form")
     .filter({ has: page.locator("[name=record_kind][value=revision]") })

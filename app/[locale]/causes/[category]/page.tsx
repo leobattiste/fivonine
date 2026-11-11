@@ -6,6 +6,7 @@ import { isLocale, t, categoryKeys, type Category } from "@/lib/i18n";
 import { causeCopy, causeMedia, platform } from "@/lib/platform-content";
 import { publicCampaigns } from "@/lib/data";
 import CampaignCard from "@/components/CampaignCard";
+import EmptyState from "@/components/EmptyState";
 import ResourceCards from "@/components/ResourceCards";
 import Icon from "@/components/Icon";
 export const dynamic = "force-dynamic";
@@ -59,15 +60,7 @@ export default async function Cause({
               </a>
             </div>
           </div>
-          <div className="cause-hero-photo">
-            <Image
-              src={causeMedia[key]}
-              alt=""
-              fill
-              priority
-              sizes="(max-width: 799px) 100vw, 50vw"
-            />
-          </div>
+
         </div>
         <div className="cause-ideas">
           {c.ideas.map((idea) => (

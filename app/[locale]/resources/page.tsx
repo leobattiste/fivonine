@@ -1,3 +1,4 @@
+import { editorial } from "@/lib/editorial";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
@@ -14,10 +15,10 @@ export default async function Resources({
   const p = platform[locale],
     d = t(locale);
   return (
-    <section className="page section">
+    <section className="page section resources-page">
       <header className="page-head">
-        <p className="eyebrow">{d.tagline}</p>
-        <h1>{p.resources}</h1>
+        <p className="eyebrow">{editorial[locale].guideLabel}</p>
+        <h1>{editorial[locale].guideTitle}</h1>
         <p className="lead">{p.resourceIntro}</p>
       </header>
       <ResourceCards locale={locale} />

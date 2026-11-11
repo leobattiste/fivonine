@@ -17,12 +17,17 @@ export default async function Report({
   if (!c) notFound();
   const d = t(locale);
   return (
-    <section className="page narrow section">
+    <section className="page section report-page narrow">
       <header className="page-head">
         <h1>{d.report}</h1>
         <p className="lead">{d.reportIntro}</p>
       </header>
-      <p className="notice">{c.public_content.title}</p>
+      <div className="report-context">
+        <span className="eyebrow">
+          {d[c.public_content.category]} · {c.public_content.region}
+        </span>
+        <h2>{c.public_content.title}</h2>
+      </div>
       <MessageForm locale={locale} campaignId={id} enabled={!preview} />
     </section>
   );

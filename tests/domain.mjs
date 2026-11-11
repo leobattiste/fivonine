@@ -145,3 +145,30 @@ const palette = new Set(
 );
 assert.deepEqual([...palette].sort(), ["#1f503b", "#f0faef", "#fff"]);
 console.log("PASS: no sample fundraisers and exactly three UI colors");
+
+const returnPaths = load("lib/return-path.ts");
+assert.equal(returnPaths.returnPath("/en/submit", "en"), "/en/submit");
+for (const path of [
+  "https://bad.example",
+  "//bad.example",
+  "/fr/submit",
+  "/en/submit?next=https://bad.example",
+  "/en/../admin",
+])
+  assert.equal(returnPaths.returnPath(path, "en"), "/en/dashboard");
+const covers = load("lib/cover.ts", {
+  "./supabase/config": { SUPABASE_URL: "https://project.supabase.co" },
+});
+const cover =
+  "10000000-0000-0000-0000-000000000001/20000000-0000-0000-0000-000000000001.webp";
+assert.equal(covers.coverPath(covers.coverReference(cover)), cover);
+for (const path of [
+  "../private/file.webp",
+  "bad/path.webp",
+  cover + "?other=1",
+  cover.replace(".webp", ".html"),
+])
+  assert.equal(covers.validCoverPath(path), false);
+console.log(
+  "PASS: safe post-login return paths and bounded private cover references",
+);

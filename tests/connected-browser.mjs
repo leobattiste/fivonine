@@ -56,6 +56,13 @@ try {
   await page.goto(base + "/en/submit");
   assert.equal(await page.locator("[name=title]").isEnabled(), true);
   await page.locator("[name=title]").fill("QA private workflow rehearsal");
+  await page.getByRole("button", { name: "Save draft", exact: true }).click();
+  await page.reload();
+  await page.getByText("Your saved draft is ready", { exact: true }).waitFor();
+  assert.equal(
+    await page.locator("[name=title]").inputValue(),
+    "QA private workflow rehearsal",
+  );
   await page.getByRole("button", { name: "Continue", exact: true }).click();
   for (const [key, value] of Object.entries({
     story: "Private functional test; never publish this listing.",
@@ -65,6 +72,33 @@ try {
     distribution: "Test only",
   }))
     await page.locator(`[name=${key}]`).fill(value);
+  await page
+    .locator("input[type=file]")
+    .setInputFiles("public/photos/learning.webp");
+  await page
+    .getByRole("button", { name: "Use this photo", exact: true })
+    .click();
+  try {
+    await page.waitForFunction(
+      () =>
+        document
+          .querySelector("[name=photo_url]")
+          .value.includes("/storage/v1/object/authenticated/covers/"),
+      { timeout: 15000 },
+    );
+  } catch (error) {
+    console.log(await page.locator(".photo-upload").innerText());
+    throw error;
+  }
+  const photo = await page.locator("[name=photo_url]").inputValue();
+  fs.writeFileSync("/tmp/pote-qa-photo-reference", photo);
+  const path = photo.split("/covers/")[1];
+  const noPhoto = await context.request.get(
+    base + "/api/cover?path=" + encodeURIComponent(path),
+  );
+  assert.equal(noPhoto.status(), 404, "Unpublished cover must not be public");
+  const ownPreview = await db.storage.from("covers").createSignedUrl(path, 60);
+  assert.equal(ownPreview.error, null);
   await page.getByRole("button", { name: "Continue", exact: true }).click();
   for (const [key, value] of Object.entries({
     organizer_name: "QA test identity",
@@ -81,6 +115,12 @@ try {
     .getByRole("button", { name: "Submit for review", exact: true })
     .click();
   await page.locator(".submission-confirmation").waitFor({ timeout: 20000 });
+  assert.equal(
+    await page.evaluate(() =>
+      Object.keys(localStorage).some((k) => k.startsWith("pote-kole:draft:")),
+    ),
+    false,
+  );
   await page.goto(base + "/en/dashboard");
   assert.ok(
     (await page.locator(".dashboard-list").innerText()).includes(
@@ -98,7 +138,7 @@ try {
   assert.deepEqual(errors, []);
   await context.close();
   console.log(
-    "PASS: actual Supabase sign-in/session, private admin boundary, four-step submission, pending dashboard and public isolation; no email sent",
+    "PASS: actual Supabase sign-in/session, private admin boundary, four-step submission, private photo crop/upload, draft restore/cleanup, pending dashboard and public isolation; no email sent",
   );
 } finally {
   await db.auth.signOut();

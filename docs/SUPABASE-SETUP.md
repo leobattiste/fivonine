@@ -23,3 +23,9 @@ Security advisors show no warnings; informational notices for backend-only table
 ## Tests
 
 CI creates a disposable database using `tests/bootstrap.sql`, then applies `schema.sql`, `server-gateway.sql` and `private-workflows.sql`. Never use the auth bootstrap on hosted Supabase. Connected browser tests use an explicitly provisioned temporary test identity and private campaigns only; clean up all test records and sessions afterward.
+
+## Cover photos
+
+`supabase/cover-storage.sql` is already applied: `covers` is private. Browser uploads are owner-scoped, image MIME types are restricted, and the bucket caps uploads at 8 MiB. Cropped covers are re-encoded as WebP. Only owners and actual platform moderators can sign private previews. Published listing photos are served through `/api/cover` → the JWT-verified `campaign-cover` function; it checks the exact currently published photo reference through public RLS before reading Storage. Suspended/unpublished references return 404 and image responses use no-store caching.
+
+Vercel needs the server-side anon JWT in `SUPABASE_EDGE_ANON_KEY`. This is an anon-role key, not a service-role credential. The Edge Function obtains its service credentials from the built-in Supabase environment and never returns them. The fresh test database does not emulate Storage; private upload/access is verified against the dedicated project's Storage API and the serving logic has isolated fixture tests.

@@ -4,6 +4,8 @@ import { notFound } from "next/navigation";
 import { isLocale, t, categoryKeys } from "@/lib/i18n";
 import { brief } from "@/lib/brief";
 import { publicCampaigns } from "@/lib/data";
+import EmptyState from "@/components/EmptyState";
+import { editorial } from "@/lib/editorial";
 import CampaignCard from "@/components/CampaignCard";
 import ExploreFilters from "@/components/ExploreFilters";
 import Icon from "@/components/Icon";
@@ -51,9 +53,8 @@ export default async function Explore({
   return (
     <section className="page section explore-page">
       <header className="page-head">
-        <p className="eyebrow">{b.eyebrow}</p>
         <h1>{d.browse}</h1>
-        <p className="lead">{b.intro}</p>
+        <p className="lead">{editorial[locale].exploreIntro}</p>
       </header>
       <ExploreFilters
         key={JSON.stringify(sp)}
@@ -84,7 +85,19 @@ export default async function Explore({
           />
         ))}
       </div>
-      {!items.length && <p className="empty">{d.empty}</p>}
+      {!items.length && (
+        <EmptyState
+          locale={locale}
+          filtered={
+            !!(
+              filters.q ||
+              filters.category ||
+              filters.location ||
+              filters.lifecycle
+            )
+          }
+        />
+      )}
       {hasMore && (
         <Link
           className="button secondary load-more"

@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import Image from "next/image";
 import { notFound } from "next/navigation";
 import { isLocale, t, categoryKeys } from "@/lib/i18n";
-import { causeCopy, causeMedia, platform } from "@/lib/platform-content";
+import { causeCopy, platform } from "@/lib/platform-content";
+import { editorial } from "@/lib/editorial";
 import Icon from "@/components/Icon";
 export default async function Causes({
   params,
@@ -13,45 +13,42 @@ export default async function Causes({
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
   const d = t(locale),
-    p = platform[locale];
+    e = editorial[locale];
   return (
-    <section className="page section">
-      <header className="page-head">
-        <p className="eyebrow">{d.tagline}</p>
-        <h1>{p.causes}</h1>
-        <p className="lead">{p.causeIntro}</p>
+    <section className="page section causes-page">
+      <header className="directory-heading">
+        <p className="eyebrow">{platform[locale].causes}</p>
+        <h1>{e.causes}</h1>
+        <p>{e.causeIntro}</p>
       </header>
       <div className="cause-directory">
-        {categoryKeys.map((category) => (
+        {categoryKeys.map((key, i) => (
           <Link
             className="cause-directory-card"
-            key={category}
-            href={`/${locale}/causes/${category}`}
+            href={`/${locale}/causes/${key}`}
+            key={key}
           >
-            <div className="cause-directory-image">
-              <Image
-                src={causeMedia[category]}
-                alt=""
-                fill
-                sizes="(max-width: 799px) 100vw, 50vw"
+            <span className="index-number">0{i + 1}</span>
+            <div className="cause-name">
+              <Icon
+                name={
+                  (["bookmark", "heart", "sparkle", "users", "door"] as const)[
+                    i
+                  ]
+                }
               />
+              <h2>{d[key]}</h2>
             </div>
-            <div>
-              <p className="eyebrow">{d[category]}</p>
-              <h2>{causeCopy[locale][category].title}</h2>
-              <p>{causeCopy[locale][category].body}</p>
-              <span className="text-link">
-                {p.browse}
-                <Icon name="arrowRight" />
-              </span>
-            </div>
+            <p>{causeCopy[locale][key].body}</p>
+            <span className="round-link" aria-hidden="true">
+              <Icon name="arrowRight" />
+            </span>
           </Link>
         ))}
       </div>
     </section>
   );
 }
-
 export async function generateMetadata({
   params,
 }: {

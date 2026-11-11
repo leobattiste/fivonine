@@ -1,3 +1,4 @@
+import { editorial } from "@/lib/editorial";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -14,10 +15,10 @@ export default async function Safety({
   const d = t(locale),
     p = platform[locale];
   return (
-    <section className="page section">
+    <section className="page section safety-page">
       <header className="page-head">
-        <p className="eyebrow">Pote Kole</p>
-        <h1>{p.safety}</h1>
+        <p className="eyebrow">{p.safety}</p>
+        <h1>{editorial[locale].safetyTitle}</h1>
         <p className="lead">{p.safetyIntro}</p>
       </header>
       <div className="safety-layout">

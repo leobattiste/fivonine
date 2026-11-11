@@ -1,4 +1,5 @@
 "use server";
+import { returnPath } from "@/lib/return-path";
 import { brief } from "@/lib/brief";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -29,7 +30,9 @@ export async function loginAction(
   if (!(await humanCheck(f)) || !(await rateLimit("login"))) return failed(l);
   const { error } = await db.auth.signInWithOtp({
     email,
-    options: { emailRedirectTo: `${SITE_URL}/${l}/auth/callback` },
+    options: {
+      emailRedirectTo: `${SITE_URL}/${l}/auth/callback?next=${encodeURIComponent(returnPath(f.get("next"), l))}`,
+    },
   });
   return error ? failed(l) : { ok: true, message: t(l).checkInbox };
 }

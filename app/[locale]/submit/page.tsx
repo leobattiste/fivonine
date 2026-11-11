@@ -1,3 +1,4 @@
+import { editorial } from "@/lib/editorial";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { isLocale, t, categoryKeys, type Category } from "@/lib/i18n";
@@ -22,41 +23,51 @@ export default async function Submit({
   const d = t(locale),
     user = await currentUser();
   return (
-    <section className="page narrow section">
-      <header className="page-head">
-        <p className="eyebrow">{d.tagline}</p>
-        <h1>{d.submit}</h1>
-        <p className="lead">{d.submitIntro}</p>
-      </header>
-      {!user && (
-        <div className="submission-signin">
-          <Link className="button" href={`/${locale}/login`}>
-            {d.login}
-          </Link>
-          <p>{d.loginIntro}</p>
+    <section className="page task-page submission-page">
+      <div className="task-layout">
+        <aside className="task-aside">
+          <header className="page-head">
+            <p className="eyebrow">{editorial[locale].workspace}</p>
+            <h1>{d.submit}</h1>
+            <p className="lead">{d.submitIntro}</p>
+          </header>
+          <details className="submission-checklist">
+            <summary>{p.checklist}</summary>
+            <ul>
+              {p.checklistItems.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+            <Link
+              className="text-link"
+              href={`/${locale}/resources/tell-your-story`}
+            >
+              {p.guide} →
+            </Link>
+          </details>
+          <p className="disclosure">{editorial[locale].saveExit}</p>
+        </aside>
+        <div className="task-surface">
+          {!user && (
+            <div className="submission-signin">
+              <Link
+                className="button"
+                href={`/${locale}/login?next=/${locale}/submit`}
+              >
+                {d.login}
+              </Link>
+              <p>{d.loginIntro}</p>
+            </div>
+          )}
+          <CampaignForm
+            locale={locale}
+            enabled={!!user && !preview}
+            defaultCategory={category}
+            email={user?.email}
+          />
+          <p className="disclosure">{d.disclosure}</p>
         </div>
-      )}
-      <details className="submission-checklist">
-        <summary>{p.checklist}</summary>
-        <ul>
-          {p.checklistItems.map((item) => (
-            <li key={item}>{item}</li>
-          ))}
-        </ul>
-        <Link
-          className="text-link"
-          href={`/${locale}/resources/tell-your-story`}
-        >
-          {p.guide} →
-        </Link>
-      </details>
-      <CampaignForm
-        locale={locale}
-        enabled={!!user && !preview}
-        defaultCategory={category}
-        email={user?.email}
-      />
-      <p className="disclosure">{d.disclosure}</p>
+      </div>
     </section>
   );
 }

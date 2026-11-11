@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import Navigation from "@/components/Navigation";
+import Footer from "@/components/Footer";
 import { platform } from "@/lib/platform-content";
 import { isLocale, t, locales } from "@/lib/i18n";
 import { preview } from "@/lib/data";
@@ -57,38 +58,7 @@ export default async function Layout({
         <main id="main" tabIndex={-1}>
           {children}
         </main>
-        <footer className="footer">
-          <div>
-            <Link className="wordmark" href={`/${locale}`}>
-              pote kole.
-            </Link>
-            <p>{d.footer}</p>
-          </div>
-          <nav aria-label={d.help}>
-            {[
-              ["causes", p.causes],
-              ["resources", p.resources],
-              ["safety", p.safety],
-              ["pricing", p.pricing],
-              ["dashboard", d.dashboard],
-              ["about", d.about],
-              ["how-it-works", d.how],
-              ["help", d.help],
-              ["contact", d.contact],
-              ["legal#privacy", d.privacy],
-              ["legal#terms", d.terms],
-              ["legal#guidelines", d.guidelines],
-              ["legal#review", d.verification],
-              ["legal#donations", d.disclosures],
-            ].map(([href, label]) => (
-              <Link key={href} href={`/${locale}/${href}`}>
-                {label}
-              </Link>
-            ))}
-          </nav>
-          <p className="footer-disclosure">{d.disclosure}</p>
-          <small>{d.rights}</small>
-        </footer>
+        <Footer locale={locale} />
       </body>
     </html>
   );

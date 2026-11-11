@@ -22,8 +22,8 @@ try {
     assert.deepEqual(sections, [
       "hero",
       "categories",
-      "how",
       "trust",
+      "how",
       "submit",
     ]);
     assert.equal(

@@ -6,6 +6,7 @@ import { isAdmin, currentUser, preview } from "@/lib/data";
 import { getServerClient } from "@/lib/supabase/server";
 import { guides, platform } from "@/lib/platform-content";
 import Icon, { type IconName } from "@/components/Icon";
+import ReviewQueue, { type QueueRecord } from "@/components/ReviewQueue";
 import AdminRecords, { type AdminRecord } from "@/components/AdminRecords";
 import { ReviewForm } from "@/components/Forms";
 export const metadata = { robots: { index: false, follow: false } };
@@ -155,6 +156,35 @@ export default async function Admin({
     rows = rows.filter((row) =>
       JSON.stringify(row).toLowerCase().includes(query.toLowerCase()),
     );
+  let queueRows: QueueRecord[] = [];
+  if (db && tab === "queue" && rows.length) {
+    const ids = [...new Set(rows.map((r) => r.campaign_id))].filter(Boolean);
+    const [snapshots, history] = await Promise.all([
+      db.from("campaigns").select("id,public_content").in("id", ids),
+      db
+        .from("review_events")
+        .select("campaign_id,action,note,created_at")
+        .in("campaign_id", ids)
+        .order("created_at", { ascending: false })
+        .limit(100),
+    ]);
+    failure ||= !!snapshots.error || !!history.error;
+    queueRows = rows.map((r) => ({
+      id: r.id,
+      title: r.title ?? r.content?.title ?? d.updates,
+      status: r.status,
+      kind: r.kind,
+      created_at: r.created_at,
+      campaign_id: r.campaign_id,
+      content: r.content,
+      body: r.body,
+      before: snapshots.data?.find((c) => c.id === r.campaign_id)
+        ?.public_content,
+      history: (history.data ?? []).filter(
+        (event) => event.campaign_id === r.campaign_id,
+      ),
+    }));
+  }
   const records: AdminRecord[] = rows.map((row) => ({
     id: row.id,
     title:
@@ -170,7 +200,7 @@ export default async function Admin({
     <section className="page section admin">
       <header className="page-head">
         <p className="eyebrow">{b.privateArea}</p>
-        <h1>{d.admin}</h1>
+        <h1>{b.admin[tabs.indexOf(tab)]}</h1>
       </header>
       <nav className="tabs" aria-label={d.admin}>
         {tabs.map((key, i) => (
@@ -255,7 +285,10 @@ export default async function Admin({
           {!rows.length && <p className="empty">{b.noData}</p>}
         </>
       )}
-      {rows.length > 0 && ["campaigns", "queue"].includes(tab) && (
+      {rows.length > 0 && tab === "queue" && (
+        <ReviewQueue locale={locale} rows={queueRows} />
+      )}
+      {rows.length > 0 && tab === "campaigns" && (
         <AdminRecords locale={locale} rows={records} />
       )}
       {rows.length > 0 && tab === "organizers" && (

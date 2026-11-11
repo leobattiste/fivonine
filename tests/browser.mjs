@@ -53,7 +53,7 @@ try {
     await page.waitForURL("**/en/explore");
     assert.equal(await page.locator(".campaign-card").count(), 0);
     await page.locator("input[name=q]").fill("classroom");
-    await page.locator(".explore-search-submit").click();
+    await page.locator("input[name=q]").press("Enter");
     await page.waitForURL("**/en/explore?q=**");
     assert.equal(await page.locator(".campaign-card").count(), 0);
     const sample = await page.goto(base + "/en/campaigns/example-1");
@@ -81,7 +81,7 @@ try {
     assert.equal(await page.locator("fieldset:visible").count(), 1);
     await page.getByRole("button", { name: "Continue", exact: true }).click();
     assert.equal(
-      await page.locator("fieldset:visible legend").innerText(),
+      (await page.locator("fieldset:visible legend").textContent()).trim(),
       "02 · Story",
     );
     await page.getByRole("button", { name: "Continue", exact: true }).click();
