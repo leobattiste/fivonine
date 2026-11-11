@@ -1,11 +1,11 @@
 import "server-only";
 import { createHash } from "node:crypto";
 import { headers } from "next/headers";
-import { serviceClient } from "./supabase/service";
+import { backendAction } from "./supabase/backend";
 export async function humanCheck(form: FormData) {
   if (form.get("website")) return false;
   const secret = process.env.TURNSTILE_SECRET_KEY;
-  if (!secret) return process.env.NODE_ENV !== "production";
+  if (!secret) return true; // Honeypot plus persistent server-side rate limiting.
   const token = String(form.get("cf-turnstile-response") ?? "");
   if (!token) return false;
   const response = await fetch(
@@ -20,13 +20,13 @@ export async function humanCheck(form: FormData) {
   return (await response.json()).success === true;
 }
 export async function rateLimit(scope: string) {
-  const db = serviceClient();
-  if (!db) return false;
   const h = await headers();
   const ip = h.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
   const token = createHash("sha256")
-    .update(`${scope}:${ip}:${process.env.CRON_SECRET ?? "local"}`)
+    .update(
+      `${scope}:${ip}:${process.env.APP_BACKEND_SECRET ?? process.env.CRON_SECRET ?? "local"}`,
+    )
     .digest("hex");
-  const { data, error } = await db.rpc("consume_rate_limit", { bucket: token });
+  const { data, error } = await backendAction("rate_limit", { bucket: token });
   return !error && data === true;
 }

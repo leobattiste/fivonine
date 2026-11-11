@@ -56,7 +56,7 @@ export const helpCopy: Record<Locale, Section[]> = {
     },
     {
       heading: "Can someone in Haiti submit a campaign?",
-      body: "Yes, once submissions are enabled. The organizer must explain the beneficiary, intended use and distribution arrangement. Any external service’s country and payout rules still apply; Pote Kole does not bypass them.",
+      body: "Yes. The organizer must explain the beneficiary, intended use and distribution arrangement. Any external service’s country and payout rules still apply; Pote Kole does not bypass them.",
     },
     {
       heading: "What does review mean?",
@@ -82,7 +82,7 @@ export const helpCopy: Record<Locale, Section[]> = {
     },
     {
       heading: "Peut-on soumettre une collecte depuis Haïti ?",
-      body: "Oui, lorsque les soumissions sont activées. Expliquez l’utilisation et la distribution du soutien. Les restrictions de pays et de retrait du service externe restent applicables.",
+      body: "Oui. Expliquez l’utilisation et la distribution du soutien. Les restrictions de pays et de retrait du service externe restent applicables.",
     },
     {
       heading: "Que signifie l’examen ?",
@@ -108,7 +108,7 @@ export const helpCopy: Record<Locale, Section[]> = {
     },
     {
       heading: "Èske yon moun ann Ayiti ka soumèt yon kanpay?",
-      body: "Wi, lè soumèt kanpay yo aktive. Eksplike benefisyè a, itilizasyon sipò a ak kijan l ap rive jwenn li. Règ peyi ak retrè sèvis ekstèn yo toujou aplike.",
+      body: "Wi. Eksplike benefisyè a, itilizasyon sipò a ak kijan l ap rive jwenn li. Règ peyi ak retrè sèvis ekstèn yo toujou aplike.",
     },
     {
       heading: "Kisa revizyon an vle di?",
@@ -126,10 +126,6 @@ export const helpCopy: Record<Locale, Section[]> = {
 };
 export const legalCopy: Record<Locale, Section[]> = {
   en: [
-    {
-      heading: "Preview policies",
-      body: "These are product policy drafts for the private pilot, not finalized legal advice or a claim of regulatory approval. The operator’s identity, contact details, retention periods, geographic eligibility and applicable obligations must be finalized before public launch.",
-    },
     {
       heading: "Privacy",
       body: "Public campaign stories and organizer names are visible to visitors after approval. Organizer email addresses, reports and moderation notes are private. Authentication is provided by Supabase; transactional email may use a separate email provider. We do not collect donor financial information. Contact us to request access, correction or removal of your information.",
@@ -153,10 +149,6 @@ export const legalCopy: Record<Locale, Section[]> = {
   ],
   fr: [
     {
-      heading: "Politiques provisoires",
-      body: "Ces projets de politiques servent au pilote privé. Ils ne constituent ni un avis juridique ni une autorisation réglementaire. L’identité de l’opérateur, ses coordonnées, les durées de conservation et les obligations applicables doivent être finalisées avant le lancement public.",
-    },
-    {
       heading: "Confidentialité",
       body: "Après approbation, les récits et noms des organisateurs sont publics. Les e-mails, signalements et notes de modération restent privés. Supabase fournit l’authentification et un prestataire distinct peut envoyer les e-mails. Nous ne collectons aucune information financière de donateur. Contactez-nous pour accéder à vos données, les corriger ou demander leur suppression.",
     },
@@ -178,10 +170,6 @@ export const legalCopy: Record<Locale, Section[]> = {
     },
   ],
   ht: [
-    {
-      heading: "Règleman pwovizwa",
-      body: "Sa yo se pwojè règleman pou pilòt prive a. Yo pa konsèy legal ni prèv otorizasyon legal. Idantite operatè a, kontak li, tan konsèvasyon done ak obligasyon yo dwe finalize anvan lansman piblik.",
-    },
     {
       heading: "Konfidansyalite",
       body: "Apre apwobasyon, istwa kanpay ak non òganizatè yo piblik. Imèl, siyalman ak nòt moderasyon yo prive. Supabase bay koneksyon kont yo, epi yon lòt sèvis ka voye imèl. Nou pa kolekte enfòmasyon finansye donatè. Kontakte nou pou jwenn, korije oswa mande retire enfòmasyon ou yo.",

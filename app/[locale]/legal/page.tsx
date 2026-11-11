@@ -11,7 +11,6 @@ export default async function Page({
   if (!isLocale(locale)) notFound();
   const d = t(locale);
   const ids = [
-    "preview",
     "privacy",
     "terms",
     "guidelines",
@@ -25,8 +24,8 @@ export default async function Page({
         <h1>{d.terms}</h1>
       </header>
       <nav className="tabs">
-        {legalCopy[locale].slice(1).map((s, i) => (
-          <a key={s.heading} href={"#" + ids[i + 1]}>
+        {legalCopy[locale].map((s, i) => (
+          <a key={s.heading} href={"#" + ids[i]}>
             {s.heading}
           </a>
         ))}

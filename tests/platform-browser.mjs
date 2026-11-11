@@ -54,7 +54,7 @@ try {
       .locator('.cause-directory-card[href="/en/causes/medical"]')
       .click();
     await page.waitForURL("**/en/causes/medical");
-    assert.equal(await page.locator(".campaign-card").count(), 1);
+    assert.equal(await page.locator(".campaign-card").count(), 0);
     await page
       .locator('.cause-hero-copy a[href="/en/submit?category=medical"]')
       .click();
@@ -69,22 +69,6 @@ try {
     assert.ok((await page.locator(".faq-list details").count()) > 0);
     await page.locator(".faq-list summary").first().click();
     assert.equal(await page.locator(".faq-list details[open]").count(), 1);
-    await page.goto(base + "/en/campaigns/example-1?source=test");
-    for (const id of ["story", "updates", "organizer", "share"])
-      assert.equal(await page.locator("#" + id).count(), 1);
-    await page.getByRole("button", { name: "Copy link", exact: true }).click();
-    assert.equal(
-      await page.evaluate(() => window.__copied),
-      base + "/en/campaigns/example-1",
-    );
-    await page.getByRole("button", { name: "WhatsApp", exact: true }).click();
-    await page.getByRole("button", { name: "Facebook", exact: true }).click();
-    const links = await page.evaluate(() => window.__shares);
-    assert.ok(links[0].startsWith("https://wa.me/?text="));
-    assert.ok(
-      links[1].startsWith("https://www.facebook.com/sharer/sharer.php?u="),
-    );
-    assert.ok(!links.join("").includes("source%3Dtest"));
     if (width === 1440)
       assert.equal(await page.locator(".desktop-nav a").count(), 3);
     const invalidCause = await page.goto(base + "/en/causes/invalid");

@@ -43,7 +43,6 @@ const en = {
     "Supporters follow the organizer’s instructions outside Pote Kole.",
   disclosure:
     "Pote Kole does not collect, hold or transfer donations. Support is arranged directly with the organizer or an external service.",
-  demo: "Preview with illustrative campaigns. These are not real donation requests.",
   example: "Illustrative campaign",
   empty: "No fundraisers found. Try another search or category.",
   more: "Load more",
@@ -96,7 +95,7 @@ const en = {
   checkInbox: "Check your email for your secure sign-in link.",
   signout: "Log out",
   unavailable:
-    "This preview is not connected to its own database yet. Submissions and sign-in are unavailable until setup is complete.",
+    "This service is temporarily unavailable. Please try again.",
   manage: "Manage your campaigns",
   manageIntro:
     "Track reviews, propose changes and share updates. Changes to published campaigns are reviewed before going live.",
@@ -196,7 +195,6 @@ const fr: Dictionary = {
     "Suivez les instructions de l’organisateur en dehors de Pote Kole.",
   disclosure:
     "Pote Kole ne collecte, ne conserve et ne transfère aucun don. Le soutien se fait directement avec l’organisateur ou un service externe.",
-  demo: "Aperçu avec des collectes fictives. Il ne s’agit pas de demandes de dons réelles.",
   example: "Collecte fictive",
   empty: "Aucune collecte trouvée. Essayez une autre recherche.",
   more: "Voir plus",
@@ -248,7 +246,7 @@ const fr: Dictionary = {
   checkInbox: "Consultez votre boîte e-mail.",
   signout: "Se déconnecter",
   unavailable:
-    "Cet aperçu n’est pas encore connecté à sa propre base de données. La connexion et les soumissions sont indisponibles.",
+    "Ce service est temporairement indisponible. Réessayez.",
   manage: "Gérer vos collectes",
   manageIntro:
     "Suivez les examens, proposez des modifications et partagez des nouvelles. Les changements sont examinés avant publication.",
@@ -346,7 +344,6 @@ const ht: Dictionary = {
   step3body: "Moun ki vle ede yo suiv enstriksyon òganizatè a deyò Pote Kole.",
   disclosure:
     "Pote Kole pa resevwa, kenbe oswa transfere don. Sipò a fèt dirèkteman ak òganizatè a oswa yon sèvis ekstèn.",
-  demo: "Aperçu ak kanpay egzanp. Sa yo pa demann don reyèl.",
   example: "Kanpay egzanp",
   empty: "Nou pa jwenn kanpay. Eseye yon lòt rechèch.",
   more: "Wè plis",
@@ -397,7 +394,7 @@ const ht: Dictionary = {
   checkInbox: "Tcheke imèl ou pou lyen koneksyon an.",
   signout: "Dekonekte",
   unavailable:
-    "Aperçu sa a poko konekte ak pwòp bazdone li. Koneksyon ak soumèt kanpay poko disponib.",
+    "Sèvis sa a pa disponib pou yon ti tan. Eseye ankò.",
   manage: "Jere kanpay ou yo",
   manageIntro:
     "Swiv revizyon yo, pwopoze chanjman epi pataje nouvèl. Nou revize chanjman anvan yo pibliye.",

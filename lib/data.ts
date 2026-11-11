@@ -6,7 +6,6 @@ import {
   SUPABASE_ANON_KEY,
   supabaseEnabled,
 } from "./supabase/config";
-import { demoCampaigns } from "./demo";
 import type { Campaign, CampaignContent } from "./domain";
 export const preview = !supabaseEnabled;
 export async function publicCampaigns(
@@ -23,40 +22,7 @@ export async function publicCampaigns(
 ) {
   const page = Math.max(1, Math.min(100, filters.page ?? 1));
   const size = 12;
-  if (preview) {
-    const all = demoCampaigns.filter((c) => {
-      const d = c.public_content;
-      return (
-        (!filters.q ||
-          `${d.title} ${d.story} ${d.organizer_name} ${d.category} ${d.region} ${d.country}`
-            .toLowerCase()
-            .includes(filters.q.toLowerCase())) &&
-        (!filters.location ||
-          `${d.region} ${d.country}`
-            .toLowerCase()
-            .includes(filters.location.toLowerCase())) &&
-        (!filters.lifecycle ||
-          (d.lifecycle ?? "active") === filters.lifecycle) &&
-        (!filters.category || d.category === filters.category) &&
-        (!filters.country ||
-          d.country.toLowerCase().includes(filters.country.toLowerCase())) &&
-        (!filters.region ||
-          d.region.toLowerCase().includes(filters.region.toLowerCase()))
-      );
-    });
-    all.sort(
-      (a, b) =>
-        (filters.sort === "updated"
-          ? b.updated_at.localeCompare(a.updated_at)
-          : b.created_at.localeCompare(a.created_at)) ||
-        a.id.localeCompare(b.id),
-    );
-    return {
-      items: all.slice(0, page * size),
-      hasMore: all.length > page * size,
-      count: all.length,
-    };
-  }
+  if (preview) return { items: [] as Campaign[], hasMore: false, count: 0 };
   const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     auth: { persistSession: false },
   });
@@ -107,7 +73,7 @@ export async function publicCampaigns(
   };
 }
 export async function publicCampaign(id: string) {
-  if (preview) return demoCampaigns.find((c) => c.id === id) ?? null;
+  if (preview) return null;
   if (!/^[a-f\d-]{36}$/i.test(id)) return null;
   const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     auth: { persistSession: false },

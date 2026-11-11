@@ -123,12 +123,11 @@ console.log(
   "PASS: support-link safety, text preservation, campaign validation, locale coverage and schema safeguards",
 );
 
-const demo = load("lib/demo.ts");
-const previewData = load("lib/data.ts", {
+const offline = load("lib/data.ts", {
   "server-only": {},
   "@supabase/supabase-js": {
     createClient: () => {
-      throw new Error("Preview must not query a live database");
+      throw new Error("No offline database calls");
     },
   },
   "./supabase/server": { getServerClient: async () => null },
@@ -137,31 +136,12 @@ const previewData = load("lib/data.ts", {
     SUPABASE_URL: "",
     SUPABASE_ANON_KEY: "",
   },
-  "./demo": demo,
 });
-assert.equal((await previewData.publicCampaigns({ q: "Jacmel" })).count, 1);
-assert.equal(
-  (await previewData.publicCampaigns({ category: "education" })).count,
-  2,
+assert.equal((await offline.publicCampaigns()).count, 0);
+assert.equal(await offline.publicCampaign("example-1"), null);
+assert.equal(fs.existsSync("lib/demo.ts"), false);
+const palette = new Set(
+  fs.readFileSync("app/globals.css", "utf8").match(/#[a-f0-9]{3,8}\b/gi),
 );
-demo.demoCampaigns[0].public_content.lifecycle = "completed";
-assert.equal(
-  (await previewData.publicCampaigns({ lifecycle: "completed" })).count,
-  1,
-);
-assert.equal(
-  (await previewData.publicCampaigns({ location: "Canada" })).count,
-  1,
-);
-demo.demoCampaigns[0].updated_at = "2030-01-01T00:00:00Z";
-assert.equal(
-  (await previewData.publicCampaigns({ sort: "updated" })).items[0].id,
-  "example-1",
-);
-for (let i = 0; i < 16; i++)
-  demo.demoCampaigns.push({ ...demo.demoCampaigns[0], id: `pagination-${i}` });
-assert.equal((await previewData.publicCampaigns()).items.length, 12);
-assert.equal((await previewData.publicCampaigns({ page: 2 })).items.length, 22);
-console.log(
-  "PASS: location/category search, active/completed filters, updated sorting and 12-item pagination",
-);
+assert.deepEqual([...palette].sort(), ["#1f503b", "#f0faef", "#fff"]);
+console.log("PASS: no sample fundraisers and exactly three UI colors");

@@ -48,10 +48,8 @@ export default async function Admin({
   const d = t(locale),
     b = brief[locale],
     p = platform[locale];
-  if (!preview) {
-    if (!(await currentUser())) redirect(`/${locale}/login`);
-    if (!(await isAdmin())) notFound();
-  }
+  if (!(await currentUser())) redirect(`/${locale}/login`);
+  if (!(await isAdmin())) notFound();
   const db = preview ? null : await getServerClient(),
     sp = await searchParams;
   const tab = tabs.includes(sp.tab as (typeof tabs)[number])
@@ -186,7 +184,6 @@ export default async function Admin({
           </Link>
         ))}
       </nav>
-      {preview && <p className="notice">{b.notConfigured}</p>}
       {failure && <p className="notice error">{d.errors}</p>}
       {tab === "overview" ? (
         <>

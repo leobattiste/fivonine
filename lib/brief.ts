@@ -35,7 +35,7 @@ export const brief = {
     terms: "I agree to the Terms and Fundraising Guidelines.",
     confirmation: "Your fundraiser is in review.",
     confirmationBody:
-      "We’ll notify you by email when there is a decision or a request for changes. Use your secure sign-in link to check its status.",
+      "Use your secure sign-in link to check review decisions and requests for changes in your organizer dashboard.",
     manage: "Manage submission",
     supporters: "For supporters",
     supporterBody:
@@ -131,7 +131,7 @@ export const brief = {
     terms: "J’accepte les conditions et les règles de collecte.",
     confirmation: "Votre collecte est en cours d’examen.",
     confirmationBody:
-      "Nous vous informerons par email de la décision ou des modifications demandées. Utilisez votre lien sécurisé pour suivre son statut.",
+      "Consultez les décisions et les demandes de modifications dans votre espace organisateur grâce à votre lien de connexion sécurisé.",
     manage: "Gérer la soumission",
     supporters: "Pour les soutiens",
     supporterBody:
@@ -232,7 +232,7 @@ export const brief = {
     terms: "Mwen dakò ak kondisyon yo ak règ kanpay yo.",
     confirmation: "Kanpay ou ap pase revizyon.",
     confirmationBody:
-      "N ap fè w konnen pa imel lè gen yon desizyon oswa yon demann chanjman. Sèvi ak lyen sekirize w la pou swiv estati a.",
+      "Sèvi ak lyen koneksyon sekirize w la pou wè desizyon ak demann chanjman nan espas òganizatè w la.",
     manage: "Jere demann ou",
     supporters: "Pou moun k ap bay sipò",
     supporterBody:

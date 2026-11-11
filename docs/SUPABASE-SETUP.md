@@ -1,34 +1,25 @@
-# Connect fivonine's own Supabase project
+# Connected Supabase configuration
 
-The current site deliberately runs in preview mode. Do not connect Pheelm or another application's database. No Supabase data was reset or modified for this build.
+The dedicated `fivonine` project (`jhepbvepnuhavhgpsjwy`) now contains the platform schema. Do not reapply the fresh-project SQL or connect Pheelm.
 
-1. Create/select a dedicated fivonine project. Review `supabase/schema.sql`, then apply it once through the SQL editor or migrations. It creates new application tables and does not drop existing tables. Resolve any naming conflicts before applying to a nonempty project.
-2. Set the Auth site URL to the actual fivonine domain. Allow the exact callback URLs `/ht/auth/callback`, `/fr/auth/callback`, `/en/auth/callback`, plus localhost equivalents for development. Configure transactional SMTP and the sign-in email template. Public browsing does not require authentication.
-3. In Vercel, set `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (or `NEXT_PUBLIC_SUPABASE_ANON_KEY`) and server-only `SUPABASE_SERVICE_ROLE_KEY`. The service key is used only for anonymous contact/report writes, rate limiting and the email worker; never expose it through a public variable.
-4. Configure Cloudflare Turnstile for the domain. Set `NEXT_PUBLIC_TURNSTILE_SITE_KEY` and server-only `TURNSTILE_SECRET_KEY`. Production login/report/contact fail closed without a working bot check. Set a random `CRON_SECRET` for the protected worker and rate-limit fingerprint salt.
-5. Redeploy: public env variables are compiled at build time. Preview examples disappear when database configuration is present; an empty database shows an honest empty directory.
-6. Sign in normally, confirm the account, then add the first moderator through trusted SQL: `insert into public.platform_admins(user_id) values ('YOUR_AUTH_USER_UUID');`. Only an authorized operator should do this; the application cannot self-promote users.
-7. Verify as two ordinary members, an admin and an anonymous visitor: initial submission, approval, pending edit isolation, update approval, removal, suspension, reporting, private-contact access denial and role escalation denial.
+## Authentication
 
-## Transactional notifications
+In Supabase Authentication → URL Configuration, use Site URL `https://fivonine.vercel.app` and redirect URL `https://fivonine.vercel.app/*/auth/callback`. Add exact localhost callbacks only when needed. Configure SMTP for production email delivery; Supabase's default mailer has strict recipient/rate limits. Verify an actual magic-link journey with the owner before claiming delivery works.
 
-Database actions queue submission/review notifications. To deliver them, verify a sending domain, configure SPF/DKIM/DMARC and set server-only `RESEND_API_KEY` and `RESEND_FROM`. Call `GET /api/cron/email` with `Authorization: Bearer YOUR_CRON_SECRET` from an authorized scheduler. This build does not configure a scheduler or send test email.
+A moderator is a confirmed Auth user whose UUID exists in `public.platform_admins`. Assign only the owner's specified identity through trusted administration. There is no first-user promotion.
 
-The worker leases jobs, uses stable provider idempotency keys, has bounded retries and records failures. Jobs older than 23 hours are not automatically resent because of the provider idempotency window; review them manually. Before activating delivery, finish bounce/complaint suppression, provider webhook verification, alerting and an authorized-recipient delivery test. These messages are transactional, not a newsletter.
+## Environment
 
-## Data model
+Vercel has `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, and encrypted `APP_BACKEND_SECRET`. The token authorizes only bounded message, rate-limit and click operations through `website_action`; its SHA-256 hash is in `private.backend_credentials`. Rotation requires updating that hash and the server environment together, then redeploying. Never expose the token to browser code.
 
-- `campaigns`: the current approved public snapshot, owner reference and publication state.
-- `campaign_revisions`: proposed changes, consent timestamp, policy version and review state. They are private to the owner/admin.
-- `organizer_profiles`: private contact details; no anonymous read access.
-- `campaign_updates`: publicly readable only after approval while the campaign remains published.
-- `reports`, `contact_messages`: server-only writes; admin-only reads.
-- `review_events`: internal moderation decisions.
-- `email_outbox`, `request_limits`: backend-only queues and abuse controls.
-- `campaign_metrics`: aggregate outbound-link count; admin read access, no donor amounts.
+Ordinary functionality needs no service-role key. The optional transactional email worker still requires a server-only service key, sender configuration and an authorized recipient test. Until then, notifications remain in the private outbox and organizers follow status in their dashboard. No marketing emails are sent.
 
-Clients cannot directly publish or modify campaign rows. Mutation RPCs check the confirmed organizer/owner or admin role and publish changes transactionally. All tables have RLS. The disposable database test exercises the important role boundaries; it does not replace a live Supabase/browser rehearsal.
+## Data access
 
-## Deliberately excluded
+Public readers see only published campaigns and approved updates. Organizer contact details and revisions are owner/admin-only. Reports, contact messages and audit history are admin-only. Clients cannot publish directly; moderator decisions require a reason and record an audit event. Privileged implementations live in the non-exposed `private` schema.
 
-No donor/payment/wallet/payout/bank tables. No document uploads or automatic identity guarantee. Images are authorized HTTPS URLs for this MVP; private document collection is not part of the form.
+Security advisors show no warnings; informational notices for backend-only tables without public RLS policies are intentional default denial. Never add public policies merely to silence those notices.
+
+## Tests
+
+CI creates a disposable database using `tests/bootstrap.sql`, then applies `schema.sql`, `server-gateway.sql` and `private-workflows.sql`. Never use the auth bootstrap on hosted Supabase. Connected browser tests use an explicitly provisioned temporary test identity and private campaigns only; clean up all test records and sessions afterward.

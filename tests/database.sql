@@ -44,5 +44,8 @@ select set_config('request.jwt.claim.sub','10000000-0000-0000-0000-000000000003'
 select public.moderate_campaign(current_setting('test.campaign')::uuid,'campaign','suspend');
 reset role;set role anon;
 do $$begin if(select count(*) from public.campaigns)<>0 or(select count(*) from public.campaign_updates)<>0 then raise exception 'Suspended content leaked';end if;end$$;
+reset role;set role service_role;
+select set_config('test.bucket',repeat('b',64),false);
+do $$begin for i in 1..5 loop if not public.consume_rate_limit(current_setting('test.bucket')) then raise exception 'Rate limiter rejected allowed attempt';end if;end loop;if public.consume_rate_limit(current_setting('test.bucket')) then raise exception 'Rate limiter accepted sixth attempt';end if;end$$;
 reset role;
 select 'PASS: submission, RLS, private contacts, approval, revision isolation, updates, moderator authorization, counters and suspension' as result;

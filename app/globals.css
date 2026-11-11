@@ -1,14 +1,14 @@
 :root {
-  --bg: #f8f9f6;
-  --surface: #f0f3ed;
+  --bg: #fff;
+  --surface: #f0faef;
   --white: #fff;
-  --ink: #1c2922;
+  --ink: #1f503b;
   --green: #1f503b;
   --accent: #1f503b;
-  --text: #435148;
-  --muted: #8a968d;
-  --secondary: #5d6b62;
-  --line: #e2e7e1;
+  --text: #1f503b;
+  --muted: #1f503b;
+  --secondary: #1f503b;
+  --line: #f0faef;
   --r: 16px;
   --pill: 999px;
   --gutter: 48px;
@@ -177,11 +177,11 @@ img {
     border-color 0.18s;
 }
 .button:hover:not(:disabled) {
-  background: #173f2e;
+  background: #1f503b;
 }
 .button.secondary {
   background: transparent;
-  border-color: #cdd5cb;
+  border-color: #1f503b;
   color: var(--ink);
 }
 .button.secondary:hover:not(:disabled) {
@@ -214,7 +214,7 @@ img {
   background: transparent;
 }
 .danger {
-  color: #a52c26 !important;
+  color: #1f503b !important;
 }
 .preserve-lines,
 .support-text {
@@ -255,7 +255,7 @@ main:focus {
   top: 0;
   z-index: 40;
   width: 100%;
-  background: #fffffff5;
+  background: #fff;
   border-bottom: 1px solid var(--line);
   backdrop-filter: blur(12px);
 }
@@ -343,7 +343,7 @@ main:focus {
 }
 .menu-sheet::backdrop,
 .filter-sheet::backdrop {
-  background: #1c292266;
+  background: #1f503b;
 }
 body:has(dialog:modal) {
   overflow: hidden;
@@ -515,7 +515,7 @@ body:has(dialog:modal) {
   place-items: center;
   width: 48px;
   height: 48px;
-  border: 1px solid #cfdacd;
+  border: 1px solid #1f503b;
   border-radius: 50%;
   color: var(--green);
   flex: none;
@@ -568,7 +568,7 @@ body:has(dialog:modal) {
   transition: border-color 0.18s;
 }
 .campaign-card:hover {
-  border-color: #aabaaa;
+  border-color: #1f503b;
 }
 .campaign-card > a {
   display: flex;
@@ -683,7 +683,7 @@ body:has(dialog:modal) {
   align-items: center;
   gap: 12px;
   min-height: 48px;
-  border: 1px solid #ced6cb;
+  border: 1px solid #1f503b;
   border-radius: var(--pill);
   padding: 0 18px;
   background: var(--white);
@@ -1047,7 +1047,7 @@ select,
 textarea {
   width: 100%;
   min-width: 0;
-  border: 1px solid #ccd5ca;
+  border: 1px solid #1f503b;
   border-radius: 11px;
   padding: 12px 15px;
   background: var(--white);
@@ -1123,11 +1123,11 @@ fieldset:disabled {
   text-underline-offset: 4px;
 }
 .notice.success {
-  background: #e9f0e6;
+  background: #f0faef;
 }
 .notice.error {
-  background: #fbeeea;
-  color: #912d25;
+  background: #f0faef;
+  color: #1f503b;
 }
 .form .notice {
   margin: 0;
@@ -1154,7 +1154,7 @@ fieldset:disabled {
   width: 28px;
   height: 28px;
   flex: none;
-  border: 1px solid #c9d2c7;
+  border: 1px solid #1f503b;
   border-radius: 50%;
   font-size: 12px;
 }
@@ -1281,7 +1281,7 @@ fieldset:disabled {
   color: var(--secondary);
 }
 .cause-directory-card:hover {
-  border-color: #aabaaa;
+  border-color: #1f503b;
 }
 .cause-hero {
   display: grid;
@@ -1354,7 +1354,7 @@ fieldset:disabled {
   margin-top: auto;
 }
 .resource-card:hover {
-  border-color: #aabaaa;
+  border-color: #1f503b;
 }
 .resource-help {
   margin-top: 48px;
@@ -2054,7 +2054,7 @@ td .hint {
     display: block;
     position: sticky;
     bottom: 0;
-    background: #fffffff2;
+    background: #fff;
     padding: 12px;
     border: 1px solid var(--line);
     border-radius: 12px;

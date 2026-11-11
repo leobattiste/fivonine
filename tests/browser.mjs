@@ -28,7 +28,7 @@ try {
     await page.goto(base + "/en");
     await page.getByRole("heading", { level: 1 }).waitFor();
     assert.equal(await page.locator("html").getAttribute("lang"), "en");
-    assert.equal(await page.locator(".campaign-card").count(), 6);
+    assert.equal(await page.locator(".campaign-card").count(), 0);
     assert.equal(
       await page.locator(".preview-banner, .campaign-label").count(),
       0,
@@ -51,23 +51,13 @@ try {
       await page.locator('.desktop-nav a[href="/en/explore"]').click();
     }
     await page.waitForURL("**/en/explore");
-    assert.equal(await page.locator(".campaign-card").count(), 6);
+    assert.equal(await page.locator(".campaign-card").count(), 0);
     await page.locator("input[name=q]").fill("classroom");
     await page.locator(".explore-search-submit").click();
     await page.waitForURL("**/en/explore?q=**");
-    assert.equal(await page.locator(".campaign-card").count(), 1);
-    await page.locator(".campaign-card a").click();
-    await page.waitForURL("**/en/campaigns/example-1");
-    assert.equal(await page.locator(".support-text a").count(), 0);
-    assert.ok(
-      (await page.locator(".support-text").innerText()).includes(
-        "Support instructions have not been provided yet.",
-      ),
-    );
-    await page.screenshot({
-      path: `test-results/campaign-${width}.png`,
-      fullPage: true,
-    });
+    assert.equal(await page.locator(".campaign-card").count(), 0);
+    const sample = await page.goto(base + "/en/campaigns/example-1");
+    assert.equal(sample.status(), 404);
     if (width < 960) {
       await page.locator(".menu-toggle").click();
       await page.locator("dialog").waitFor({ state: "visible" });
@@ -116,7 +106,7 @@ try {
       fullPage: true,
     });
     await page.goto(base + "/en/admin");
-    assert.equal(await page.locator(".admin .tabs a").count(), 9);
+    assert.equal(new URL(page.url()).pathname, "/en/login");
     assert.equal(
       await page.locator("meta[name=robots]").getAttribute("content"),
       "noindex, nofollow",
@@ -144,7 +134,7 @@ try {
     }
     assert.deepEqual(errors, []);
     console.log(
-      `PASS ${width}px: homepage, responsive navigation, search, campaign disclosure, accessible menu, submission steps, preview form guards, admin tabs and locale pages`,
+      `PASS ${width}px: homepage, responsive navigation, search, removed sample listings, accessible menu, submission steps, authentication guards, private admin and locale pages`,
     );
     await page.close();
   }

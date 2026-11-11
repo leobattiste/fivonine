@@ -28,7 +28,6 @@ export type Campaign = {
   contact_confirmed: boolean;
   links_checked_at: string | null;
   organization_reviewed_at: string | null;
-  demo?: boolean;
 };
 export type ActionState = { ok: boolean; message: string; id?: string };
 export const initialState: ActionState = { ok: false, message: "" };

@@ -20,7 +20,6 @@ export default async function Login({
         <h1>{d.login}</h1>
         <p className="lead">{d.loginIntro}</p>
       </header>
-      {preview && <p className="notice">{d.unavailable}</p>}
       {sp.error && (
         <p className="notice error" role="alert">
           {locale === "ht"

@@ -3,7 +3,7 @@ import { brief } from "@/lib/brief";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getServerClient } from "@/lib/supabase/server";
-import { serviceClient } from "@/lib/supabase/service";
+import { backendAction } from "@/lib/supabase/backend";
 import { SITE_URL } from "@/lib/supabase/config";
 import { parseCampaign, type ActionState } from "@/lib/domain";
 import { isLocale, t, type Locale } from "@/lib/i18n";
@@ -98,9 +98,7 @@ export async function messageAction(
   _: ActionState,
   f: FormData,
 ): Promise<ActionState> {
-  const l = localeOf(f),
-    db = serviceClient();
-  if (!db) return { ok: false, message: t(l).unavailable };
+  const l = localeOf(f);
   const kind = String(f.get("kind")) === "report" ? "report" : "contact";
   const body = String(f.get("body") ?? "").trim(),
     email = String(f.get("email") ?? "").trim();
@@ -115,9 +113,7 @@ export async function messageAction(
       ? { campaign_id: String(f.get("campaign_id") ?? "") }
       : { name: String(f.get("name") ?? "").slice(0, 160) }),
   };
-  const { error } = await db
-    .from(kind === "report" ? "reports" : "contact_messages")
-    .insert(row);
+  const { error } = await backendAction("message", { ...row, kind });
   return error
     ? failed(l)
     : {

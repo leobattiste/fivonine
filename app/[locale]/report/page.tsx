@@ -23,7 +23,6 @@ export default async function Report({
         <p className="lead">{d.reportIntro}</p>
       </header>
       <p className="notice">{c.public_content.title}</p>
-      {preview && <p className="notice">{d.unavailable}</p>}
       <MessageForm locale={locale} campaignId={id} enabled={!preview} />
     </section>
   );

@@ -28,14 +28,13 @@ export default async function Submit({
         <h1>{d.submit}</h1>
         <p className="lead">{d.submitIntro}</p>
       </header>
-      {preview ? (
-        <p className="notice">{d.unavailable}</p>
-      ) : (
-        !user && (
-          <p className="notice">
-            <Link href={`/${locale}/login`}>{d.login}</Link> — {d.loginIntro}
-          </p>
-        )
+      {!user && (
+        <div className="submission-signin">
+          <Link className="button" href={`/${locale}/login`}>
+            {d.login}
+          </Link>
+          <p>{d.loginIntro}</p>
+        </div>
       )}
       <details className="submission-checklist">
         <summary>{p.checklist}</summary>

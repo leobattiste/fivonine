@@ -18,7 +18,7 @@ export default async function Dashboard({
   const d = t(locale);
   const p = platform[locale];
   const user = await currentUser();
-  if (!user && !preview) redirect(`/${locale}/login`);
+  if (!user) redirect(`/${locale}/login`);
   const campaigns = await ownCampaigns();
   return (
     <section className="page narrow section">
@@ -26,7 +26,6 @@ export default async function Dashboard({
         <h1>{d.manage}</h1>
         <p className="lead">{d.manageIntro}</p>
       </header>
-      {preview && <p className="notice">{d.unavailable}</p>}
       {user && (
         <div className="dashboard-account">
           <span>{user.email}</span>

@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
@@ -78,38 +79,44 @@ export default async function Home({
           ))}
         </div>
       </section>
-      <section className="page section" data-home-section="featured">
-        <div className="section-head">
-          <h2>{b.featured}</h2>
-          <Link className="text-link" href={`/${locale}/explore`}>
-            {d.all}
-            <Icon name="arrowRight" />
-          </Link>
-        </div>
-        <div className="campaign-grid">
-          {featured.map((c) => (
-            <CampaignCard key={c.id} campaign={c} locale={locale} />
-          ))}
-        </div>
-        {!featured.length && <p className="empty">{d.empty}</p>}
-      </section>
-      <section
-        className="page section recent-section"
-        data-home-section="recent"
-      >
-        <div className="section-head">
-          <h2>{b.recent}</h2>
-          <Link className="text-link" href={`/${locale}/explore?sort=created`}>
-            {d.all}
-            <Icon name="arrowRight" />
-          </Link>
-        </div>
-        <div className="campaign-grid">
-          {(recent.length ? recent : items.slice(0, 3)).map((c) => (
-            <CampaignCard key={c.id} campaign={c} locale={locale} />
-          ))}
-        </div>
-      </section>
+      {!!featured.length && (
+        <section className="page section" data-home-section="featured">
+          <div className="section-head">
+            <h2>{b.featured}</h2>
+            <Link className="text-link" href={`/${locale}/explore`}>
+              {d.all}
+              <Icon name="arrowRight" />
+            </Link>
+          </div>
+          <div className="campaign-grid">
+            {featured.map((c) => (
+              <CampaignCard key={c.id} campaign={c} locale={locale} />
+            ))}
+          </div>
+        </section>
+      )}
+      {!!items.length && (
+        <section
+          className="page section recent-section"
+          data-home-section="recent"
+        >
+          <div className="section-head">
+            <h2>{b.recent}</h2>
+            <Link
+              className="text-link"
+              href={`/${locale}/explore?sort=created`}
+            >
+              {d.all}
+              <Icon name="arrowRight" />
+            </Link>
+          </div>
+          <div className="campaign-grid">
+            {(recent.length ? recent : items.slice(0, 3)).map((c) => (
+              <CampaignCard key={c.id} campaign={c} locale={locale} />
+            ))}
+          </div>
+        </section>
+      )}
       <section className="page section home-how" data-home-section="how">
         <div className="section-head">
           <h2>{d.how}</h2>

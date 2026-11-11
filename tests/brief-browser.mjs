@@ -22,8 +22,6 @@ try {
     assert.deepEqual(sections, [
       "hero",
       "categories",
-      "featured",
-      "recent",
       "how",
       "trust",
       "submit",
@@ -77,7 +75,7 @@ try {
     await page.waitForURL("**/en/explore?**lifecycle=completed**");
     assert.equal(await page.locator(".campaign-card").count(), 0);
     await page.goto(base + "/en/explore?location=Haiti&sort=updated");
-    assert.ok((await page.locator(".campaign-card").count()) > 0);
+    assert.equal(await page.locator(".campaign-card").count(), 0);
     await page.screenshot({
       path: `test-results/pote-kole-explore-${width}.png`,
       fullPage: true,
@@ -87,8 +85,7 @@ try {
     await page.goto(base + "/");
     assert.equal(new URL(page.url()).pathname, "/fr");
     await page.goto(base + "/en/admin");
-    assert.equal(await page.locator(".admin .tabs a").count(), 9);
-    assert.equal(await page.locator(".admin-metrics article").count(), 4);
+    assert.equal(new URL(page.url()).pathname, "/en/login");
     await page.screenshot({
       path: `test-results/pote-kole-admin-${width}.png`,
       fullPage: true,
@@ -101,7 +98,7 @@ try {
     assert.deepEqual(errors, []);
     await context.close();
     console.log(
-      `PASS ${width}px: ordered homepage, Geist/Hugeicons, sticky header, responsive filters, remembered language and nine-tab admin`,
+      `PASS ${width}px: ordered homepage, Geist/Hugeicons, sticky header, responsive filters, remembered language and private admin redirect`,
     );
   }
 } finally {

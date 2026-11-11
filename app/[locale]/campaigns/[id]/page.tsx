@@ -44,24 +44,22 @@ export default async function CampaignPage({
   const external =
     safeExternal(c.fundraising_url ?? "") ??
     supportParts(c.support_text).find((part) => part.url)?.url;
-  const outbound =
-    external && !campaign.demo
-      ? `/api/out?campaign=${encodeURIComponent(id)}&url=${encodeURIComponent(external)}`
-      : null;
+  const outbound = external
+    ? `/api/out?campaign=${encodeURIComponent(id)}&url=${encodeURIComponent(external)}`
+    : null;
   const related = (await publicCampaigns({ category: c.category })).items
     .filter((item) => item.id !== id)
     .slice(0, 3);
   const db = await getServerClient();
-  const updates = campaign.demo
-    ? []
-    : ((
-        await db
-          ?.from("campaign_updates")
-          .select("id,title,body,created_at")
-          .eq("campaign_id", id)
-          .eq("status", "approved")
-          .order("created_at", { ascending: false })
-      )?.data ?? []);
+  const updates =
+    (
+      await db
+        ?.from("campaign_updates")
+        .select("id,title,body,created_at")
+        .eq("campaign_id", id)
+        .eq("status", "approved")
+        .order("created_at", { ascending: false })
+    )?.data ?? [];
   return (
     <article className="page campaign-page">
       <Link className="text-link breadcrumb" href={`/${locale}/explore`}>
@@ -194,10 +192,7 @@ export default async function CampaignPage({
               </div>
             )}
             <div lang={c.language}>
-              <SupportText
-                text={c.support_text}
-                campaignId={campaign.demo ? undefined : id}
-              />
+              <SupportText text={c.support_text} campaignId={id} />
             </div>
             <p className="disclosure">
               <Icon name="external" />

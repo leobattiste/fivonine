@@ -16,7 +16,6 @@ export default async function Contact({
         <h1>{d.contact}</h1>
         <p className="lead">{d.contactIntro}</p>
       </header>
-      {preview && <p className="notice">{d.unavailable}</p>}
       <MessageForm locale={locale} enabled={!preview} />
     </section>
   );
