@@ -1,23 +1,19 @@
+import "server-only";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
-import { SUPABASE_ANON_KEY, SUPABASE_URL, supabaseEnabled } from "./config";
-
-/** A client that acts as the signed-in visitor. Use it only in dynamic pages and actions. */
-export async function getServerClient() {
+import { SUPABASE_KEY, SUPABASE_URL, supabaseEnabled } from "./config";
+/** Session-bound client. Every query runs under the visitor's row-level security. */
+export async function db() {
   if (!supabaseEnabled) return null;
-  const cookieStore = await cookies();
-  return createServerClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  const store = await cookies();
+  return createServerClient(SUPABASE_URL, SUPABASE_KEY, {
     cookies: {
-      getAll() {
-        return cookieStore.getAll();
-      },
-      setAll(list) {
+      getAll: () => store.getAll(),
+      setAll: (list) => {
         try {
-          list.forEach(({ name, value, options }) =>
-            cookieStore.set(name, value, options),
-          );
+          for (const c of list) store.set(c.name, c.value, c.options);
         } catch {
-          // Called from a server component; the middleware refreshes the session instead.
+          /* Server Components can't set cookies; the proxy refreshes sessions. */
         }
       },
     },

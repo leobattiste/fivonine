@@ -1,59 +1,28 @@
-import { notFound } from "next/navigation";
+import type { Metadata } from "next";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import { isLocale, t } from "@/lib/i18n";
-import { brief } from "@/lib/brief";
-import { editorial } from "@/lib/editorial";
-import Icon from "@/components/Icon";
-export default async function About({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}) {
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  return isLocale(locale) ? { title: t(locale).about.title, description: t(locale).about.lead } : {};
+}
+export default async function About({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
-  const d = t(locale),
-    b = brief[locale],
-    e = editorial[locale];
+  const d = t(locale), a = d.about;
   return (
-    <article className="about-editorial">
-      <header className="page section about-opening">
-        <p className="eyebrow">{d.about} / pote kole.</p>
-        <h1>{e.aboutTitle}</h1>
-        <p className="lead">{e.aboutIntro}</p>
-      </header>
-      <section className="definition-band">
-        <div className="page">
-          <h2>
-            {e.definition}
-            <span> /pɔ.te kɔ.le/</span>
-          </h2>
-          <p>{e.definitionBody}</p>
-        </div>
-      </section>
-      <div className="page about-chapters">
-        {b.about.slice(1).map((title, i) => (
-          <section key={title}>
-            <div>
-              <span className="index-number">0{i + 1}</span>
-              <h2>{title}</h2>
-            </div>
-            <p>{b.aboutBody[i + 1]}</p>
-          </section>
-        ))}
+    <>
+      <div className="wrap page">
+        <header className="page-head"><h1>{a.title}</h1><p className="statement">{a.lead}</p></header>
+        <div className="prose narrow-left">{a.body.map((p) => <p key={p}>{p}</p>)}</div>
       </div>
-      <section className="page invitation-section">
-        <div>
-          <h2>{e.invitation}</h2>
-          <p>{e.whyBody}</p>
+      <section className="section tint">
+        <div className="wrap">
+          <h2>{a.valuesTitle}</h2>
+          <ul className="trust-grid">{a.values.map(([h, p]) => <li key={h}><h3>{h}</h3><p>{p}</p></li>)}</ul>
+          <div className="row"><Link className="btn" href={`/${locale}/transparency`}>{a.transparency}</Link><Link className="btn ghost" href={`/${locale}/contact`}>{d.footer.contact}</Link></div>
         </div>
-        <Link
-          className="round-link"
-          href={`/${locale}/explore`}
-          aria-label={d.browse}
-        >
-          <Icon name="arrowRight" />
-        </Link>
       </section>
-    </article>
+    </>
   );
 }

@@ -1,64 +1,62 @@
 import { GeistSans } from "geist/font/sans";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { notFound } from "next/navigation";
-import Link from "next/link";
-import Navigation from "@/components/Navigation";
-import Footer from "@/components/Footer";
-import { platform } from "@/lib/platform-content";
-import { isLocale, t, locales } from "@/lib/i18n";
-import { preview } from "@/lib/data";
-import { SITE_URL } from "@/lib/supabase/config";
+import "@fontsource-variable/bricolage-grotesque";
 import "../globals.css";
-export function generateStaticParams() {
-  return locales.map((locale) => ({ locale }));
-}
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}): Promise<Metadata> {
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import Icon from "@/components/Icon";
+import { ServiceWorker } from "@/components/Bits";
+import { htmlLang, isLocale, t } from "@/lib/i18n";
+import { getViewer } from "@/lib/auth";
+import { getSettings, unreadCount } from "@/lib/data";
+import { isLite } from "@/lib/prefs";
+import { SITE_URL } from "@/lib/constants";
+
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   if (!isLocale(locale)) return {};
+  const d = t(locale);
+  const open = process.env.PUBLIC_LAUNCH === "true";
   return {
     metadataBase: new URL(SITE_URL),
-    title: {
-      default: "Pote Kole — " + t(locale).tagline,
-      template: "%s | Pote Kole",
-    },
-    description: t(locale).intro,
-    robots: {
-      index: process.env.PUBLIC_LAUNCH === "true" && !preview,
-      follow: process.env.PUBLIC_LAUNCH === "true" && !preview,
-    },
-    openGraph: { siteName: "Pote Kole", type: "website" },
+    title: { default: `Fivonine: ${d.home.headline}`, template: "%s | Fivonine" },
+    description: d.meta.description,
+    robots: { index: open, follow: open },
+    openGraph: { siteName: "Fivonine", type: "website", locale: htmlLang[locale] },
+    alternates: { languages: { ht: "/ht", fr: "/fr", en: "/en" } },
+    appleWebApp: { capable: true, title: "Fivonine", statusBarStyle: "default" },
   };
 }
-export default async function Layout({
-  children,
-  params,
-}: {
-  children: React.ReactNode;
-  params: Promise<{ locale: string }>;
-}) {
+export const viewport: Viewport = {
+  themeColor: [{ media: "(prefers-color-scheme: light)", color: "#ffffff" }, { media: "(prefers-color-scheme: dark)", color: "#0b1711" }],
+  width: "device-width",
+  initialScale: 1,
+};
+const themeScript = `try{var t=localStorage.getItem("fivonine-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}`;
+
+export default async function Layout({ children, params }: { children: React.ReactNode; params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
-  const d = t(locale);
-  const p = platform[locale];
+  const [viewer, settings, lite] = await Promise.all([getViewer(), getSettings(), isLite()]);
+  const unread = viewer ? await unreadCount(viewer.id) : 0;
+  const banner = settings.emergency.active ? settings.emergency[locale] || settings.emergency.ht : "";
   return (
-    <html lang={locale}>
-      <body className={GeistSans.variable}>
-        <a className="skip" href="#main">
-          {locale === "ht"
-            ? "Ale nan kontni an"
-            : locale === "fr"
-              ? "Aller au contenu"
-              : "Skip to content"}
-        </a>
-        <Navigation locale={locale} />
-        <main id="main" tabIndex={-1}>
-          {children}
-        </main>
-        <Footer locale={locale} />
+    <html lang={htmlLang[locale]} className={GeistSans.variable} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </head>
+      <body>
+        {banner && (
+          <a className="emergency no-print" href={`/${locale}/donate?emergency=1`}>
+            <Icon name="megaphone" size={18} />
+            <span>{banner}</span>
+          </a>
+        )}
+        <Header locale={locale} viewer={viewer ? { name: viewer.profile.display_name, admin: viewer.profile.role === "admin", unread } : null} />
+        <main id="main">{children}</main>
+        <Footer locale={locale} lite={lite} />
+        <ServiceWorker />
       </body>
     </html>
   );

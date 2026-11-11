@@ -1,492 +1,254 @@
+import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound, redirect } from "next/navigation";
-import { isLocale, t, categoryKeys } from "@/lib/i18n";
-import { brief } from "@/lib/brief";
-import { isAdmin, currentUser, preview } from "@/lib/data";
-import { getServerClient } from "@/lib/supabase/server";
-import { guides, platform } from "@/lib/platform-content";
-import Icon, { type IconName } from "@/components/Icon";
-import ReviewQueue, { type QueueRecord } from "@/components/ReviewQueue";
-import AdminRecords, { type AdminRecord } from "@/components/AdminRecords";
-import { ReviewForm } from "@/components/Forms";
-export const metadata = { robots: { index: false, follow: false } };
-const tabs = [
-  "overview",
-  "campaigns",
-  "queue",
-  "organizers",
-  "reports",
-  "organizations",
-  "content",
-  "analytics",
-  "settings",
-] as const;
-const icons: IconName[] = [
-  "overview",
-  "heart",
-  "reviews",
-  "users",
-  "flag",
-  "organization",
-  "content",
-  "analytics",
-  "settings",
-];
-export default async function Admin({
-  params,
-  searchParams,
-}: {
-  params: Promise<{ locale: string }>;
-  searchParams: Promise<{
-    tab?: string;
-    q?: string;
-    status?: string;
-    kind?: string;
-  }>;
-}) {
+import { notFound } from "next/navigation";
+import ActionForm, { Confirm, Submit } from "@/components/ActionForm";
+import { StatusPill, TierBadge } from "@/components/Campaign";
+import { addBlock, decideAppeal, decideVouch, removeBlock, resolveItem, saveCategory, saveSettings, setBan, setRole, verifyOrg } from "@/app/admin-actions";
+import { requireAdmin } from "@/lib/auth";
+import { adminAppeals, adminAudit, adminBlocklist, adminCampaigns, adminCategories, adminCounts, adminMessages, adminReports, adminUsers, adminVouches } from "@/lib/admin-data";
+import { getSettings } from "@/lib/data";
+import { STATUSES } from "@/lib/constants";
+import { fmtDate } from "@/lib/format";
+import { isLocale, type Locale } from "@/lib/i18n";
+export const metadata: Metadata = { title: "Admin", robots: { index: false } };
+const TABS = [["queue", "Review queue"], ["campaigns", "Campaigns"], ["users", "Users"], ["reports", "Reports"], ["vouches", "Vouches"], ["messages", "Messages"], ["appeals", "Appeals"], ["settings", "Settings"], ["audit", "Audit log"]] as const;
+type SP = { tab?: string; status?: string; q?: string; only?: string };
+const Hidden = ({ v }: { v: Record<string, string> }) => <>{Object.entries(v).map(([k, val]) => <input key={k} type="hidden" name={k} value={val} />)}</>;
+export default async function Admin({ params, searchParams }: { params: Promise<{ locale: string }>; searchParams: Promise<SP> }) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
-  const d = t(locale),
-    b = brief[locale],
-    p = platform[locale];
-  if (!(await currentUser())) redirect(`/${locale}/login`);
-  if (!(await isAdmin())) notFound();
-  const db = preview ? null : await getServerClient(),
-    sp = await searchParams;
-  const tab = tabs.includes(sp.tab as (typeof tabs)[number])
-    ? (sp.tab as (typeof tabs)[number])
-    : "overview";
-  const query = (sp.q ?? "").slice(0, 120),
-    status = (sp.status ?? "").slice(0, 30);
-  const contactMode = sp.kind === "contact";
-  let audit: any[] = [];
-  let rows: any[] = [],
-    failure = false;
-  let counts = { pending: 0, published: 0, reports: 0, total: 0 };
-  if (db) {
-    if (tab === "overview") {
-      const results = await Promise.all([
-        db
-          .from("campaign_revisions")
-          .select("id", { count: "exact", head: true })
-          .eq("status", "pending"),
-        db
-          .from("campaigns")
-          .select("id", { count: "exact", head: true })
-          .eq("status", "published"),
-        db
-          .from("reports")
-          .select("id", { count: "exact", head: true })
-          .eq("handled", false),
-        db.from("campaigns").select("id", { count: "exact", head: true }),
-        db
-          .from("campaign_updates")
-          .select("id", { count: "exact", head: true })
-          .eq("status", "pending"),
-        db
-          .from("review_events")
-          .select("*")
-          .order("created_at", { ascending: false })
-          .limit(25),
-      ]);
-      counts = {
-        pending: (results[0].count ?? 0) + (results[4].count ?? 0),
-        published: results[1].count ?? 0,
-        reports: results[2].count ?? 0,
-        total: results[3].count ?? 0,
-      };
-      audit = results[5].data ?? [];
-      failure = results.some((r) => r.error);
-    } else if (tab === "queue") {
-      const [a, c] = await Promise.all([
-        db
-          .from("campaign_revisions")
-          .select("*")
-          .eq("status", "pending")
-          .order("created_at")
-          .limit(100),
-        db
-          .from("campaign_updates")
-          .select("*")
-          .eq("status", "pending")
-          .order("created_at")
-          .limit(100),
-      ]);
-      rows = [
-        ...(a.data ?? []).map((r) => ({
-          ...r,
-          kind: "revision",
-          title: r.content.title,
-        })),
-        ...(c.data ?? []).map((r) => ({ ...r, kind: "update" })),
-      ];
-      failure = !!a.error || !!c.error;
-    } else if (
-      [
-        "campaigns",
-        "organizers",
-        "reports",
-        "organizations",
-        "analytics",
-      ].includes(tab)
-    ) {
-      const table =
-        tab === "organizers"
-          ? "organizer_profiles"
-          : tab === "reports"
-            ? contactMode
-              ? "contact_messages"
-              : "reports"
-            : tab === "analytics"
-              ? "campaign_metrics"
-              : "campaigns";
-      let request = db.from(table).select("*").limit(100);
-      if (tab === "analytics")
-        request = request.order("outbound_clicks", { ascending: false });
-      else request = request.order("created_at", { ascending: false });
-      if (tab === "organizations")
-        request = request.not("organization_reviewed_at", "is", null);
-      if (tab === "campaigns" && status) request = request.eq("status", status);
-      const result = await request;
-      rows = result.data ?? [];
-      failure = !!result.error;
-    }
-  }
-  if (query)
-    rows = rows.filter((row) =>
-      JSON.stringify(row).toLowerCase().includes(query.toLowerCase()),
-    );
-  let queueRows: QueueRecord[] = [];
-  if (db && tab === "queue" && rows.length) {
-    const ids = [...new Set(rows.map((r) => r.campaign_id))].filter(Boolean);
-    const [snapshots, history] = await Promise.all([
-      db.from("campaigns").select("id,public_content").in("id", ids),
-      db
-        .from("review_events")
-        .select("campaign_id,action,note,created_at")
-        .in("campaign_id", ids)
-        .order("created_at", { ascending: false })
-        .limit(100),
-    ]);
-    failure ||= !!snapshots.error || !!history.error;
-    queueRows = rows.map((r) => ({
-      id: r.id,
-      title: r.title ?? r.content?.title ?? d.updates,
-      status: r.status,
-      kind: r.kind,
-      created_at: r.created_at,
-      campaign_id: r.campaign_id,
-      content: r.content,
-      body: r.body,
-      before: snapshots.data?.find((c) => c.id === r.campaign_id)
-        ?.public_content,
-      history: (history.data ?? []).filter(
-        (event) => event.campaign_id === r.campaign_id,
-      ),
-    }));
-  }
-  const records: AdminRecord[] = rows.map((row) => ({
-    id: row.id,
-    title:
-      row.title ?? row.public_content?.title ?? row.content?.title ?? row.id,
-    status: row.status,
-    kind: tab === "campaigns" ? "campaign" : row.kind,
-    created_at: row.created_at,
-    content: row.content ?? row.public_content,
-    body: row.body,
-    note: row.review_note,
-  }));
+  const me = await requireAdmin(locale);
+  const sp = await searchParams;
+  const tab = TABS.some(([k]) => k === sp.tab) ? sp.tab! : "queue";
+  const counts = await adminCounts();
+  const badge: Record<string, number> = { queue: counts.pending, reports: counts.reports, vouches: counts.vouches, messages: counts.messages, appeals: counts.appeals, users: counts.orgs };
+  const base = `/${locale}/admin`;
   return (
-    <section className="page section admin">
-      <header className="page-head">
-        <p className="eyebrow">{b.privateArea}</p>
-        <h1>{b.admin[tabs.indexOf(tab)]}</h1>
-      </header>
-      <nav className="tabs" aria-label={d.admin}>
-        {tabs.map((key, i) => (
-          <Link
-            key={key}
-            href={`/${locale}/admin?tab=${key}`}
-            aria-current={tab === key ? "page" : undefined}
-          >
-            <Icon name={icons[i]} />
-            {b.admin[i]}
-          </Link>
-        ))}
+    <div className="wrap page admin">
+      <header className="page-head"><h1>Admin</h1><p className="muted">Signed in as {me.profile.display_name}. Every decision is recorded in the audit log.</p></header>
+      <nav className="tabs links" aria-label="Admin sections">
+        {TABS.map(([k, label]) => <Link key={k} href={`${base}?tab=${k}`} aria-current={tab === k ? "page" : undefined}>{label}{badge[k] > 0 && <span className="dot">{badge[k]}</span>}</Link>)}
       </nav>
-      {failure && <p className="notice error">{d.errors}</p>}
-      {tab === "overview" ? (
+      {tab === "queue" && <CampaignList locale={locale} status="pending" q="" empty="Nothing is waiting for review." />}
+      {tab === "campaigns" && (
         <>
-          <div className="admin-metrics">
-            {[
-              [b.pending, counts.pending],
-              [b.published, counts.published],
-              [b.unresolved, counts.reports],
-              [b.admin[1], counts.total],
-            ].map(([label, value]) => (
-              <article key={label}>
-                <span>{label}</span>
-                <strong>{value}</strong>
-              </article>
-            ))}
-          </div>
-          <div className="actions">
-            <Link className="button" href={`/${locale}/admin?tab=queue`}>
-              {b.admin[2]}
-              <Icon name="arrowRight" />
-            </Link>
-            <Link
-              className="button secondary"
-              href={`/${locale}/admin?tab=reports`}
-            >
-              {b.admin[4]}
-            </Link>
-          </div>
-        </>
-      ) : null}
-      {[
-        "campaigns",
-        "queue",
-        "organizers",
-        "reports",
-        "organizations",
-        "analytics",
-      ].includes(tab) && (
-        <>
-          <form className="admin-search">
-            <input type="hidden" name="tab" value={tab} />
-            {contactMode && <input type="hidden" name="kind" value="contact" />}
-            <input
-              name="q"
-              aria-label={d.search}
-              placeholder={d.searchHint}
-              defaultValue={query}
-            />
-            {tab === "campaigns" && (
-              <select name="status" defaultValue={status} aria-label={b.status}>
-                <option value="">{d.any}</option>
-                {[
-                  "pending",
-                  "published",
-                  "needs_changes",
-                  "suspended",
-                  "archived",
-                  "removal_requested",
-                  "declined",
-                ].map((s) => (
-                  <option key={s} value={s}>
-                    {d[s as "pending"] ?? s}
-                  </option>
-                ))}
-              </select>
-            )}
-            <button className="button">{d.search}</button>
+          <form className="row end" method="get" action={base}>
+            <input type="hidden" name="tab" value="campaigns" />
+            <label className="field"><span>Status</span><select className="input" name="status" defaultValue={sp.status ?? "all"}><option value="all">All</option>{STATUSES.map((s) => <option key={s}>{s}</option>)}</select></label>
+            <label className="field grow"><span>Title contains</span><input className="input" name="q" defaultValue={sp.q ?? ""} /></label>
+            <button className="btn">Filter</button>
           </form>
-          {!rows.length && <p className="empty">{b.noData}</p>}
+          <CampaignList locale={locale} status={sp.status ?? "all"} q={sp.q ?? ""} empty="No campaign matches." />
         </>
       )}
-      {rows.length > 0 && tab === "queue" && (
-        <ReviewQueue locale={locale} rows={queueRows} />
-      )}
-      {rows.length > 0 && tab === "campaigns" && (
-        <AdminRecords locale={locale} rows={records} />
-      )}
-      {rows.length > 0 && tab === "organizers" && (
-        <div className="admin-table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>{d.name}</th>
-                <th>{d.email}</th>
-                <th>{b.created}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((row) => (
-                <tr key={row.user_id}>
-                  <td>{row.display_name}</td>
-                  <td>{row.email}</td>
-                  <td>{new Date(row.created_at).toLocaleDateString()}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-      {tab === "reports" && (
-        <div className="actions admin-secondary-nav">
-          <Link className="text-link" href={`/${locale}/admin?tab=reports`}>
-            {d.reports}
-          </Link>
-          <Link
-            className="text-link"
-            href={`/${locale}/admin?tab=reports&kind=contact`}
-          >
-            {d.contact}
-          </Link>
-        </div>
-      )}
-      {tab === "reports" && (
-        <div className="admin-grid">
-          {rows.map((row) => (
-            <article className="dashboard-card" key={row.id}>
-              <span className="status-pill">
-                {row.handled ? b.completed : d.pending}
-              </span>
-              <h2>{row.reason ?? row.name ?? d.contact}</h2>
-              <p>{row.body}</p>
-              <p className="hint">{row.email}</p>
-              {row.campaign_id && (
-                <Link
-                  className="text-link"
-                  href={`/${locale}/campaigns/${row.campaign_id}`}
-                >
-                  {d.explore} →
-                </Link>
+      {tab === "users" && <Users locale={locale} q={sp.q ?? ""} only={sp.only ?? ""} meId={me.id} />}
+      {tab === "reports" && <Reports locale={locale} />}
+      {tab === "vouches" && <Vouches locale={locale} />}
+      {tab === "messages" && <Messages locale={locale} />}
+      {tab === "appeals" && <Appeals locale={locale} />}
+      {tab === "settings" && <SettingsTab />}
+      {tab === "audit" && <Audit locale={locale} />}
+    </div>
+  );
+}
+async function CampaignList({ locale, status, q, empty }: { locale: Locale; status: string; q: string; empty: string }) {
+  const items = await adminCampaigns(status, q);
+  if (!items.length) return <div className="empty"><p>{empty}</p></div>;
+  return (
+    <ul className="rows">
+      {items.map((c) => (
+        <li key={c.id}>
+          <div>
+            <div className="row tight"><StatusPill status={c.status} locale="en" /><TierBadge tier={c.tier} locale="en" />{c.urgent && <span className="badge urgent">Urgent</span>}{c.emergency && <span className="badge urgent">Emergency</span>}{c.featured && <span className="chip">Featured</span>}</div>
+            <h2><Link href={`/${locale}/admin/campaigns/${c.id}`}>{c.title}</Link></h2>
+            <p className="small muted">{c.owner?.display_name ?? "Unknown"}, {[c.commune, c.department].filter(Boolean).join(", ") || "no place"}, {c.submitted_at ? `submitted ${fmtDate(c.submitted_at, "en")}` : `updated ${fmtDate(c.updated_at, "en")}`}</p>
+          </div>
+          <Link className="btn small" href={`/${locale}/admin/campaigns/${c.id}`}>Review</Link>
+        </li>
+      ))}
+    </ul>
+  );
+}
+async function Users({ locale, q, only, meId }: { locale: Locale; q: string; only: string; meId: string }) {
+  const users = await adminUsers(q, only);
+  return (
+    <>
+      <form className="row end" method="get" action={`/${locale}/admin`}>
+        <input type="hidden" name="tab" value="users" />
+        <label className="field grow"><span>Name contains</span><input className="input" name="q" defaultValue={q} /></label>
+        <label className="field"><span>Show</span><select className="input" name="only" defaultValue={only}><option value="">Everyone</option><option value="orgs">Organizations</option><option value="banned">Restricted</option><option value="admins">Admins</option></select></label>
+        <button className="btn">Filter</button>
+      </form>
+      {!users.length ? <div className="empty"><p>No user matches.</p></div> : (
+        <ul className="rows">
+          {users.map((u) => (
+            <li key={u.id}>
+              <div>
+                <div className="row tight">{u.role === "admin" && <span className="chip">Admin</span>}{u.banned && <span className="badge urgent">Restricted</span>}{u.kind === "organization" && <span className="chip">{u.org_verified ? "Verified organization" : "Organization, not verified"}</span>}</div>
+                <h2><Link href={`/${locale}/u/${u.id}`}>{u.display_name}</Link>{u.org_name ? ` (${u.org_name})` : ""}</h2>
+                <p className="small muted">Joined {fmtDate(u.created_at, "en")}{u.city ? `, ${u.city}` : ""}{u.org_type ? `, ${u.org_type}` : ""}</p>
+              </div>
+              {u.id !== meId && (
+                <div className="row">
+                  {u.kind === "organization" && <form action={verifyOrg}><Hidden v={{ user_id: u.id, on: u.org_verified ? "0" : "1" }} /><button className="btn small">{u.org_verified ? "Remove badge" : "Verify organization"}</button></form>}
+                  <form action={setBan}><Hidden v={{ user_id: u.id, banned: u.banned ? "0" : "1" }} /><Confirm label={u.banned ? "Lift restriction" : "Restrict account"} confirm={u.banned ? "Confirm: lift" : "Confirm: restrict and suspend their campaigns"} /></form>
+                  <form action={setRole}><Hidden v={{ user_id: u.id, role: u.role === "admin" ? "user" : "admin" }} /><Confirm label={u.role === "admin" ? "Remove admin" : "Make admin"} confirm="Confirm role change" className="btn small ghost" /></form>
+                </div>
               )}
-              {!row.handled && (
-                <ReviewForm
-                  locale={locale}
-                  id={row.id}
-                  kind={contactMode ? "contact" : "report"}
-                />
-              )}
-            </article>
+            </li>
           ))}
+        </ul>
+      )}
+    </>
+  );
+}
+async function Reports({ locale }: { locale: Locale }) {
+  const items = await adminReports();
+  if (!items.length) return <div className="empty"><p>No reports.</p></div>;
+  return (
+    <ul className="rows">
+      {items.map((r) => (
+        <li key={r.id} className={r.handled ? "" : "unread"}>
+          <div>
+            <p><strong>{String(r.reason).replace("_", " ")}</strong> on {r.campaign ? <Link href={`/${locale}/admin/campaigns/${r.campaign.id}`}>{r.campaign.title}</Link> : "a deleted campaign"}</p>
+            {r.body && <p>{r.body}</p>}
+            <p className="small muted">{fmtDate(r.created_at, "en")}</p>
+          </div>
+          <form action={resolveItem}><Hidden v={{ id: r.id, table: "reports", handled: r.handled ? "0" : "1" }} /><button className="btn small">{r.handled ? "Reopen" : "Mark handled"}</button></form>
+        </li>
+      ))}
+    </ul>
+  );
+}
+async function Vouches({ locale }: { locale: Locale }) {
+  const items = await adminVouches();
+  if (!items.length) return <div className="empty"><p>No vouches yet.</p></div>;
+  return (
+    <ul className="rows">
+      {items.map((v) => (
+        <li key={v.id} className={v.status === "pending" ? "unread" : ""}>
+          <div>
+            <p><strong>{v.voucher?.display_name ?? "Member"}</strong> ({v.role}{v.organization ? `, ${v.organization}` : ""}) vouches for {v.campaign ? <Link href={`/${locale}/admin/campaigns/${v.campaign.id}`}>{v.campaign.title}</Link> : "a deleted campaign"}</p>
+            <p>{v.statement}</p>
+            <p className="small muted">{v.status}, {fmtDate(v.created_at, "en")}</p>
+          </div>
+          <div className="row">
+            {v.status !== "approved" && <form action={decideVouch}><Hidden v={{ id: v.id, status: "approved" }} /><button className="btn small primary">Approve</button></form>}
+            {v.status !== "declined" && <form action={decideVouch}><Hidden v={{ id: v.id, status: "declined" }} /><button className="btn small ghost">Decline</button></form>}
+          </div>
+        </li>
+      ))}
+    </ul>
+  );
+}
+async function Messages({ locale: _ }: { locale: Locale }) {
+  const items = await adminMessages();
+  if (!items.length) return <div className="empty"><p>No messages.</p></div>;
+  return (
+    <ul className="rows">
+      {items.map((m) => (
+        <li key={m.id} className={m.handled ? "" : "unread"}>
+          <div>
+            <p><strong>{m.name || "No name"}</strong> <a href={`mailto:${m.email}`}>{m.email}</a>{m.topic ? `, ${m.topic}` : ""}</p>
+            <p>{m.body}</p>
+            <p className="small muted">{fmtDate(m.created_at, "en")}</p>
+          </div>
+          <form action={resolveItem}><Hidden v={{ id: m.id, table: "contact_messages", handled: m.handled ? "0" : "1" }} /><button className="btn small">{m.handled ? "Reopen" : "Mark handled"}</button></form>
+        </li>
+      ))}
+    </ul>
+  );
+}
+async function Appeals({ locale }: { locale: Locale }) {
+  const items = await adminAppeals();
+  if (!items.length) return <div className="empty"><p>No appeals.</p></div>;
+  return (
+    <ul className="rows">
+      {items.map((a) => (
+        <li key={a.id} className={a.status === "open" ? "unread" : ""}>
+          <div>
+            <p><strong>{a.user?.display_name ?? "Member"}</strong>{a.campaign ? <> about <Link href={`/${locale}/admin/campaigns/${a.campaign.id}`}>{a.campaign.title}</Link></> : ""} <span className="chip">{a.status}</span></p>
+            <p>{a.body}</p>
+            {a.admin_note && <p className="muted">Note: {a.admin_note}</p>}
+            <p className="small muted">{fmtDate(a.created_at, "en")}</p>
+          </div>
+          {a.status === "open" && (
+            <form action={decideAppeal} className="stack">
+              <input type="hidden" name="id" value={a.id} />
+              <input className="input" name="note" placeholder="Note for the record" maxLength={1000} />
+              <div className="row"><button className="btn small primary" name="status" value="accepted">Accept</button><button className="btn small ghost" name="status" value="declined">Decline</button></div>
+            </form>
+          )}
+        </li>
+      ))}
+    </ul>
+  );
+}
+async function SettingsTab() {
+  const [settings, cats, blocks] = await Promise.all([getSettings(), adminCategories(), adminBlocklist()]);
+  return (
+    <div className="two-col">
+      <div className="stack">
+        <ActionForm action={saveSettings} className="stack panel">
+          <h2>Emergency mode</h2>
+          <p className="small muted">Shows a banner on every page that links to emergency campaigns. Mark campaigns as “Emergency” when you review them, and they move to the top of the queue.</p>
+          <label className="check"><input type="checkbox" name="active" defaultChecked={settings.emergency.active} /><span>Emergency mode is on</span></label>
+          <label className="field"><span>Banner, Kreyòl</span><input className="input" name="ht" maxLength={300} defaultValue={settings.emergency.ht} /></label>
+          <label className="field"><span>Banner, Français</span><input className="input" name="fr" maxLength={300} defaultValue={settings.emergency.fr} /></label>
+          <label className="field"><span>Banner, English</span><input className="input" name="en" maxLength={300} defaultValue={settings.emergency.en} /></label>
+          <h2>Exchange rate</h2>
+          <label className="field"><span>Gourdes for 1 US dollar</span><input className="input" name="rate" inputMode="decimal" required defaultValue={settings.rate.htg_per_usd} /><small>Used to show campaign progress in both currencies. Update it when the rate moves.</small></label>
+          <Submit>Save settings</Submit>
+        </ActionForm>
+        <div className="panel stack">
+          <h2>Blocklist</h2>
+          <p className="small muted">Phone numbers, account numbers, emails or names tied to fraud. Any campaign that contains one is flagged during review.</p>
+          <ActionForm action={addBlock} className="row end" reset>
+            <label className="field grow"><span>Value</span><input className="input" name="value" required minLength={3} maxLength={200} /></label>
+            <label className="field grow"><span>Note</span><input className="input" name="note" maxLength={300} /></label>
+            <Submit className="btn">Add</Submit>
+          </ActionForm>
+          {blocks.length > 0 && <ul className="rows">{blocks.map((b) => <li key={b.id}><div><p><strong>{b.value}</strong></p>{b.note && <p className="small muted">{b.note}</p>}</div><form action={removeBlock}><input type="hidden" name="id" value={b.id} /><button className="btn small ghost">Remove</button></form></li>)}</ul>}
         </div>
-      )}
-      {tab === "organizations" && (
-        <>
-          <p className="hint">{b.organizationNote}</p>
-          <div className="dashboard-list">
-            {rows.map((row) => (
-              <article className="dashboard-card" key={row.id}>
-                <h2>{row.public_content.organizer_name}</h2>
-                <p>{row.public_content.title}</p>
-                <span className="card-review">
-                  <Icon name="check" />
-                  {d.orgReviewed}
-                </span>
-                <Link
-                  className="text-link"
-                  href={`/${locale}/campaigns/${row.id}`}
-                >
-                  {d.explore} →
-                </Link>
-              </article>
-            ))}
-          </div>
-        </>
-      )}
-      {tab === "content" && (
-        <>
-          <h2>{b.contentNote}</h2>
-          <div className="dashboard-list">
-            {guides[locale].map((guide) => (
-              <article className="dashboard-card" key={guide.slug}>
-                <h3>{guide.title}</h3>
-                <p className="hint">{guide.intro}</p>
-                <Link
-                  className="text-link"
-                  href={`/${locale}/resources/${guide.slug}`}
-                >
-                  {p.guide} →
-                </Link>
-              </article>
-            ))}
-          </div>
-        </>
-      )}
-      {tab === "analytics" && rows.length > 0 && (
-        <>
-          <h2>{b.analyticsNote}</h2>
-          <div className="admin-table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>{d.title}</th>
-                  <th>{b.outbound}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map((row) => (
-                  <tr key={row.campaign_id}>
-                    <td>
-                      <Link
-                        className="text-link"
-                        href={`/${locale}/campaigns/${row.campaign_id}`}
-                      >
-                        {row.campaign_id}
-                      </Link>
-                    </td>
-                    <td>{row.outbound_clicks}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </>
-      )}
-      {tab === "overview" && audit.length > 0 && (
-        <section className="audit-section">
-          <h2>{d.activity}</h2>
-          <div className="admin-table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>{b.created}</th>
-                  <th>{b.admin[2]}</th>
-                  <th>{b.admin[3]}</th>
-                  <th>{b.reason}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {audit.map((row) => (
-                  <tr key={row.id}>
-                    <td>
-                      {new Date(row.created_at).toLocaleString(
-                        locale === "ht" ? "fr-HT" : locale,
-                      )}
-                    </td>
-                    <td>{row.action}</td>
-                    <td>{row.actor_id}</td>
-                    <td>{row.note}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </section>
-      )}
-      {tab === "settings" && (
-        <>
-          <h2>{b.settingsNote}</h2>
-          <dl className="settings-list">
-            <div>
-              <dt>{d.sourceLanguage}</dt>
-              <dd>Kreyòl · Français · English</dd>
-            </div>
-            <div>
-              <dt>{d.categories}</dt>
-              <dd>{categoryKeys.map((c) => d[c]).join(" · ")}</dd>
-            </div>
-            <div>
-              <dt>{d.verification}</dt>
-              <dd>{b.step2body}</dd>
-            </div>
-            <div>
-              <dt>{d.disclosures}</dt>
-              <dd>{d.disclosure}</dd>
-            </div>
-            <div>
-              <dt>{p.resources}</dt>
-              <dd>
-                <Link href={`/${locale}/resources`}>{p.resources} →</Link>
-              </dd>
-            </div>
-          </dl>
-        </>
-      )}
-    </section>
+      </div>
+      <div className="panel stack">
+        <h2>Causes</h2>
+        <p className="small muted">Shown on the home page, the filters and the campaign form. Departments are fixed to Haiti's ten departments plus Diaspora.</p>
+        {cats.map((c) => (
+          <details key={c.slug} className="edit-row">
+            <summary>{c.name_en} <span className="muted small">{c.slug}{c.active ? "" : ", hidden"}</span></summary>
+            <ActionForm action={saveCategory} className="stack">
+              <input type="hidden" name="slug" value={c.slug} />
+              <div className="grid-2"><label className="field"><span>Kreyòl</span><input className="input" name="name_ht" defaultValue={c.name_ht} required /></label><label className="field"><span>Français</span><input className="input" name="name_fr" defaultValue={c.name_fr} required /></label></div>
+              <div className="grid-2"><label className="field"><span>English</span><input className="input" name="name_en" defaultValue={c.name_en} required /></label><label className="field"><span>Order</span><input className="input" name="position" inputMode="numeric" defaultValue={c.position} /></label></div>
+              <label className="check"><input type="checkbox" name="active" defaultChecked={c.active} /><span>Visible</span></label>
+              <Submit className="btn small">Save cause</Submit>
+            </ActionForm>
+          </details>
+        ))}
+        <details className="edit-row">
+          <summary>Add a cause</summary>
+          <ActionForm action={saveCategory} className="stack" reset>
+            <label className="field"><span>Slug (lowercase, no spaces)</span><input className="input" name="slug" required pattern="[a-z0-9-]{2,40}" /></label>
+            <div className="grid-2"><label className="field"><span>Kreyòl</span><input className="input" name="name_ht" required /></label><label className="field"><span>Français</span><input className="input" name="name_fr" required /></label></div>
+            <div className="grid-2"><label className="field"><span>English</span><input className="input" name="name_en" required /></label><label className="field"><span>Order</span><input className="input" name="position" inputMode="numeric" defaultValue={20} /></label></div>
+            <input type="hidden" name="active" value="on" />
+            <Submit className="btn small">Add cause</Submit>
+          </ActionForm>
+        </details>
+      </div>
+    </div>
+  );
+}
+async function Audit({ locale: _ }: { locale: Locale }) {
+  const items = await adminAudit();
+  if (!items.length) return <div className="empty"><p>No actions recorded yet.</p></div>;
+  return (
+    <div className="table-wrap">
+      <table className="table">
+        <thead><tr><th>When</th><th>Who</th><th>Action</th><th>Target</th><th>Note</th></tr></thead>
+        <tbody>{items.map((a) => <tr key={a.id}><td>{new Date(a.created_at).toISOString().slice(0, 16).replace("T", " ")}</td><td>{a.actor?.display_name ?? "Removed user"}</td><td>{a.action}</td><td>{a.target_type}</td><td>{a.note ?? ""}</td></tr>)}</tbody>
+      </table>
+    </div>
   );
 }

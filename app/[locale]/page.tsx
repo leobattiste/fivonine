@@ -1,162 +1,118 @@
-export const dynamic = "force-dynamic";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { isLocale, t, categoryKeys } from "@/lib/i18n";
-import { brief } from "@/lib/brief";
-import { editorial } from "@/lib/editorial";
-import { publicCampaigns } from "@/lib/data";
-import CampaignCard from "@/components/CampaignCard";
-import Media from "@/components/Media";
-import Icon from "@/components/Icon";
-export default async function Home({
-  params,
-}: {
-  params: Promise<{ locale: string }>;
-}) {
+import Icon, { causeIcon, type IconName } from "@/components/Icon";
+import { CampaignCard } from "@/components/Campaign";
+import { HowTabs } from "@/components/Bits";
+import { featuredCampaigns, getCategories, getSettings, getStats } from "@/lib/data";
+import { isLocale, t } from "@/lib/i18n";
+import { isLite } from "@/lib/prefs";
+import { fmtNumber } from "@/lib/format";
+
+const trustIcons: IconName[] = ["eye", "badge", "church", "shield"];
+export default async function Home({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
-  const d = t(locale),
-    b = brief[locale],
-    e = editorial[locale];
-  const { items } = await publicCampaigns();
-  const lead = items.find((c) => c.featured);
-  const recent = items.filter((c) => c.id !== lead?.id).slice(0, 3);
+  const d = t(locale), h = d.home;
+  const [allFeatured, cats, settings, stats, lite] = await Promise.all([featuredCampaigns(), getCategories(), getSettings(), getStats(), isLite()]);
+  const featured = allFeatured.length >= 4 ? allFeatured.slice(0, 4) : allFeatured.slice(0, 3);
   return (
     <>
-      <section className="page editorial-hero" data-home-section="hero">
-        <p className="eyebrow">
-          <span className="status-dot" />
-          {e.territory}
-        </p>
-        <h1>
-          <span>{e.home[0]}</span>
-          <span>{e.home[1]}</span>
-        </h1>
-        <div className="hero-baseline">
-          <p>{e.intro}</p>
-          <form action={`/${locale}/explore`} className="hero-search">
-            <label>
-              <span className="sr-only">{e.searchLabel}</span>
-              <Icon name="search" />
-              <input name="q" placeholder={e.search} maxLength={120} />
-            </label>
-            <button aria-label={e.searchLabel}>
-              <Icon name="arrowRight" />
-            </button>
-          </form>
-        </div>
-      </section>
-      <section
-        className="page cause-index-section"
-        data-home-section="categories"
-      >
-        <div className="editorial-section-intro">
-          <h2>{e.causes}</h2>
-          <p>{e.causeIntro}</p>
-        </div>
-        <div className="cause-index">
-          {categoryKeys.map((key, i) => (
-            <Link href={`/${locale}/causes/${key}`} key={key}>
-              <span className="index-number">0{i + 1}</span>
-              <Icon
-                name={
-                  (["bookmark", "heart", "sparkle", "users", "door"] as const)[
-                    i
-                  ]
-                }
-              />
-              <span>{d[key]}</span>
-              <Icon name="arrowRight" />
-            </Link>
-          ))}
-        </div>
-      </section>
-      {lead && (
-        <section className="page section" data-home-section="featured">
-          <p className="eyebrow section-kicker">{e.selected}</p>
-          <Link href={`/${locale}/campaigns/${lead.id}`} className="lead-story">
-            <Media
-              src={lead.public_content.photo_url}
-              alt={lead.public_content.title}
-              category={lead.public_content.category}
-            />
-            <div>
-              <p className="eyebrow">
-                {d[lead.public_content.category]} · {lead.public_content.region}
-              </p>
-              <h2>{lead.public_content.title}</h2>
-              <p>{lead.public_content.story.slice(0, 240)}</p>
-              <span className="text-link">
-                {b.view}
-                <Icon name="arrowRight" />
-              </span>
-            </div>
-          </Link>
-        </section>
-      )}
-      {recent.length > 0 && (
-        <section className="page section" data-home-section="recent">
-          <div className="section-head">
-            <h2>{e.recent}</h2>
-            <Link className="text-link" href={`/${locale}/explore`}>
-              {e.all}
-              <Icon name="arrowRight" />
-            </Link>
-          </div>
-          <div className="campaign-grid">
-            {recent.map((c) => (
-              <CampaignCard key={c.id} campaign={c} locale={locale} />
-            ))}
-          </div>
-        </section>
-      )}
-      <section className="home-manifesto" data-home-section="trust">
-        <div className="page manifesto-inner">
-          <p className="eyebrow">pote kole. / {d.about}</p>
-          <h2>{e.why}</h2>
+      <section className="hero">
+        <div className="wrap hero-grid">
           <div>
-            <p>{e.whyBody}</p>
-            <Link className="text-link" href={`/${locale}/about`}>
-              {e.whyLink}
-              <Icon name="arrowRight" />
-            </Link>
+            <h1 className="display">{h.headline}</h1>
+            <p className="lead">{h.sub}</p>
+            <div className="row">
+              <Link className="btn primary large" href={`/${locale}/donate`}>{h.explore}</Link>
+              <Link className="btn large" href={`/${locale}/create`}>{h.create}</Link>
+            </div>
+            {stats.live > 0 && (
+              <dl className="hero-stats">
+                <div><dt>{fmtNumber(stats.live, locale)}</dt><dd>{h.stats.live}</dd></div>
+                <div><dt>{fmtNumber(stats.completed, locale)}</dt><dd>{h.stats.completed}</dd></div>
+                <div><dt>{fmtNumber(stats.verified, locale)}</dt><dd>{h.stats.verified}</dd></div>
+              </dl>
+            )}
+          </div>
+          <figure className="hero-slip" aria-label={h.slipTitle}>
+            <div className="slip tilt">
+              <p className="slip-title">{d.support.title}</p>
+              {["Western Union", "MonCash", "Unibank"].map((name, i) => (
+                <div className="slip-row" key={name}>
+                  <div className="slip-head"><strong>{name}</strong><span className="ghost-copy"><Icon name="copy" size={15} />{d.common.copy}</span></div>
+                  <p className="slip-details muted">{[h.slipLine1, h.slipLine3, h.slipLine3][i]}{i === 0 && <><br />{h.slipLine2}</>}</p>
+                </div>
+              ))}
+            </div>
+            <figcaption className="small muted">{h.slipNote}</figcaption>
+          </figure>
+        </div>
+      </section>
+
+      <section className="section">
+        <div className="wrap">
+          <div className="section-head">
+            <h2>{h.featured}</h2>
+            <Link className="btn small ghost" href={`/${locale}/donate`}>{d.common.seeAll}</Link>
+          </div>
+          {featured.length ? (
+            <div className="card-grid feature">
+              {featured.map((c, i) => <CampaignCard key={c.id} c={c} locale={locale} settings={settings} cats={cats} lite={lite} wide={i === 0 && featured.length === 4} />)}
+            </div>
+          ) : (
+            <div className="empty"><p>{h.featuredEmpty}</p><Link className="btn primary" href={`/${locale}/create`}>{h.create}</Link></div>
+          )}
+        </div>
+      </section>
+
+      <section className="section tint">
+        <div className="wrap">
+          <h2>{h.howTitle}</h2>
+          <HowTabs locale={locale} />
+        </div>
+      </section>
+
+      <section className="section">
+        <div className="wrap">
+          <h2 className="measure">{h.trustTitle}</h2>
+          <ul className="trust-grid">
+            {h.trust.map(([title, body], i) => (
+              <li key={title}><Icon name={trustIcons[i]} size={26} /><h3>{title}</h3><p>{body}</p></li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
+      {cats.length > 0 && (
+        <section className="section tint">
+          <div className="wrap">
+            <h2>{h.causesTitle}</h2>
+            <ul className="cause-grid">
+              {cats.map((c) => (
+                <li key={c.slug}><Link href={`/${locale}/donate?cause=${c.slug}`}><Icon name={causeIcon[c.slug] ?? "hand"} size={22} />{c[`name_${locale}`]}</Link></li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      )}
+
+      <section className="section">
+        <div className="wrap faq-grid">
+          <h2>{h.faqTitle}</h2>
+          <div className="faq">
+            {h.faq.map(([q, a]) => (
+              <details key={q}><summary>{q}</summary><p>{a}</p></details>
+            ))}
+            <Link className="btn small ghost" href={`/${locale}/help`}>{d.footer.help}</Link>
           </div>
         </div>
       </section>
-      <section className="page section home-how" data-home-section="how">
-        <div className="section-head">
-          <h2>{e.method}</h2>
-          <Link className="text-link" href={`/${locale}/how-it-works`}>
-            {d.how}
-            <Icon name="arrowRight" />
-          </Link>
+
+      <section className="cta">
+        <div className="wrap cta-inner">
+          <div><h2>{h.ctaTitle}</h2><p>{h.ctaBody}</p></div>
+          <Link className="btn large invert" href={`/${locale}/create`}>{h.create}</Link>
         </div>
-        <div className="process-row">
-          {[1, 2, 3].map((n) => (
-            <article key={n}>
-              <span className="process-mark">
-                <Icon
-                  name={(["content", "reviews", "globe"] as const)[n - 1]}
-                />
-              </span>
-              <h3>{b[`step${n}` as "step1"]}</h3>
-              <p>{b[`step${n}body` as "step1body"]}</p>
-            </article>
-          ))}
-        </div>
-      </section>
-      <section className="page invitation-section" data-home-section="submit">
-        <div>
-          <h2>{e.invitation}</h2>
-          <p>{e.invitationBody}</p>
-        </div>
-        <Link
-          href={`/${locale}/submit`}
-          className="round-link"
-          aria-label={d.create}
-        >
-          <Icon name="arrowRight" />
-        </Link>
       </section>
     </>
   );

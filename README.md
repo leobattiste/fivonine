@@ -1,49 +1,37 @@
-# Pote Kole
+# Fivonine
 
-A Haitian fundraising discovery platform. Organizers provide stories, text support instructions, and optional HTTPS links. Payments take place outside this application.
+A fundraising platform for Haitians. Organizers publish a campaign and the ways they receive support (Western Union, MonCash, a bank account and more). Supporters send money directly. Fivonine never holds or moves funds, and every campaign is reviewed by an admin before it is public.
 
-Repository: `leobattiste/fivonine`. Hosting: https://fivonine.vercel.app. Dedicated Supabase project: `jhepbvepnuhavhgpsjwy` (`fivonine`). Do not modify Pheelm.
+Hosting: Vercel (`fivonine.vercel.app`). Database, sign-in and file storage: Supabase project `fivonine` (`jhepbvepnuhavhgpsjwy`).
 
-## Run
+## Run locally
 
 ```sh
 npm ci
-cp .env.example .env.local
+cp .env.example .env.local   # add the Supabase URL and publishable key
 npm run dev
 ```
 
-Use the dedicated project's publishable key and API URL. The server-only `APP_BACKEND_SECRET` must match the SHA-256 hash stored in `private.backend_credentials`. Never commit the token or use it in a `NEXT_PUBLIC_` variable. Without database configuration the directory is empty; there are no demo campaigns. Admin access always requires authentication and a `platform_admins` membership.
+To preview the design without a database, run with sample data: `FIVONINE_FIXTURES=1 FIVONINE_FIXTURE_USER=admin npm run dev`. Never set these on Vercel.
 
-## Features
+## What is where
 
-- White, green (`#1f503b`), and very light green (`#f0faef`); self-hosted Geist and Hugeicons.
-- English, French, and Haitian Creole; remembered language preference; responsive navigation.
-- Live directory, keyword/location/category/status search, updated/created sorting, and 12-item pagination.
-- Four-step submissions, confirmed-email sign-in, organizer management, reviewed revisions and updates, and removal requests.
-- Private moderator workspace with approval queue, reports/contact inbox, audit history and aggregate outbound clicks. Content and Settings summarize the application configuration; they are not a CMS.
-- RLS on every application table. Privileged workflows live in a non-exposed schema behind invoker RPCs. Anonymous contact/rate-limit/metrics actions use a bounded server-token gateway rather than a service-role key.
-- No sample campaigns or deployment-preview banners. Campaign collections appear on the homepage when published records exist.
+- `app/[locale]/` pages in Kreyòl (`ht`, default), French and English. Menu: Home, Donate, Create campaign, How it works, About. Everything else is in the footer.
+- `app/actions.ts` member actions. `app/admin-actions.ts` admin actions (each one writes to the audit log).
+- `lib/dict/` all interface text. `lib/constants.ts` support methods and departments.
+- `supabase/schema.sql` the full database: tables, row-level security, triggers and storage rules.
 
-## Checks
+## Rules the database enforces
 
-```sh
-npm test
-npm run typecheck
-npm run build
-npm run start -- --port 3040
-npm run test:browser
-```
+- The public sees only campaigns that are `live` or `completed`. Organizers cannot publish, feature or badge their own campaign.
+- Changing a public campaign, including its support details, sends it back to review.
+- IDs, selfies, documents and contact details are private to the organizer and admins. Verification files sit in a private storage bucket.
+- "I sent it" amounts are self-reported and labelled that way. The reporter's account is never exposed.
 
-The GitHub workflow tests a disposable PostgreSQL instance. `tests/bootstrap.sql` is a local-only auth shim: never run it on Supabase. The optional connected-browser scripts require a deliberately provisioned temporary QA identity, create private test records, and must be followed by cleanup. They never publish campaigns or send email.
+## Before launch
 
-Read [docs/HANDOFF.md](docs/HANDOFF.md) and [docs/SUPABASE-SETUP.md](docs/SUPABASE-SETUP.md) for operational configuration and remaining email setup.
-
-## Editorial redesign
-
-The current design uses a typographic homepage, a cause index, compact search/filter controls, distinct editorial page layouts, and a green footer. The stock-photo hero is removed. Geist, Hugeicons and the three-color palette remain.
-
-Organizer improvements include an explicit device-local draft save/restore, image cropping and private cover uploads, and an authenticated listing preview before publication. Drafts are scoped to the organizer/locale/listing and cleared after a successful submission. They are not cloud-synced.
-
-`covers` is a private Storage bucket with owner writes and owner/moderator reads. The JWT-verified `campaign-cover` Edge Function serves a photo only if a currently published campaign points to its exact reference. The Next.js `/api/cover` adapter uses server-side `SUPABASE_EDGE_ANON_KEY`; no service-role key is sent to the browser. The function uses its built-in service credentials only after the public RLS publication check. New bucket policies are in `supabase/cover-storage.sql` and are already applied to the dedicated project.
-
-The review queue now has a document workspace with existing/proposed values, review history and decision controls. Settings and Content remain informational summaries, not a CMS. Sign-in preserves safe return destinations; mail delivery configuration still needs owner verification.
+1. Sign up on the site, then make that account an admin: `update public.profiles set role='admin' where id='<your user id>';`
+2. In Supabase Authentication: set the Site URL, allow `https://<domain>/*/auth/callback`, and add custom SMTP (the built-in mailer only sends a few emails per hour).
+3. In Vercel: set `NEXT_PUBLIC_SITE_URL`, `RESEND_API_KEY`, `RESEND_FROM` and `CRON_SECRET` so notification emails send. `APP_BACKEND_SECRET` is already set.
+4. Have a lawyer review Terms, Privacy and the guidelines. Have a native speaker review the Kreyòl and French text.
+5. Set `PUBLIC_LAUNCH=true` to let search engines index the site.

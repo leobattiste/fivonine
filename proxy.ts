@@ -1,23 +1,20 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
-import {
-  SUPABASE_ANON_KEY,
-  SUPABASE_URL,
-  supabaseEnabled,
-} from "@/lib/supabase/config";
+import { SUPABASE_KEY, SUPABASE_URL, supabaseEnabled } from "@/lib/supabase/config";
+import { LOCALE_COOKIE, isLocale } from "@/lib/i18n";
 export async function proxy(request: NextRequest) {
-  if (request.nextUrl.pathname === "/") {
-    const saved = request.cookies.get("pote-kole-locale")?.value;
-    return NextResponse.redirect(
-      new URL(
-        `/${["ht", "fr", "en"].includes(saved ?? "") ? saved : "ht"}`,
-        request.url,
-      ),
-    );
+  const { pathname } = request.nextUrl;
+  const first = pathname.split("/")[1] ?? "";
+  if (!isLocale(first)) {
+    const saved = request.cookies.get(LOCALE_COOKIE)?.value ?? "";
+    const url = request.nextUrl.clone();
+    url.pathname = `/${isLocale(saved) ? saved : "ht"}${pathname === "/" ? "" : pathname}`;
+    return NextResponse.redirect(url);
   }
+  request.headers.set("x-fivonine-locale", first);
   let response = NextResponse.next({ request });
   if (!supabaseEnabled) return response;
-  const db = createServerClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  const sb = createServerClient(SUPABASE_URL, SUPABASE_KEY, {
     cookies: {
       getAll: () => request.cookies.getAll(),
       setAll: (list) => {
@@ -27,9 +24,7 @@ export async function proxy(request: NextRequest) {
       },
     },
   });
-  await db.auth.getUser();
+  await sb.auth.getUser();
   return response;
 }
-export const config = {
-  matcher: ["/((?!_next|illustrations|fonts|icon|robots|sitemap|.*\\..*).*)"],
-};
+export const config = { matcher: ["/((?!_next|api|fonts|icons|manifest.webmanifest|sw.js|robots.txt|sitemap.xml|.*\\..*).*)"] };
