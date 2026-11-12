@@ -15,6 +15,7 @@ export function mediaUrl(path: string | null | undefined) {
     const svg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 600'><rect width='800' height='600' fill='${tints[i % 6]}'/><circle cx='${200 + i * 70}' cy='260' r='170' fill='%23f0faef' opacity='.18'/><rect y='430' width='800' height='170' fill='%23000' opacity='.14'/></svg>`;
     return `data:image/svg+xml;utf8,${svg.replace(/#/g, "%23")}`;
   }
+  if (path.startsWith("demo:")) return `/demo/${path.slice(5)}`;
   return `${SUPABASE_URL}/storage/v1/object/public/media/${path.split("/").map(encodeURIComponent).join("/")}`;
 }
 /** Self-reported total, expressed in the campaign's goal currency. */
