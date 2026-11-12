@@ -7,14 +7,9 @@ import { LOCALE_COOKIE, localeNames, locales, t, type Locale } from "@/lib/i18n"
 export default function Header({ locale, viewer }: { locale: Locale; viewer: { name: string; admin: boolean; unread: number } | null }) {
   const d = t(locale).nav, path = usePathname();
   const dialog = useRef<HTMLDialogElement>(null);
-  const [dark, setDark] = useState(false);
   useEffect(() => {
     dialog.current?.close();
   }, [path]);
-  useEffect(() => {
-    const set = document.documentElement.dataset.theme;
-    setDark(set ? set === "dark" : window.matchMedia("(prefers-color-scheme: dark)").matches);
-  }, []);
   const links: [string, string][] = [["", d.home], ["/donate", d.donate], ["/create", d.create], ["/how-it-works", d.how], ["/about", d.about]];
   const active = (href: string) => (href === "" ? path === `/${locale}` : path.startsWith(`/${locale}${href}`));
   const nav = links.map(([href, label]) => (
@@ -23,12 +18,6 @@ export default function Header({ locale, viewer }: { locale: Locale; viewer: { n
   const switchLocale = (next: string) => {
     document.cookie = `${LOCALE_COOKIE}=${next};path=/;max-age=31536000;SameSite=Lax`;
     location.assign(path.replace(/^\/(ht|en|fr)(?=\/|$)/, `/${next}`) + location.search);
-  };
-  const toggleTheme = () => {
-    const next = dark ? "light" : "dark";
-    document.documentElement.dataset.theme = next;
-    try { localStorage.setItem("fivonine-theme", next); } catch {}
-    setDark(!dark);
   };
   const language = (
     <label className="lang">
@@ -56,7 +45,6 @@ export default function Header({ locale, viewer }: { locale: Locale; viewer: { n
         <nav className="desktop-nav" aria-label={d.menu}>{nav}</nav>
         <div className="header-actions">
           {language}
-          <button className="icon-btn" onClick={toggleTheme} aria-label={d.theme} title={d.theme}><Icon name={dark ? "sun" : "moon"} size={18} /></button>
           <span className="desktop-only">{viewer?.admin && <Link className="btn small ghost" href={`/${locale}/admin`}>{d.admin}</Link>}</span>
           <span className="desktop-only">{account}</span>
           <button className="icon-btn mobile-only" onClick={() => dialog.current?.showModal()} aria-label={d.menu}><Icon name="menu" /></button>

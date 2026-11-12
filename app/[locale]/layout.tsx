@@ -29,11 +29,10 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   };
 }
 export const viewport: Viewport = {
-  themeColor: [{ media: "(prefers-color-scheme: light)", color: "#ffffff" }, { media: "(prefers-color-scheme: dark)", color: "#0b1711" }],
+  themeColor: "#ffffff",
   width: "device-width",
   initialScale: 1,
 };
-const themeScript = `try{var t=localStorage.getItem("fivonine-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}`;
 
 export default async function Layout({ children, params }: { children: React.ReactNode; params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -43,9 +42,6 @@ export default async function Layout({ children, params }: { children: React.Rea
   const banner = settings.emergency.active ? settings.emergency[locale] || settings.emergency.ht : "";
   return (
     <html lang={htmlLang[locale]} className={GeistSans.variable} suppressHydrationWarning>
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
-      </head>
       <body>
         {banner && (
           <a className="emergency no-print" href={`/${locale}/donate?emergency=1`}>

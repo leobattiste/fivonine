@@ -1,10 +1,10 @@
-/* Fivonine: white, forest green, mint. One accent family, light and dark. */
+/* Fivonine: white, forest green, mint. Three colors only: white background, green, light green accent. */
 :root {
   --bg: #ffffff;
   --surface: #f0faef;
   --green: #1f503b;
-  --text: #14291f;
-  --muted: #4c6a5a;
+  --text: #1f503b;
+  --muted: #3f6b55;
   --line: #d5e7d4;
   --btn-bg: #1f503b;
   --btn-fg: #ffffff;
@@ -15,16 +15,6 @@
   --r-img: 20px;
   --r-box: 14px;
   color-scheme: light;
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --bg: #0b1711; --surface: #12241a; --green: #a9dcb5; --text: #e6f3e6; --muted: #9bb8a5; --line: #21402f;
-    --btn-bg: #cfeed0; --btn-fg: #0b1711; --danger: #f0a090; color-scheme: dark;
-  }
-}
-:root[data-theme="dark"] {
-  --bg: #0b1711; --surface: #12241a; --green: #a9dcb5; --text: #e6f3e6; --muted: #9bb8a5; --line: #21402f;
-  --btn-bg: #cfeed0; --btn-fg: #0b1711; --danger: #f0a090; color-scheme: dark;
 }
 *, *::before, *::after { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; scroll-padding-top: 88px; }
