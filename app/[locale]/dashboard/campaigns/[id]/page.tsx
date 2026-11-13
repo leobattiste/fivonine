@@ -51,7 +51,7 @@ export default async function Manage({ params, searchParams }: { params: Promise
       ) : (
         <header className="row spread end" style={{ alignItems: "flex-start" }}>
           <div className="row" style={{ alignItems: "flex-start", flexWrap: "nowrap", gap: 16 }}>
-            <Cover c={c} lite={false} className="thumbnail" sizes="120px" />
+            <Cover c={c} className="thumbnail" sizes="120px" />
             <div className="stack tight">
               <div className="row tight"><StatusPill status={c.status} locale={locale} />{change && <span className="tag line">{change.status === "pending" ? y.changesPending : y.changesNeeded}</span>}</div>
               <h1 style={{ fontSize: "var(--t-xl)" }}>{c.title}</h1>

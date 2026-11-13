@@ -12,7 +12,6 @@ import { getCategories, myBookmarks, myCampaigns, myChanges, myNotifications, re
 import { DEPARTMENTS } from "@/lib/constants";
 import { fmtDate } from "@/lib/format";
 import { isLocale, localeNames, locales, t, type Locale } from "@/lib/i18n";
-import { isLite } from "@/lib/prefs";
 import type { Campaign, Status } from "@/lib/types";
 export const metadata: Metadata = { robots: { index: false } };
 const TABS = ["campaigns", "saved", "notifications", "profile"] as const;
@@ -43,7 +42,7 @@ export default async function Dashboard({ params, searchParams }: { params: Prom
 const ATTN: Status[] = ["needs_changes", "draft", "rejected", "suspended"];
 async function Overview({ locale, viewerId, name }: { locale: Locale; viewerId: string; name: string }) {
   const d = t(locale), x = d.x.dash, L = (p: string) => `/${locale}${p}`;
-  const [items, changes, lite] = await Promise.all([myCampaigns(viewerId), myChanges(viewerId), isLite()]);
+  const [items, changes] = await Promise.all([myCampaigns(viewerId), myChanges(viewerId)]);
   const notes = await reviewNotes(items.map((c) => c.id));
   const changeOf = new Map(changes.map((c) => [c.campaign_id, c]));
   const attention = items.filter((c) => ATTN.includes(c.status) || changeOf.get(c.id)?.status === "needs_changes");
@@ -56,7 +55,7 @@ async function Overview({ locale, viewerId, name }: { locale: Locale; viewerId: 
     const label = ch?.status === "needs_changes" ? x.action.needs_changes : x.action[c.status];
     return (
       <li key={c.id} className={`f-row ${note ? "has-feedback attn" : ""}`}>
-        <Cover c={c} lite={lite} className="thumbnail" sizes="150px" />
+        <Cover c={c} className="thumbnail" sizes="150px" />
         <div className="stack tight" style={{ minWidth: 0 }}>
           <div className="row tight"><StatusPill status={c.status} locale={locale} />{ch && <span className="tag line">{ch.status === "pending" ? x.changesPending : x.changesNeeded}</span>}</div>
           <h3><Link href={manage}>{c.title}</Link></h3>
@@ -94,12 +93,12 @@ async function Overview({ locale, viewerId, name }: { locale: Locale; viewerId: 
 }
 async function Saved({ locale, viewerId }: { locale: Locale; viewerId: string }) {
   const d = t(locale);
-  const [items, cats, lite] = await Promise.all([myBookmarks(viewerId), getCategories(true), isLite()]);
+  const [items, cats] = await Promise.all([myBookmarks(viewerId), getCategories(true)]);
   return (
     <>
       <h1>{d.x.nav.saved}</h1>
       {!items.length ? <div className="empty"><span className="icon-box"><Icon name="bookmark" size={24} /></span><p>{d.dash.noSaved}</p><Link className="btn" href={`/${locale}/explore`}>{d.x.nav.explore}</Link></div>
-        : <div className="grid-cards">{items.map((c) => <FundraiserCard key={c.id} c={c} locale={locale} cats={cats} lite={lite} />)}</div>}
+        : <div className="grid-cards">{items.map((c) => <FundraiserCard key={c.id} c={c} locale={locale} cats={cats} />)}</div>}
     </>
   );
 }

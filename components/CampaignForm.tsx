@@ -4,7 +4,7 @@ import Icon from "./Icon";
 import Cropper from "./Cropper";
 import { saveCampaign } from "@/app/actions";
 import { DEPARTMENTS, METHODS, RELATIONS, type MethodGroup } from "@/lib/constants";
-import { localeNames, locales, t, type Locale } from "@/lib/i18n";
+import { storyLanguages, t, type Locale } from "@/lib/i18n";
 import { uploadBlob, uploadImage, type Crop } from "@/lib/upload";
 import { mediaUrl } from "@/lib/format";
 import { normalizeMethods, type FormState } from "@/lib/form";
@@ -13,7 +13,7 @@ export type { FormState };
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const LINK = /^https:\/\/[^\s]+$/;
-const time = (locale: Locale) => new Intl.DateTimeFormat(locale === "ht" ? "fr-HT" : locale, { hour: "numeric", minute: "2-digit" }).format(new Date());
+const time = (locale: Locale) => new Intl.DateTimeFormat(locale, { hour: "numeric", minute: "2-digit" }).format(new Date());
 
 export default function CampaignForm({ locale, cats, initial, draftKey, live }: { locale: Locale; cats: Category[]; initial: FormState; draftKey: string | null; live: boolean }) {
   const d = t(locale), c = d.create, x = d.x.form;
@@ -244,7 +244,7 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live }: 
               </div>
               <div className="cols-2">
                 <label className="field"><span>{c.language}</span>
-                  <select className="input" value={f.language} onChange={(e) => set("language", e.target.value)}>{locales.map((l) => <option key={l} value={l}>{localeNames[l]}</option>)}</select>
+                  <select className="input" value={f.language} onChange={(e) => set("language", e.target.value)}>{Object.entries(storyLanguages).map(([l, name]) => <option key={l} value={l}>{name}</option>)}</select>
                 </label>
                 <label className="field"><span>{c.deadline}{opt}</span><input className="input" type="date" value={f.deadline} onChange={(e) => set("deadline", e.target.value)} /></label>
               </div>

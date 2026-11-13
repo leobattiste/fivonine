@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import Icon from "./Icon";
 import { Wordmark } from "./Brand";
@@ -10,12 +10,12 @@ import { signOut } from "@/app/actions";
 type Viewer = { name: string; admin: boolean; unread: number; avatar: string | null };
 
 export default function Header({ locale, viewer }: { locale: Locale; viewer: Viewer | null }) {
-  const d = t(locale), n = d.x.nav, path = usePathname(), router = useRouter();
-  const drawer = useRef<HTMLDialogElement>(null), search = useRef<HTMLDialogElement>(null);
+  const d = t(locale), n = d.x.nav, path = usePathname();
+  const drawer = useRef<HTMLDialogElement>(null);
   const [acct, setAcct] = useState(false);
   const acctRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => { drawer.current?.close(); search.current?.close(); setAcct(false); }, [path]);
+  useEffect(() => { drawer.current?.close(); setAcct(false); }, [path]);
   useEffect(() => {
     if (!acct) return;
     const away = (e: MouseEvent) => { if (!acctRef.current?.contains(e.target as Node)) setAcct(false); };
@@ -23,17 +23,9 @@ export default function Header({ locale, viewer }: { locale: Locale; viewer: Vie
     document.addEventListener("mousedown", away); document.addEventListener("keydown", esc);
     return () => { document.removeEventListener("mousedown", away); document.removeEventListener("keydown", esc); };
   }, [acct]);
-  useEffect(() => {
-    const key = (e: KeyboardEvent) => {
-      const tag = (e.target as HTMLElement).tagName;
-      if (e.key === "/" && !["INPUT", "TEXTAREA", "SELECT"].includes(tag)) { e.preventDefault(); search.current?.showModal(); }
-    };
-    document.addEventListener("keydown", key);
-    return () => document.removeEventListener("keydown", key);
-  }, []);
 
   const L = (p: string) => `/${locale}${p}`;
-  const links: [string, string][] = [["/explore", n.explore], ["/how-it-works", n.how], ["/about", n.about]];
+  const links: [string, string][] = [["/explore", n.explore], ["/create", n.fundraiser], ["/how-it-works", n.how], ["/about", n.about]];
   const isActive = (href: string) => path.startsWith(L(href)) || (href === "/explore" && path.startsWith(L("/campaigns")));
   const switchLocale = (next: string) => {
     document.cookie = `${LOCALE_COOKIE}=${next};path=/;max-age=31536000;SameSite=Lax`;
@@ -47,20 +39,6 @@ export default function Header({ locale, viewer }: { locale: Locale; viewer: Vie
         {locales.map((l) => <option key={l} value={l}>{localeNames[l]}</option>)}
       </select>
     </label>
-  );
-  const submitSearch = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const q = String(new FormData(e.currentTarget).get("q") ?? "").trim();
-    window.dispatchEvent(new Event("yk:navigate"));
-    router.push(`${L("/explore")}${q ? `?q=${encodeURIComponent(q)}` : ""}`);
-  };
-  const searchForm = (id: string) => (
-    <form role="search" className="searchbar" onSubmit={submitSearch}>
-      <Icon name="search" />
-      <label htmlFor={id} className="sr">{n.searchLabel}</label>
-      <input id={id} name="q" type="search" placeholder={n.searchHint} maxLength={60} autoComplete="off" enterKeyHint="search" />
-      <button className="btn primary">{n.go}</button>
-    </form>
   );
   const initials = viewer ? viewer.name.split(/\s+/).map((w) => w[0]).slice(0, 2).join("").toUpperCase() : "";
   const accountItems = viewer && (
@@ -84,9 +62,7 @@ export default function Header({ locale, viewer }: { locale: Locale; viewer: Vie
           {links.map(([href, label]) => <Link key={href} href={L(href)} aria-current={isActive(href) ? "page" : undefined}>{label}</Link>)}
         </nav>
         <div className="header-tools">
-          <button className="btn quiet icon-only" onClick={() => search.current?.showModal()} aria-label={n.search} title={`${n.search} (/)`}><Icon name="search" /></button>
           <span className="only-wide">{language("lang-wide")}</span>
-          <Link className="btn primary only-wide" href={L("/create")}><Icon name="plus" size={18} />{n.share}</Link>
           {viewer ? (
             <div className="acct only-wide" ref={acctRef}>
               <button aria-expanded={acct} aria-haspopup="menu" onClick={() => setAcct((v) => !v)}>
@@ -100,26 +76,19 @@ export default function Header({ locale, viewer }: { locale: Locale; viewer: Vie
           ) : (
             <Link className="btn quiet only-wide" href={L("/login")}>{n.signIn}</Link>
           )}
-          <button className="btn soft icon-only only-narrow menu-btn" onClick={() => drawer.current?.showModal()} aria-label={n.openMenu}>
+          <button className="btn icon-only only-narrow menu-btn" onClick={() => drawer.current?.showModal()} aria-label={n.openMenu}>
             <Icon name="menu" />{viewer && viewer.unread > 0 && <span className="count" aria-hidden="true">{viewer.unread}</span>}
           </button>
         </div>
       </div>
 
-      <dialog ref={search} className="search-modal" aria-label={n.searchLabel} onClick={(e) => e.target === search.current && search.current?.close()}>
-        <div className="stack">
-          <div className="row spread"><strong>{n.searchLabel}</strong><button className="btn quiet icon-only small" onClick={() => search.current?.close()} aria-label={d.x.common.close}><Icon name="close" /></button></div>
-          {searchForm("site-search")}
-        </div>
-      </dialog>
 
       <dialog ref={drawer} className="drawer" aria-label={d.nav.menu} onClick={(e) => e.target === drawer.current && drawer.current?.close()}>
         <div className="drawer-head">
           <Link className="wordmark" href={L("")}><Wordmark /></Link>
-          <button className="btn soft icon-only" onClick={() => drawer.current?.close()} aria-label={n.closeMenu}><Icon name="close" /></button>
+          <button className="btn icon-only" onClick={() => drawer.current?.close()} aria-label={n.closeMenu}><Icon name="close" /></button>
         </div>
         <div className="drawer-body">
-          {searchForm("drawer-search")}
           <nav className="drawer-nav" aria-label={d.nav.menu}>
             {[["", d.nav.home] as [string, string], ...links].map(([href, label]) => <Link key={href} href={L(href)} aria-current={(href ? isActive(href) : path === L("")) ? "page" : undefined}>{label}<Icon name="right" /></Link>)}
           </nav>
@@ -127,7 +96,6 @@ export default function Header({ locale, viewer }: { locale: Locale; viewer: Vie
             : <Link className="btn wide" href={L("/login")}>{n.signIn}</Link>}
           {language("lang-drawer")}
         </div>
-        <div className="drawer-foot"><Link className="btn primary wide large" href={L("/create")}><Icon name="plus" size={18} />{n.share}</Link></div>
       </dialog>
     </header>
   );

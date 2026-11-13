@@ -13,7 +13,7 @@ import type { ActionResult } from "@/lib/types";
 
 const L = (f: FormData): Locale => {
   const v = String(f.get("locale") ?? "");
-  return isLocale(v) ? v : "ht";
+  return isLocale(v) ? v : "fr";
 };
 const s = (f: FormData, k: string, max = 500) => String(f.get(k) ?? "").trim().slice(0, max);
 const fail = (message: string): ActionResult => ({ ok: false, message });
@@ -217,7 +217,7 @@ export async function saveCampaign(_: ActionResult, f: FormData): Promise<Action
   after(() => drainOutbox());
   revalidatePath(`/${locale}/dashboard`);
   if (!submit) {
-    const at = new Intl.DateTimeFormat(locale === "ht" ? "fr-HT" : locale, { hour: "numeric", minute: "2-digit", timeZone: "America/Port-au-Prince" }).format(new Date());
+    const at = new Intl.DateTimeFormat(locale, { hour: "numeric", minute: "2-digit", timeZone: "America/Port-au-Prince" }).format(new Date());
     return { ok: true, message: d.common.saved, id, at };
   }
   redirect(`/${locale}/dashboard/campaigns/${id}?sent=1`);

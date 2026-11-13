@@ -224,7 +224,6 @@ async function SettingsTab() {
           <h2>Emergency mode</h2>
           <p className="small muted">Shows a banner on every page that links to emergency campaigns. Mark campaigns as “Emergency” when you review them, and they move to the top of the queue.</p>
           <label className="check"><input type="checkbox" name="active" defaultChecked={settings.emergency.active} /><span>Emergency mode is on</span></label>
-          <label className="field"><span>Banner, Kreyòl</span><input className="input" name="ht" maxLength={300} defaultValue={settings.emergency.ht} /></label>
           <label className="field"><span>Banner, Français</span><input className="input" name="fr" maxLength={300} defaultValue={settings.emergency.fr} /></label>
           <label className="field"><span>Banner, English</span><input className="input" name="en" maxLength={300} defaultValue={settings.emergency.en} /></label>
           <h2>Exchange rate</h2>

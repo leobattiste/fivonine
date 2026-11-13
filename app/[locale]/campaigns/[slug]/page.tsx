@@ -13,9 +13,8 @@ import { getCampaign, getCategories, getChange, getViewerState, ownerSince } fro
 import { SITE_URL, VOUCH_ROLES } from "@/lib/constants";
 import { fmtDate, fmtMoney, mediaUrl } from "@/lib/format";
 import { isLocale, t } from "@/lib/i18n";
-import { isLite } from "@/lib/prefs";
 
-type P = { params: Promise<{ locale: string; slug: string }>; searchParams: Promise<{ photos?: string }> };
+type P = { params: Promise<{ locale: string; slug: string }> };
 export async function generateMetadata({ params }: P): Promise<Metadata> {
   const { locale, slug } = await params;
   if (!isLocale(locale)) return {};
@@ -24,15 +23,14 @@ export async function generateMetadata({ params }: P): Promise<Metadata> {
   const c = data.campaign;
   return { title: c.title, description: c.story.slice(0, 160), alternates: { canonical: `/${locale}/campaigns/${c.slug}` }, robots: c.status === "live" || c.status === "completed" ? undefined : { index: false } };
 }
-export default async function FundraiserPage({ params, searchParams }: P) {
+export default async function FundraiserPage({ params }: P) {
   const { locale, slug } = await params;
   if (!isLocale(locale)) notFound();
   const data = await getCampaign(slug);
   if (!data) notFound();
   const { campaign: c, methods, updates, contributions, vouches, team } = data;
   const d = t(locale), x = d.x.detail;
-  const [viewer, cats, liteCookie, sp, since] = await Promise.all([getViewer(), getCategories(true), isLite(), searchParams, c.owner ? ownerSince(c.owner.id) : null]);
-  const lite = liteCookie && sp.photos !== "1";
+  const [viewer, cats, since] = await Promise.all([getViewer(), getCategories(true), c.owner ? ownerSince(c.owner.id) : null]);
   const state = viewer ? await getViewerState(c.id, viewer.id) : { bookmarked: false, remind: false, vouched: false };
   const isPublic = c.status === "live" || c.status === "completed";
   const mine = viewer?.id === c.owner_id;
@@ -67,15 +65,14 @@ export default async function FundraiserPage({ params, searchParams }: P) {
           {c.deadline && <span><Icon name="clock" size={16} />{d.campaign.deadline} {fmtDate(c.deadline, locale)}</span>}
         </p>
       </header>
-      <Cover c={c} lite={lite} className="f-cover" priority sizes="100vw" />
-      {lite && c.cover_path && <p className="small"><Link href={`${path}?photos=1`}>{d.campaign.showPhotos}</Link></p>}
+      <Cover c={c} className="f-cover" priority sizes="100vw" />
 
       <div className="f-grid">
         <div style={{ minWidth: 0 }}>
           <div className="people">
             {c.owner && (
               <Link className="person" href={`/${locale}/u/${c.owner.id}`}>
-                <Avatar name={who} path={lite ? null : c.owner.avatar_path} size={44} />
+                <Avatar name={who} path={c.owner.avatar_path} size={44} />
                 <p>{x.organizer}<strong>{who}</strong>{c.owner.org_verified ? d.profile.verifiedOrg : ""}</p>
               </Link>
             )}
@@ -90,7 +87,7 @@ export default async function FundraiserPage({ params, searchParams }: P) {
             {voice && <div className="voice"><Icon name="mic" size={20} /><span className="small">{d.campaign.listen}</span><audio controls preload="none" src={voice} /></div>}
             <div className="story" lang={c.language}>{c.story.split(/\n{2,}/).map((para, i) => <p key={i}>{para}</p>)}</div>
             {c.video_url && <p><a className="btn small" href={c.video_url} target="_blank" rel="noopener noreferrer nofollow"><Icon name="external" size={16} />{d.campaign.video}<span className="sr"> ({d.x.common.newTab})</span></a></p>}
-            {!lite && c.gallery.length > 0 && (
+            {c.gallery.length > 0 && (
               <div className="gallery" aria-label={d.campaign.photos}>
                 {c.gallery.map((g) => <div key={g} className="frame">{/* eslint-disable-next-line @next/next/no-img-element */}<img src={mediaUrl(g) ?? ""} alt="" loading="lazy" /></div>)}
               </div>
@@ -105,7 +102,7 @@ export default async function FundraiserPage({ params, searchParams }: P) {
                   <li key={u.id}>
                     <time dateTime={u.created_at}>{fmtDate(u.created_at, locale)}{u.author?.display_name ? `, ${u.author.display_name}` : ""}</time>
                     {u.body.split(/\n{2,}/).map((para, i) => <p key={i}>{para}</p>)}
-                    {!lite && u.proof.length > 0 && (
+                    {u.proof.length > 0 && (
                       <div className="gallery" aria-label={d.campaign.proof}>
                         {u.proof.map((g) => <div key={g} className="frame">{/* eslint-disable-next-line @next/next/no-img-element */}<img src={mediaUrl(g) ?? ""} alt={d.campaign.proof} loading="lazy" /></div>)}
                       </div>
@@ -128,7 +125,7 @@ export default async function FundraiserPage({ params, searchParams }: P) {
             {c.owner && (
               <div className="org-card">
                 <div className="who">
-                  <Avatar name={who} path={lite ? null : c.owner.avatar_path} size={56} />
+                  <Avatar name={who} path={c.owner.avatar_path} size={56} />
                   <div><strong>{who}</strong>{since && <p className="small muted">{x.memberSince} {fmtDate(since, locale)}</p>}</div>
                 </div>
                 {team.length > 0 && <p className="small"><Icon name="group" size={16} /> {x.team}: {team.map((m) => m.profile?.display_name).filter(Boolean).join(", ")}</p>}

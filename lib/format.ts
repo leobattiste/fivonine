@@ -1,7 +1,7 @@
 import type { Campaign, Progress, Settings } from "./types";
 import type { Locale } from "./i18n";
 import { SUPABASE_URL } from "./supabase/config";
-const intl: Record<Locale, string> = { ht: "fr-HT", fr: "fr-FR", en: "en-US" };
+const intl: Record<Locale, string> = { fr: "fr-FR", en: "en-US" };
 export const fmtNumber = (n: number, locale: Locale) => new Intl.NumberFormat(intl[locale], { maximumFractionDigits: 0 }).format(n);
 export const fmtMoney = (n: number, currency: string, locale: Locale) => `${fmtNumber(n, locale)} ${currency}`;
 export const fmtDate = (iso: string, locale: Locale) =>

@@ -110,8 +110,8 @@ export async function saveSettings(_: ActionResult, f: FormData): Promise<Action
   if (!a) return fail("Admin access required.");
   const rate = Number(s(f, "rate", 12));
   if (!Number.isFinite(rate) || rate <= 0 || rate > 100000) return fail("Enter a valid exchange rate.");
-  const emergency = { active: f.get("active") === "on", ht: s(f, "ht", 300), fr: s(f, "fr", 300), en: s(f, "en", 300) };
-  if (emergency.active && !emergency.ht) return fail("Write the banner text in Creole before turning emergency mode on.");
+  const emergency = { active: f.get("active") === "on", ht: "", fr: s(f, "fr", 300), en: s(f, "en", 300) };
+  if (emergency.active && (!emergency.fr || !emergency.en)) return fail("Write the banner in French and English before turning emergency mode on.");
   const { error } = await a.sb.from("settings").upsert([{ key: "emergency", value: emergency }, { key: "rate", value: { htg_per_usd: rate } }], { onConflict: "key" });
   if (error) return fail(error.message);
   await a.log("settings_save", "settings", "site", emergency.active ? "emergency on" : "emergency off");

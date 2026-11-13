@@ -8,7 +8,7 @@ export const alt = "yon kout men";
 /** Share card shown when a campaign link is pasted into WhatsApp or social apps. */
 export default async function Image({ params }: { params: Promise<{ locale: string; slug: string }> }) {
   const { locale, slug } = await params;
-  const d = t(isLocale(locale) ? locale : "ht");
+  const d = t(isLocale(locale) ? locale : "fr");
   const data = await getCampaign(slug);
   const c = data && ["live", "completed"].includes(data.campaign.status) ? data.campaign : null;
   const cover = c?.cover_path && !c.cover_path.startsWith("fixture:") ? mediaUrl(c.cover_path) : null;
@@ -23,7 +23,7 @@ export default async function Image({ params }: { params: Promise<{ locale: stri
             <div style={{ fontSize: title.length > 60 ? 50 : 62, fontWeight: 800, lineHeight: 1.05, letterSpacing: -2 }}>{title.slice(0, 110)}</div>
             {place ? <div style={{ fontSize: 28, marginTop: 20, color: "#4c6a5a" }}>{place}</div> : null}
           </div>
-          <div style={{ display: "flex", fontSize: 28, fontWeight: 700, background: "#f0faef", padding: "16px 26px", borderRadius: 999, alignSelf: "flex-start" }}>{d.support.title}</div>
+          <div style={{ display: "flex", fontSize: 28, fontWeight: 700, background: "#f0faef", padding: "16px 26px", borderRadius: 10, alignSelf: "flex-start" }}>{d.support.title}</div>
         </div>
         {cover ? (
           // eslint-disable-next-line @next/next/no-img-element

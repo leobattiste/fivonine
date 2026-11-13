@@ -35,17 +35,6 @@ export function ShareBar({ url, title, locale }: { url: string; title: string; l
     </div>
   );
 }
-export function DataSaver({ locale, on }: { locale: Locale; on: boolean }) {
-  const d = t(locale).common;
-  return (
-    <button type="button" className="btn small soft" style={{ background: "var(--white)" }} aria-pressed={on} onClick={() => {
-      document.cookie = `fivonine-lite=${on ? "0" : "1"};path=/;max-age=31536000;SameSite=Lax`;
-      location.reload();
-    }}>
-      <Icon name="wifiOff" size={16} />{d.dataSaver}: {on ? d.on : d.off}
-    </button>
-  );
-}
 export function PrintButton({ label }: { label: string }) {
   return <button type="button" className="btn primary no-print" onClick={() => window.print()}><Icon name="print" size={18} />{label}</button>;
 }

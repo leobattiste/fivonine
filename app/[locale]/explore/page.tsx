@@ -9,7 +9,6 @@ import { FundraiserCard } from "@/components/Campaign";
 import { getCategories, listCampaigns } from "@/lib/data";
 import { DEPARTMENTS, PER_PAGE } from "@/lib/constants";
 import { isLocale, t } from "@/lib/i18n";
-import { isLite } from "@/lib/prefs";
 
 type Search = { q?: string; cause?: string; place?: string; status?: string; emergency?: string; sort?: string; page?: string };
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
@@ -21,7 +20,7 @@ export default async function Explore({ params, searchParams }: { params: Promis
   if (!isLocale(locale)) notFound();
   const sp = await searchParams, d = t(locale), x = d.x.explore;
   const page = Math.max(1, Number(sp.page) || 1);
-  const [cats, lite] = await Promise.all([getCategories(), isLite()]);
+  const [cats] = await Promise.all([getCategories()]);
   const cause = cats.some((c) => c.slug === sp.cause) ? sp.cause : undefined;
   const place = (DEPARTMENTS as readonly string[]).includes(sp.place ?? "") ? sp.place : undefined;
   const status = sp.status === "completed" || sp.status === "all" ? sp.status : "open";
@@ -39,7 +38,7 @@ export default async function Explore({ params, searchParams }: { params: Promis
       <Suspense fallback={null}><RememberResults /></Suspense>
       <ExploreShell locale={locale} options={options} total={total}>
         {items.length ? (
-          <div className="grid-cards">{items.map((c, i) => <FundraiserCard key={c.id} c={c} locale={locale} cats={cats} lite={lite} priority={i < 3} />)}</div>
+          <div className="grid-cards">{items.map((c, i) => <FundraiserCard key={c.id} c={c} locale={locale} cats={cats} priority={i < 3} />)}</div>
         ) : (
           <div className="empty">
             <span className="icon-box"><Icon name="empty" size={26} /></span>

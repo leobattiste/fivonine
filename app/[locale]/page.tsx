@@ -5,7 +5,6 @@ import { Avatar, Cover, FundraiserCard, ReviewChecks, causeName, excerpt, ownerN
 import { PexelsPhoto } from "@/components/Brand";
 import { featuredCampaigns, getCategories, listCampaigns } from "@/lib/data";
 import { isLocale, t, type Locale } from "@/lib/i18n";
-import { isLite } from "@/lib/prefs";
 import { PHOTOS } from "@/lib/photos";
 import type { Campaign, Category } from "@/lib/types";
 
@@ -13,7 +12,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
   const d = t(locale), h = d.x.home, L = (p: string) => `/${locale}${p}`;
-  const [stories, cats, lite, recent] = await Promise.all([featuredCampaigns(), getCategories(), isLite(), listCampaigns({ perPage: 9, sort: "newest" })]);
+  const [stories, cats, recent] = await Promise.all([featuredCampaigns(), getCategories(), listCampaigns({ perPage: 9, sort: "newest" })]);
   const seen = new Set(stories.map((c) => c.id));
   const more = recent.items.filter((c) => !seen.has(c.id)).slice(0, 6);
   const hasAny = stories.length > 0;
@@ -63,12 +62,12 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
               <div><h2 id="stories-title">{h.stories}</h2><p>{h.storiesSub}</p></div>
               <Link className="arrow-link" href={L("/explore")}>{h.seeAll}<Icon name="arrow" size={18} /></Link>
             </div>
-            <Stories items={stories} locale={locale} cats={cats} lite={lite} />
+            <Stories items={stories} locale={locale} cats={cats} />
           </section>
           {more.length > 0 && (
             <section className="wrap band" aria-labelledby="more-title" style={{ paddingTop: 8 }}>
               <div className="band-head"><h2 id="more-title">{h.collection}</h2></div>
-              <div className="grid-cards">{more.map((c) => <FundraiserCard key={c.id} c={c} locale={locale} cats={cats} lite={lite} />)}</div>
+              <div className="grid-cards">{more.map((c) => <FundraiserCard key={c.id} c={c} locale={locale} cats={cats} />)}</div>
             </section>
           )}
         </>
@@ -110,21 +109,21 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
   );
 }
 
-function Stories({ items, locale, cats, lite }: { items: Campaign[]; locale: Locale; cats: Category[]; lite: boolean }) {
+function Stories({ items, locale, cats }: { items: Campaign[]; locale: Locale; cats: Category[] }) {
   const d = t(locale);
   const [lead, ...side] = items;
   const href = (c: Campaign) => `/${locale}/campaigns/${c.slug}`;
   return (
     <div className="stories">
       <article className="story-lead fcard">
-        <Cover c={lead} lite={lite} priority sizes="(min-width: 900px) 40vw, 100vw" />
+        <Cover c={lead} priority sizes="(min-width: 900px) 40vw, 100vw" />
         <div className="stack">
           <p className="meta">{lead.cause && <span>{causeName(cats, lead.cause, locale)}</span>}{place(lead) && <span><Icon name="pin" size={14} /> {place(lead)}</span>}</p>
           <h3><Link href={href(lead)}>{lead.title}</Link></h3>
           {lead.story && <p className="excerpt" style={{ WebkitLineClamp: 4 }}>{excerpt(lead.story, 240)}</p>}
           <div className="foot">
             <div className="stack tight">
-              {ownerName(lead) && <p className="by"><Avatar name={ownerName(lead)} path={lite ? null : lead.owner?.avatar_path} size={26} /><span>{d.x.card.by} {ownerName(lead)}</span></p>}
+              {ownerName(lead) && <p className="by"><Avatar name={ownerName(lead)} path={lead.owner?.avatar_path} size={26} /><span>{d.x.card.by} {ownerName(lead)}</span></p>}
               <ReviewChecks tier={lead.tier} locale={locale} />
             </div>
             <span className="go" aria-hidden="true"><Icon name="arrow" size={18} /></span>
@@ -135,7 +134,7 @@ function Stories({ items, locale, cats, lite }: { items: Campaign[]; locale: Loc
         <div className="story-side">
           {side.map((c) => (
             <article key={c.id} className="story-sm fcard">
-              <Cover c={c} lite={lite} sizes="170px" />
+              <Cover c={c} sizes="170px" />
               <div className="stack tight">
                 <p className="meta">{c.cause && <span>{causeName(cats, c.cause, locale)}</span>}</p>
                 <h3><Link href={href(c)}>{c.title}</Link></h3>

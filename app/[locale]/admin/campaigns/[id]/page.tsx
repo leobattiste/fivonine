@@ -62,7 +62,7 @@ export default async function AdminCampaign({ params }: { params: Promise<{ loca
           )}
           <section className="panel">
             <h2>Public preview</h2>
-            <Cover c={c} lite={false} className="f-cover" sizes="60vw" />
+            <Cover c={c} className="f-cover" sizes="60vw" />
             <dl className="kv">
               {kv("For", `${c.beneficiary_name ?? ""}${c.beneficiary_relation ? ` (${c.beneficiary_relation})` : ""}`)}
               {kv("Need", cats.find((x) => x.slug === c.cause)?.name_en ?? c.cause)}

@@ -11,7 +11,6 @@ import { Suspense } from "react";
 import { htmlLang, isLocale, t } from "@/lib/i18n";
 import { getViewer } from "@/lib/auth";
 import { getSettings, unreadCount } from "@/lib/data";
-import { isLite } from "@/lib/prefs";
 import { SITE_URL } from "@/lib/constants";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
@@ -25,7 +24,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     description: d.meta.description,
     robots: { index: open, follow: open },
     openGraph: { siteName: "yon kout men", type: "website", locale: htmlLang[locale] },
-    alternates: { languages: { ht: "/ht", fr: "/fr", en: "/en" } },
+    alternates: { languages: { fr: "/fr", en: "/en" } },
     appleWebApp: { capable: true, title: "yon kout men", statusBarStyle: "default" },
   };
 }
@@ -38,9 +37,9 @@ export const viewport: Viewport = {
 export default async function Layout({ children, params }: { children: React.ReactNode; params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
-  const [viewer, settings, lite] = await Promise.all([getViewer(), getSettings(), isLite()]);
+  const [viewer, settings] = await Promise.all([getViewer(), getSettings()]);
   const unread = viewer ? await unreadCount(viewer.id) : 0;
-  const banner = settings.emergency.active ? settings.emergency[locale] || settings.emergency.ht : "";
+  const banner = settings.emergency.active ? settings.emergency[locale] || settings.emergency.fr : "";
   return (
     <html lang={htmlLang[locale]} className={GeistSans.variable} suppressHydrationWarning>
       <body>
@@ -53,7 +52,7 @@ export default async function Layout({ children, params }: { children: React.Rea
         <Suspense fallback={null}><Loader /></Suspense>
         <Header locale={locale} viewer={viewer ? { name: viewer.profile.display_name, admin: viewer.profile.role === "admin", unread, avatar: viewer.profile.avatar_path } : null} />
         <main id="main">{children}</main>
-        <Footer locale={locale} lite={lite} />
+        <Footer locale={locale} />
         <ServiceWorker />
       </body>
     </html>

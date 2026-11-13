@@ -5,7 +5,7 @@ import { isLocale, t, type Locale } from "./i18n";
 import { SITE_URL } from "./constants";
 type Job = { id: string; recipient: string; locale: string; kind: string; payload: { title?: string; slug?: string; note?: string } };
 function render(job: Job) {
-  const locale: Locale = isLocale(job.locale) ? job.locale : "ht";
+  const locale: Locale = isLocale(job.locale) ? job.locale : "fr";
   const d = t(locale);
   const make = (d.notif as Record<string, (title: string) => string>)[job.kind];
   const title = job.payload.title ?? "";

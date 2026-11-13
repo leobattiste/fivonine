@@ -2,7 +2,7 @@ import type { X } from "./x-en";
 const x: X = {
   brand: { name: "yon kout men", tagline: "Un coup de main entre Haïtiens, où qu'ils soient." },
   nav: {
-    explore: "Explorer", how: "Comment ça marche", about: "À propos", share: "Partager une collecte", search: "Rechercher", searchLabel: "Rechercher des collectes",
+    explore: "Donner", fundraiser: "Collecte", how: "Comment ça marche", about: "À propos", share: "Partager une collecte", search: "Rechercher", searchLabel: "Rechercher des collectes",
     searchHint: "Un nom, un lieu, un besoin", go: "Rechercher", signIn: "Se connecter", account: "Compte", openMenu: "Ouvrir le menu", closeMenu: "Fermer le menu",
     dashboard: "Vue d'ensemble", fundraisers: "Mes collectes", saved: "Enregistrées", notifications: "Notifications", profile: "Profil", admin: "Admin", signOut: "Se déconnecter",
     unread: (n: number) => (n === 1 ? "1 non lue" : `${n} non lues`),
@@ -31,7 +31,7 @@ const x: X = {
     photoCredit: "Photo",
   },
   explore: {
-    title: "Explorer les collectes",
+    title: "Donner",
     sub: "Chaque collecte ici a été lue par une personne de notre équipe.",
     filters: "Filtres", cause: "Besoin", location: "Lieu", status: "Statut", sort: "Trier",
     anyCause: "Tous les besoins", anywhere: "Partout", open: "En cours", completed: "Terminées", all: "En cours et terminées",

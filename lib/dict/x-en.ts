@@ -2,7 +2,7 @@
 const x = {
   brand: { name: "yon kout men", tagline: "A helping hand between Haitians, wherever they are." },
   nav: {
-    explore: "Explore", how: "How it works", about: "About", share: "Share a fundraiser", search: "Search", searchLabel: "Search fundraisers",
+    explore: "Donate", fundraiser: "Fundraiser", how: "How it works", about: "About", share: "Share a fundraiser", search: "Search", searchLabel: "Search fundraisers",
     searchHint: "A name, a place or a need", go: "Search", signIn: "Sign in", account: "Account", openMenu: "Open menu", closeMenu: "Close menu",
     dashboard: "Overview", fundraisers: "My fundraisers", saved: "Saved", notifications: "Notifications", profile: "Profile", admin: "Admin", signOut: "Sign out",
     unread: (n: number) => (n === 1 ? "1 unread" : `${n} unread`),
@@ -31,7 +31,7 @@ const x = {
     photoCredit: "Photo",
   },
   explore: {
-    title: "Explore fundraisers",
+    title: "Donate",
     sub: "Every fundraiser here was reviewed by a person on our team.",
     filters: "Filters", cause: "Need", location: "Location", status: "Status", sort: "Sort",
     anyCause: "Any need", anywhere: "Anywhere", open: "Open now", completed: "Completed", all: "Open and completed",

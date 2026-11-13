@@ -29,8 +29,8 @@ export function Avatar({ name, path, size = 28 }: { name: string; path?: string 
     <span className="avatar" style={{ width: size, height: size, fontSize: size * 0.36 }} aria-hidden="true">{initials(name)}</span>
   );
 }
-export function Cover({ c, lite, className = "", sizes = "(min-width: 900px) 33vw, 100vw", priority }: { c: Pick<Campaign, "cover_path" | "cause">; lite: boolean; className?: string; sizes?: string; priority?: boolean }) {
-  const url = lite ? null : mediaUrl(c.cover_path);
+export function Cover({ c, className = "", sizes = "(min-width: 900px) 33vw, 100vw", priority }: { c: Pick<Campaign, "cover_path" | "cause">; className?: string; sizes?: string; priority?: boolean }) {
+  const url = mediaUrl(c.cover_path);
   return url ? (
     <div className={`frame ${className}`}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -40,12 +40,12 @@ export function Cover({ c, lite, className = "", sizes = "(min-width: 900px) 33v
     <div className={`frame empty ${className}`} aria-hidden="true"><Icon name={causeIcon[c.cause ?? "other"] ?? "hand"} size={44} /></div>
   );
 }
-export function FundraiserCard({ c, locale, cats, lite, priority }: { c: Campaign; locale: Locale; cats: Category[]; lite: boolean; priority?: boolean }) {
+export function FundraiserCard({ c, locale, cats, priority }: { c: Campaign; locale: Locale; cats: Category[]; priority?: boolean }) {
   const d = t(locale), where = place(c), who = ownerName(c);
   return (
     <article className="fcard">
       <div style={{ position: "relative" }}>
-        <Cover c={c} lite={lite} priority={priority} />
+        <Cover c={c} priority={priority} />
         <div className="badges">
           {c.status === "completed" && <span className="tag solid">{d.campaign.completed}</span>}
           {c.urgent && c.status === "live" && <span className="tag solid">{d.campaign.urgent}</span>}
@@ -59,7 +59,7 @@ export function FundraiserCard({ c, locale, cats, lite, priority }: { c: Campaig
       {c.story && <p className="excerpt">{excerpt(c.story)}</p>}
       <div className="foot">
         <div className="stack tight" style={{ minWidth: 0 }}>
-          {who && <p className="by"><Avatar name={who} path={lite ? null : c.owner?.avatar_path} size={26} /><span>{d.x.card.by} {who}</span></p>}
+          {who && <p className="by"><Avatar name={who} path={c.owner?.avatar_path} size={26} /><span>{d.x.card.by} {who}</span></p>}
           <ReviewChecks tier={c.tier} locale={locale} />
         </div>
         <span className="go" aria-hidden="true"><Icon name="arrow" size={18} /></span>

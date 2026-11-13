@@ -10,7 +10,7 @@ export function Mark({ className = "mark" }: { className?: string }) {
   );
 }
 export function Wordmark() {
-  return <><Mark /><span>yonkoutmen</span></>;
+  return <>yonkoutmen</>;
 }
 /** A Pexels photograph in a kout frame, credited and linked to its source page. */
 export function PexelsPhoto({ photo, locale, className = "", sizes = "(min-width: 900px) 50vw, 100vw", priority, credit = true, style }: { photo: Photo; locale: Locale; className?: string; sizes?: string; priority?: boolean; credit?: boolean; style?: React.CSSProperties }) {

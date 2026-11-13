@@ -1,8 +1,7 @@
 import Link from "next/link";
-import { DataSaver } from "./Bits";
 import { Wordmark } from "./Brand";
 import { t, type Locale } from "@/lib/i18n";
-export default function Footer({ locale, lite }: { locale: Locale; lite: boolean }) {
+export default function Footer({ locale }: { locale: Locale }) {
   const d = t(locale), x = d.x;
   const l = (href: string, label: string) => <li><Link href={`/${locale}${href}`}>{label}</Link></li>;
   return (
@@ -11,7 +10,6 @@ export default function Footer({ locale, lite }: { locale: Locale; lite: boolean
         <div className="brand-col">
           <Link className="wordmark" href={`/${locale}`} aria-label="yon kout men"><Wordmark /></Link>
           <p className="muted measure">{x.brand.tagline}</p>
-          <div><DataSaver locale={locale} on={lite} /></div>
         </div>
         <nav aria-label={d.footer.platform}>
           <h2>{d.footer.platform}</h2>

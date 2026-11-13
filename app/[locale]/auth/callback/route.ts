@@ -5,7 +5,7 @@ import { safeNext } from "@/lib/auth";
 import { isLocale } from "@/lib/i18n";
 export async function GET(request: NextRequest, { params }: { params: Promise<{ locale: string }> }) {
   const { locale: raw } = await params;
-  const locale = isLocale(raw) ? raw : "ht";
+  const locale = isLocale(raw) ? raw : "fr";
   const q = request.nextUrl.searchParams;
   const next = safeNext(q.get("next"), `/${locale}/dashboard`);
   const sb = await db();
