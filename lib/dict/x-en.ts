@@ -2,7 +2,7 @@
 const x = {
   brand: { name: "yon kout men", tagline: "A helping hand between Haitians, wherever they are." },
   nav: {
-    explore: "Donate", fundraiser: "Fundraiser", how: "How it works", about: "About", share: "Share a fundraiser", search: "Search", searchLabel: "Search fundraisers",
+    explore: "Donate", fundraiser: "Fundraise", how: "How it works", about: "About", share: "Share a fundraiser", search: "Search", searchLabel: "Search fundraisers",
     searchHint: "A name, a place or a need", go: "Search", signIn: "Sign in", account: "Account", openMenu: "Open menu", closeMenu: "Close menu",
     dashboard: "Overview", fundraisers: "My fundraisers", saved: "Saved", notifications: "Notifications", profile: "Profile", admin: "Admin", signOut: "Sign out",
     unread: (n: number) => (n === 1 ? "1 unread" : `${n} unread`),
@@ -89,6 +89,7 @@ const x = {
     startOver: "Start over",
     continue: "Continue", back: "Back",
     crop: { title: "Frame your photo", hint: "Drag the photo to choose what shows. Use the slider to zoom.", zoom: "Zoom", use: "Use this photo", cancel: "Cancel", change: "Change photo", remove: "Remove photo", uploading: "Uploading photo…" },
+    editor: { bold: "Bold", italic: "Italic", heading: "Heading", bullets: "Bulleted list", numbers: "Numbered list", quote: "Quote", link: "Link", linkPrompt: "Paste a link that starts with https://", undo: "Undo", redo: "Redo", placeholder: "Start with who needs help and what happened. Then say what the support will pay for." },
     link: "Link", linkHint: "A page where people can send it, like a PayPal or Cash App link. Must start with https://",
     preview: "This is how it will look", previewCard: "In search results", previewPage: "On the fundraiser page",
     submit: "Send for review", submitChanges: "Send changes for review",
@@ -99,6 +100,15 @@ const x = {
       changesBody: "Visitors keep seeing the published version until we approve your changes.",
       status: "Status", next: "What you can do now", view: "Preview the page", dashboard: "Go to my fundraisers",
     },
+  },
+  setup: {
+    title: "First, create your profile",
+    sub: "Supporters see who is behind every fundraiser. Your profile shows your name, where you are and a few words about you. It takes a minute.",
+    why: "Why we ask",
+    whyPoints: ["People give more readily when they can see who organizes.", "Our review team checks that the profile matches the organizer's ID.", "You can edit it at any time from your account."],
+    name: "Your name as people know you", where: "Where you live", bio: "A few words about you", bioHint: "Example: Nurse in Cap-Haïtien. I help my family and neighbors.",
+    photo: "Profile photo", cont: "Save and continue", step: "Profile, then fundraiser",
+    need: "Complete your profile before you start a fundraiser.",
   },
   dash: {
     title: "Overview", hello: (name: string) => `Hello, ${name}`,

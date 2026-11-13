@@ -36,3 +36,6 @@ export function safeNext(value: string | null | undefined, fallback: string) {
     return fallback;
   }
 }
+/** An organizer needs a public profile before starting a fundraiser: a real name, a place and a few words. */
+export const profileReady = (p: { display_name: string; bio: string; department: string | null; city: string | null }) =>
+  !/^(fivonine member|member|yon kout men member)$/i.test(p.display_name.trim()) && p.display_name.trim().length > 1 && Boolean(p.department || p.city) && p.bio.trim().length >= 10;

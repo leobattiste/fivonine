@@ -1,6 +1,7 @@
 import { METHODS } from "@/lib/constants";
 import { fmtMoney, mediaUrl } from "@/lib/format";
 import { t, type Locale } from "@/lib/i18n";
+import { storyText } from "@/lib/story";
 import type { Campaign, CampaignChange, Category, SupportMethod } from "@/lib/types";
 
 /** Published version beside the proposed one, field by field, only where something changed. */
@@ -13,6 +14,7 @@ export default function Compare({ c, methods, change, locale, cats }: { c: Campa
     if (k === "goal_amount") return fmtMoney(Number(v), (r.goal_currency as "HTG" | "USD") ?? c.goal_currency, locale);
     if (k === "urgent") return v ? "✓" : "—";
     if (Array.isArray(v)) return `${v.length}`;
+    if (k === "story") v = storyText(String(v));
     return <span style={{ whiteSpace: "pre-wrap" }}>{String(v).length > 400 ? `${String(v).slice(0, 400)}…` : String(v)}</span>;
   };
   const keys = Object.keys(y.fields).filter((k) => k !== "methods" && k in r) as (keyof typeof y.fields)[];

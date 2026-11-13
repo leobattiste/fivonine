@@ -5,7 +5,8 @@ import { redirect } from "next/navigation";
 import { after } from "next/server";
 import { db } from "@/lib/supabase/server";
 import { isLocale, t, type Locale } from "@/lib/i18n";
-import { safeNext } from "@/lib/auth";
+import { profileReady, safeNext } from "@/lib/auth";
+import { cleanStory, storyText } from "@/lib/story";
 import { drainOutbox } from "@/lib/email";
 import { slugify } from "@/lib/format";
 import { METHOD_IDS, REASONS, RELATIONS, VOUCH_ROLES, DEPARTMENTS, SITE_URL } from "@/lib/constants";
@@ -87,6 +88,16 @@ export async function saveProfile(_: ActionResult, f: FormData): Promise<ActionR
   if (!sb || !user) return fail(d.common.signInFirst);
   const display_name = s(f, "display_name", 80);
   if (!display_name) return fail(d.common.required);
+  if (f.get("setup") === "1") {
+    const department = s(f, "department", 40), avatar = s(f, "avatar_path", 200);
+    const patch: Record<string, unknown> = { display_name, bio: s(f, "bio", 600), city: s(f, "city", 80) || null, department: (DEPARTMENTS as readonly string[]).includes(department) ? department : null };
+    if (avatar && avatar.startsWith(`${user.id}/`)) patch.avatar_path = avatar;
+    if (!profileReady(patch as Parameters<typeof profileReady>[0])) return fail(d.x.setup.need);
+    const { error } = await sb.from("profiles").update(patch).eq("id", user.id);
+    if (error) return fail(d.common.error);
+    revalidatePath(`/${locale}`, "layout");
+    redirect(safeNext(s(f, "next", 300), `/${locale}/create`));
+  }
   const kind = s(f, "kind") === "organization" ? "organization" : "individual";
   const department = s(f, "department", 40), avatar = s(f, "avatar_path", 200), emailLocale = s(f, "email_locale");
   const patch: Record<string, unknown> = {
@@ -122,7 +133,9 @@ export async function saveCampaign(_: ActionResult, f: FormData): Promise<Action
   }
   const submit = f.get("intent") === "submit";
   const own = (v: unknown) => (typeof v === "string" && new RegExp(`^${user.id}/[a-z0-9-]{8,60}\\.(webp|jpg|jpeg|png|webm|m4a|mp4|ogg|mp3|pdf)$`).test(v) ? v : null);
-  const title = str(p.title, 120), story = str(p.story, 8000);
+  const title = str(p.title, 120), story = cleanStory(str(p.story, 20000));
+  const storyLen = storyText(story).length;
+  if (storyLen > 8000) return fail(d.common.error);
   const goal = Number(p.goal_amount);
   const video = str(p.video_url, 300);
   const row = {
@@ -162,7 +175,7 @@ export async function saveCampaign(_: ActionResult, f: FormData): Promise<Action
     if (!row.beneficiary_name) missing.push(d.create.needBeneficiary);
     if (!row.cause) missing.push(d.create.needCause);
     if (!row.department) missing.push(d.create.needPlace);
-    if (story.length < 40 && !row.voice_path) missing.push(d.create.needStory);
+    if (storyLen < 40 && !row.voice_path) missing.push(d.create.needStory);
     if (!methods.length) missing.push(d.create.needMethod);
     if (!priv.contact_name || !priv.contact_email) missing.push(d.create.needContact);
     if (!priv.id_front_path || !priv.selfie_path) missing.push(d.create.needId);
@@ -170,6 +183,8 @@ export async function saveCampaign(_: ActionResult, f: FormData): Promise<Action
     if (missing.length) return fail(`${d.create.missing} ${missing.join(", ")}`);
   }
   if (submit && !row.cover_path) return fail(`${d.create.missing} ${d.x.form.err.cover}`);
+  const { data: me } = await sb.from("profiles").select("display_name,bio,department,city").eq("id", user.id).maybeSingle();
+  if (!me || !profileReady(me)) return fail(d.x.setup.need);
   let id = typeof p.id === "string" && UUID.test(p.id) ? p.id : "";
   let status = "draft";
   if (id) {

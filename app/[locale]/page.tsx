@@ -121,11 +121,9 @@ function Stories({ items, locale, cats }: { items: Campaign[]; locale: Locale; c
           <p className="meta">{lead.cause && <span>{causeName(cats, lead.cause, locale)}</span>}{place(lead) && <span><Icon name="pin" size={14} /> {place(lead)}</span>}</p>
           <h3><Link href={href(lead)}>{lead.title}</Link></h3>
           {lead.story && <p className="excerpt" style={{ WebkitLineClamp: 4 }}>{excerpt(lead.story, 240)}</p>}
+          <ReviewChecks tier={lead.tier} locale={locale} />
           <div className="foot">
-            <div className="stack tight">
-              {ownerName(lead) && <p className="by"><Avatar name={ownerName(lead)} path={lead.owner?.avatar_path} size={26} /><span>{d.x.card.by} {ownerName(lead)}</span></p>}
-              <ReviewChecks tier={lead.tier} locale={locale} />
-            </div>
+            {ownerName(lead) ? <p className="by"><Avatar name={ownerName(lead)} path={lead.owner?.avatar_path} size={26} /><span>{d.x.card.by} {ownerName(lead)}</span></p> : <span />}
             <span className="go" aria-hidden="true"><Icon name="arrow" size={18} /></span>
           </div>
         </div>

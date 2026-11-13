@@ -3,6 +3,7 @@ import Icon, { causeIcon } from "./Icon";
 import { initials, mediaUrl } from "@/lib/format";
 import { t, type Locale } from "@/lib/i18n";
 import type { Campaign, Category, Tier } from "@/lib/types";
+import { storyText } from "@/lib/story";
 
 export const causeName = (cats: Category[], slug: string | null, locale: Locale) => {
   const c = cats.find((x) => x.slug === slug);
@@ -11,7 +12,7 @@ export const causeName = (cats: Category[], slug: string | null, locale: Locale)
 export const ownerName = (c: Campaign) => (c.owner ? (c.owner.kind === "organization" && c.owner.org_name ? c.owner.org_name : c.owner.display_name) : "");
 export const place = (c: Pick<Campaign, "commune" | "department">) => [c.commune, c.department].filter(Boolean).join(", ");
 export const excerpt = (story: string, n = 170) => {
-  const s = story.replace(/\s+/g, " ").trim();
+  const s = storyText(story).replace(/\s+/g, " ").trim();
   return s.length > n ? `${s.slice(0, n).replace(/\s+\S*$/, "")}…` : s;
 };
 /** Review indicators appear only for checks our team actually completed. */
@@ -57,11 +58,9 @@ export function FundraiserCard({ c, locale, cats, priority }: { c: Campaign; loc
       </p>
       <h3><Link href={`/${locale}/campaigns/${c.slug}`}>{c.title}</Link></h3>
       {c.story && <p className="excerpt">{excerpt(c.story)}</p>}
+      <ReviewChecks tier={c.tier} locale={locale} />
       <div className="foot">
-        <div className="stack tight" style={{ minWidth: 0 }}>
-          {who && <p className="by"><Avatar name={who} path={c.owner?.avatar_path} size={26} /><span>{d.x.card.by} {who}</span></p>}
-          <ReviewChecks tier={c.tier} locale={locale} />
-        </div>
+        {who ? <p className="by"><Avatar name={who} path={c.owner?.avatar_path} size={26} /><span>{d.x.card.by} {who}</span></p> : <span />}
         <span className="go" aria-hidden="true"><Icon name="arrow" size={18} /></span>
       </div>
     </article>

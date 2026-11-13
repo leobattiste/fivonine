@@ -86,7 +86,7 @@ export default function Header({ locale, viewer }: { locale: Locale; viewer: Vie
       <dialog ref={drawer} className="drawer" aria-label={d.nav.menu} onClick={(e) => e.target === drawer.current && drawer.current?.close()}>
         <div className="drawer-head">
           <Link className="wordmark" href={L("")}><Wordmark /></Link>
-          <button className="btn icon-only" onClick={() => drawer.current?.close()} aria-label={n.closeMenu}><Icon name="close" /></button>
+          <button className="btn icon-only" autoFocus onClick={() => drawer.current?.close()} aria-label={n.closeMenu}><Icon name="close" /></button>
         </div>
         <div className="drawer-body">
           <nav className="drawer-nav" aria-label={d.nav.menu}>

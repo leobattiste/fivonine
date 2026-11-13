@@ -2,6 +2,7 @@
 import { useActionState, useEffect, useMemo, useRef, useState } from "react";
 import Icon from "./Icon";
 import Cropper from "./Cropper";
+import StoryEditor from "./StoryEditor";
 import { saveCampaign } from "@/app/actions";
 import { DEPARTMENTS, METHODS, RELATIONS, type MethodGroup } from "@/lib/constants";
 import { storyLanguages, t, type Locale } from "@/lib/i18n";
@@ -13,6 +14,7 @@ export type { FormState };
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const LINK = /^https:\/\/[^\s]+$/;
+const plain = (html: string) => html.replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim();
 const time = (locale: Locale) => new Intl.DateTimeFormat(locale, { hour: "numeric", minute: "2-digit" }).format(new Date());
 
 export default function CampaignForm({ locale, cats, initial, draftKey, live }: { locale: Locale; cats: Category[]; initial: FormState; draftKey: string | null; live: boolean }) {
@@ -70,7 +72,7 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live }: 
     }
     if (s === 1) {
       if (f.title.trim().length < 4) e.title = x.err.title;
-      if (f.story.trim().length < 40 && !f.voice_path) e.story = x.err.story;
+      if (plain(f.story).length < 40 && !f.voice_path) e.story = x.err.story;
     }
     if (s === 2 && !f.cover_path) e.cover_path = x.err.cover;
     if (s === 3) {
@@ -233,7 +235,7 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live }: 
           {step === 1 && (
             <>
               <label className="field"><span>{c.campaignTitle}</span><input className="input" value={f.title} maxLength={120} placeholder={x.ex.title} onChange={(e) => set("title", e.target.value)} {...inv("title")} /><small>{f.title.length}/120</small>{err("title")}</label>
-              <label className="field"><span>{c.story}</span><textarea className="input" rows={11} value={f.story} maxLength={8000} onChange={(e) => set("story", e.target.value)} {...inv("story")} /><small>{c.storyHint} {f.story.trim().length < 40 ? `(${f.story.trim().length}/40)` : ""}</small>{err("story")}</label>
+              <div className="field"><label htmlFor="story-editor">{c.story}</label><small id="story-hint">{c.storyHint}</small><StoryEditor id="story-editor" value={f.story} onChange={(html) => set("story", html)} placeholder={x.editor.placeholder} labels={x.editor} invalid={Boolean(errors.story)} describedBy={errors.story ? "e-story story-hint" : "story-hint"} />{err("story")}</div>
               <div className="field"><span>{c.voice}{opt}</span>
                 <small>{c.voiceHint}</small>
                 <div className="row">
@@ -375,7 +377,7 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live }: 
                     {f.cover_path ? <div className="frame">{/* eslint-disable-next-line @next/next/no-img-element */}<img src={src(f.cover_path)} alt="" /></div> : <div className="frame empty"><Icon name="image" size={40} /></div>}
                     <p className="meta">{catName && <span>{catName}</span>}{where && <span><Icon name="pin" size={14} /> {where}</span>}</p>
                     <h3>{f.title || "—"}</h3>
-                    <p className="excerpt">{f.story.replace(/\s+/g, " ").slice(0, 170)}</p>
+                    <p className="excerpt">{plain(f.story).slice(0, 170)}</p>
                   </article>
                 </div>
                 <div className="stack tight">
@@ -383,7 +385,7 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live }: 
                   <div className="preview-page">
                     <h3>{f.title || "—"}</h3>
                     <p className="small muted">{[f.beneficiary_name && `${d.x.detail.beneficiary} ${f.beneficiary_name}`, where, f.goal_amount && `${d.x.detail.goal}: ${Number(f.goal_amount).toLocaleString()} ${f.goal_currency}`].filter(Boolean).join(" · ")}</p>
-                    <div className="story" lang={f.language}>{f.story.split(/\n{2,}/).map((p, i) => <p key={i}>{p}</p>)}</div>
+                    <div className="story" lang={f.language} dangerouslySetInnerHTML={{ __html: /^\s*</.test(f.story) ? f.story.replace(/<(script|style|iframe)[^>]*>[\s\S]*?<\/\1>/gi, "").replace(/ on\w+="[^"]*"/gi, "") : f.story.split(/\n{2,}/).map((p) => `<p>${p.replace(/</g, "&lt;")}</p>`).join("") }} />
                     <div className="support" style={{ position: "static", padding: 16 }}>
                       <strong>{d.x.detail.support}</strong>
                       {methods.length ? <ul className="stack tight">{methods.map((m) => <li key={m.method} className="method"><strong>{METHODS.find((v) => v.id === m.method)?.name || d.support.other}</strong><pre>{m.details}</pre>{m.link && <span className="host">{d.x.detail.opens(m.link.replace(/^https:\/\/(www\.)?/, "").split("/")[0])}</span>}</li>)}</ul> : <p className="small muted">—</p>}

@@ -4,7 +4,8 @@ import { notFound } from "next/navigation";
 import Icon from "@/components/Icon";
 import CampaignForm from "@/components/CampaignForm";
 import { emptyForm } from "@/lib/form";
-import { requireViewer } from "@/lib/auth";
+import ProfileSetup from "@/components/ProfileSetup";
+import { profileReady, requireViewer } from "@/lib/auth";
 import { getCategories } from "@/lib/data";
 import { isLocale, t } from "@/lib/i18n";
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
@@ -23,7 +24,9 @@ export default async function Create({ params }: { params: Promise<{ locale: str
         <div className="stack tight"><h1>{d.x.form.title}</h1><p className="lead">{d.x.form.sub}</p></div>
         <Link className="arrow-link small" href={`/${locale}/resources`}><Icon name="guide" size={18} />{d.x.home.organizerLink}</Link>
       </header>
-      {viewer.profile.banned ? <p className="notice err"><Icon name="lock" size={18} />{d.dash.restricted}</p> : (
+      {viewer.profile.banned ? <p className="notice err"><Icon name="lock" size={18} />{d.dash.restricted}</p> : !profileReady(viewer.profile) ? (
+        <ProfileSetup locale={locale} profile={viewer.profile} next={`/${locale}/create`} />
+      ) : (
         <CampaignForm locale={locale} cats={cats} initial={emptyForm(locale, name, viewer.email)} draftKey={`fivonine-draft-${viewer.id}`} live={false} />
       )}
     </div>

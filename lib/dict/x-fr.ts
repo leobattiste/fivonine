@@ -2,7 +2,7 @@ import type { X } from "./x-en";
 const x: X = {
   brand: { name: "yon kout men", tagline: "Un coup de main entre Haïtiens, où qu'ils soient." },
   nav: {
-    explore: "Donner", fundraiser: "Collecte", how: "Comment ça marche", about: "À propos", share: "Partager une collecte", search: "Rechercher", searchLabel: "Rechercher des collectes",
+    explore: "Donner", fundraiser: "Collecter", how: "Comment ça marche", about: "À propos", share: "Partager une collecte", search: "Rechercher", searchLabel: "Rechercher des collectes",
     searchHint: "Un nom, un lieu, un besoin", go: "Rechercher", signIn: "Se connecter", account: "Compte", openMenu: "Ouvrir le menu", closeMenu: "Fermer le menu",
     dashboard: "Vue d'ensemble", fundraisers: "Mes collectes", saved: "Enregistrées", notifications: "Notifications", profile: "Profil", admin: "Admin", signOut: "Se déconnecter",
     unread: (n: number) => (n === 1 ? "1 non lue" : `${n} non lues`),
@@ -89,6 +89,7 @@ const x: X = {
     startOver: "Recommencer",
     continue: "Continuer", back: "Retour",
     crop: { title: "Cadrez votre photo", hint: "Faites glisser la photo pour choisir ce qui apparaît. Utilisez le curseur pour zoomer.", zoom: "Zoom", use: "Utiliser cette photo", cancel: "Annuler", change: "Changer la photo", remove: "Retirer la photo", uploading: "Envoi de la photo…" },
+    editor: { bold: "Gras", italic: "Italique", heading: "Titre", bullets: "Liste à puces", numbers: "Liste numérotée", quote: "Citation", link: "Lien", linkPrompt: "Collez un lien qui commence par https://", undo: "Annuler", redo: "Rétablir", placeholder: "Commencez par qui a besoin d'aide et ce qui s'est passé. Dites ensuite ce que le soutien paiera." },
     link: "Lien", linkHint: "Une page où l'on peut envoyer, comme un lien PayPal ou Cash App. Doit commencer par https://",
     preview: "Voici ce que verront les visiteurs", previewCard: "Dans les résultats", previewPage: "Sur la page de la collecte",
     submit: "Envoyer pour vérification", submitChanges: "Envoyer les modifications",
@@ -99,6 +100,15 @@ const x: X = {
       changesBody: "Les visiteurs voient la version publiée jusqu'à l'approbation de vos modifications.",
       status: "Statut", next: "Ce que vous pouvez faire", view: "Voir l'aperçu", dashboard: "Aller à mes collectes",
     },
+  },
+  setup: {
+    title: "D'abord, créez votre profil",
+    sub: "Les donateurs voient qui est derrière chaque collecte. Votre profil montre votre nom, où vous êtes et quelques mots sur vous. Cela prend une minute.",
+    why: "Pourquoi nous le demandons",
+    whyPoints: ["Les gens donnent plus facilement quand ils voient qui organise.", "Notre équipe vérifie que le profil correspond à la pièce d'identité de l'organisateur.", "Vous pouvez le modifier à tout moment depuis votre compte."],
+    name: "Votre nom, tel qu'on vous connaît", where: "Où vous habitez", bio: "Quelques mots sur vous", bioHint: "Exemple : Infirmière au Cap-Haïtien. J'aide ma famille et mes voisins.",
+    photo: "Photo de profil", cont: "Enregistrer et continuer", step: "Profil, puis collecte",
+    need: "Complétez votre profil avant de lancer une collecte.",
   },
   dash: {
     title: "Vue d'ensemble", hello: (name: string) => `Bonjour, ${name}`,

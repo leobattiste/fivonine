@@ -13,6 +13,7 @@ import { getCampaign, getCategories, getChange, getViewerState, ownerSince } fro
 import { SITE_URL, VOUCH_ROLES } from "@/lib/constants";
 import { fmtDate, fmtMoney, mediaUrl } from "@/lib/format";
 import { isLocale, t } from "@/lib/i18n";
+import { storyHtml, storyText } from "@/lib/story";
 
 type P = { params: Promise<{ locale: string; slug: string }> };
 export async function generateMetadata({ params }: P): Promise<Metadata> {
@@ -21,7 +22,7 @@ export async function generateMetadata({ params }: P): Promise<Metadata> {
   const data = await getCampaign(slug);
   if (!data) return {};
   const c = data.campaign;
-  return { title: c.title, description: c.story.slice(0, 160), alternates: { canonical: `/${locale}/campaigns/${c.slug}` }, robots: c.status === "live" || c.status === "completed" ? undefined : { index: false } };
+  return { title: c.title, description: storyText(c.story).slice(0, 160), alternates: { canonical: `/${locale}/campaigns/${c.slug}` }, robots: c.status === "live" || c.status === "completed" ? undefined : { index: false } };
 }
 export default async function FundraiserPage({ params }: P) {
   const { locale, slug } = await params;
@@ -85,7 +86,7 @@ export default async function FundraiserPage({ params }: P) {
 
           <section id="story" className="f-section" aria-label={x.tabs.story}>
             {voice && <div className="voice"><Icon name="mic" size={20} /><span className="small">{d.campaign.listen}</span><audio controls preload="none" src={voice} /></div>}
-            <div className="story" lang={c.language}>{c.story.split(/\n{2,}/).map((para, i) => <p key={i}>{para}</p>)}</div>
+            <div className="story" lang={c.language} dangerouslySetInnerHTML={{ __html: storyHtml(c.story) }} />
             {c.video_url && <p><a className="btn small" href={c.video_url} target="_blank" rel="noopener noreferrer nofollow"><Icon name="external" size={16} />{d.campaign.video}<span className="sr"> ({d.x.common.newTab})</span></a></p>}
             {c.gallery.length > 0 && (
               <div className="gallery" aria-label={d.campaign.photos}>
