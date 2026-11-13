@@ -58,7 +58,7 @@ export default function ExploreShell({ locale, options, total, children }: { loc
           {sel("place", options.places, x.anywhere, "f-place")}
           {sel("status", statusOpts, null, "f-status")}
         </div>
-        <button type="button" className="btn small only-narrow" onClick={() => drawer.current?.showModal()}>
+        <button type="button" className="btn only-narrow" onClick={() => drawer.current?.showModal()}>
           <Icon name="filter" size={17} />{x.filters}{chips.filter(([k]) => k !== "q").length > 0 && <span className="count">{chips.filter(([k]) => k !== "q").length}</span>}
         </button>
         <div className="sort">{sel("sort", sortOpts, null, "f-sort")}</div>
