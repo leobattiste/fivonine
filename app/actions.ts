@@ -106,7 +106,7 @@ export async function saveProfile(_: ActionResult, f: FormData): Promise<ActionR
 type Payload = {
   id?: string; title?: string; story?: string; cause?: string; department?: string; commune?: string; beneficiary_name?: string; beneficiary_relation?: string;
   goal_amount?: string | number | null; goal_currency?: string; deadline?: string; urgent?: boolean; cover_path?: string | null; gallery?: string[];
-  video_url?: string; voice_path?: string | null; language?: string; methods?: { method: string; details: string }[];
+  video_url?: string; voice_path?: string | null; language?: string; methods?: { method: string; details: string; link?: string }[];
   priv?: { contact_name?: string; contact_email?: string; contact_details?: string; id_front_path?: string | null; id_back_path?: string | null; selfie_path?: string | null; reference_name?: string; reference_contact?: string; documents?: string[] };
   consent?: boolean;
 };
@@ -144,7 +144,7 @@ export async function saveCampaign(_: ActionResult, f: FormData): Promise<Action
   };
   const seen = new Set<string>();
   const methods = (Array.isArray(p.methods) ? p.methods : [])
-    .map((m) => ({ method: str(m?.method, 30), details: str(m?.details, 600) }))
+    .map((m) => { const link = str(m?.link, 300); return { method: str(m?.method, 30), details: str(m?.details, 600), link: /^https:\/\/[^\s]+$/.test(link) ? link : null }; })
     .filter((m) => METHOD_IDS.includes(m.method) && m.details.length >= 3 && !seen.has(m.method) && seen.add(m.method))
     .slice(0, 12);
   const pv = p.priv ?? {};
@@ -169,12 +169,27 @@ export async function saveCampaign(_: ActionResult, f: FormData): Promise<Action
     if (!p.consent) missing.push(d.create.needConsent);
     if (missing.length) return fail(`${d.create.missing} ${missing.join(", ")}`);
   }
+  if (submit && !row.cover_path) return fail(`${d.create.missing} ${d.x.form.err.cover}`);
   let id = typeof p.id === "string" && UUID.test(p.id) ? p.id : "";
   let status = "draft";
   if (id) {
     const { data: existing } = await sb.from("campaigns").select("id,status,owner_id").eq("id", id).maybeSingle();
     if (!existing || existing.owner_id !== user.id) return fail(d.common.error);
     status = existing.status;
+    if (["suspended", "completed", "closed"].includes(status)) return fail(d.common.error);
+  }
+  // A public fundraiser keeps its published version; the edit waits in review as proposed changes.
+  if (status === "live") {
+    const privRow = { campaign_id: id, ...priv };
+    const { error: pe } = await sb.from("campaign_private").upsert(privRow, { onConflict: "campaign_id" });
+    if (pe) return fail(d.common.error);
+    const { error } = await sb.from("campaign_changes").upsert({ campaign_id: id, author_id: user.id, payload: { row, methods }, status: "pending" }, { onConflict: "campaign_id" });
+    if (error) return fail(d.common.error);
+    after(() => drainOutbox());
+    revalidatePath(`/${locale}/dashboard`);
+    redirect(`/${locale}/dashboard/campaigns/${id}?changes=1`);
+  }
+  if (id) {
     const { error } = await sb.from("campaigns").update(row).eq("id", id);
     if (error) return fail(error.message.includes("no longer") ? error.message : d.common.error);
   } else {
@@ -185,8 +200,8 @@ export async function saveCampaign(_: ActionResult, f: FormData): Promise<Action
   const privRow = { campaign_id: id, ...priv, ...(submit && p.consent ? { consent_at: new Date().toISOString() } : {}) };
   const { error: pe } = await sb.from("campaign_private").upsert(privRow, { onConflict: "campaign_id" });
   if (pe) return fail(d.common.error);
-  const { data: current } = await sb.from("support_methods").select("method,details,position").eq("campaign_id", id).order("position");
-  const same = (current ?? []).length === methods.length && (current ?? []).every((c, i) => c.method === methods[i].method && c.details === methods[i].details);
+  const { data: current } = await sb.from("support_methods").select("method,details,link,position").eq("campaign_id", id).order("position");
+  const same = (current ?? []).length === methods.length && (current ?? []).every((c, i) => c.method === methods[i].method && c.details === methods[i].details && (c.link ?? null) === methods[i].link);
   if (!same) {
     const { error: de } = await sb.from("support_methods").delete().eq("campaign_id", id);
     if (de) return fail(d.common.error);
@@ -201,7 +216,18 @@ export async function saveCampaign(_: ActionResult, f: FormData): Promise<Action
   }
   after(() => drainOutbox());
   revalidatePath(`/${locale}/dashboard`);
-  redirect(`/${locale}/dashboard/campaigns/${id}?${submit ? "sent" : "saved"}=1`);
+  if (!submit) {
+    const at = new Intl.DateTimeFormat(locale === "ht" ? "fr-HT" : locale, { hour: "numeric", minute: "2-digit", timeZone: "America/Port-au-Prince" }).format(new Date());
+    return { ok: true, message: d.common.saved, id, at };
+  }
+  redirect(`/${locale}/dashboard/campaigns/${id}?sent=1`);
+}
+export async function discardChanges(f: FormData) {
+  const { locale, sb, user } = await ctx(f);
+  const id = s(f, "id");
+  if (!sb || !user || !UUID.test(id)) return;
+  await sb.from("campaign_changes").delete().eq("campaign_id", id);
+  revalidatePath(`/${locale}/dashboard/campaigns/${id}`);
 }
 export async function setCampaignStatus(f: FormData) {
   const { locale, sb, user } = await ctx(f);

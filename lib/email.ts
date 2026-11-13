@@ -9,11 +9,11 @@ function render(job: Job) {
   const d = t(locale);
   const make = (d.notif as Record<string, (title: string) => string>)[job.kind];
   const title = job.payload.title ?? "";
-  const subject = make ? make(title) : "Fivonine";
+  const subject = make ? make(title) : "yon kout men";
   const path = job.kind.startsWith("admin_") ? "admin" : ["campaign_needs_changes", "campaign_rejected", "campaign_suspended"].includes(job.kind) || !job.payload.slug ? "dashboard" : `campaigns/${job.payload.slug}`;
   const lines = [d.email.greeting, "", subject, "", `${d.email.open} ${SITE_URL}/${locale}/${path}`];
   if (job.payload.note) lines.push("", `${d.email.noteLabel} ${job.payload.note}`);
-  lines.push("", "Fivonine", "", d.email.footer);
+  lines.push("", "yon kout men", "", d.email.footer);
   return { subject, text: lines.join("\n") };
 }
 /** Sends queued notification emails. Does nothing until email delivery is configured. */

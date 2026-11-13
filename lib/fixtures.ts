@@ -20,10 +20,10 @@ export const fxMine: Campaign[] = [
   { ...fxCampaigns[3], id: "c8", slug: "nan-verifikasyon", status: "pending", title: "Repare kay la apre inondasyon an" },
 ];
 export const fxMethods: SupportMethod[] = [
-  { id: "m1", campaign_id: "c1", method: "moncash", details: "Roseline Pierre\n+509 3712 0000", position: 0 },
-  { id: "m2", campaign_id: "c1", method: "western_union", details: "Receiver: Roseline Pierre\nCap-Haïtien, Haiti", position: 1 },
-  { id: "m3", campaign_id: "c1", method: "unibank", details: "Unibank, kont epay an goud\nNon: Roseline Pierre\nNimewo: 120-0000-00000000", position: 2 },
-  { id: "m4", campaign_id: "c1", method: "zelle", details: "Jean Pierre (frè m nan Miami)\njeanpierre@example.com", position: 3 },
+  { id: "m1", campaign_id: "c1", method: "moncash", details: "Roseline Pierre\n+509 3712 0000", link: null, position: 0 },
+  { id: "m2", campaign_id: "c1", method: "western_union", details: "Receiver: Roseline Pierre\nCap-Haïtien, Haiti", link: null, position: 1 },
+  { id: "m3", campaign_id: "c1", method: "unibank", details: "Unibank, kont epay an goud\nNon: Roseline Pierre\nNimewo: 120-0000-00000000", link: null, position: 2 },
+  { id: "m4", campaign_id: "c1", method: "zelle", details: "Jean Pierre (frè m nan Miami)\njeanpierre@example.com", link: null, position: 3 },
 ];
 export const fxUpdates: Update[] = [
   { id: "u1", campaign_id: "c1", author_id: owner.id, body: "Nou peye premye depo lopital la jodi a. Operasyon an fikse pou 28 novanm. Mèsi pou tout moun ki ede nou rive la.", proof: ["fixture:2"], hidden: false, created_at: "2026-11-08T15:00:00Z", author: { display_name: owner.display_name } },

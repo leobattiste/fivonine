@@ -5,7 +5,7 @@ import { locales } from "@/lib/i18n";
 import { SUPABASE_KEY, SUPABASE_URL, supabaseEnabled } from "@/lib/supabase/config";
 export const revalidate = 3600;
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const paths = ["", "/donate", "/how-it-works", "/about", "/safety", "/guidelines", "/terms", "/privacy", "/help", "/contact", "/transparency"];
+  const paths = ["", "/explore", "/how-it-works", "/about", "/resources", "/safety", "/guidelines", "/terms", "/privacy", "/help", "/contact", "/transparency"];
   const out: MetadataRoute.Sitemap = locales.flatMap((l) => paths.map((p) => ({ url: `${SITE_URL}/${l}${p}` })));
   if (supabaseEnabled && process.env.PUBLIC_LAUNCH === "true") {
     const sb = createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { persistSession: false } });

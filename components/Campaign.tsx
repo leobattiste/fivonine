@@ -1,92 +1,83 @@
 import Link from "next/link";
 import Icon, { causeIcon } from "./Icon";
-import { fmtMoney, initials, mediaUrl, otherCurrency, raised } from "@/lib/format";
+import { initials, mediaUrl } from "@/lib/format";
 import { t, type Locale } from "@/lib/i18n";
-import type { Campaign, Category, Settings, Tier } from "@/lib/types";
+import type { Campaign, Category, Tier } from "@/lib/types";
 
 export const causeName = (cats: Category[], slug: string | null, locale: Locale) => {
   const c = cats.find((x) => x.slug === slug);
   return c ? c[`name_${locale}`] : "";
 };
-export function TierBadge({ tier, locale, withHelp }: { tier: Tier; locale: Locale; withHelp?: boolean }) {
+export const ownerName = (c: Campaign) => (c.owner ? (c.owner.kind === "organization" && c.owner.org_name ? c.owner.org_name : c.owner.display_name) : "");
+export const place = (c: Pick<Campaign, "commune" | "department">) => [c.commune, c.department].filter(Boolean).join(", ");
+export const excerpt = (story: string, n = 170) => {
+  const s = story.replace(/\s+/g, " ").trim();
+  return s.length > n ? `${s.slice(0, n).replace(/\s+\S*$/, "")}…` : s;
+};
+/** Review indicators appear only for checks our team actually completed. */
+export function ReviewChecks({ tier, locale, withHelp }: { tier: Tier; locale: Locale; withHelp?: boolean }) {
+  if (tier === "none") return null;
   const d = t(locale);
-  return (
-    <span className={`badge tier-${tier}`} title={d.tierHelp[tier]}>
-      <Icon name={tier === "none" ? "check" : "badge"} size={15} />
-      {d.tiers[tier]}
-      {withHelp && <span className="sr">. {d.tierHelp[tier]}</span>}
-    </span>
-  );
+  return <span className="check-tag" title={d.tierHelp[tier]}><Icon name="badge" size={16} />{d.tiers[tier]}{withHelp && <span className="sr">. {d.tierHelp[tier]}</span>}</span>;
 }
-export function Avatar({ name, path, size = 36 }: { name: string; path?: string | null; size?: number }) {
+export function Avatar({ name, path, size = 28 }: { name: string; path?: string | null; size?: number }) {
   const url = mediaUrl(path);
   return url ? (
     // eslint-disable-next-line @next/next/no-img-element
-    <img className="avatar" src={url} alt="" width={size} height={size} loading="lazy" />
+    <img className="avatar" src={url} alt="" width={size} height={size} style={{ width: size, height: size }} loading="lazy" />
   ) : (
-    <span className="avatar" style={{ width: size, height: size, fontSize: size * 0.38 }} aria-hidden="true">{initials(name)}</span>
+    <span className="avatar" style={{ width: size, height: size, fontSize: size * 0.36 }} aria-hidden="true">{initials(name)}</span>
   );
 }
-export function ProgressBlock({ c, settings, locale, big }: { c: Campaign; settings: Settings; locale: Locale; big?: boolean }) {
-  const d = t(locale);
-  const total = raised(c, c.progress, settings);
-  const pct = c.goal_amount ? Math.min(100, Math.round((total / Number(c.goal_amount)) * 100)) : null;
-  const other = otherCurrency(total, c.goal_currency, settings);
-  return (
-    <div className={big ? "progress-block big" : "progress-block"}>
-      <p className="raised">
-        <strong>{fmtMoney(total, c.goal_currency, locale)}</strong> <span>{d.campaign.reported}</span>
-      </p>
-      {pct !== null && (
-        <div className="bar" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100} aria-label={`${pct}%`}>
-          <span style={{ width: `${Math.max(pct, total > 0 ? 3 : 0)}%` }} />
-        </div>
-      )}
-      <p className="small muted">
-        {c.goal_amount ? `${pct}% ${d.common.of} ${fmtMoney(Number(c.goal_amount), c.goal_currency, locale)}` : d.campaign.noGoal}
-        {big && total > 0 && ` (${d.common.approx} ${fmtMoney(other.amount, other.currency, locale)})`}
-        {big && <>, {d.campaign.supporters(c.progress?.supporters ?? 0)}</>}
-      </p>
-    </div>
-  );
-}
-export function Cover({ c, lite, sizes }: { c: Campaign; lite: boolean; sizes?: string }) {
+export function Cover({ c, lite, className = "", sizes = "(min-width: 900px) 33vw, 100vw", priority }: { c: Pick<Campaign, "cover_path" | "cause">; lite: boolean; className?: string; sizes?: string; priority?: boolean }) {
   const url = lite ? null : mediaUrl(c.cover_path);
-  return (
-    <div className="cover">
-      {url ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img src={url} alt="" loading="lazy" decoding="async" sizes={sizes} />
-      ) : (
-        <span className="cover-empty" aria-hidden="true"><Icon name={causeIcon[c.cause ?? "other"] ?? "hand"} size={40} /></span>
-      )}
+  return url ? (
+    <div className={`frame ${className}`}>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={url} alt="" sizes={sizes} loading={priority ? "eager" : "lazy"} decoding="async" />
     </div>
+  ) : (
+    <div className={`frame empty ${className}`} aria-hidden="true"><Icon name={causeIcon[c.cause ?? "other"] ?? "hand"} size={44} /></div>
   );
 }
-export function CampaignCard({ c, locale, settings, cats, lite, wide }: { c: Campaign; locale: Locale; settings: Settings; cats: Category[]; lite: boolean; wide?: boolean }) {
-  const d = t(locale);
-  const place = [c.commune, c.department].filter(Boolean).join(", ");
+export function FundraiserCard({ c, locale, cats, lite, priority }: { c: Campaign; locale: Locale; cats: Category[]; lite: boolean; priority?: boolean }) {
+  const d = t(locale), where = place(c), who = ownerName(c);
   return (
-    <article className={wide ? "c-card wide" : "c-card"}>
-      <Link href={`/${locale}/campaigns/${c.slug}`} className="c-link" aria-label={c.title}>
-        <Cover c={c} lite={lite} />
-      </Link>
-      <div className="c-body">
-        <div className="row tight">
-          {c.status === "completed" && <span className="badge done">{d.campaign.completed}</span>}
-          {c.urgent && c.status === "live" && <span className="badge urgent">{d.campaign.urgent}</span>}
-          {c.cause && <span className="chip">{causeName(cats, c.cause, locale)}</span>}
+    <article className="fcard">
+      <div style={{ position: "relative" }}>
+        <Cover c={c} lite={lite} priority={priority} />
+        <div className="badges">
+          {c.status === "completed" && <span className="tag solid">{d.campaign.completed}</span>}
+          {c.urgent && c.status === "live" && <span className="tag solid">{d.campaign.urgent}</span>}
         </div>
-        <h3><Link href={`/${locale}/campaigns/${c.slug}`}>{c.title}</Link></h3>
-        {place && <p className="small muted place"><Icon name="pin" size={15} />{place}</p>}
-        <ProgressBlock c={c} settings={settings} locale={locale} />
-        <div className="c-foot">
-          <TierBadge tier={c.tier} locale={locale} />
+      </div>
+      <p className="meta">
+        {c.cause && <span>{causeName(cats, c.cause, locale)}</span>}
+        {where && <span><Icon name="pin" size={14} /> {where}</span>}
+      </p>
+      <h3><Link href={`/${locale}/campaigns/${c.slug}`}>{c.title}</Link></h3>
+      {c.story && <p className="excerpt">{excerpt(c.story)}</p>}
+      <div className="foot">
+        <div className="stack tight" style={{ minWidth: 0 }}>
+          {who && <p className="by"><Avatar name={who} path={lite ? null : c.owner?.avatar_path} size={26} /><span>{d.x.card.by} {who}</span></p>}
+          <ReviewChecks tier={c.tier} locale={locale} />
         </div>
+        <span className="go" aria-hidden="true"><Icon name="arrow" size={18} /></span>
       </div>
     </article>
   );
 }
 export function StatusPill({ status, locale }: { status: Campaign["status"]; locale: Locale }) {
-  return <span className={`badge status-${status}`}>{t(locale).status[status]}</span>;
+  return <span className={`status ${status}`}>{t(locale).status[status]}</span>;
+}
+export function CardSkeleton() {
+  return (
+    <div className="fcard" aria-hidden="true">
+      <div className="sk frame" style={{ aspectRatio: "4 / 3" }} />
+      <div className="sk sk-line" style={{ width: "40%" }} />
+      <div className="sk sk-line" style={{ height: 22, width: "85%" }} />
+      <div className="sk sk-line" style={{ width: "95%" }} />
+      <div className="sk sk-line" style={{ width: "70%" }} />
+    </div>
+  );
 }

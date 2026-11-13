@@ -20,11 +20,12 @@ export type CampaignPrivate = {
   id_front_path: string | null; id_back_path: string | null; selfie_path: string | null; reference_name: string | null;
   reference_contact: string | null; documents: string[]; consent_at: string | null; review_note: string | null;
 };
-export type SupportMethod = { id: string; campaign_id: string; method: string; details: string; position: number };
+export type SupportMethod = { id: string; campaign_id: string; method: string; details: string; link: string | null; position: number };
+export type CampaignChange = { campaign_id: string; author_id: string; payload: { row: Record<string, unknown>; methods: { method: string; details: string; link: string | null }[] }; status: "pending" | "needs_changes"; review_note: string | null; submitted_at: string };
 export type Update = { id: string; campaign_id: string; author_id: string; body: string; proof: string[]; hidden: boolean; created_at: string; author?: { display_name: string } | null };
 export type Contribution = { id: string; campaign_id: string; amount: number; currency: "HTG" | "USD"; method: string | null; display_name: string | null; anonymous: boolean; message: string | null; hidden: boolean; created_at: string };
 export type Vouch = { id: string; campaign_id: string; voucher_id: string; role: string; organization: string | null; statement: string; status: string; created_at: string; voucher?: { display_name: string; org_verified: boolean } | null };
 export type Category = { slug: string; name_ht: string; name_fr: string; name_en: string; position: number; active: boolean };
 export type Settings = { emergency: { active: boolean; ht: string; fr: string; en: string }; rate: { htg_per_usd: number } };
 export type Notification = { id: string; kind: string; campaign_id: string | null; payload: { title?: string; slug?: string; note?: string }; read_at: string | null; created_at: string };
-export type ActionResult = { ok: boolean; message: string } | null;
+export type ActionResult = { ok: boolean; message: string; id?: string; at?: string; undo?: string } | null;

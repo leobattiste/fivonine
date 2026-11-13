@@ -27,16 +27,16 @@ export default function ModerationForm({ id, status, tier, featured, urgent, eme
       </div>
       <label className="field"><span>Note to the organizer</span>
         <textarea ref={area} className="input" name="note" rows={4} maxLength={2000} defaultValue={note} />
-        <small>Required when you ask for changes, decline or suspend. The organizer reads it by email and in their account. Write it in their language.</small>
+        <small><strong>Required</strong> when you ask for changes, decline or suspend. The organizer reads it by email and in their account. Write it in their language.</small>
       </label>
-      <div className="row tight">{TEMPLATES.map(([label, text]) => <button key={label} type="button" className="chip" onClick={() => { if (area.current) area.current.value = text; }}>{label}</button>)}</div>
-      <div className="row">
+      <div className="templates">{TEMPLATES.map(([label, text]) => <button key={label} type="button" className="chip" onClick={() => { if (area.current) { area.current.value = text; area.current.focus(); } }}>{label}</button>)}</div>
+      <div className="stack tight">
         {!live && status !== "suspended" && <Submit name="decision" value="approve">Approve and publish</Submit>}
         {status === "suspended" && <Submit name="decision" value="restore">Restore</Submit>}
         {!live && <Submit name="decision" value="needs_changes" className="btn">Ask for changes</Submit>}
-        {!live && status !== "rejected" && <Submit name="decision" value="reject" className="btn ghost danger">Decline</Submit>}
-        {status !== "suspended" && <Submit name="decision" value="suspend" className="btn ghost danger">Suspend</Submit>}
-        <Submit name="decision" value="flags" className="btn ghost">Save badge and flags only</Submit>
+        {!live && status !== "rejected" && <Submit name="decision" value="reject" className="btn quiet danger">Decline</Submit>}
+        {status !== "suspended" && <Submit name="decision" value="suspend" className="btn quiet danger">Suspend</Submit>}
+        <Submit name="decision" value="flags" className="btn quiet">Save badge and flags only</Submit>
       </div>
     </ActionForm>
   );

@@ -2,10 +2,14 @@
 import { browserDb } from "./supabase/client";
 export const MAX_BYTES = 8 * 1024 * 1024;
 /** Resize in the browser so uploads stay small on slow connections. */
-export async function toWebp(file: File, opts: { max: number; ratio?: number; focusY?: number }): Promise<Blob> {
+export type Crop = { x: number; y: number; w: number; h: number };
+export async function toWebp(file: File, opts: { max: number; ratio?: number; focusY?: number; crop?: Crop }): Promise<Blob> {
   const bitmap = await createImageBitmap(file);
   let sw = bitmap.width, sh = bitmap.height, sx = 0, sy = 0;
-  if (opts.ratio) {
+  if (opts.crop) {
+    sx = Math.max(0, opts.crop.x * bitmap.width); sy = Math.max(0, opts.crop.y * bitmap.height);
+    sw = Math.min(bitmap.width - sx, opts.crop.w * bitmap.width); sh = Math.min(bitmap.height - sy, opts.crop.h * bitmap.height);
+  } else if (opts.ratio) {
     if (sw / sh > opts.ratio) { const w = sh * opts.ratio; sx = (sw - w) / 2; sw = w; }
     else { const h = sw / opts.ratio; sy = (sh - h) * ((opts.focusY ?? 50) / 100); sh = h; }
   }
@@ -35,7 +39,7 @@ export async function uploadBlob(bucket: "media" | "documents", blob: Blob): Pro
   if (error) throw new Error(error.message);
   return path;
 }
-export async function uploadImage(bucket: "media" | "documents", file: File, opts: { max: number; ratio?: number; focusY?: number }) {
+export async function uploadImage(bucket: "media" | "documents", file: File, opts: { max: number; ratio?: number; focusY?: number; crop?: Crop }) {
   if (file.type === "application/pdf" && bucket === "documents") return uploadBlob(bucket, file);
   return uploadBlob(bucket, await toWebp(file, opts));
 }

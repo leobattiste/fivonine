@@ -149,3 +149,63 @@ export async function removeBlock(f: FormData) {
   await a.log("blocklist_remove", "blocklist", id);
   refresh();
 }
+
+/** Bulk moderation from the campaigns table. Suspending needs a reason; every change can be undone. */
+export async function bulkCampaigns(_: ActionResult, f: FormData): Promise<ActionResult> {
+  const a = await admin();
+  if (!a) return fail("Admin access required.");
+  const ids = f.getAll("ids").map(String).filter((v) => UUID.test(v)).slice(0, 100);
+  const op = s(f, "op"), note = s(f, "note", 2000);
+  if (!ids.length) return fail("Select at least one fundraiser.");
+  if (op === "suspend" && note.length < 5) return fail("Write a reason. The organizers will read it.");
+  const { data: before } = await a.sb.from("campaigns").select("id,status,featured").in("id", ids);
+  let patch: Record<string, unknown>;
+  if (op === "feature") patch = { featured: true };
+  else if (op === "unfeature") patch = { featured: false };
+  else if (op === "suspend") patch = { status: "suspended" };
+  else if (op === "undo") {
+    let snapshot: { id: string; status: string; featured: boolean }[] = [];
+    try { snapshot = JSON.parse(s(f, "snapshot", 20000)); } catch { return fail("Nothing to undo."); }
+    for (const row of snapshot.filter((r) => UUID.test(r.id))) await a.sb.from("campaigns").update({ status: row.status, featured: row.featured }).eq("id", row.id);
+    await a.log("bulk_undo", "campaign", snapshot.map((r) => r.id).join(",").slice(0, 200));
+    refresh();
+    return done(`Undone for ${snapshot.length}.`);
+  } else return fail("Choose an action.");
+  if (op === "suspend") {
+    const live = (before ?? []).filter((r) => ["live", "pending", "needs_changes"].includes(r.status)).map((r) => r.id);
+    if (!live.length) return fail("None of the selected fundraisers can be suspended.");
+    await a.sb.from("campaign_private").upsert(live.map((campaign_id) => ({ campaign_id, review_note: note })), { onConflict: "campaign_id" });
+    const { error } = await a.sb.from("campaigns").update(patch).in("id", live);
+    if (error) return fail(error.message);
+  } else {
+    const { error } = await a.sb.from("campaigns").update(patch).in("id", ids);
+    if (error) return fail(error.message);
+  }
+  await a.log(`bulk_${op}`, "campaign", ids.join(",").slice(0, 200), note);
+  after(() => drainOutbox());
+  refresh();
+  return { ok: true, message: `${op === "feature" ? "Featured" : op === "unfeature" ? "Removed from home" : "Suspended"}: ${ids.length}.`, undo: JSON.stringify(before ?? []) };
+}
+export async function decideChanges(_: ActionResult, f: FormData): Promise<ActionResult> {
+  const a = await admin();
+  if (!a) return fail("Admin access required.");
+  const id = s(f, "id"), decision = s(f, "decision"), note = s(f, "note", 2000);
+  if (!UUID.test(id)) return fail("Unknown fundraiser.");
+  if (decision === "approve") {
+    const { data, error } = await a.sb.rpc("apply_campaign_changes", { cid: id });
+    if (error || data !== "ok") return fail(error?.message ?? "These changes are no longer waiting.");
+  } else if (decision === "needs_changes") {
+    if (note.length < 5) return fail("Write what needs to change. The organizer will read it.");
+    const { error } = await a.sb.from("campaign_changes").update({ status: "needs_changes", review_note: note }).eq("campaign_id", id);
+    if (error) return fail(error.message);
+  } else if (decision === "discard") {
+    if (note.length < 5) return fail("Write a reason. The organizer will read it.");
+    await a.sb.from("campaign_private").upsert({ campaign_id: id, review_note: note }, { onConflict: "campaign_id" });
+    const { error } = await a.sb.from("campaign_changes").delete().eq("campaign_id", id);
+    if (error) return fail(error.message);
+  } else return fail("Choose a decision.");
+  await a.log(`changes_${decision}`, "campaign", id, note);
+  after(() => drainOutbox());
+  refresh();
+  return done(decision === "approve" ? "Changes published." : decision === "discard" ? "Changes discarded." : "Sent back to the organizer.");
+}

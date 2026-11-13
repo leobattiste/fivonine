@@ -4,7 +4,7 @@ import { db } from "./supabase/server";
 import { cleanSearch } from "./format";
 import { PER_PAGE } from "./constants";
 import { FIXTURES, fxCampaigns, fxCategories, fxContributions, fxMethods, fxMine, fxNotifications, fxPrivate, fxUpdates, fxVouches } from "./fixtures";
-import type { Campaign, CampaignPrivate, Category, Contribution, Notification, Profile, Progress, Settings, SupportMethod, Update, Vouch } from "./types";
+import type { Campaign, CampaignChange, CampaignPrivate, Category, Contribution, Notification, Profile, Progress, Settings, SupportMethod, Update, Vouch } from "./types";
 
 const OWNER = "owner:profiles!campaigns_owner_id_fkey(id,display_name,avatar_path,kind,org_name,org_verified)";
 const CONTRIB_COLS = "id,campaign_id,amount,currency,method,display_name,anonymous,message,hidden,created_at";
@@ -41,19 +41,21 @@ async function withProgress(items: Campaign[]): Promise<Campaign[]> {
   return items.map((c) => ({ ...c, progress: map.get(c.id) ?? { total_htg: 0, total_usd: 0, supporters: 0 } }));
 }
 
-export type ListOpts = { q?: string; cause?: string; department?: string; verified?: boolean; urgent?: boolean; completed?: boolean; emergency?: boolean; sort?: string; page?: number; perPage?: number; owner?: string; featured?: boolean };
+export type ListOpts = { q?: string; cause?: string; department?: string; verified?: boolean; urgent?: boolean; completed?: boolean; status?: "open" | "completed" | "all"; emergency?: boolean; sort?: string; page?: number; perPage?: number; owner?: string; featured?: boolean };
 export async function listCampaigns(o: ListOpts = {}): Promise<{ items: Campaign[]; total: number }> {
   const per = o.perPage ?? PER_PAGE, page = Math.max(1, o.page ?? 1);
   if (FIXTURES) {
     const q = (o.q ?? "").toLowerCase();
-    let items = fxCampaigns.filter((c) => (o.completed ? true : c.status === "live") && (!o.cause || c.cause === o.cause) && (!o.department || c.department === o.department) && (!o.verified || c.tier !== "none") && (!o.urgent || c.urgent) && (!q || c.title.toLowerCase().includes(q)));
+    const want = o.status ?? (o.completed ? "all" : "open");
+    let items = fxCampaigns.filter((c) => (want === "all" ? true : want === "completed" ? c.status === "completed" : c.status === "live") && (!o.cause || c.cause === o.cause) && (!o.department || c.department === o.department) && (!o.verified || c.tier !== "none") && (!o.urgent || c.urgent) && (!q || c.title.toLowerCase().includes(q)));
     if (o.owner) items = items.filter((c) => c.owner_id === o.owner);
     return { items: items.slice((page - 1) * per, page * per), total: items.length };
   }
   const sb = await db();
   if (!sb) return { items: [], total: 0 };
   let q = sb.from("campaigns").select(`*, ${OWNER}`, { count: "exact" });
-  q = o.completed ? q.in("status", ["live", "completed"]) : q.eq("status", "live");
+  const want = o.status ?? (o.completed ? "all" : "open");
+  q = want === "all" ? q.in("status", ["live", "completed"]) : want === "completed" ? q.eq("status", "completed") : q.eq("status", "live");
   if (o.cause) q = q.eq("cause", o.cause);
   if (o.department) q = q.eq("department", o.department);
   if (o.verified) q = q.neq("tier", "none");
@@ -62,20 +64,20 @@ export async function listCampaigns(o: ListOpts = {}): Promise<{ items: Campaign
   if (o.featured) q = q.eq("featured", true);
   if (o.owner) q = q.eq("owner_id", o.owner);
   const term = cleanSearch(o.q ?? "");
-  if (term) q = q.or(["title", "story", "commune", "beneficiary_name"].map((c) => `${c}.ilike.%${term}%`).join(","));
+  if (term) q = q.or(["title", "story", "commune", "department", "beneficiary_name"].map((c) => `${c}.ilike.%${term}%`).join(","));
   if (o.sort === "updated") q = q.order("updated_at", { ascending: false });
   else if (o.sort === "urgent") q = q.order("urgent", { ascending: false }).order("published_at", { ascending: false });
   else q = q.order("published_at", { ascending: false, nullsFirst: false });
   const { data, count } = await q.range((page - 1) * per, page * per - 1);
-  return { items: await withProgress((data ?? []) as Campaign[]), total: count ?? 0 };
+  return { items: (data ?? []) as Campaign[], total: count ?? 0 };
 }
 
 export async function featuredCampaigns(): Promise<Campaign[]> {
-  const featured = await listCampaigns({ featured: true, perPage: 6, sort: "urgent" });
-  if (featured.items.length >= 3 || FIXTURES) return featured.items.slice(0, 6);
-  const recent = await listCampaigns({ perPage: 6, sort: "urgent" });
+  const featured = await listCampaigns({ featured: true, perPage: 3, sort: "urgent" });
+  if (featured.items.length >= 3 || FIXTURES) return featured.items.slice(0, 3);
+  const recent = await listCampaigns({ perPage: 6, sort: "newest" });
   const seen = new Set(featured.items.map((c) => c.id));
-  return [...featured.items, ...recent.items.filter((c) => !seen.has(c.id))].slice(0, 6);
+  return [...featured.items, ...recent.items.filter((c) => !seen.has(c.id))].slice(0, 3);
 }
 
 export type CampaignDetail = { campaign: Campaign; methods: SupportMethod[]; updates: Update[]; contributions: Contribution[]; vouches: Vouch[]; team: { user_id: string; profile: { display_name: string } | null }[] };
@@ -89,7 +91,7 @@ export const getCampaign = cache(async (slug: string): Promise<CampaignDetail | 
   if (!sb || !/^[a-z0-9-]{3,120}$/.test(slug)) return null;
   const { data } = await sb.from("campaigns").select(`*, ${OWNER}`).eq("slug", slug).maybeSingle();
   if (!data) return null;
-  const [campaign] = await withProgress([data as Campaign]);
+  const campaign = data as Campaign;
   const [m, u, k, v, team] = await Promise.all([
     sb.from("support_methods").select("*").eq("campaign_id", data.id).order("position"),
     sb.from("campaign_updates").select("*, author:profiles!campaign_updates_author_id_fkey(display_name)").eq("campaign_id", data.id).eq("hidden", false).order("created_at", { ascending: false }).limit(30),
@@ -183,3 +185,32 @@ export const getStats = cache(async (): Promise<Stats> => {
   const { data } = await sb.rpc("public_stats");
   return { ...zero, ...(data ?? {}) };
 });
+
+export async function getChange(campaignId: string): Promise<CampaignChange | null> {
+  if (FIXTURES) return null;
+  const sb = await db();
+  if (!sb) return null;
+  const { data } = await sb.from("campaign_changes").select("*").eq("campaign_id", campaignId).maybeSingle();
+  return (data ?? null) as CampaignChange | null;
+}
+export async function myChanges(viewerId: string): Promise<CampaignChange[]> {
+  if (FIXTURES) return [];
+  const sb = await db();
+  if (!sb) return [];
+  const { data } = await sb.from("campaign_changes").select("*").eq("author_id", viewerId);
+  return (data ?? []) as CampaignChange[];
+}
+export async function ownerSince(id: string) {
+  if (FIXTURES) return "2026-09-02T12:00:00Z";
+  const sb = await db();
+  if (!sb) return null;
+  const { data } = await sb.from("profiles").select("created_at").eq("id", id).maybeSingle();
+  return (data?.created_at as string | undefined) ?? null;
+}
+export async function reviewNotes(ids: string[]): Promise<Record<string, string>> {
+  if (FIXTURES) return { c7: fxPrivate.review_note ?? "" };
+  const sb = await db();
+  if (!sb || !ids.length) return {};
+  const { data } = await sb.from("campaign_private").select("campaign_id,review_note").in("campaign_id", ids);
+  return Object.fromEntries((data ?? []).filter((r) => r.review_note).map((r) => [r.campaign_id, r.review_note as string]));
+}

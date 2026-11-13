@@ -4,7 +4,7 @@ import { mediaUrl } from "@/lib/format";
 import { isLocale, t } from "@/lib/i18n";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
-export const alt = "Fivonine";
+export const alt = "yon kout men";
 /** Share card shown when a campaign link is pasted into WhatsApp or social apps. */
 export default async function Image({ params }: { params: Promise<{ locale: string; slug: string }> }) {
   const { locale, slug } = await params;
@@ -18,7 +18,7 @@ export default async function Image({ params }: { params: Promise<{ locale: stri
     (
       <div style={{ width: "100%", height: "100%", display: "flex", background: "#ffffff", color: "#1f503b", fontFamily: "sans-serif" }}>
         <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", padding: 64, width: cover ? 660 : 1200 }}>
-          <div style={{ fontSize: 44, fontWeight: 800, letterSpacing: -2 }}>fivonine</div>
+          <div style={{ fontSize: 44, fontWeight: 800, letterSpacing: -2 }}>yonkoutmen</div>
           <div style={{ display: "flex", flexDirection: "column" }}>
             <div style={{ fontSize: title.length > 60 ? 50 : 62, fontWeight: 800, lineHeight: 1.05, letterSpacing: -2 }}>{title.slice(0, 110)}</div>
             {place ? <div style={{ fontSize: 28, marginTop: 20, color: "#4c6a5a" }}>{place}</div> : null}

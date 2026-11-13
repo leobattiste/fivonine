@@ -17,8 +17,8 @@ export function UpdateForm({ locale, id }: { locale: Locale; id: string }) {
       <label className="field"><span>{d.dash.updateBody}</span><textarea className="input" name="body" rows={4} required maxLength={4000} /><small>{d.dash.updateHint}</small></label>
       <div className="row">
         {proof.length < 6 && (
-          <label className="upload">
-            <input type="file" accept="image/*" hidden disabled={busy} onChange={async (e) => {
+          <label className="upload-zone small">
+            <input type="file" accept="image/*" disabled={busy} onChange={async (e) => {
               const file = e.target.files?.[0];
               e.target.value = "";
               if (!file) return;
@@ -45,8 +45,8 @@ export function AvatarInput({ locale, initial }: { locale: Locale; initial: stri
     <div className="field">
       <span>{d.dash.photo}</span>
       <input type="hidden" name="avatar_path" value={path} />
-      <label className={`upload ${path ? "has" : ""}`}>
-        <input type="file" accept="image/*" hidden disabled={busy} onChange={async (e) => {
+      <label className={`upload-zone small ${path ? "has" : ""}`}>
+        <input type="file" accept="image/*" disabled={busy} onChange={async (e) => {
           const file = e.target.files?.[0];
           e.target.value = "";
           if (!file) return;

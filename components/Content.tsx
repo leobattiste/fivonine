@@ -6,19 +6,18 @@ export const contentMeta = (key: Key) => async ({ params }: { params: Promise<{ 
   const { locale } = await params;
   return isLocale(locale) ? { title: t(locale).pages[key].title, description: t(locale).pages[key].sub } : {};
 };
-export async function ContentPage({ params, page }: { params: Promise<{ locale: string }>; page: Key }) {
+const slug = (s: string) => s.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+/** Policies read as documents: a table of contents beside a readable column. */
+export async function ContentPage({ params, page }: { params: Promise<{ locale: string }>; page: Exclude<Key, "help" | "safety"> }) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
-  const p = t(locale).pages[page];
+  const d = t(locale), p = d.pages[page];
   return (
-    <div className="wrap page narrow">
+    <div className="wrap page">
       <header className="page-head"><h1>{p.title}</h1><p className="lead">{p.sub}</p></header>
-      <div className={page === "help" ? "faq" : "prose"}>
-        {p.sections.map(([h, body]) => page === "help" ? (
-          <details key={h}><summary>{h}</summary><p>{body}</p></details>
-        ) : (
-          <section key={h}><h2>{h}</h2><p>{body}</p></section>
-        ))}
+      <div className="doc">
+        <nav className="toc" aria-label={d.x.pages.toc}><p>{d.x.pages.toc}</p>{p.sections.map(([h]) => <a key={h} href={`#${slug(h)}`}>{h}</a>)}</nav>
+        <div className="prose">{p.sections.map(([h, body]) => <section key={h} id={slug(h)}><h2>{h}</h2><p>{body}</p></section>)}</div>
       </div>
     </div>
   );

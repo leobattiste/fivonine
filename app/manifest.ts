@@ -1,9 +1,9 @@
 import type { MetadataRoute } from "next";
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Fivonine",
-    short_name: "Fivonine",
-    description: "Yon pi bon fason pou ede Ayisyen ki nan bezwen.",
+    name: "yon kout men",
+    short_name: "yon kout men",
+    description: "Yon kout men pou Ayisyen, kote yo ye.",
     start_url: "/",
     display: "standalone",
     background_color: "#ffffff",

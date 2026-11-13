@@ -1,12 +1,13 @@
 import { GeistSans } from "geist/font/sans";
 import type { Metadata, Viewport } from "next";
 import { notFound } from "next/navigation";
-import "@fontsource-variable/bricolage-grotesque";
 import "../globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Icon from "@/components/Icon";
 import { ServiceWorker } from "@/components/Bits";
+import Loader from "@/components/Loader";
+import { Suspense } from "react";
 import { htmlLang, isLocale, t } from "@/lib/i18n";
 import { getViewer } from "@/lib/auth";
 import { getSettings, unreadCount } from "@/lib/data";
@@ -20,12 +21,12 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const open = process.env.PUBLIC_LAUNCH === "true";
   return {
     metadataBase: new URL(SITE_URL),
-    title: { default: `Fivonine: ${d.home.headline}`, template: "%s | Fivonine" },
+    title: { default: `yon kout men: ${d.x.home.title}`, template: "%s | yon kout men" },
     description: d.meta.description,
     robots: { index: open, follow: open },
-    openGraph: { siteName: "Fivonine", type: "website", locale: htmlLang[locale] },
+    openGraph: { siteName: "yon kout men", type: "website", locale: htmlLang[locale] },
     alternates: { languages: { ht: "/ht", fr: "/fr", en: "/en" } },
-    appleWebApp: { capable: true, title: "Fivonine", statusBarStyle: "default" },
+    appleWebApp: { capable: true, title: "yon kout men", statusBarStyle: "default" },
   };
 }
 export const viewport: Viewport = {
@@ -44,12 +45,13 @@ export default async function Layout({ children, params }: { children: React.Rea
     <html lang={htmlLang[locale]} className={GeistSans.variable} suppressHydrationWarning>
       <body>
         {banner && (
-          <a className="emergency no-print" href={`/${locale}/donate?emergency=1`}>
+          <a className="emergency no-print" href={`/${locale}/explore?emergency=1`}>
             <Icon name="megaphone" size={18} />
             <span>{banner}</span>
           </a>
         )}
-        <Header locale={locale} viewer={viewer ? { name: viewer.profile.display_name, admin: viewer.profile.role === "admin", unread } : null} />
+        <Suspense fallback={null}><Loader /></Suspense>
+        <Header locale={locale} viewer={viewer ? { name: viewer.profile.display_name, admin: viewer.profile.role === "admin", unread, avatar: viewer.profile.avatar_path } : null} />
         <main id="main">{children}</main>
         <Footer locale={locale} lite={lite} />
         <ServiceWorker />

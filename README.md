@@ -1,4 +1,4 @@
-# Fivonine
+# yon kout men
 
 A fundraising platform for Haitians. Organizers publish a campaign and the ways they receive support (Western Union, MonCash, a bank account and more). Supporters send money directly. Fivonine never holds or moves funds, and every campaign is reviewed by an admin before it is public.
 

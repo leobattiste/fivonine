@@ -1,21 +1,22 @@
 import "server-only";
 import { db } from "./supabase/server";
 import { FIXTURES, fxCampaigns, fxCategories, fxMethods, fxMine, fxPrivate, fxProfile } from "./fixtures";
-import type { Campaign, CampaignPrivate, Category, Contribution, Profile, SupportMethod, Update } from "./types";
+import type { Campaign, CampaignChange, CampaignPrivate, Category, Contribution, Profile, SupportMethod, Update } from "./types";
 
 const OWNER = "owner:profiles!campaigns_owner_id_fkey(id,display_name,avatar_path,kind,org_name,org_verified)";
-export type Counts = { pending: number; reports: number; messages: number; vouches: number; appeals: number; orgs: number };
+export type Counts = { changes: number; pending: number; reports: number; messages: number; vouches: number; appeals: number; orgs: number };
 export async function adminCounts(): Promise<Counts> {
-  if (FIXTURES) return { pending: 2, reports: 1, messages: 0, vouches: 1, appeals: 0, orgs: 1 };
+  if (FIXTURES) return { changes: 0, pending: 2, reports: 1, messages: 0, vouches: 1, appeals: 0, orgs: 1 };
   const sb = await db();
-  const zero = { pending: 0, reports: 0, messages: 0, vouches: 0, appeals: 0, orgs: 0 };
+  const zero = { changes: 0, pending: 0, reports: 0, messages: 0, vouches: 0, appeals: 0, orgs: 0 };
   if (!sb) return zero;
   const n = async (table: string, f: (q: any) => any) => (await f(sb.from(table).select("*", { count: "exact", head: true }))).count ?? 0; // eslint-disable-line @typescript-eslint/no-explicit-any
-  const [pending, reports, messages, vouches, appeals, orgs] = await Promise.all([
+  const [changes, pending, reports, messages, vouches, appeals, orgs] = await Promise.all([
+    n("campaign_changes", (q) => q.eq("status", "pending")),
     n("campaigns", (q) => q.eq("status", "pending")), n("reports", (q) => q.eq("handled", false)), n("contact_messages", (q) => q.eq("handled", false)),
     n("vouches", (q) => q.eq("status", "pending")), n("appeals", (q) => q.eq("status", "open")), n("profiles", (q) => q.eq("kind", "organization").eq("org_verified", false)),
   ]);
-  return { pending, reports, messages, vouches, appeals, orgs };
+  return { changes, pending, reports, messages, vouches, appeals, orgs };
 }
 export async function adminCampaigns(status: string, q: string): Promise<Campaign[]> {
   if (FIXTURES) return status === "pending" ? fxMine.slice(1) : fxCampaigns;
@@ -87,4 +88,17 @@ export async function adminCategories(): Promise<Category[]> {
   if (FIXTURES) return fxCategories;
   const sb = await db();
   return sb ? (((await sb.from("categories").select("*").order("position")).data ?? []) as Category[]) : [];
+}
+export type ChangeRow = CampaignChange & { campaign: Pick<Campaign, "id" | "title" | "slug" | "status"> | null };
+export async function adminChanges(): Promise<ChangeRow[]> {
+  if (FIXTURES) return [];
+  const sb = await db();
+  if (!sb) return [];
+  return ((await sb.from("campaign_changes").select("*, campaign:campaigns(id,title,slug,status)").order("submitted_at")).data ?? []) as ChangeRow[];
+}
+export async function adminChange(id: string): Promise<CampaignChange | null> {
+  if (FIXTURES) return null;
+  const sb = await db();
+  if (!sb) return null;
+  return ((await sb.from("campaign_changes").select("*").eq("campaign_id", id).maybeSingle()).data ?? null) as CampaignChange | null;
 }

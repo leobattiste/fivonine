@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import QRCode from "qrcode";
-import { SupportSlip } from "@/components/Support";
+import { SupportMethods } from "@/components/Support";
+import { Wordmark } from "@/components/Brand";
 import { PrintButton } from "@/components/Bits";
 import { getCampaign } from "@/lib/data";
 import { SITE_URL } from "@/lib/constants";
@@ -18,10 +19,10 @@ export default async function Flyer({ params }: { params: Promise<{ locale: stri
     <div className="wrap page flyer">
       <PrintButton label={d.support.print} />
       <div className="flyer-sheet">
-        <p className="wordmark">fivonine</p>
+        <p className="wordmark"><Wordmark /></p>
         <h1>{data.campaign.title}</h1>
         {data.campaign.beneficiary_name && <p className="lead">{d.campaign.for} {data.campaign.beneficiary_name}</p>}
-        <div className="flyer-grid">
+        <div className="cols-2" style={{ alignItems: "start" }}>
           <div>
             <div className="qr" dangerouslySetInnerHTML={{ __html: qr }} />
             <p className="small">{d.flyer.scan}</p>
@@ -29,7 +30,7 @@ export default async function Flyer({ params }: { params: Promise<{ locale: stri
           </div>
           <div>
             <h2>{d.support.title}</h2>
-            <SupportSlip methods={data.methods} locale={locale} compact />
+            <SupportMethods methods={data.methods} locale={locale} compact />
           </div>
         </div>
       </div>
