@@ -24,4 +24,4 @@ export type IconName = keyof typeof map;
 export default function Icon({ name, size = 20, className = "icon" }: { name: IconName; size?: number; className?: string }) {
   return <HugeiconsIcon icon={map[name]} size={size} strokeWidth={1.7} aria-hidden="true" className={className} />;
 }
-export const causeIcon: Record<string, IconName> = { medical: "heart", education: "book", emergency: "alert", funeral: "flower", housing: "home", food: "charity", business: "coins", community: "group", other: "hand" };
+export const causeIcon: Record<string, IconName> = { medical: "heart", education: "book", emergency: "alert", funeral: "flower", housing: "home", food: "charity", business: "coins", community: "group", personal: "hand", other: "hand" };

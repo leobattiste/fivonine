@@ -31,37 +31,23 @@ export default function ExploreShell({ locale, options, total, children }: { loc
   if (get("place")) chips.push(["place", label(options.places, get("place"))]);
   if (get("status")) chips.push(["status", label(statusOpts, get("status"))]);
   if (get("emergency")) chips.push(["emergency", t(locale).campaign.emergency]);
-  const sel = (key: string, opts: Opt[], all: string | null, id: string) => (
-    <label className="select" htmlFor={id}>
-      <span className="sr">{({ cause: x.cause, place: x.location, status: x.status, sort: x.sort } as Record<string, string>)[key]}</span>
-      <select id={id} className={get(key) ? "set" : ""} value={get(key)} onChange={(e) => push({ [key]: e.target.value })}>
-        {all !== null && <option value="">{all}</option>}
-        {opts.filter(([k]) => all === null || k).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
-      </select>
-    </label>
-  );
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const live = (v: string) => { if (timer.current) clearTimeout(timer.current); timer.current = setTimeout(() => push({ q: v.trim() }), 450); };
+  const active = chips.filter(([k]) => k !== "q").length;
   return (
     <>
       <div className="explore-head">
         <div className="stack tight"><h1>{x.title}</h1><p className="muted">{x.sub}</p></div>
-        <form role="search" className="searchbar" onSubmit={(e) => { e.preventDefault(); push({ q: String(new FormData(e.currentTarget).get("q") ?? "").trim() }); }}>
-          <Icon name="search" />
-          <label htmlFor="explore-q" className="sr">{n.searchLabel}</label>
-          <input key={get("q")} id="explore-q" name="q" type="search" defaultValue={get("q")} placeholder={n.searchHint} maxLength={60} enterKeyHint="search" />
-          <button className="btn primary">{n.go}</button>
-        </form>
-      </div>
-
-      <div className="filterbar">
-        <div className="row only-wide" style={{ gap: 10 }}>
-          {sel("cause", options.causes, x.anyCause, "f-cause")}
-          {sel("place", options.places, x.anywhere, "f-place")}
-          {sel("status", statusOpts, null, "f-status")}
+        <div className="finder">
+          <form role="search" className="searchbar" onSubmit={(e) => { e.preventDefault(); if (timer.current) clearTimeout(timer.current); push({ q: String(new FormData(e.currentTarget).get("q") ?? "").trim() }); }}>
+            <Icon name="search" />
+            <label htmlFor="explore-q" className="sr">{n.searchLabel}</label>
+            <input key={get("q")} id="explore-q" name="q" type="search" defaultValue={get("q")} placeholder={n.searchHint} maxLength={60} enterKeyHint="search" onChange={(e) => live(e.target.value)} />
+          </form>
+          <button type="button" className="btn filter-btn" onClick={() => drawer.current?.showModal()} aria-haspopup="dialog">
+            <Icon name="filter" size={18} /><span>{x.filters}</span>{active > 0 && <span className="count">{active}</span>}
+          </button>
         </div>
-        <button type="button" className="btn only-narrow" onClick={() => drawer.current?.showModal()}>
-          <Icon name="filter" size={17} />{x.filters}{chips.filter(([k]) => k !== "q").length > 0 && <span className="count">{chips.filter(([k]) => k !== "q").length}</span>}
-        </button>
-        <div className="sort">{sel("sort", sortOpts, null, "f-sort")}</div>
       </div>
 
       <div className="results-line" aria-live="polite">
@@ -80,7 +66,7 @@ export default function ExploreShell({ locale, options, total, children }: { loc
       <div className="results" data-busy={busy} aria-busy={busy}>{children}</div>
 
       <dialog ref={drawer} className="drawer" aria-label={x.filters} onClick={(e) => e.target === drawer.current && drawer.current?.close()}>
-        <div className="drawer-head"><h2>{x.filters}</h2><button className="btn icon-only" autoFocus onClick={() => drawer.current?.close()} aria-label={t(locale).x.common.close}><Icon name="close" /></button></div>
+        <div className="drawer-head"><h2>{x.filters}</h2><button type="button" className="btn icon-only" autoFocus onClick={() => drawer.current?.close()} aria-label={t(locale).x.common.close}><Icon name="close" /></button></div>
         <div className="drawer-body">
           {([["cause", x.cause, options.causes, x.anyCause], ["place", x.location, options.places, x.anywhere], ["status", x.status, statusOpts, null], ["sort", x.sort, sortOpts, null]] as [string, string, Opt[], string | null][]).map(([key, title, opts, all]) => (
             <fieldset key={key} className="field">

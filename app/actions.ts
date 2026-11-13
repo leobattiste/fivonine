@@ -172,19 +172,19 @@ export async function saveCampaign(_: ActionResult, f: FormData): Promise<Action
   if (title.length < 4) return fail(`${d.create.missing} ${d.create.needTitle}`);
   if (submit) {
     const missing: string[] = [];
-    if (!row.beneficiary_name) missing.push(d.create.needBeneficiary);
     if (!row.cause) missing.push(d.create.needCause);
     if (!row.department) missing.push(d.create.needPlace);
     if (storyLen < 40 && !row.voice_path) missing.push(d.create.needStory);
     if (!methods.length) missing.push(d.create.needMethod);
-    if (!priv.contact_name || !priv.contact_email) missing.push(d.create.needContact);
-    if (!priv.id_front_path || !priv.selfie_path) missing.push(d.create.needId);
     if (!p.consent) missing.push(d.create.needConsent);
     if (missing.length) return fail(`${d.create.missing} ${missing.join(", ")}`);
   }
   if (submit && !row.cover_path) return fail(`${d.create.missing} ${d.x.form.err.cover}`);
   const { data: me } = await sb.from("profiles").select("display_name,bio,department,city").eq("id", user.id).maybeSingle();
   if (!me || !profileReady(me)) return fail(d.x.setup.need);
+  // The organizer is the profile that posts it: contact details come from the account.
+  if (!priv.contact_name) priv.contact_name = me.display_name;
+  if (!priv.contact_email) priv.contact_email = user.email ?? null;
   let id = typeof p.id === "string" && UUID.test(p.id) ? p.id : "";
   let status = "draft";
   if (id) {

@@ -27,7 +27,7 @@ export default async function Create({ params }: { params: Promise<{ locale: str
       {viewer.profile.banned ? <p className="notice err"><Icon name="lock" size={18} />{d.dash.restricted}</p> : !profileReady(viewer.profile) ? (
         <ProfileSetup locale={locale} profile={viewer.profile} next={`/${locale}/create`} />
       ) : (
-        <CampaignForm locale={locale} cats={cats} initial={emptyForm(locale, name, viewer.email)} draftKey={`fivonine-draft-${viewer.id}`} live={false} />
+        <CampaignForm locale={locale} cats={cats} initial={emptyForm(locale, name, viewer.email)} draftKey={`fivonine-draft-${viewer.id}`} live={false} email={viewer.email} />
       )}
     </div>
   );

@@ -53,36 +53,49 @@ export default async function FundraiserPage({ params }: P) {
       {change && <p className="notice"><Icon name="clock" size={18} />{x.pendingChanges}</p>}
 
       <header className="f-head">
-        <div className="row tight">
-          {c.status === "completed" && <span className="tag solid">{d.campaign.completed}</span>}
-          {c.emergency && <span className="tag solid">{d.campaign.emergency}</span>}
-          {c.urgent && c.status === "live" && <span className="tag solid">{d.campaign.urgent}</span>}
-          {c.cause && <Link className="chip" href={`/${locale}/explore?cause=${c.cause}`}>{causeName(cats, c.cause, locale)}</Link>}
-        </div>
         <h1>{c.title}</h1>
         <p className="f-meta">
           {where && <span><Icon name="pin" size={16} />{where}</span>}
           {c.published_at && <span><Icon name="calendar" size={16} />{d.campaign.posted} {fmtDate(c.published_at, locale)}</span>}
           {c.deadline && <span><Icon name="clock" size={16} />{d.campaign.deadline} {fmtDate(c.deadline, locale)}</span>}
         </p>
+        <div className="row tight">
+          {c.status === "completed" && <span className="tag solid">{d.campaign.completed}</span>}
+          {c.emergency && <span className="tag solid">{d.campaign.emergency}</span>}
+          {c.urgent && c.status === "live" && <span className="tag solid">{d.campaign.urgent}</span>}
+          {c.cause && <Link className="chip" href={`/${locale}/explore?cause=${c.cause}`}>{causeName(cats, c.cause, locale)}</Link>}
+        </div>
       </header>
       <Cover c={c} className="f-cover" priority sizes="100vw" />
 
       <div className="f-grid">
-        <div style={{ minWidth: 0 }}>
-          <div className="people">
-            {c.owner && (
-              <Link className="person" href={`/${locale}/u/${c.owner.id}`}>
-                <Avatar name={who} path={c.owner.avatar_path} size={44} />
-                <p>{x.organizer}<strong>{who}</strong>{c.owner.org_verified ? d.profile.verifiedOrg : ""}</p>
-              </Link>
+        <aside id="support" className="support" aria-labelledby="support-h">
+          <h2 id="support-h">{x.support}</h2>
+          {c.goal_amount && (
+            <div className="goal"><span className="small muted">{x.goal}</span><strong>{fmtMoney(Number(c.goal_amount), c.goal_currency, locale)}</strong><span className="xs muted">{x.goalNote}</span></div>
+          )}
+          <ReviewChecks tier={c.tier} locale={locale} withHelp />
+          {c.status === "completed" ? <p className="notice"><Icon name="done" size={18} />{x.supportClosed}</p> : <p className="small">{x.supportIntro}</p>}
+          {methods.length > 0 && c.status !== "completed" && <SupportMethods methods={methods} locale={locale} />}
+          <p className="warn-line"><Icon name="shield" size={16} />{d.support.warning}</p>
+          {c.status === "live" && <SentForm c={c} methods={methods} locale={locale} viewerName={viewer?.profile.display_name ?? ""} signedIn={Boolean(viewer)} />}
+          <ShareBar url={url} title={c.title} locale={locale} />
+          <div className="support-tools">
+            <form action={toggleBookmark}>
+              {hidden("locale", locale)}{hidden("campaign_id", c.id)}{hidden("back", path)}{hidden("on", state.bookmarked ? "0" : "1")}
+              <button className="btn small quiet" aria-pressed={state.bookmarked}><Icon name="bookmark" size={16} />{state.bookmarked ? d.campaign.saved : d.campaign.save}</button>
+            </form>
+            {state.bookmarked && (
+              <form action={toggleRemind}>
+                {hidden("locale", locale)}{hidden("campaign_id", c.id)}{hidden("on", state.remind ? "0" : "1")}
+                <button className="btn small quiet" aria-pressed={state.remind}><Icon name="bell" size={16} />{d.campaign.remind}</button>
+              </form>
             )}
-            {c.beneficiary_name && (
-              <div className="person"><span className="avatar" aria-hidden="true"><Icon name="hand" size={20} /></span><p>{x.beneficiary}<strong>{c.beneficiary_name}</strong>{relation}</p></div>
-            )}
+            <Link className="btn small quiet" href={`${path}/flyer`}><Icon name="qr" size={16} />{d.campaign.flyer}</Link>
           </div>
-
-          <SectionTabs items={[["story", x.tabs.story], ["updates", x.tabs.updates, updates.length], ["organizer", x.tabs.organizer]]} />
+        </aside>
+        <div className="f-main" style={{ minWidth: 0 }}>
+          <SectionTabs items={[["story", x.tabs.story], ["organizer", x.tabs.organizer], ["updates", x.tabs.updates, updates.length]]} />
 
           <section id="story" className="f-section" aria-label={x.tabs.story}>
             {voice && <div className="voice"><Icon name="mic" size={20} /><span className="small">{d.campaign.listen}</span><audio controls preload="none" src={voice} /></div>}
@@ -95,7 +108,14 @@ export default async function FundraiserPage({ params }: P) {
             )}
           </section>
 
-          <section id="updates" className="f-section" aria-labelledby="updates-h">
+          <section id="organizer" className="f-section" aria-labelledby="org-h">
+            <h2 id="org-h">{x.tabs.organizer}</h2>
+            {c.owner && (
+              <div className="org-card">
+                <div className="who">
+                  <Avatar name={who} path={c.owner.avatar_path} size={56} />
+                  <div><strong>{who}</strong>{since && <p className="small muted">{x.memberSince} {fmtDate(since, locale)}</p>}</div>
+                  <section id="updates" className="f-section" aria-labelledby="updates-h">
             <h2 id="updates-h">{x.tabs.updates}</h2>
             {updates.length ? (
               <ol className="timeline">
@@ -121,14 +141,7 @@ export default async function FundraiserPage({ params }: P) {
             )}
           </section>
 
-          <section id="organizer" className="f-section" aria-labelledby="org-h">
-            <h2 id="org-h">{x.tabs.organizer}</h2>
-            {c.owner && (
-              <div className="org-card">
-                <div className="who">
-                  <Avatar name={who} path={c.owner.avatar_path} size={56} />
-                  <div><strong>{who}</strong>{since && <p className="small muted">{x.memberSince} {fmtDate(since, locale)}</p>}</div>
-                </div>
+        </div>
                 {team.length > 0 && <p className="small"><Icon name="group" size={16} /> {x.team}: {team.map((m) => m.profile?.display_name).filter(Boolean).join(", ")}</p>}
                 <Link className="arrow-link small" href={`/${locale}/u/${c.owner.id}`}>{x.profile}<Icon name="arrow" size={16} /></Link>
               </div>
@@ -169,31 +182,6 @@ export default async function FundraiserPage({ params }: P) {
           </section>
         </div>
 
-        <aside id="support" className="support" aria-labelledby="support-h">
-          <h2 id="support-h">{x.support}</h2>
-          {c.goal_amount && (
-            <div className="goal"><span className="small muted">{x.goal}</span><strong>{fmtMoney(Number(c.goal_amount), c.goal_currency, locale)}</strong><span className="xs muted">{x.goalNote}</span></div>
-          )}
-          <ReviewChecks tier={c.tier} locale={locale} withHelp />
-          {c.status === "completed" ? <p className="notice"><Icon name="done" size={18} />{x.supportClosed}</p> : <p className="small">{x.supportIntro}</p>}
-          {methods.length > 0 && c.status !== "completed" && <SupportMethods methods={methods} locale={locale} />}
-          <p className="warn-line"><Icon name="shield" size={16} />{d.support.warning}</p>
-          {c.status === "live" && <SentForm c={c} methods={methods} locale={locale} viewerName={viewer?.profile.display_name ?? ""} signedIn={Boolean(viewer)} />}
-          <ShareBar url={url} title={c.title} locale={locale} />
-          <div className="support-tools">
-            <form action={toggleBookmark}>
-              {hidden("locale", locale)}{hidden("campaign_id", c.id)}{hidden("back", path)}{hidden("on", state.bookmarked ? "0" : "1")}
-              <button className="btn small quiet" aria-pressed={state.bookmarked}><Icon name="bookmark" size={16} />{state.bookmarked ? d.campaign.saved : d.campaign.save}</button>
-            </form>
-            {state.bookmarked && (
-              <form action={toggleRemind}>
-                {hidden("locale", locale)}{hidden("campaign_id", c.id)}{hidden("on", state.remind ? "0" : "1")}
-                <button className="btn small quiet" aria-pressed={state.remind}><Icon name="bell" size={16} />{d.campaign.remind}</button>
-              </form>
-            )}
-            <Link className="btn small quiet" href={`${path}/flyer`}><Icon name="qr" size={16} />{d.campaign.flyer}</Link>
-          </div>
-        </aside>
       </div>
       {c.status === "live" && <Suspense fallback={null}><MobileSupport label={x.jump} /></Suspense>}
     </div>

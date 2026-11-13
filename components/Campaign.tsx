@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Icon, { causeIcon } from "./Icon";
-import { initials, mediaUrl } from "@/lib/format";
+import { fmtMoney, initials, mediaUrl } from "@/lib/format";
 import { t, type Locale } from "@/lib/i18n";
 import type { Campaign, Category, Tier } from "@/lib/types";
 import { storyText } from "@/lib/story";
@@ -42,27 +42,20 @@ export function Cover({ c, className = "", sizes = "(min-width: 900px) 33vw, 100
   );
 }
 export function FundraiserCard({ c, locale, cats, priority }: { c: Campaign; locale: Locale; cats: Category[]; priority?: boolean }) {
-  const d = t(locale), where = place(c), who = ownerName(c);
+  const d = t(locale), where = place(c), cause = causeName(cats, c.cause, locale);
+  const amount = c.goal_amount ? fmtMoney(Number(c.goal_amount), c.goal_currency, locale) : null;
   return (
     <article className="fcard">
       <div style={{ position: "relative" }}>
         <Cover c={c} priority={priority} />
-        <div className="badges">
-          {c.status === "completed" && <span className="tag solid">{d.campaign.completed}</span>}
-          {c.urgent && c.status === "live" && <span className="tag solid">{d.campaign.urgent}</span>}
-        </div>
+        {c.status === "completed" && <div className="badges"><span className="tag solid">{d.campaign.completed}</span></div>}
       </div>
-      <p className="meta">
-        {c.cause && <span>{causeName(cats, c.cause, locale)}</span>}
-        {where && <span><Icon name="pin" size={14} /> {where}</span>}
-      </p>
+      {cause && <p className="meta"><span>{cause}</span></p>}
       <h3><Link href={`/${locale}/campaigns/${c.slug}`}>{c.title}</Link></h3>
-      {c.story && <p className="excerpt">{excerpt(c.story)}</p>}
-      <ReviewChecks tier={c.tier} locale={locale} />
-      <div className="foot">
-        {who ? <p className="by"><Avatar name={who} path={c.owner?.avatar_path} size={26} /><span>{d.x.card.by} {who}</span></p> : <span />}
-        <span className="go" aria-hidden="true"><Icon name="arrow" size={18} /></span>
-      </div>
+      <p className="foot">
+        <span className="where">{where && <><Icon name="pin" size={15} />{where}</>}</span>
+        <span className="amount">{amount ?? <span className="muted">{d.x.card.noGoal}</span>}</span>
+      </p>
     </article>
   );
 }

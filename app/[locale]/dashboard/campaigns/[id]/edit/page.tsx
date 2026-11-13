@@ -30,7 +30,7 @@ export default async function Edit({ params }: { params: Promise<{ locale: strin
       <Link className="crumb" href={`/${locale}/dashboard/campaigns/${id}`}><Icon name="left" size={18} />{d.common.back}</Link>
       <header className="page-head"><h1>{d.x.form.editTitle}</h1><p className="lead">{data.campaign.title}</p></header>
       {locked ? <p className="notice err"><Icon name="lock" size={18} />{viewer.profile.banned ? d.dash.restricted : d.x.dash.explain[data.campaign.status]}</p>
-        : <CampaignForm locale={locale} cats={cats} initial={initial} draftKey={null} live={data.campaign.status === "live"} />}
+        : <CampaignForm locale={locale} cats={cats} initial={initial} draftKey={null} live={data.campaign.status === "live"} email={viewer.email} />}
     </div>
   );
 }
