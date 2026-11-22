@@ -1,5 +1,5 @@
 /* yon kout men
-   Three interface colors: white, deep green, very light green. Photography keeps its own color.
+   Three interface colors: white, deep green, sage. Photography keeps its own color.
    Brand detail, "the kout": surfaces are rounded on three corners and nearly square on the bottom left,
    like a hand held out. It marks photos, cards, primary buttons, the active nav item and the page loader.
    Layout: every page runs full width with 20px outer edges. Text columns stay readable inside it. */
@@ -7,12 +7,13 @@
 :root {
   --white: #ffffff;
   --green: #1f503b;
-  --mint: #f0faef;
+  --sage: #d4e5d3;
+  --mint: var(--sage);
   --ink: var(--green);
-  --muted: #4b6d5c;
-  --line: #d4e5d3;
-  --line-strong: #9fbfa6;
-  --mint-deep: #e1f2df;
+  --muted: var(--green);
+  --line: var(--sage);
+  --line-strong: var(--sage);
+  --mint-deep: var(--sage);
   --err: #9b2c1c;
   --gutter: 20px;
   --ctl: 48px;      /* standard control height: buttons, fields, dropdowns */
@@ -84,11 +85,11 @@ dl, dd, figure { margin: 0; }
 .btn:hover { background: var(--mint); }
 .btn:active:not(:disabled) { transform: translateY(1px) scale(.985); }
 .btn.primary { background: var(--green); color: var(--white); }
-.btn.primary:hover { background: #173f2e; }
+.btn.primary:hover { background: var(--green); text-decoration: underline; }
 .btn.quiet { border-color: transparent; background: transparent; }
 .btn.quiet:hover { background: var(--mint); }
 .btn.soft { border-color: transparent; background: var(--mint); }
-.btn.soft:hover { background: var(--mint-deep); }
+.btn.soft:hover { background: var(--mint-deep); text-decoration: underline; }
 .btn.small { --h: var(--ctl-sm); padding: 0 16px; }
 .btn.large { --h: 56px; padding: 0 24px; font-size: var(--t-md); }
 .btn.wide { width: 100%; }
@@ -111,7 +112,7 @@ dl, dd, figure { margin: 0; }
 .field .opt { font-weight: 400; color: var(--muted); }
 .field small, .hint { color: var(--muted); font-size: var(--t-xs); line-height: 1.45; }
 .input { width: 100%; min-height: var(--ctl); height: var(--ctl); padding: 11px 14px; font-size: 1rem; border: 1.5px solid var(--line-strong); border-radius: 12px; background: var(--white); color: var(--ink); transition: border-color var(--fast), box-shadow var(--fast); }
-.input::placeholder { color: #7f9a8b; }
+.input::placeholder { color: var(--green); }
 .input:hover { border-color: var(--green); }
 .input:focus, .input:focus-visible { outline: none; border-color: var(--green); box-shadow: none; }
 textarea.input { height: auto; min-height: 110px; resize: vertical; line-height: 1.55; }
@@ -191,7 +192,7 @@ a.chip:hover, button.chip:hover { border-color: var(--green); }
 /* Dialogs and drawers */
 dialog { border: 0; border-radius: var(--r); padding: 0; color: var(--ink); background: var(--white); max-width: none; max-height: none; }
 dialog:not([open]) { display: none !important; }
-dialog::backdrop { background: rgba(20, 52, 38, .45); }
+dialog::backdrop { background: rgba(31, 80, 59, .45); }
 .drawer { border-radius: var(--r) 0 0 var(--r); overflow: hidden; position: fixed; inset: 0 0 0 auto; width: min(420px, 100vw); height: 100dvh; margin: 0; display: flex; flex-direction: column; }
 .drawer[open] { animation: slide var(--med) var(--ease); }
 @keyframes slide { from { transform: translateX(24px); opacity: 0; } }
@@ -209,7 +210,7 @@ dialog::backdrop { background: rgba(20, 52, 38, .45); }
 .searchbar:focus-within { box-shadow: none; }
 .searchbar input:focus, .searchbar input:focus-visible { outline: none; }
 .searchbar input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; font-size: var(--t-md); padding: 10px 0; }
-.searchbar input::placeholder { color: #6f8c7d; }
+.searchbar input::placeholder { color: var(--green); }
 .searchbar input::-webkit-search-cancel-button { display: none; }
 .searchbar .btn { flex: none; }
 .searchbar.big { min-height: 72px; }
@@ -232,7 +233,7 @@ dialog::backdrop { background: rgba(20, 52, 38, .45); }
 .loader.done { opacity: 0; width: 100%; transition: width 160ms, opacity 260ms 140ms; }
 
 /* Skeletons match what arrives. */
-.sk { background: linear-gradient(90deg, var(--mint) 0%, var(--mint-deep) 40%, var(--mint) 80%); background-size: 300% 100%; animation: shimmer 1.4s linear infinite; border-radius: 12px; }
+.sk { background: linear-gradient(90deg, var(--sage) 0%, var(--white) 40%, var(--sage) 80%); background-size: 300% 100%; animation: shimmer 1.4s linear infinite; border-radius: 12px; }
 .sk.frame { border-radius: 12px; }
 .sk-line { height: 14px; }
 @keyframes shimmer { to { background-position: -300% 0; } }
@@ -396,7 +397,7 @@ dialog::backdrop { background: rgba(20, 52, 38, .45); }
 .support { display: flex; flex-direction: column; gap: var(--gap); padding: var(--pad); border-radius: 12px; background: var(--mint); scroll-margin-top: 20px; }
 @media (min-width: 1000px) { .support { position: sticky; top: 20px; max-height: calc(100vh - 40px); overflow-y: auto; scrollbar-width: thin; } }
 .support h2 { font-size: var(--t-xl); }
-.goal { display: flex; flex-direction: column; gap: 2px; padding-bottom: 14px; border-bottom: 1.5px solid var(--line); }
+.goal { display: flex; flex-direction: column; gap: 2px; padding-bottom: 14px; border-bottom: 1.5px solid var(--green); }
 .goal strong { font-size: var(--t-xl); letter-spacing: -0.02em; }
 .method { display: flex; flex-direction: column; gap: 10px; padding: 16px; border-radius: 12px; background: var(--white); }
 .method-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
@@ -542,7 +543,7 @@ dialog::backdrop { background: rgba(20, 52, 38, .45); }
 .table { width: 100%; border-collapse: collapse; font-size: var(--t-sm); }
 .table th { text-align: left; font-size: var(--t-xs); font-weight: 700; padding: 10px 12px; background: var(--mint); white-space: nowrap; position: sticky; top: 0; }
 .table td { padding: 10px 12px; border-top: 1.5px solid var(--line); vertical-align: middle; }
-.table tr:hover td { background: #f8fcf7; }
+.table tr:hover td { background: var(--sage); }
 .table tr.sel td { background: var(--mint); }
 .table td.title a { font-weight: 600; text-decoration: none; }
 .table td.title a:hover { text-decoration: underline; }
@@ -676,14 +677,14 @@ details.disclose[open] > summary::after { transform: rotate(45deg); }
 
 /* Icon controls (menu, close, dismiss) carry no background or border. */
 .btn.icon-only, .btn.icon-only:hover, .btn.icon-only:active { background: transparent; border-color: transparent; box-shadow: none; }
-.btn.icon-only:hover { color: #173f2e; }
+.btn.icon-only:hover { color: var(--green); }
 .btn.icon-only:active:not(:disabled) { transform: scale(.94); }
 
 /* Dialogs and their controls show no focus ring; the opened panel itself is the cue. */
 dialog:focus, dialog:focus-visible, dialog *:focus:not(:focus-visible) { outline: none; }
 .drawer .wordmark:focus { outline: none; }
 .lang select:focus, .lang select:focus-visible, .filterbar select:focus, .filterbar select:focus-visible, .toolbar select:focus, .toolbar select:focus-visible { outline: none; }
-.btn.icon-only:focus-visible { outline: none; color: #0f2c20; }
+.btn.icon-only:focus-visible { outline: none; color: var(--green); }
 .btn.icon-only:focus-visible .icon { stroke-width: 2.3; }
 
 /* Story editor */
@@ -696,11 +697,11 @@ dialog:focus, dialog:focus-visible, dialog *:focus:not(:focus-visible) { outline
 .story-toolbar .tool[aria-pressed="true"] { background: var(--green); color: var(--white); }
 .story-toolbar .tool:disabled { opacity: .35; cursor: default; }
 .story-toolbar .tool:focus-visible { outline: 2px solid var(--green); outline-offset: 1px; }
-.story-toolbar .sep { width: 1.5px; height: 22px; background: var(--line-strong); margin: 0 4px; }
+.story-toolbar .sep { width: 1.5px; height: 22px; background: var(--green); margin: 0 4px; }
 .story-toolbar .count-words { margin-left: auto; padding: 0 8px; font-size: var(--t-xs); color: var(--muted); font-variant-numeric: tabular-nums; }
 .story-editor-body { min-height: 360px; max-height: 70vh; overflow-y: auto; padding: 18px 20px; font-size: var(--t-md); line-height: 1.7; max-width: none; }
 .story-editor-body:focus, .story-editor-body:focus-visible { outline: none; }
-.story-editor-body p.is-editor-empty:first-child::before { content: attr(data-placeholder); color: #7f9a8b; float: left; height: 0; pointer-events: none; }
+.story-editor-body p.is-editor-empty:first-child::before { content: attr(data-placeholder); color: var(--green); float: left; height: 0; pointer-events: none; }
 .story h2 { font-size: var(--t-xl); margin-top: .4em; }
 .story h3 { font-size: var(--t-lg); }
 .story ul, .story ol { padding-left: 1.4em; display: flex; flex-direction: column; gap: .35em; }

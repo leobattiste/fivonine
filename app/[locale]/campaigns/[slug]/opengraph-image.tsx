@@ -21,9 +21,9 @@ export default async function Image({ params }: { params: Promise<{ locale: stri
           <div style={{ fontSize: 44, fontWeight: 800, letterSpacing: -2 }}>yonkoutmen</div>
           <div style={{ display: "flex", flexDirection: "column" }}>
             <div style={{ fontSize: title.length > 60 ? 50 : 62, fontWeight: 800, lineHeight: 1.05, letterSpacing: -2 }}>{title.slice(0, 110)}</div>
-            {place ? <div style={{ fontSize: 28, marginTop: 20, color: "#4c6a5a" }}>{place}</div> : null}
+            {place ? <div style={{ fontSize: 28, marginTop: 20, color: "#1f503b" }}>{place}</div> : null}
           </div>
-          <div style={{ display: "flex", fontSize: 28, fontWeight: 700, background: "#f0faef", padding: "16px 26px", borderRadius: 10, alignSelf: "flex-start" }}>{d.support.title}</div>
+          <div style={{ display: "flex", fontSize: 28, fontWeight: 700, background: "#d4e5d3", padding: "16px 26px", borderRadius: 10, alignSelf: "flex-start" }}>{d.support.title}</div>
         </div>
         {cover ? (
           // eslint-disable-next-line @next/next/no-img-element
