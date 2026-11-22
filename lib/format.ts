@@ -11,13 +11,13 @@ export function fmtDate(iso: string, locale: Locale) {
   if (locale === "ht" && !Number.isNaN(date.getTime())) return `${date.getUTCDate()} ${kreyolMonths[date.getUTCMonth()]} ${date.getUTCFullYear()}`;
   return new Intl.DateTimeFormat(intl[locale], { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }).format(date);
 }
-const tints = ["#1f503b", "#2f6b4f", "#3d7d5d", "#17402f", "#4a8a68", "#285c44"];
+const tints = ["#1f503b", "#d4e5d3", "#d4e5d3", "#d4e5d3", "#d4e5d3", "#d4e5d3"];
 /** Public URL of a file in the media bucket. */
 export function mediaUrl(path: string | null | undefined) {
   if (!path) return null;
   if (path.startsWith("fixture:")) {
     const i = Number(path.slice(8)) || 0;
-    const svg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 600'><rect width='800' height='600' fill='${tints[i % 6]}'/><circle cx='${200 + i * 70}' cy='260' r='170' fill='%23f0faef' opacity='.18'/><rect y='430' width='800' height='170' fill='%23000' opacity='.14'/></svg>`;
+    const svg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 600'><rect width='800' height='600' fill='${tints[i % 6]}'/><circle cx='${200 + i * 70}' cy='260' r='170' fill='%23d4e5d3' opacity='.18'/><rect y='430' width='800' height='170' fill='%23000' opacity='.14'/></svg>`;
     return `data:image/svg+xml;utf8,${svg.replace(/#/g, "%23")}`;
   }
   if (path.startsWith("demo:")) return `/demo/${path.slice(5)}`;

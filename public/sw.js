@@ -1,5 +1,5 @@
 /* Fivonine service worker: keeps opened pages readable on a weak or lost connection. */
-const CACHE = "fivonine-v2";
+const CACHE = "fivonine-v3";
 const offlineCopy = {
   en: ["You're offline", "Try again when your connection is back."],
   fr: ["Vous êtes hors ligne", "Réessayez quand votre connexion sera rétablie."],
