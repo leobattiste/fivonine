@@ -4,6 +4,7 @@ import { after } from "next/server";
 import { db } from "@/lib/supabase/server";
 import { drainOutbox } from "@/lib/email";
 import { TIERS } from "@/lib/constants";
+import { locales } from "@/lib/i18n";
 import type { ActionResult } from "@/lib/types";
 
 const s = (f: FormData, k: string, max = 500) => String(f.get(k) ?? "").trim().slice(0, max);
@@ -110,8 +111,11 @@ export async function saveSettings(_: ActionResult, f: FormData): Promise<Action
   if (!a) return fail("Admin access required.");
   const rate = Number(s(f, "rate", 12));
   if (!Number.isFinite(rate) || rate <= 0 || rate > 100000) return fail("Enter a valid exchange rate.");
-  const emergency = { active: f.get("active") === "on", ht: "", fr: s(f, "fr", 300), en: s(f, "en", 300) };
-  if (emergency.active && (!emergency.fr || !emergency.en)) return fail("Write the banner in French and English before turning emergency mode on.");
+  const { data: current, error: readError } = await a.sb.from("settings").select("value").eq("key", "emergency").maybeSingle();
+  if (readError) return fail(readError.message);
+  const banner = (locale: (typeof locales)[number]) => f.has(locale) ? s(f, locale, 300) : String(current?.value?.[locale] ?? "").slice(0, 300);
+  const emergency = { active: f.get("active") === "on", ht: banner("ht"), fr: banner("fr"), en: banner("en"), es: banner("es") };
+  if (emergency.active && locales.some((locale) => !emergency[locale].trim())) return fail("Write the banner in all four languages before turning emergency mode on.");
   const { error } = await a.sb.from("settings").upsert([{ key: "emergency", value: emergency }, { key: "rate", value: { htg_per_usd: rate } }], { onConflict: "key" });
   if (error) return fail(error.message);
   await a.log("settings_save", "settings", "site", emergency.active ? "emergency on" : "emergency off");
@@ -122,8 +126,8 @@ export async function saveCategory(_: ActionResult, f: FormData): Promise<Action
   const a = await admin();
   if (!a) return fail("Admin access required.");
   const slug = s(f, "slug", 40).toLowerCase();
-  const row = { slug, name_ht: s(f, "name_ht", 60), name_fr: s(f, "name_fr", 60), name_en: s(f, "name_en", 60), position: Number(s(f, "position", 4)) || 0, active: f.get("active") === "on" };
-  if (!/^[a-z0-9-]{2,40}$/.test(slug) || !row.name_ht || !row.name_fr || !row.name_en) return fail("Fill in the slug and all three names.");
+  const row = { slug, name_ht: s(f, "name_ht", 60), name_fr: s(f, "name_fr", 60), name_en: s(f, "name_en", 60), name_es: s(f, "name_es", 60), position: Number(s(f, "position", 4)) || 0, active: f.get("active") === "on" };
+  if (!/^[a-z0-9-]{2,40}$/.test(slug) || !row.name_ht || !row.name_fr || !row.name_en || !row.name_es) return fail("Fill in the slug and all four names.");
   const { error } = await a.sb.from("categories").upsert(row, { onConflict: "slug" });
   if (error) return fail(error.message);
   await a.log("category_save", "category", slug);

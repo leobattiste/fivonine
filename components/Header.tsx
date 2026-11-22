@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import Icon from "./Icon";
 import { Wordmark } from "./Brand";
-import { LOCALE_COOKIE, localeNames, locales, t, type Locale } from "@/lib/i18n";
+import { LOCALE_COOKIE, localeNames, locales, localizedPath, t, type Locale } from "@/lib/i18n";
 import { signOut } from "@/app/actions";
 
 type Viewer = { name: string; admin: boolean; unread: number; avatar: string | null };
@@ -27,15 +27,15 @@ export default function Header({ locale, viewer }: { locale: Locale; viewer: Vie
   const L = (p: string) => `/${locale}${p}`;
   const links: [string, string][] = [["/explore", n.explore], ["/create", n.fundraiser], ["/how-it-works", n.how], ["/about", n.about]];
   const isActive = (href: string) => path.startsWith(L(href)) || (href === "/explore" && path.startsWith(L("/campaigns")));
-  const switchLocale = (next: string) => {
+  const switchLocale = (next: Locale) => {
     document.cookie = `${LOCALE_COOKIE}=${next};path=/;max-age=31536000;SameSite=Lax`;
-    location.assign(path.replace(/^\/(ht|en|fr)(?=\/|$)/, `/${next}`) + location.search);
+    location.assign(localizedPath(path + location.search + location.hash, next));
   };
   const language = (id: string) => (
     <label className="lang" htmlFor={id}>
-      <Icon name="globe" size={17} />
+      <Icon name="language" size={17} />
       <span className="sr">{d.nav.language}</span>
-      <select id={id} value={locale} onChange={(e) => switchLocale(e.target.value)}>
+      <select id={id} value={locale} onChange={(e) => switchLocale(e.target.value as Locale)}>
         {locales.map((l) => <option key={l} value={l}>{localeNames[l]}</option>)}
       </select>
     </label>

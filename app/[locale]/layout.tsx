@@ -8,7 +8,7 @@ import Icon from "@/components/Icon";
 import { ServiceWorker } from "@/components/Bits";
 import Loader from "@/components/Loader";
 import { Suspense } from "react";
-import { htmlLang, isLocale, t } from "@/lib/i18n";
+import { htmlLang, isLocale, locales, t } from "@/lib/i18n";
 import { getViewer } from "@/lib/auth";
 import { getSettings, unreadCount } from "@/lib/data";
 import { SITE_URL } from "@/lib/constants";
@@ -24,7 +24,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     description: d.meta.description,
     robots: { index: open, follow: open },
     openGraph: { siteName: "yon kout men", type: "website", locale: htmlLang[locale] },
-    alternates: { languages: { fr: "/fr", en: "/en" } },
+    alternates: { languages: Object.fromEntries(locales.map((l) => [htmlLang[l], `/${l}`])) },
     appleWebApp: { capable: true, title: "yon kout men", statusBarStyle: "default" },
   };
 }

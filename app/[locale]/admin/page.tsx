@@ -224,8 +224,10 @@ async function SettingsTab() {
           <h2>Emergency mode</h2>
           <p className="small muted">Shows a banner on every page that links to emergency campaigns. Mark campaigns as “Emergency” when you review them, and they move to the top of the queue.</p>
           <label className="check"><input type="checkbox" name="active" defaultChecked={settings.emergency.active} /><span>Emergency mode is on</span></label>
+          <label className="field"><span>Banner, Kreyòl</span><input className="input" name="ht" maxLength={300} defaultValue={settings.emergency.ht} /></label>
           <label className="field"><span>Banner, Français</span><input className="input" name="fr" maxLength={300} defaultValue={settings.emergency.fr} /></label>
           <label className="field"><span>Banner, English</span><input className="input" name="en" maxLength={300} defaultValue={settings.emergency.en} /></label>
+          <label className="field"><span>Banner, Español</span><input className="input" name="es" maxLength={300} defaultValue={settings.emergency.es} /></label>
           <h2>Exchange rate</h2>
           <label className="field"><span>Gourdes for 1 US dollar</span><input className="input" name="rate" inputMode="decimal" required defaultValue={settings.rate.htg_per_usd} /><small>Used to show campaign progress in both currencies. Update it when the rate moves.</small></label>
           <Submit>Save settings</Submit>
@@ -251,6 +253,7 @@ async function SettingsTab() {
               <input type="hidden" name="slug" value={c.slug} />
               <div className="cols-2"><label className="field"><span>Kreyòl</span><input className="input" name="name_ht" defaultValue={c.name_ht} required /></label><label className="field"><span>Français</span><input className="input" name="name_fr" defaultValue={c.name_fr} required /></label></div>
               <div className="cols-2"><label className="field"><span>English</span><input className="input" name="name_en" defaultValue={c.name_en} required /></label><label className="field"><span>Order</span><input className="input" name="position" inputMode="numeric" defaultValue={c.position} /></label></div>
+              <label className="field"><span>Español</span><input className="input" name="name_es" defaultValue={c.name_es} maxLength={60} required /></label>
               <label className="check"><input type="checkbox" name="active" defaultChecked={c.active} /><span>Visible</span></label>
               <Submit className="btn small">Save cause</Submit>
             </ActionForm>
@@ -262,6 +265,7 @@ async function SettingsTab() {
             <label className="field"><span>Slug (lowercase, no spaces)</span><input className="input" name="slug" required pattern="[a-z0-9-]{2,40}" /></label>
             <div className="cols-2"><label className="field"><span>Kreyòl</span><input className="input" name="name_ht" required /></label><label className="field"><span>Français</span><input className="input" name="name_fr" required /></label></div>
             <div className="cols-2"><label className="field"><span>English</span><input className="input" name="name_en" required /></label><label className="field"><span>Order</span><input className="input" name="position" inputMode="numeric" defaultValue={20} /></label></div>
+            <label className="field"><span>Español</span><input className="input" name="name_es" maxLength={60} required /></label>
             <input type="hidden" name="active" value="on" />
             <Submit className="btn small">Add cause</Submit>
           </ActionForm>

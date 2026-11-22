@@ -1,11 +1,16 @@
 import type { Campaign, Progress, Settings } from "./types";
 import type { Locale } from "./i18n";
 import { SUPABASE_URL } from "./supabase/config";
-const intl: Record<Locale, string> = { fr: "fr-FR", en: "en-US" };
+const intl: Record<Locale, string> = { fr: "fr-FR", en: "en-US", ht: "fr-HT", es: "es-419" };
 export const fmtNumber = (n: number, locale: Locale) => new Intl.NumberFormat(intl[locale], { maximumFractionDigits: 0 }).format(n);
 export const fmtMoney = (n: number, currency: string, locale: Locale) => `${fmtNumber(n, locale)} ${currency}`;
-export const fmtDate = (iso: string, locale: Locale) =>
-  new Intl.DateTimeFormat(intl[locale], { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(iso));
+const kreyolMonths = ["janvye", "fevriye", "mas", "avril", "me", "jen", "jiyè", "out", "septanm", "oktòb", "novanm", "desanm"];
+export function fmtDate(iso: string, locale: Locale) {
+  const date = new Date(iso);
+  // Most browsers do not ship Haitian Creole Intl data; avoid silently showing English months.
+  if (locale === "ht" && !Number.isNaN(date.getTime())) return `${date.getUTCDate()} ${kreyolMonths[date.getUTCMonth()]} ${date.getUTCFullYear()}`;
+  return new Intl.DateTimeFormat(intl[locale], { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }).format(date);
+}
 const tints = ["#1f503b", "#2f6b4f", "#3d7d5d", "#17402f", "#4a8a68", "#285c44"];
 /** Public URL of a file in the media bucket. */
 export function mediaUrl(path: string | null | undefined) {
