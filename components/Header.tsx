@@ -33,7 +33,7 @@ export default function Header({ locale, viewer }: { locale: Locale; viewer: Vie
   };
   const language = (id: string) => (
     <label className="lang" htmlFor={id}>
-      <Icon name="globe" size={17} />
+      <Icon name="language" size={17} />
       <span className="sr">{d.nav.language}</span>
       <select id={id} value={locale} onChange={(e) => switchLocale(e.target.value as Locale)}>
         {locales.map((l) => <option key={l} value={l}>{localeNames[l]}</option>)}
