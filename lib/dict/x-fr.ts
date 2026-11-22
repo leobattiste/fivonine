@@ -22,7 +22,7 @@ const x: X = {
       ["Les nouvelles montrent ce qui s'est passé", "Les organisateurs publient des nouvelles avec photos et reçus pour que chacun voie où l'aide est allée."],
     ],
     organizerTitle: "Vous cherchez du soutien pour quelqu'un ?",
-    organizerBody: "Écrivez l'histoire en kreyòl, en français ou en anglais, ajoutez une photo et indiquez comment vous recevez le soutien. Nous vérifions en général en deux jours.",
+    organizerBody: "Écrivez l'histoire en anglais, en français, en kreyòl ou en espagnol, ajoutez une photo et indiquez comment vous recevez le soutien. Nous vérifions en général en deux jours.",
     organizerCta: "Partager une collecte",
     organizerLink: "Lire le guide de l'organisateur",
     emptyTitle: "Les premières collectes sont en vérification",
@@ -152,7 +152,7 @@ const x: X = {
       title: "Ressources pour les organisateurs",
       sub: "Des guides pratiques pour écrire une collecte claire, prendre de bonnes photos, la partager et tenir les donateurs informés.",
       guides: [
-        { id: "story", title: "Écrire une histoire crédible", points: ["Commencez par qui a besoin d'aide et ce qui s'est passé, en deux ou trois phrases.", "Dites exactement ce que le soutien paiera : une facture d'hôpital, l'écolage, un toit.", "Écrivez comme vous parlez. Le kreyòl, le français et l'anglais sont bienvenus.", "Si quelque chose change, dites-le dans une nouvelle plutôt que de modifier l'histoire."] },
+        { id: "story", title: "Écrire une histoire crédible", points: ["Commencez par qui a besoin d'aide et ce qui s'est passé, en deux ou trois phrases.", "Dites exactement ce que le soutien paiera : une facture d'hôpital, l'écolage, un toit.", "Écrivez comme vous parlez. L'anglais, le français, le kreyòl et l'espagnol sont bienvenus.", "Si quelque chose change, dites-le dans une nouvelle plutôt que de modifier l'histoire."] },
         { id: "photos", title: "Des photos qui disent la vérité", points: ["Utilisez vos propres photos récentes. Jamais d'images prises sur internet.", "Photographiez à la lumière du jour, la personne ou le lieu bien visible.", "Demandez avant de photographier quelqu'un. Soyez très prudent avec les enfants et les malades.", "Un reçu, un devis ou une lettre peuvent aussi être photographiés."] },
         { id: "receive", title: "Des coordonnées qui fonctionnent", points: ["Écrivez le nom complet du bénéficiaire exactement comme sur sa pièce d'identité.", "Pour une banque, indiquez la banque, le titulaire, le numéro et la devise.", "Pour un lien, collez l'adresse complète commençant par https://", "Relisez chaque numéro deux fois. Les donateurs envoient exactement ce que vous écrivez."] },
         { id: "share", title: "La partager autour de vous", points: ["Envoyez le lien sur WhatsApp à la famille, à l'église et aux groupes d'école.", "Imprimez l'affiche avec son code QR pour l'église ou le marché.", "Demandez à quelqu'un qui connaît le besoin de se porter garant sur la page.", "Publiez une nouvelle toutes les une ou deux semaines, même courte."] },

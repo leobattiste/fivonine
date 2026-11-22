@@ -38,14 +38,14 @@ create table public.profiles (
   org_verified boolean not null default false,
   role text not null default 'user' check (role in ('user','admin')),
   banned boolean not null default false,
-  locale text not null default 'ht' check (locale in ('ht','fr','en')),
+  locale text not null default 'ht' check (locale in ('ht','fr','en','es')),
   email_notifications boolean not null default true,
   created_at timestamptz not null default now()
 );
 
 create table public.categories (
   slug text primary key check (slug ~ '^[a-z0-9-]{2,40}$'),
-  name_ht text not null, name_fr text not null, name_en text not null,
+  name_ht text not null, name_fr text not null, name_en text not null, name_es text not null default '',
   position int not null default 0,
   active boolean not null default true
 );
@@ -73,7 +73,7 @@ create table public.campaigns (
   voice_path text,
   tier text not null default 'none' check (tier in ('none','id_checked','community','organization')),
   featured boolean not null default false,
-  language text not null default 'ht' check (language in ('ht','fr','en')),
+  language text not null default 'ht' check (language in ('ht','fr','en','es')),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
   submitted_at timestamptz,
@@ -283,7 +283,7 @@ begin
   insert into public.profiles(id,display_name,locale) values (
     new.id,
     coalesce(nullif(left(btrim(new.raw_user_meta_data->>'display_name'),80),''),'Fivonine member'),
-    case when new.raw_user_meta_data->>'locale' in ('ht','fr','en') then new.raw_user_meta_data->>'locale' else 'ht' end
+    case when new.raw_user_meta_data->>'locale' in ('ht','fr','en','es') then new.raw_user_meta_data->>'locale' else 'ht' end
   ) on conflict (id) do nothing;
   return new;
 end $$;
@@ -759,16 +759,16 @@ create policy documents_delete on storage.objects for delete to authenticated
   using (bucket_id='documents' and (storage.foldername(name))[1]=(select auth.uid())::text);
 
 -- 7. Seed data
-insert into public.categories(slug,name_ht,name_fr,name_en,position) values
-  ('medical','Swen sante','Soins médicaux','Medical care',1),
-  ('education','Edikasyon','Éducation','Education',2),
-  ('emergency','Ijans ak katastwòf','Urgence et catastrophe','Emergency and disaster',3),
-  ('funeral','Antèman','Funérailles','Funeral',4),
-  ('housing','Kay ak lwaye','Logement','Housing',5),
-  ('food','Manje','Alimentation','Food',6),
-  ('business','Ti biznis','Petit commerce','Small business',7),
-  ('community','Pwojè kominotè','Projet communautaire','Community project',8),
-  ('other','Lòt bezwen','Autre besoin','Other need',9);
+insert into public.categories(slug,name_ht,name_fr,name_en,name_es,position) values
+  ('medical','Swen sante','Soins médicaux','Medical care','Salud',1),
+  ('education','Edikasyon','Éducation','Education','Educación',2),
+  ('emergency','Ijans ak katastwòf','Urgence et catastrophe','Emergency and disaster','Emergencia',3),
+  ('funeral','Antèman','Funérailles','Funeral','Funerales',4),
+  ('housing','Kay ak lwaye','Logement','Housing','Vivienda',5),
+  ('food','Manje','Alimentation','Food','Alimentación',6),
+  ('business','Ti biznis','Petit commerce','Small business','Pequeños negocios',7),
+  ('community','Pwojè kominotè','Projet communautaire','Community project','Comunidad',8),
+  ('other','Lòt bezwen','Autre besoin','Other need','Otras necesidades',9);
 insert into public.settings(key,value) values
-  ('emergency','{"active":false,"ht":"","fr":"","en":""}'),
+  ('emergency','{"active":false,"ht":"","fr":"","en":"","es":""}'),
   ('rate','{"htg_per_usd":131}');

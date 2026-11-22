@@ -8,10 +8,11 @@ import type { Campaign, CampaignChange, CampaignPrivate, Category, Contribution,
 
 const OWNER = "owner:profiles!campaigns_owner_id_fkey(id,display_name,avatar_path,kind,org_name,org_verified)";
 const CONTRIB_COLS = "id,campaign_id,amount,currency,method,display_name,anonymous,message,hidden,created_at";
-const defaults: Settings = { emergency: { active: false, ht: "", fr: "", en: "" }, rate: { htg_per_usd: 131 } };
+const defaults: Settings = { emergency: { active: false, ht: "", fr: "", en: "", es: "" }, rate: { htg_per_usd: 131 } };
+const spanishCategories: Record<string, string> = { medical: "Salud", education: "Educación", emergency: "Emergencia", community: "Comunidad", personal: "Necesidades personales", funeral: "Funerales", housing: "Vivienda", food: "Alimentación", business: "Pequeños negocios", other: "Otras necesidades" };
 
 export const getSettings = cache(async (): Promise<Settings> => {
-  if (FIXTURES) return process.env.FIVONINE_FIXTURE_EMERGENCY ? { ...defaults, emergency: { active: true, ht: "Siklòn Melissa: n ap verifye kanpay ijans yo an premye.", fr: "Ouragan Melissa : les campagnes d'urgence sont vérifiées en priorité.", en: "Hurricane Melissa: emergency campaigns are reviewed first." } } : defaults;
+  if (FIXTURES) return process.env.FIVONINE_FIXTURE_EMERGENCY ? { ...defaults, emergency: { active: true, ht: "Siklòn Melissa: n ap verifye kanpay ijans yo an premye.", fr: "Ouragan Melissa : les campagnes d'urgence sont vérifiées en priorité.", en: "Hurricane Melissa: emergency campaigns are reviewed first.", es: "Huracán Melissa: revisamos primero las campañas de emergencia." } } : defaults;
   const sb = await db();
   if (!sb) return defaults;
   const { data } = await sb.from("settings").select("key,value");
@@ -29,7 +30,8 @@ export const getCategories = cache(async (all = false): Promise<Category[]> => {
   if (!sb) return [];
   let q = sb.from("categories").select("*").order("position");
   if (!all) q = q.eq("active", true);
-  return ((await q).data ?? []) as Category[];
+  // Reads remain usable while the additive Spanish database migration is pending.
+  return ((await q).data ?? []).map((c) => ({ ...c, name_es: c.name_es?.trim() ? c.name_es : spanishCategories[c.slug] ?? c.name_en })) as Category[];
 });
 
 async function withProgress(items: Campaign[]): Promise<Campaign[]> {

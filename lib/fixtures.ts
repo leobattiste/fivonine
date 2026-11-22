@@ -39,9 +39,9 @@ export const fxVouches: Vouch[] = [
   { id: "v2", campaign_id: "c1", voucher_id: "y", role: "clinic", organization: "Sant Sante Sen Rafayèl", statement: "Mwen se enfimyè ki te resevwa li. Bezwen operasyon an reyèl.", status: "approved", created_at: "2026-10-27T10:00:00Z", voucher: { display_name: "Mis Darline", org_verified: false } },
 ];
 export const fxCategories: Category[] = [
-  ["medical", "Swen sante", "Médical", "Medical"], ["education", "Edikasyon", "Éducation", "Education"], ["emergency", "Ijans", "Urgence", "Emergency"],
-  ["community", "Kominote", "Communauté", "Community"], ["personal", "Bezwen pèsonèl", "Besoins personnels", "Personal needs"],
-].map(([slug, name_ht, name_fr, name_en], i) => ({ slug, name_ht, name_fr, name_en, position: i, active: true }));
+  ["medical", "Swen sante", "Médical", "Medical", "Salud"], ["education", "Edikasyon", "Éducation", "Education", "Educación"], ["emergency", "Ijans", "Urgence", "Emergency", "Emergencia"],
+  ["community", "Kominote", "Communauté", "Community", "Comunidad"], ["personal", "Bezwen pèsonèl", "Besoins personnels", "Personal needs", "Necesidades personales"],
+].map(([slug, name_ht, name_fr, name_en, name_es], i) => ({ slug, name_ht, name_fr, name_en, name_es, position: i, active: true }));
 export const fxNotifications: Notification[] = [
   { id: "n1", kind: "new_contribution", campaign_id: "c1", payload: { title: fxCampaigns[0].title, slug: fxCampaigns[0].slug }, read_at: null, created_at: "2026-11-09T10:00:00Z" },
   { id: "n2", kind: "campaign_needs_changes", campaign_id: "c7", payload: { title: "Medikaman pou grann Solange", slug: "bouyon", note: "Foto pyès idantite a pa klè. Tanpri reprann li nan limyè." }, read_at: "2026-11-06T10:00:00Z", created_at: "2026-11-05T10:00:00Z" },

@@ -22,7 +22,7 @@ const x = {
       ["Updates show what happened", "Organizers post updates with photos and receipts so supporters see where help went."],
     ],
     organizerTitle: "Raising support for someone?",
-    organizerBody: "Write the story in Kreyòl, French or English, add a photo, and say how you receive support. We usually review within two days.",
+    organizerBody: "Write the story in English, French, Kreyòl or Spanish, add a photo, and say how you receive support. We usually review within two days.",
     organizerCta: "Share a fundraiser",
     organizerLink: "Read the organizer guide",
     emptyTitle: "The first fundraisers are in review",
@@ -152,7 +152,7 @@ const x = {
       title: "Resources for organizers",
       sub: "Practical guides for writing a clear fundraiser, taking good photos, sharing it, and keeping supporters informed.",
       guides: [
-        { id: "story", title: "Write a story people trust", points: ["Start with who needs help and what happened, in two or three sentences.", "Say exactly what the support will pay for: a hospital bill, school fees, a roof.", "Write the way you speak. Kreyòl, French or English are all welcome.", "If something changes, say so in an update rather than editing the story."] },
+        { id: "story", title: "Write a story people trust", points: ["Start with who needs help and what happened, in two or three sentences.", "Say exactly what the support will pay for: a hospital bill, school fees, a roof.", "Write the way you speak. English, French, Kreyòl and Spanish are all welcome.", "If something changes, say so in an update rather than editing the story."] },
         { id: "photos", title: "Take photos that tell the truth", points: ["Use your own recent photos. Never use pictures from the internet.", "Shoot in daylight, with the person or place clearly visible.", "Ask before you photograph someone. Take extra care with children and patients.", "A receipt, a quote or a letter can be a photo too."] },
         { id: "receive", title: "Write support details that work", points: ["Write the receiver's full name exactly as on their ID.", "For a bank, add the bank name, account name, number and currency.", "For a link, paste the full address starting with https://", "Read every number twice. Supporters send to exactly what you write."] },
         { id: "share", title: "Share it with your people", points: ["Send the link on WhatsApp to family, church and school groups.", "Print the flyer with its QR code for your church or market.", "Ask someone who knows the need to vouch for it on the page.", "Post an update every week or two, even a short one."] },
