@@ -25,7 +25,7 @@ To preview the design without a database, run with sample data: `FIVONINE_FIXTUR
 
 The interface supports English, French, Kreyòl and Spanish, including account forms, organizer tools, safety/help pages, notification text and offline messages. French remains the default for visitors without a saved language. Campaign stories and recipient details remain in the language their organizers wrote them.
 
-For an existing database, apply `supabase/migrations/20261122224526_add_spanish_locale.sql` before deploying this release. It enables Spanish profile and campaign preferences, adds Spanish category labels and preserves existing emergency messages. Read-only Spanish pages also have category-label fallbacks while this additive migration is pending.
+For an existing database, apply `supabase/migrations/20261122231647_add_spanish_locale.sql` before deploying this release. It enables Spanish profile and campaign preferences, adds Spanish category labels and preserves existing emergency messages. Read-only Spanish pages also have category-label fallbacks while this additive migration is pending.
 
 Run `npm test` for TypeScript and translation/routing/offline regression checks, then `npm run build` for the production build.
 
