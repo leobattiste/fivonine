@@ -31,9 +31,9 @@ export default async function Dashboard({ params, searchParams }: { params: Prom
         <DashNav locale={locale} tab={tab} unread={unread} />
         <div className="stack" style={{ gap: 28, minWidth: 0 }}>
           {viewer.profile.banned && <p className="notice err"><Icon name="lock" size={18} />{d.dash.restricted}</p>}
-          {tab === "campaigns" && <Overview locale={locale} viewerId={viewer.id} />}
-          {tab === "saved" && <Saved locale={locale} viewerId={viewer.id} />}
-          {tab === "notifications" && <Notifications locale={locale} viewerId={viewer.id} />}
+          {tab === "campaigns" && <Overview locale={locale} viewerId={viewer.id} dateStyle={viewer.profile.date_style} />}
+          {tab === "saved" && <Saved locale={locale} viewerId={viewer.id} currencyStyle={viewer.profile.currency_style} />}
+          {tab === "notifications" && <Notifications locale={locale} viewerId={viewer.id} dateStyle={viewer.profile.date_style} />}
           {tab === "profile" && <Profile locale={locale} viewer={viewer} />}
           {tab === "settings" && <Settings locale={locale} viewer={viewer} />}
         </div>
@@ -43,7 +43,7 @@ export default async function Dashboard({ params, searchParams }: { params: Prom
 }
 
 const ATTN: Status[] = ["needs_changes", "draft", "rejected", "suspended"];
-async function Overview({ locale, viewerId }: { locale: Locale; viewerId: string }) {
+async function Overview({ locale, viewerId, dateStyle }: { locale: Locale; viewerId: string; dateStyle: "long" | "short" }) {
   const d = t(locale), x = d.x.dash, L = (p: string) => `/${locale}${p}`;
   const [items, changes] = await Promise.all([myCampaigns(viewerId), myChanges(viewerId)]);
   const notes = await reviewNotes(items.map((c) => c.id));
@@ -63,7 +63,7 @@ async function Overview({ locale, viewerId }: { locale: Locale; viewerId: string
           <div className="row tight"><StatusPill status={c.status} locale={locale} />{ch && <span className="tag line">{ch.status === "pending" ? x.changesPending : x.changesNeeded}</span>}</div>
           <h3><Link href={manage}>{c.title}</Link></h3>
           <p className="explain">{ch?.status === "pending" ? x.changesPendingBody : x.explain[c.status]}</p>
-          <p className="xs muted">{x.updatedOn} {fmtDate(c.updated_at, locale)}</p>
+          <p className="xs muted">{x.updatedOn} {fmtDate(c.updated_at, locale, dateStyle)}</p>
         </div>
         {note && <div className="feedback"><strong>{x.feedback}</strong>{note}</div>}
         <div className="row" style={{ justifyContent: "flex-end" }}>
@@ -94,18 +94,18 @@ async function Overview({ locale, viewerId }: { locale: Locale; viewerId: string
     </>
   );
 }
-async function Saved({ locale, viewerId }: { locale: Locale; viewerId: string }) {
+async function Saved({ locale, viewerId, currencyStyle }: { locale: Locale; viewerId: string; currencyStyle: "code" | "symbol" }) {
   const d = t(locale);
   const [items, cats] = await Promise.all([myBookmarks(viewerId), getCategories(true)]);
   return (
     <>
       <h1>{d.x.nav.saved}</h1>
       {!items.length ? <div className="empty"><span className="icon-box"><Icon name="bookmark" size={24} /></span><p>{d.dash.noSaved}</p><Link className="btn" href={`/${locale}/explore`}>{d.x.nav.explore}</Link></div>
-        : <div className="grid-cards">{items.map((c) => <FundraiserCard key={c.id} c={c} locale={locale} cats={cats} />)}</div>}
+        : <div className="grid-cards">{items.map((c) => <FundraiserCard key={c.id} c={c} locale={locale} cats={cats} currencyStyle={currencyStyle} />)}</div>}
     </>
   );
 }
-async function Notifications({ locale, viewerId }: { locale: Locale; viewerId: string }) {
+async function Notifications({ locale, viewerId, dateStyle }: { locale: Locale; viewerId: string; dateStyle: "long" | "short" }) {
   const d = t(locale), items = await myNotifications(viewerId);
   const text = d.notif as Record<string, (title: string) => string>;
   return (
@@ -124,7 +124,7 @@ async function Notifications({ locale, viewerId }: { locale: Locale; viewerId: s
                   <Link href={href}>{text[n.kind]?.(n.payload.title ?? "") ?? n.kind}</Link>
                   {n.payload.note && <p className="small muted" style={{ fontWeight: 400 }}>{n.payload.note}</p>}
                 </div>
-                <time className="xs muted" dateTime={n.created_at}>{fmtDate(n.created_at, locale)}</time>
+                <time className="xs muted" dateTime={n.created_at}>{fmtDate(n.created_at, locale, dateStyle)}</time>
               </li>
             );
           })}

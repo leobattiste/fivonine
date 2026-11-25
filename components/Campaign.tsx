@@ -41,7 +41,7 @@ export function Cover({ c, className = "", sizes = "(min-width: 900px) 33vw, 100
     <div className={`frame empty ${className}`} aria-hidden="true">{!noIconFallback && <Icon name={causeIcon[c.cause ?? "other"] ?? "hand"} size={44} />}</div>
   );
 }
-export function FundraiserCard({ c, locale, cats, priority, simplified = false }: { c: Campaign; locale: Locale; cats: Category[]; priority?: boolean; simplified?: boolean }) {
+export function FundraiserCard({ c, locale, cats, priority, simplified = false, currencyStyle = "code" }: { c: Campaign; locale: Locale; cats: Category[]; priority?: boolean; simplified?: boolean; currencyStyle?: "code" | "symbol" }) {
   const d = t(locale), where = place(c), cause = causeName(cats, c.cause, locale);
   if (simplified) {
     return (
@@ -54,7 +54,7 @@ export function FundraiserCard({ c, locale, cats, priority, simplified = false }
       </article>
     );
   }
-  const amount = c.goal_amount ? fmtMoney(Number(c.goal_amount), c.goal_currency, locale) : null;
+  const amount = c.goal_amount ? fmtMoney(Number(c.goal_amount), c.goal_currency, locale, currencyStyle) : null;
   return (
     <article className="fcard">
       <div style={{ position: "relative" }}>

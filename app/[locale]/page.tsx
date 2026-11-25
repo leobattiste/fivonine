@@ -4,6 +4,7 @@ import Icon, { causeIcon } from "@/components/Icon";
 import { Avatar, Cover, FundraiserCard, ReviewChecks, causeName, excerpt, ownerName, place } from "@/components/Campaign";
 import { PexelsPhoto } from "@/components/Brand";
 import { featuredCampaigns, getCategories, listCampaigns } from "@/lib/data";
+import { getViewer } from "@/lib/auth";
 import { isLocale, t, type Locale } from "@/lib/i18n";
 import { PHOTOS } from "@/lib/photos";
 import type { Campaign, Category } from "@/lib/types";
@@ -12,7 +13,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
   const d = t(locale), h = d.x.home, L = (p: string) => `/${locale}${p}`;
-  const [stories, cats, recent] = await Promise.all([featuredCampaigns(), getCategories(), listCampaigns({ perPage: 9, sort: "newest" })]);
+  const [stories, cats, recent, viewer] = await Promise.all([featuredCampaigns(), getCategories(), listCampaigns({ perPage: 9, sort: "newest" }), getViewer()]);
   const seen = new Set(stories.map((c) => c.id));
   const more = recent.items.filter((c) => !seen.has(c.id)).slice(0, 6);
   const hasAny = stories.length > 0;
@@ -67,7 +68,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
           {more.length > 0 && (
             <section className="wrap band" aria-labelledby="more-title" style={{ paddingTop: 8 }}>
               <div className="band-head"><h2 id="more-title">{h.collection}</h2></div>
-              <div className="grid-cards">{more.map((c) => <FundraiserCard key={c.id} c={c} locale={locale} cats={cats} />)}</div>
+              <div className="grid-cards">{more.map((c) => <FundraiserCard key={c.id} c={c} locale={locale} cats={cats} currencyStyle={viewer?.profile.currency_style ?? "code"} />)}</div>
             </section>
           )}
         </>

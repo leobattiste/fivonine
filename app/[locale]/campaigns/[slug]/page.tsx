@@ -56,8 +56,8 @@ export default async function FundraiserPage({ params }: P) {
         <h1>{c.title}</h1>
         <p className="f-meta">
           {where && <span><Icon name="pin" size={16} />{where}</span>}
-          {c.published_at && <span><Icon name="calendar" size={16} />{d.campaign.posted} {fmtDate(c.published_at, locale)}</span>}
-          {c.deadline && <span><Icon name="clock" size={16} />{d.campaign.deadline} {fmtDate(c.deadline, locale)}</span>}
+          {c.published_at && <span><Icon name="calendar" size={16} />{d.campaign.posted} {fmtDate(c.published_at, locale, viewer?.profile.date_style ?? "long")}</span>}
+          {c.deadline && <span><Icon name="clock" size={16} />{d.campaign.deadline} {fmtDate(c.deadline, locale, viewer?.profile.date_style ?? "long")}</span>}
         </p>
         <div className="row tight">
           {c.status === "completed" && <span className="tag solid">{d.campaign.completed}</span>}
@@ -72,7 +72,7 @@ export default async function FundraiserPage({ params }: P) {
         <aside id="support" className="support" aria-labelledby="support-h">
           <h2 id="support-h">{x.support}</h2>
           {c.goal_amount && (
-            <div className="goal"><span className="small muted">{x.goal}</span><strong>{fmtMoney(Number(c.goal_amount), c.goal_currency, locale)}</strong><span className="xs muted">{x.goalNote}</span></div>
+            <div className="goal"><span className="small muted">{x.goal}</span><strong>{fmtMoney(Number(c.goal_amount), c.goal_currency, locale, viewer?.profile.currency_style ?? "code")}</strong><span className="xs muted">{x.goalNote}</span></div>
           )}
           <ReviewChecks tier={c.tier} locale={locale} withHelp />
           {c.status === "completed" ? <p className="notice"><Icon name="done" size={18} />{x.supportClosed}</p> : <p className="small">{x.supportIntro}</p>}
@@ -114,14 +114,14 @@ export default async function FundraiserPage({ params }: P) {
               <div className="org-card">
                 <div className="who">
                   <Avatar name={who} path={c.owner.avatar_path} size={56} />
-                  <div><strong>{who}</strong>{since && <p className="small muted">{x.memberSince} {fmtDate(since, locale)}</p>}</div>
+                  <div><strong>{who}</strong>{since && <p className="small muted">{x.memberSince} {fmtDate(since, locale, viewer?.profile.date_style ?? "long")}</p>}</div>
                   <section id="updates" className="f-section" aria-labelledby="updates-h">
             <h2 id="updates-h">{x.tabs.updates}</h2>
             {updates.length ? (
               <ol className="timeline">
                 {updates.map((u) => (
                   <li key={u.id}>
-                    <time dateTime={u.created_at}>{fmtDate(u.created_at, locale)}{u.author?.display_name ? `, ${u.author.display_name}` : ""}</time>
+                    <time dateTime={u.created_at}>{fmtDate(u.created_at, locale, viewer?.profile.date_style ?? "long")}{u.author?.display_name ? `, ${u.author.display_name}` : ""}</time>
                     {u.body.split(/\n{2,}/).map((para, i) => <p key={i}>{para}</p>)}
                     {u.proof.length > 0 && (
                       <div className="gallery" aria-label={d.campaign.proof}>
