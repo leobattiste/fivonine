@@ -12,6 +12,13 @@ import { normalizeMethods, type FormState } from "@/lib/form";
 import type { Category } from "@/lib/types";
 export type { FormState };
 
+const WIZARD: Record<Locale, { steps: string[]; back: string; next: string; progress: string; section: string }> = {
+  en: { steps: ["Basics", "Your story", "Photos & media", "How to help", "Verification", "Review & submit"], back: "Back", next: "Continue", progress: "Step", section: "Fundraiser steps" },
+  fr: { steps: ["Informations", "Votre histoire", "Photos et médias", "Moyens d’aide", "Vérification", "Vérifier et envoyer"], back: "Retour", next: "Continuer", progress: "Étape", section: "Étapes de la collecte" },
+  ht: { steps: ["Enfòmasyon", "Istwa ou", "Foto ak medya", "Kijan pou ede", "Verifikasyon", "Revize epi voye"], back: "Retounen", next: "Kontinye", progress: "Etap", section: "Etap kanpay la" },
+  es: { steps: ["Datos básicos", "Tu historia", "Fotos y medios", "Cómo ayudar", "Verificación", "Revisar y enviar"], back: "Atrás", next: "Continuar", progress: "Paso", section: "Pasos de la campaña" },
+};
+
 const LINK = /^https:\/\/[^\s]+$/;
 const plain = (html: string) => html.replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim();
 const time = (locale: Locale) => new Intl.DateTimeFormat(locale, { hour: "numeric", minute: "2-digit" }).format(new Date());
@@ -20,6 +27,8 @@ const time = (locale: Locale) => new Intl.DateTimeFormat(locale, { hour: "numeri
 export default function CampaignForm({ locale, cats, initial, draftKey, live, email }: { locale: Locale; cats: Category[]; initial: FormState; draftKey: string | null; live: boolean; email?: string }) {
   const d = t(locale), c = d.create, x = d.x.form, k = x.compose;
   const [f, setF] = useState<FormState>(initial);
+  const [activeStep, setActiveStep] = useState(0);
+  const wizard = WIZARD[locale];
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState<string | null>(null);
   const [upErr, setUpErr] = useState<string | null>(null);
@@ -88,10 +97,21 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
   ];
   const doneCount = items.filter(([, , ok]) => ok).length;
 
+  const stepOf = (section: string) =>
+    ["title", "category", "location"].includes(section) ? 0 :
+    section === "story" ? 1 : ["cover", "media"].includes(section) ? 2 :
+    ["goal", "receive"].includes(section) ? 3 : section === "verify" ? 4 : 5;
+  const navigateStep = (n: number) => {
+    setActiveStep(Math.max(0, Math.min(5, n)));
+    requestAnimationFrame(() => document.getElementById("wizard-top")?.scrollIntoView({ behavior: "smooth", block: "start" }));
+  };
   const jump = (section: string) => {
-    const el = document.getElementById(`s-${section}`);
-    el?.scrollIntoView({ behavior: "smooth", block: "start" });
-    requestAnimationFrame(() => el?.querySelector<HTMLElement>("input:not([type=file]):not([type=radio]), select, textarea, button, [contenteditable=true]")?.focus({ preventScroll: true }));
+    setActiveStep(stepOf(section));
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      const el = document.getElementById(`s-${section}`);
+      el?.scrollIntoView({ behavior: "smooth", block: "start" });
+      el?.querySelector<HTMLElement>("input:not([type=file]):not([type=radio]), select, textarea, button, [contenteditable=true]")?.focus({ preventScroll: true });
+    }));
   };
 
   async function run<T>(key: string, job: () => Promise<T>): Promise<T | null> {
@@ -184,6 +204,19 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
       <input type="hidden" name="locale" value={locale} />
       <input type="hidden" name="payload" value={payload} />
 
+      <div id="wizard-top" className="wizard-head">
+        <div className="wizard-intro">
+          <p className="eyebrow">{wizard.progress} {activeStep + 1} / {wizard.steps.length}</p>
+          <h2>{wizard.steps[activeStep]}</h2>
+          <span className="small muted">{k.side.ready(doneCount, items.length)}</span>
+        </div>
+        <nav aria-label={wizard.section} className="wizard-nav">
+          <ol>{wizard.steps.map((label, i) => (
+            <li key={label}><button type="button" aria-current={activeStep === i ? "step" : undefined} onClick={() => navigateStep(i)}><span className="wizard-number">{i + 1}</span><span className="wizard-label">{label}</span></button></li>
+          ))}</ol>
+        </nav>
+      </div>
+
       <div className="compose-bar" role="status">
         <span className="step-progress" aria-hidden="true"><span style={{ width: `${(doneCount / items.length) * 100}%` }} /></span>
         <span className="small"><strong>{k.side.ready(doneCount, items.length)}</strong></span>
@@ -195,7 +228,7 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
         {restored && <p className="notice"><Icon name="undo" size={18} /><span>{x.restored} <button type="button" className="link" onClick={() => { setF(initial); setRestored(false); if (draftKey) localStorage.removeItem(draftKey); }}>{x.startOver}</button></span></p>}
         {upErr && <p className="notice err" role="alert"><Icon name="alert" size={18} />{upErr}</p>}
 
-        <section id="s-title" className="part">
+        <section id="s-title" className="part" hidden={activeStep !== 0}>
           <header><h2>{k.title.label}</h2><p className="muted">{k.title.hint}</p></header>
           <label className="field"><span className="sr">{k.title.label}</span>
             <input className="input big" value={f.title} maxLength={120} placeholder={k.title.ph} onChange={(e) => set("title", e.target.value)} {...inv("title")} />
@@ -203,7 +236,7 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
           </label>
         </section>
 
-        <section id="s-category" className="part">
+        <section id="s-category" className="part" hidden={activeStep !== 0}>
           <header><h2>{k.category.label}</h2><p className="muted">{k.category.hint}</p></header>
           <fieldset className="field" {...(errors.cause ? { "aria-describedby": "e-cause" } : {})}>
             <legend className="sr">{k.category.label}</legend>
@@ -214,7 +247,7 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
           </fieldset>
         </section>
 
-        <section id="s-cover" className="part">
+        <section id="s-cover" className="part" hidden={activeStep !== 2}>
           <header><h2>{k.cover.label}</h2><p className="muted">{k.cover.hint}</p></header>
           <div className="field">
             {cropFile ? (
@@ -239,7 +272,7 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
           </div>
         </section>
 
-        <section id="s-story" className="part">
+        <section id="s-story" className="part" hidden={activeStep !== 1}>
           <header><h2>{k.story.label}</h2><p className="muted" id="story-hint">{k.story.hint}</p></header>
           <div className="field">
             <label htmlFor="story-editor" className="sr">{k.story.label}</label>
@@ -262,7 +295,7 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
           </label>
         </section>
 
-        <section id="s-location" className="part">
+        <section id="s-location" className="part" hidden={activeStep !== 0}>
           <header><h2>{k.location.label}</h2><p className="muted">{k.location.hint}</p></header>
           <div className="cols-2">
             <label className="field"><span>{c.department}</span>
@@ -275,7 +308,7 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
           </div>
         </section>
 
-        <section id="s-media" className="part">
+        <section id="s-media" className="part" hidden={activeStep !== 2}>
           <header><h2>{k.media.label}{opt}</h2><p className="muted">{k.media.hint}</p></header>
           <div className="field"><span>{k.media.photos}</span>
             {f.gallery.length > 0 && (
@@ -295,6 +328,11 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
             )}
           </div>
           <label className="field"><span>{k.media.video}</span><input className="input" type="url" placeholder="https://" value={f.video_url} maxLength={300} onChange={(e) => set("video_url", e.target.value)} /><small>{c.videoHint}</small></label>
+
+        </section>
+
+        <section id="s-verify" className="part" hidden={activeStep !== 4}>
+          <header><h2>{k.media.documents}</h2><p className="muted">{k.media.documentsHint}</p></header>
           <div className="field"><span>{k.media.documents}</span>
             <small>{k.media.documentsHint}</small>
             {f.priv.documents.length > 0 && <p className="small"><Icon name="done" size={16} /> {f.priv.documents.length} {c.uploaded.toLowerCase()} <button type="button" className="link" onClick={() => setPriv("documents", [])}>{d.common.remove}</button></p>}
@@ -305,7 +343,7 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
           </div>
         </section>
 
-        <section id="s-goal" className="part">
+        <section id="s-goal" className="part" hidden={activeStep !== 3}>
           <header><h2>{k.goal.label}{opt}</h2><p className="muted">{k.goal.hint}</p></header>
           <label className="field narrow"><span className="sr">{k.goal.label}</span>
             <span className="joined">
@@ -315,7 +353,7 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
           </label>
         </section>
 
-        <section id="s-receive" className="part">
+        <section id="s-receive" className="part" hidden={activeStep !== 3}>
           <header><h2>{k.receive.label}</h2><p className="muted">{k.receive.hint}</p></header>
           <p className="notice"><Icon name="eye" size={18} />{c.methodsWarn}</p>
           {err("methods")}
@@ -343,7 +381,7 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
           </div>
         </section>
 
-        <section id="s-submit" className="part submit-part">
+        <section id="s-submit" className="part submit-part" hidden={activeStep !== 5}>
           <header><h2>{live ? x.submitChanges : k.submit.label}</h2><p className="muted">{live ? k.submit.changesHint : k.submit.hint}</p></header>
           <div className="only-compact stack tight"><p className="eyebrow">{k.side.preview}</p>{card}</div>
           {!live && (
@@ -369,6 +407,10 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
           </div>
           <div className="stack tight">{saveState}</div>
         </section>
+        <div className="wizard-actions">
+          {activeStep > 0 && <button type="button" className="btn" onClick={() => navigateStep(activeStep - 1)}><Icon name="left" size={18} />{wizard.back}</button>}
+          {activeStep < wizard.steps.length - 1 && <button type="button" className="btn primary" onClick={() => navigateStep(activeStep + 1)}>{wizard.next}<Icon name="right" size={18} /></button>}
+        </div>
       </div>
 
       <aside className="compose-side" aria-label={k.side.preview}>
