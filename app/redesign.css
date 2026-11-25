@@ -311,3 +311,14 @@ a.stat-tile:hover { background: var(--sage); border-color: var(--green); }
   .wrap { max-width: none; }
   .page { padding: 0; }
 }
+
+/* Private organizer verification: information stays outside public campaign views. */
+.verify-grid { display: grid; grid-template-columns: repeat(1, minmax(0, 1fr)); gap: 14px; }
+.private-upload { padding: 18px; border: 1px solid var(--sage); border-radius: 12px; min-width: 0; }
+.private-upload .upload-zone { min-height: 112px; margin-top: 6px; }
+.private-upload-status { min-height: 70px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; font-size: var(--t-sm); }
+.private-upload-status .icon { color: var(--green); }
+.urgency-check { align-self: end; padding: 14px 16px; border: 1px solid var(--sage); border-radius: 12px; min-height: var(--ctl); }
+.urgency-check span { display: flex; flex-direction: column; gap: 3px; }
+.urgency-check small { display: block; font-size: .8rem; line-height: 1.5; font-weight: 400; }
+@media (min-width: 750px) { .verify-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
