@@ -752,6 +752,13 @@ textarea.input { border-radius: var(--r); padding: 14px 18px; }
 .fcard .amount { font-weight: 700; white-space: nowrap; }
 .fcard .amount .muted { font-weight: 500; }
 
+/* Explore/Donate listing: square photos, title and plain-text category/location only. */
+.fcard.fcard-simple { gap: 12px; }
+.fcard.fcard-simple .frame { aspect-ratio: 1 / 1; border-radius: 0; }
+.fcard.fcard-simple .fcard-details { display: grid; gap: 6px; }
+.fcard.fcard-simple .fcard-meta { font-size: var(--t-sm); line-height: 1.45; color: var(--muted); }
+.fcard.fcard-simple h3 a::after { border-radius: 0; }
+
 /* Fundraiser page: title, place and date, photo, then how to support, then the rest. */
 .f-head { gap: 12px; }
 .f-grid > .support { order: -1; }

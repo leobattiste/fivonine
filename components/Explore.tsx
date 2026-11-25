@@ -9,7 +9,7 @@ export type ExploreOptions = { causes: Opt[]; places: Opt[] };
 const KEYS = ["q", "cause", "place", "status", "sort"] as const;
 
 /** Filters apply as soon as they change; results dim while the next set loads. */
-export default function ExploreShell({ locale, options, total, children }: { locale: Locale; options: ExploreOptions; total: number; children: React.ReactNode }) {
+export default function ExploreShell({ locale, options, children }: { locale: Locale; options: ExploreOptions; children: React.ReactNode }) {
   const x = t(locale).x.explore, n = t(locale).x.nav;
   const router = useRouter(), path = usePathname(), sp = useSearchParams();
   const [busy, start] = useTransition();
@@ -50,10 +50,7 @@ export default function ExploreShell({ locale, options, total, children }: { loc
         </div>
       </div>
 
-      <div className="results-line" aria-live="polite">
-        <span><strong>{x.results(total)}</strong>{get("q") ? ` ${x.matching(get("q"))}` : ""}</span>
-        {busy && <span className="row tight"><Icon name="spinner" size={16} className="icon spin" />{x.searching}</span>}
-      </div>
+      {busy && <div className="results-line" role="status"><Icon name="spinner" size={16} className="icon spin" />{x.searching}</div>}
       {chips.length > 0 && (
         <div className="active-filters">
           {chips.map(([k, v]) => (
@@ -80,7 +77,7 @@ export default function ExploreShell({ locale, options, total, children }: { loc
         </div>
         <div className="drawer-foot">
           {chips.length > 0 && <button className="btn" onClick={() => start(() => router.replace(path, { scroll: false }))}>{x.clearAll}</button>}
-          <button className="btn primary grow" onClick={() => drawer.current?.close()}>{x.showResults} ({total})</button>
+          <button className="btn primary grow" onClick={() => drawer.current?.close()}>{x.showResults}</button>
         </div>
       </dialog>
     </>

@@ -30,7 +30,7 @@ export function Avatar({ name, path, size = 28 }: { name: string; path?: string 
     <span className="avatar" style={{ width: size, height: size, fontSize: size * 0.36 }} aria-hidden="true">{initials(name)}</span>
   );
 }
-export function Cover({ c, className = "", sizes = "(min-width: 900px) 33vw, 100vw", priority }: { c: Pick<Campaign, "cover_path" | "cause">; className?: string; sizes?: string; priority?: boolean }) {
+export function Cover({ c, className = "", sizes = "(min-width: 900px) 33vw, 100vw", priority, noIconFallback = false }: { c: Pick<Campaign, "cover_path" | "cause">; className?: string; sizes?: string; priority?: boolean; noIconFallback?: boolean }) {
   const url = mediaUrl(c.cover_path);
   return url ? (
     <div className={`frame ${className}`}>
@@ -38,11 +38,22 @@ export function Cover({ c, className = "", sizes = "(min-width: 900px) 33vw, 100
       <img src={url} alt="" sizes={sizes} loading={priority ? "eager" : "lazy"} decoding="async" />
     </div>
   ) : (
-    <div className={`frame empty ${className}`} aria-hidden="true"><Icon name={causeIcon[c.cause ?? "other"] ?? "hand"} size={44} /></div>
+    <div className={`frame empty ${className}`} aria-hidden="true">{!noIconFallback && <Icon name={causeIcon[c.cause ?? "other"] ?? "hand"} size={44} />}</div>
   );
 }
-export function FundraiserCard({ c, locale, cats, priority }: { c: Campaign; locale: Locale; cats: Category[]; priority?: boolean }) {
+export function FundraiserCard({ c, locale, cats, priority, simplified = false }: { c: Campaign; locale: Locale; cats: Category[]; priority?: boolean; simplified?: boolean }) {
   const d = t(locale), where = place(c), cause = causeName(cats, c.cause, locale);
+  if (simplified) {
+    return (
+      <article className="fcard fcard-simple">
+        <Cover c={c} priority={priority} noIconFallback />
+        <div className="fcard-details">
+          <h3><Link href={`/${locale}/campaigns/${c.slug}`}>{c.title}</Link></h3>
+          {(cause || where) && <p className="fcard-meta">{cause}{cause && where ? " · " : ""}{where}</p>}
+        </div>
+      </article>
+    );
+  }
   const amount = c.goal_amount ? fmtMoney(Number(c.goal_amount), c.goal_currency, locale) : null;
   return (
     <article className="fcard">

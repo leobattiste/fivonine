@@ -36,9 +36,9 @@ export default async function Explore({ params, searchParams }: { params: Promis
   return (
     <div className="wrap page" style={{ gap: 20 }}>
       <Suspense fallback={null}><RememberResults /></Suspense>
-      <ExploreShell locale={locale} options={options} total={total}>
+      <ExploreShell locale={locale} options={options}>
         {items.length ? (
-          <div className="grid-cards">{items.map((c, i) => <FundraiserCard key={c.id} c={c} locale={locale} cats={cats} priority={i < 3} />)}</div>
+          <div className="grid-cards">{items.map((c, i) => <FundraiserCard key={c.id} c={c} locale={locale} cats={cats} priority={i < 3} simplified />)}</div>
         ) : (
           <div className="empty">
             <span className="icon-box"><Icon name="empty" size={26} /></span>
