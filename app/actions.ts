@@ -121,6 +121,19 @@ export async function saveProfile(_: ActionResult, f: FormData): Promise<ActionR
     kind, org_name: kind === "organization" ? s(f, "org_name", 120) || null : null, org_type: kind === "organization" ? s(f, "org_type", 60) || null : null,
   };
   if (avatar && avatar.startsWith(`${user.id}/`)) patch.avatar_path = avatar;
+  if (f.get("profile_visibility") === "1") {
+    const publicProfile = f.get("public_profile") === "on";
+    if (!publicProfile) {
+      const { count, error: lookupError } = await sb.from("campaigns")
+        .select("id", { count: "exact", head: true })
+        .eq("owner_id", user.id).in("status", ["live", "completed"]);
+      if (lookupError) return fail(d.common.error);
+      if (count && count > 0) return fail(accountCopy(locale).cannotHide);
+    }
+    patch.public_profile = publicProfile;
+    patch.show_bio = f.get("show_bio") === "on";
+    patch.show_location = f.get("show_location") === "on";
+  }
   const { error } = await sb.from("profiles").update(patch).eq("id", user.id);
   if (error) return fail(d.common.error);
   revalidatePath(`/${locale}/dashboard`);
@@ -134,7 +147,20 @@ export async function saveAccountSettings(_: ActionResult, f: FormData): Promise
   const checked = (key: string) => f.get(key) === "on";
   let patch: Record<string, unknown>;
   let preferred: Locale = locale;
-  if (scope === "general") {
+  if (scope === "simple_language") {
+    const l = s(f, "display_locale");
+    preferred = isLocale(l) ? l : locale;
+    patch = { display_locale: preferred, locale: preferred };
+  } else if (scope === "simple_notifications") {
+    const bookmarked = checked("notify_bookmarks");
+    patch = {
+      email_notifications: checked("email_notifications"),
+      notify_fundraisers: true,
+      notify_bookmarks: bookmarked,
+      notify_reminders: bookmarked,
+      notify_marketing: false,
+    };
+  } else if (scope === "general") {
     const l = s(f, "display_locale"), email = s(f, "email_locale");
     preferred = isLocale(l) ? l : locale;
     patch = {
@@ -171,13 +197,14 @@ export async function saveAccountSettings(_: ActionResult, f: FormData): Promise
   } else return fail(d.common.error);
   const { error } = await sb.from("profiles").update(patch).eq("id", user.id);
   if (error) return fail(d.common.error);
-  if (scope === "general") {
+  if (scope === "general" || scope === "simple_language") {
     (await cookies()).set(LOCALE_COOKIE, preferred, {
       path: "/", sameSite: "lax", secure: process.env.NODE_ENV === "production", httpOnly: true, maxAge: 31536000,
     });
   }
   revalidatePath(`/${locale}`, "layout");
-  if (scope === "general" && preferred !== locale) redirect(`/${preferred}/dashboard?tab=settings`);
+  if ((scope === "general" || scope === "simple_language") && preferred !== locale)
+    redirect(`/${preferred}/dashboard?tab=settings`);
   return done(d.common.saved);
 }
 

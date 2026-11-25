@@ -44,11 +44,7 @@ export default async function Layout({ children, params }: { children: React.Rea
   const unread = viewer ? await unreadCount(viewer.id) : 0;
   const banner = settings.emergency.active ? settings.emergency[locale] || settings.emergency.fr : "";
   return (
-    <html lang={htmlLang[locale]}
-      data-large-text={viewer?.profile.large_text ? "true" : undefined}
-      data-high-contrast={viewer?.profile.high_contrast ? "true" : undefined}
-      data-reduce-motion={viewer?.profile.reduce_motion ? "true" : undefined}
-      suppressHydrationWarning>
+    <html lang={htmlLang[locale]} suppressHydrationWarning>
       <body>
         {banner && (
           <a className="emergency no-print" href={`/${locale}/explore?emergency=1`}>
