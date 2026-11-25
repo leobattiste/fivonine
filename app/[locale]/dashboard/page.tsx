@@ -76,11 +76,6 @@ async function Overview({ locale, viewerId, name }: { locale: Locale; viewerId: 
         <div className="stack tight"><h1>{x.hello(name.split(" ")[0])}</h1><p className="muted">{x.title}</p></div>
         <Link className="btn primary" href={L("/create")}><Icon name="plus" size={18} />{d.x.nav.share}</Link>
       </header>
-      {items.length > 0 && <div className="dash-stats">
-        {(["live", "pending", "draft", "needs_changes"] as const).map((status) => (
-          <div key={status} className="stat-tile"><span>{d.status[status]}</span><strong>{items.filter((item) => item.status === status).length}</strong></div>
-        ))}
-      </div>}
       {!items.length ? (
         <div className="empty">
           <span className="icon-box"><Icon name="hand" size={26} /></span>

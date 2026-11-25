@@ -48,12 +48,9 @@ export function FundraiserCard({ c, locale, cats, priority }: { c: Campaign; loc
     <article className="fcard">
       <div style={{ position: "relative" }}>
         <Cover c={c} priority={priority} />
-        {(c.status === "completed" || c.emergency) && <div className="badges">{c.status === "completed" && <span className="tag solid">{d.campaign.completed}</span>}{c.emergency && <span className="tag solid">{d.campaign.emergency}</span>}</div>}
+        {c.status === "completed" && <div className="badges"><span className="tag solid">{d.campaign.completed}</span></div>}
       </div>
-      <div className="card-credentials">
-        {cause && <p className="meta"><span>{cause}</span></p>}
-        <ReviewChecks tier={c.tier} locale={locale} />
-      </div>
+      {cause && <p className="meta"><span>{cause}</span></p>}
       <h3><Link href={`/${locale}/campaigns/${c.slug}`}>{c.title}</Link></h3>
       <p className="foot">
         <span className="where">{where && <><Icon name="pin" size={15} />{where}</>}</span>

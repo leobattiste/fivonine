@@ -14,7 +14,6 @@ export default function ExploreShell({ locale, options, total, children }: { loc
   const router = useRouter(), path = usePathname(), sp = useSearchParams();
   const [busy, start] = useTransition();
   const drawer = useRef<HTMLDialogElement>(null);
-  const searchInput = useRef<HTMLInputElement>(null);
   const get = (k: string) => sp.get(k) ?? "";
   const push = (patch: Record<string, string>) => {
     const next = new URLSearchParams(sp);
@@ -43,8 +42,7 @@ export default function ExploreShell({ locale, options, total, children }: { loc
           <form role="search" className="searchbar" onSubmit={(e) => { e.preventDefault(); if (timer.current) clearTimeout(timer.current); push({ q: String(new FormData(e.currentTarget).get("q") ?? "").trim() }); }}>
             <Icon name="search" />
             <label htmlFor="explore-q" className="sr">{n.searchLabel}</label>
-            <input ref={searchInput} key={get("q")} id="explore-q" name="q" type="search" defaultValue={get("q")} placeholder={n.searchHint} maxLength={60} enterKeyHint="search" onChange={(e) => live(e.target.value)} />
-            {get("q") && <button type="button" className="clear-search" aria-label={x.clearAll} onClick={() => { if (timer.current) clearTimeout(timer.current); if (searchInput.current) searchInput.current.value = ""; push({ q: "" }); }}><Icon name="close" size={16} /></button>}
+            <input key={get("q")} id="explore-q" name="q" type="search" defaultValue={get("q")} placeholder={n.searchHint} maxLength={60} enterKeyHint="search" onChange={(e) => live(e.target.value)} />
           </form>
           <button type="button" className="btn filter-btn" onClick={() => drawer.current?.showModal()} aria-haspopup="dialog">
             <Icon name="filter" size={18} /><span>{x.filters}</span>{active > 0 && <span className="count">{active}</span>}
@@ -52,11 +50,6 @@ export default function ExploreShell({ locale, options, total, children }: { loc
         </div>
       </div>
 
-      <nav className="discover-chips" aria-label={x.cause}>
-        <button className={`chip ${!get("cause") ? "on" : ""}`} type="button" aria-pressed={!get("cause")} onClick={() => push({ cause: "" })}>{x.anyCause}</button>
-        {options.causes.map(([slug, name]) => <button key={slug} type="button" className={`chip ${get("cause") === slug ? "on" : ""}`} aria-pressed={get("cause") === slug} onClick={() => push({ cause: get("cause") === slug ? "" : slug })}>{name}</button>)}
-        <button type="button" className={`chip ${get("emergency") === "1" ? "on" : ""}`} aria-pressed={get("emergency") === "1"} onClick={() => push({ emergency: get("emergency") === "1" ? "" : "1" })}>{t(locale).campaign.emergency}</button>
-      </nav>
       <div className="results-line" aria-live="polite">
         <span><strong>{x.results(total)}</strong>{get("q") ? ` ${x.matching(get("q"))}` : ""}</span>
         {busy && <span className="row tight"><Icon name="spinner" size={16} className="icon spin" />{x.searching}</span>}
