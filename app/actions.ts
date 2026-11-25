@@ -217,7 +217,9 @@ export async function deleteEmptyAccount(_: ActionResult, f: FormData): Promise<
   const { data: verified, error: checkError } = await check.auth.signInWithPassword({ email: user.email, password });
   if (checkError || verified.user?.id !== user.id) return fail("Password verification failed. You can still request deletion for review.");
   await check.auth.signOut({ scope: "local" });
-  const { data: deleted, error } = await sb.rpc("delete_my_empty_account");
+  const backend_secret = process.env.APP_BACKEND_SECRET;
+  if (!backend_secret) return fail("Automatic deletion is unavailable. Your request will be reviewed.");
+  const { data: deleted, error } = await sb.rpc("delete_my_empty_account", { backend_secret });
   if (error || deleted !== true) return fail("Your account has records that must be reviewed or retained. Your deletion request remains pending.");
   await sb.auth.signOut({ scope: "local" });
   redirect(`/${locale}`);
