@@ -4,7 +4,7 @@ import Icon from "./Icon";
 import Cropper from "./Cropper";
 import StoryEditor from "./StoryEditor";
 import { saveCampaign } from "@/app/actions";
-import { DEPARTMENTS, METHODS, type MethodGroup } from "@/lib/constants";
+import { DEPARTMENTS, METHODS, RELATIONS, type MethodGroup } from "@/lib/constants";
 import { storyLanguages, t, type Locale } from "@/lib/i18n";
 import { uploadBlob, uploadImage, type Crop } from "@/lib/upload";
 import { fmtMoney, mediaUrl } from "@/lib/format";
@@ -23,7 +23,7 @@ const LINK = /^https:\/\/[^\s]+$/;
 const plain = (html: string) => html.replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim();
 const time = (locale: Locale) => new Intl.DateTimeFormat(locale, { hour: "numeric", minute: "2-digit" }).format(new Date());
 
-/** One page, in the order a supporter reads it: title, category, photo, story, place, media, goal, how to help. */
+/** Six guided steps. Draft, validation, private fields and payment methods use the existing server action. */
 export default function CampaignForm({ locale, cats, initial, draftKey, live, email }: { locale: Locale; cats: Category[]; initial: FormState; draftKey: string | null; live: boolean; email?: string }) {
   const d = t(locale), c = d.create, x = d.x.form, k = x.compose;
   const [f, setF] = useState<FormState>(initial);
@@ -136,6 +136,11 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
     const path = await run("documents", () => uploadImage("documents", file, { max: 2000 }));
     if (path) setF((p) => ({ ...p, priv: { ...p.priv, documents: [...p.priv.documents, path].slice(0, 8) } }));
   }
+  async function addPrivateImage(key: "id_front_path" | "id_back_path" | "selfie_path", file?: File) {
+    if (!file) return;
+    const path = await run(key, () => uploadImage("documents", file, { max: 2000 }));
+    if (path) setPriv(key, path);
+  }
   async function toggleRecord() {
     if (recording) { recorder.current?.stop(); return; }
     try {
@@ -234,6 +239,17 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
             <input className="input big" value={f.title} maxLength={120} placeholder={k.title.ph} onChange={(e) => set("title", e.target.value)} {...inv("title")} />
             <small>{f.title.length}/120</small>{err("title")}
           </label>
+          <div className="cols-2">
+            <label className="field"><span>{c.beneficiary}{opt}</span>
+              <input className="input" maxLength={120} value={f.beneficiary_name} onChange={(e) => set("beneficiary_name", e.target.value)} placeholder={x.ex.beneficiary} />
+            </label>
+            <label className="field"><span>{c.relation}{opt}</span>
+              <select className="input" value={f.beneficiary_relation} onChange={(e) => set("beneficiary_relation", e.target.value)}>
+                <option value="">{c.choose}</option>
+                {RELATIONS.map((relation) => <option key={relation} value={relation}>{d.relations[relation]}</option>)}
+              </select>
+            </label>
+          </div>
         </section>
 
         <section id="s-category" className="part" hidden={activeStep !== 0}>
@@ -332,9 +348,42 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
         </section>
 
         <section id="s-verify" className="part" hidden={activeStep !== 4}>
-          <header><h2>{k.media.documents}</h2><p className="muted">{k.media.documentsHint}</p></header>
-          <div className="field"><span>{k.media.documents}</span>
-            <small>{k.media.documentsHint}</small>
+          <header><h2>{c.s5}</h2><p className="muted">{c.privateNote}</p></header>
+          <p className="notice"><Icon name="lock" size={18} />{c.privateNote}</p>
+          <div className="cols-2">
+            <label className="field"><span>{c.contactName}{opt}</span><input className="input" value={f.priv.contact_name} maxLength={120} autoComplete="name" onChange={(e) => setPriv("contact_name", e.target.value)} /></label>
+            <label className="field"><span>{c.contactEmail}{opt}</span><input className="input" type="email" value={f.priv.contact_email} maxLength={254} autoComplete="email" onChange={(e) => setPriv("contact_email", e.target.value)} /></label>
+          </div>
+          <label className="field"><span>{c.contactDetails}{opt}</span><textarea className="input" rows={2} maxLength={600} placeholder={c.contactDetailsHint} value={f.priv.contact_details} onChange={(e) => setPriv("contact_details", e.target.value)} /></label>
+          <div className="verify-grid">
+            {([
+              ["id_front_path", c.idFront],
+              ["id_back_path", c.idBack],
+              ["selfie_path", c.selfie],
+            ] as const).map(([key, label]) => (
+              <div key={key} className="private-upload field">
+                <span>{label}{opt}</span>
+                {f.priv[key] ? (
+                  <div className="private-upload-status">
+                    <span className="row tight"><Icon name="done" size={18} />{c.uploaded}</span>
+                    <button type="button" className="btn small quiet" onClick={() => setPriv(key, null)}>{d.common.remove}</button>
+                  </div>
+                ) : (
+                  <label className="upload-zone small">
+                    <input type="file" accept="image/jpeg,image/png,image/webp" disabled={busy !== null} onChange={(e) => { addPrivateImage(key, e.target.files?.[0]); e.target.value = ""; }} />
+                    <Icon name={busy === key ? "spinner" : "camera"} size={21} />
+                    <span>{busy === key ? c.uploading : c.addPhoto}</span>
+                  </label>
+                )}
+              </div>
+            ))}
+          </div>
+          <div className="cols-2">
+            <label className="field"><span>{c.referenceName}{opt}</span><input className="input" maxLength={120} value={f.priv.reference_name} onChange={(e) => setPriv("reference_name", e.target.value)} /></label>
+            <label className="field"><span>{c.referenceContact}{opt}</span><input className="input" maxLength={200} value={f.priv.reference_contact} onChange={(e) => setPriv("reference_contact", e.target.value)} /></label>
+          </div>
+          <div className="field"><span>{c.documents}{opt}</span>
+            <small>{c.documentsHint}</small>
             {f.priv.documents.length > 0 && <p className="small"><Icon name="done" size={16} /> {f.priv.documents.length} {c.uploaded.toLowerCase()} <button type="button" className="link" onClick={() => setPriv("documents", [])}>{d.common.remove}</button></p>}
             {f.priv.documents.length < 8 && (
               <label className="upload-zone small"><input type="file" accept="image/*,application/pdf" disabled={busy !== null} onChange={(e) => { addDocument(e.target.files?.[0]); e.target.value = ""; }} />
@@ -342,6 +391,7 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
             )}
           </div>
         </section>
+
 
         <section id="s-goal" className="part" hidden={activeStep !== 3}>
           <header><h2>{k.goal.label}{opt}</h2><p className="muted">{k.goal.hint}</p></header>
@@ -351,6 +401,10 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
               <select className="input" aria-label={d.support.currency} value={f.goal_currency} onChange={(e) => set("goal_currency", e.target.value)}><option>HTG</option><option>USD</option></select>
             </span>
           </label>
+          <div className="cols-2">
+            <label className="field"><span>{c.deadline}{opt}</span><input className="input" type="date" value={f.deadline} onChange={(e) => set("deadline", e.target.value)} /></label>
+            <label className="check urgency-check"><input type="checkbox" checked={f.urgent} onChange={(e) => set("urgent", e.target.checked)} /><span><strong>{c.urgent}</strong><small>{c.urgentHint}</small></span></label>
+          </div>
         </section>
 
         <section id="s-receive" className="part" hidden={activeStep !== 3}>
