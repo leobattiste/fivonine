@@ -208,11 +208,12 @@ a.chip:hover, button.chip:hover { border-color: var(--green); }
 dialog { border: 0; border-radius: var(--r); padding: 0; color: var(--ink); background: var(--white); max-width: none; max-height: none; }
 dialog:not([open]) { display: none !important; }
 dialog::backdrop { background: rgba(31, 80, 59, .45); }
-.drawer { border-radius: var(--r) 0 0 var(--r); overflow: hidden; position: fixed; inset: 0 0 0 auto; width: min(420px, 100vw); height: 100dvh; margin: 0; display: flex; flex-direction: column; }
-.drawer[open] { animation: slide var(--med) var(--ease); }
-@keyframes slide { from { transform: translateX(24px); opacity: 0; } }
-.drawer-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px var(--gutter); }
-.drawer-body { flex: 1; overflow-y: auto; padding: 4px var(--gutter) 24px; display: flex; flex-direction: column; gap: 22px; }
+/* Mobile menu covers the full viewport, not a side drawer. */
+.drawer { border-radius: 0; overflow: hidden; position: fixed; inset: 0; width: 100vw; max-width: none; height: 100dvh; max-height: 100dvh; margin: 0; display: flex; flex-direction: column; background: var(--white); }
+.drawer[open] { animation: menu-enter var(--med) var(--ease); }
+@keyframes menu-enter { from { transform: translateY(-8px); opacity: 0; } }
+.drawer-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 76px; padding: max(16px, env(safe-area-inset-top)) var(--gutter) 12px; }
+.drawer-body { flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 16px var(--gutter) calc(24px + env(safe-area-inset-bottom)); display: flex; flex-direction: column; gap: 22px; }
 .drawer-foot { padding: 14px var(--gutter) calc(14px + env(safe-area-inset-bottom)); display: flex; gap: 10px; background: var(--mint); }
 .drawer-nav a { display: flex; align-items: center; justify-content: space-between; min-height: 56px; font-size: var(--t-xl); font-weight: 600; letter-spacing: -0.02em; text-decoration: none; }
 .drawer-nav a[aria-current="page"] { text-decoration: underline; text-underline-offset: 6px; }
