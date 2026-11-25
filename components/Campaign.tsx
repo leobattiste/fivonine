@@ -36,6 +36,8 @@ const pexelsDemoCredits: Record<string, string> = {
   "27176065": "Helena Lopes",
   "8942700": "Mikhail Nilov",
   "5125690": "Roger Brown",
+  "5905446": "Katerina Holmes",
+  "3030281": "K",
 };
 export function Cover({ c, className = "", sizes = "(min-width: 900px) 33vw, 100vw", priority, noIconFallback = false }: { c: Pick<Campaign, "cover_path" | "cause">; className?: string; sizes?: string; priority?: boolean; noIconFallback?: boolean }) {
   const url = mediaUrl(c.cover_path);
