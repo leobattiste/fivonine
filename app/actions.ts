@@ -2,8 +2,11 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { after } from "next/server";
+import { cookies } from "next/headers";
+import { createClient } from "@supabase/supabase-js";
+import { SUPABASE_KEY, SUPABASE_URL } from "@/lib/supabase/config";
 import { db } from "@/lib/supabase/server";
-import { isLocale, t, type Locale } from "@/lib/i18n";
+import { isLocale, t, LOCALE_COOKIE, type Locale } from "@/lib/i18n";
 import { profileReady, safeNext } from "@/lib/auth";
 import { cleanStory, storyText } from "@/lib/story";
 import { drainOutbox } from "@/lib/email";
@@ -26,7 +29,11 @@ async function ctx(f: FormData) {
   const locale = L(f), d = t(locale), sb = await db();
   const auth = sb ? await sb.auth.getUser() : null;
   if (auth?.error && !isMissingSession(auth.error)) throw new Error("Authentication is temporarily unavailable. Please try again.");
-  const user = auth?.data.user ?? null;
+  let user = auth?.data.user ?? null;
+  if (sb && user) {
+    const { data: assurance } = await sb.auth.mfa.getAuthenticatorAssuranceLevel();
+    if (assurance?.nextLevel === "aal2" && assurance.currentLevel !== "aal2") user = null;
+  }
   return { locale, d, sb, user };
 }
 async function origin() {
@@ -122,14 +129,98 @@ export async function saveProfile(_: ActionResult, f: FormData): Promise<ActionR
 export async function saveAccountSettings(_: ActionResult, f: FormData): Promise<ActionResult> {
   const { locale, d, sb, user } = await ctx(f);
   if (!sb || !user) return fail(d.common.signInFirst);
-  const emailLocale = s(f, "email_locale");
-  const { error } = await sb.from("profiles").update({
-    locale: isLocale(emailLocale) ? emailLocale : locale,
-    email_notifications: f.get("email_notifications") === "on",
-  }).eq("id", user.id);
+  const scope = s(f, "scope", 30);
+  const checked = (key: string) => f.get(key) === "on";
+  let patch: Record<string, unknown>;
+  let preferred: Locale = locale;
+  if (scope === "general") {
+    const l = s(f, "display_locale"), email = s(f, "email_locale");
+    preferred = isLocale(l) ? l : locale;
+    patch = {
+      display_locale: preferred,
+      locale: isLocale(email) ? email : locale,
+      date_style: s(f, "date_style") === "short" ? "short" : "long",
+      currency_style: s(f, "currency_style") === "symbol" ? "symbol" : "code",
+      reduce_motion: checked("reduce_motion"),
+      large_text: checked("large_text"),
+      high_contrast: checked("high_contrast"),
+    };
+  } else if (scope === "notifications") {
+    patch = {
+      email_notifications: checked("email_notifications"),
+      notify_fundraisers: checked("notify_fundraisers"),
+      notify_bookmarks: checked("notify_bookmarks"),
+      notify_reminders: checked("notify_reminders"),
+      notify_marketing: checked("notify_marketing"),
+    };
+  } else if (scope === "privacy") {
+    patch = {
+      public_profile: checked("public_profile"),
+      show_bio: checked("show_bio"),
+      show_location: checked("show_location"),
+      default_anonymous: checked("default_anonymous"),
+    };
+  } else return fail(d.common.error);
+  const { error } = await sb.from("profiles").update(patch).eq("id", user.id);
   if (error) return fail(d.common.error);
-  revalidatePath(`/${locale}/dashboard`);
+  if (scope === "general") {
+    (await cookies()).set(LOCALE_COOKIE, preferred, {
+      path: "/", sameSite: "lax", secure: process.env.NODE_ENV === "production", httpOnly: true, maxAge: 31536000,
+    });
+  }
+  revalidatePath(`/${locale}`, "layout");
+  if (scope === "general" && preferred !== locale) redirect(`/${preferred}/dashboard?tab=settings`);
   return done(d.common.saved);
+}
+
+export async function changeAccountEmail(_: ActionResult, f: FormData): Promise<ActionResult> {
+  const { locale, d, sb, user } = await ctx(f);
+  if (!sb || !user) return fail(d.common.signInFirst);
+  const email = s(f, "new_email", 254).toLowerCase();
+  if (!EMAIL.test(email) || email === user.email?.toLowerCase()) return fail(d.auth.invalid);
+  const { error } = await sb.auth.updateUser({
+    email,
+  }, { emailRedirectTo: `${SITE_URL}/${locale}/auth/callback?next=${encodeURIComponent(`/${locale}/dashboard?tab=settings`)}` });
+  return error ? fail(d.common.error) : done("Confirmation email requested. Confirm the change using the messages sent to your email address(es).");
+}
+
+export async function signOutOtherSessions(_: ActionResult, f: FormData): Promise<ActionResult> {
+  const { d, sb, user } = await ctx(f);
+  if (!sb || !user) return fail(d.common.signInFirst);
+  const { error } = await sb.auth.signOut({ scope: "others" });
+  return error ? fail(d.common.error) : done("Other sessions have been signed out. Active access tokens may remain valid until expiry.");
+}
+
+export async function requestAccountDeletion(_: ActionResult, f: FormData): Promise<ActionResult> {
+  const { d, sb, user } = await ctx(f);
+  if (!sb || !user) return fail(d.common.signInFirst);
+  if (s(f, "confirm") !== "DELETE") return fail("Type DELETE to confirm your request.");
+  const { data: existing, error: lookupError } = await sb.from("account_deletion_requests").select("status").eq("user_id", user.id).maybeSingle();
+  if (lookupError) return fail(d.common.error);
+  if (!existing) {
+    const { error } = await sb.from("account_deletion_requests").insert({ user_id: user.id, status: "pending" });
+    if (error) return fail(d.common.error);
+  }
+  return done("Deletion requested. Identity and retention requirements will be reviewed before any data is removed.");
+}
+
+export async function deleteEmptyAccount(_: ActionResult, f: FormData): Promise<ActionResult> {
+  const { locale, d, sb, user } = await ctx(f);
+  if (!sb || !user || !user.email) return fail(d.common.signInFirst);
+  if (s(f, "confirm") !== "DELETE") return fail("Type DELETE to confirm permanent deletion.");
+  const password = String(f.get("password") ?? "");
+  if (!password) return fail("Enter your current password to verify your identity.");
+  // Verify credentials using an isolated, cookie-free client; never record the password.
+  const check = createClient(SUPABASE_URL, SUPABASE_KEY, {
+    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
+  });
+  const { data: verified, error: checkError } = await check.auth.signInWithPassword({ email: user.email, password });
+  if (checkError || verified.user?.id !== user.id) return fail("Password verification failed. You can still request deletion for review.");
+  await check.auth.signOut({ scope: "local" });
+  const { data: deleted, error } = await sb.rpc("delete_my_empty_account");
+  if (error || deleted !== true) return fail("Your account has records that must be reviewed or retained. Your deletion request remains pending.");
+  await sb.auth.signOut({ scope: "local" });
+  redirect(`/${locale}`);
 }
 
 /* ---------- Campaigns ---------- */

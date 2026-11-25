@@ -867,3 +867,31 @@ textarea.input { border-radius: var(--r); padding: 14px 18px; }
     box-shadow: none;
   }
 }
+
+/* Accessible appearance preferences saved per account. */
+html[data-large-text="true"] { font-size: 112.5%; }
+html[data-high-contrast="true"] {
+  --muted: #243b2f;
+  --line: #668a72;
+  --line-strong: #1f503b;
+  --sage: #718f78;
+}
+html[data-reduce-motion="true"] *, html[data-reduce-motion="true"] *::before,
+html[data-reduce-motion="true"] *::after {
+  animation-duration: 0.01ms !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* Account settings: touch-friendly, plain text controls on transparent sage panels. */
+.account-settings { width: 100%; max-width: 900px; }
+.settings-toggle { display: flex; align-items: center; justify-content: space-between; gap: 18px; cursor: pointer; min-height: 44px; }
+.settings-toggle > span { display: flex; flex-direction: column; gap: 4px; min-width: 0; font-size: var(--t-sm); }
+.settings-toggle small { line-height: 1.45; }
+.settings-toggle input { flex: none; width: 21px; height: 21px; accent-color: var(--green); cursor: pointer; }
+.settings-session-list { display: flex; flex-direction: column; gap: 0; }
+.settings-session-list > li { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 0; border-bottom: 1.5px solid var(--sage); overflow-wrap: anywhere; }
+.settings-session-list > li:last-child { border-bottom: 0; }
+.settings-session-list > li > div { min-width: 0; }
+.account-settings .divider { height: 1px; background: var(--sage); }
+.account-settings input[readonly] { font-size: var(--t-sm); cursor: text; }

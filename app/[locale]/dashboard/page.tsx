@@ -4,16 +4,16 @@ import { notFound } from "next/navigation";
 import Icon from "@/components/Icon";
 import ActionForm, { Submit } from "@/components/ActionForm";
 import DashNav from "@/components/DashNav";
-import AppealHistory from "@/components/AppealHistory";
-import AppealForm from "@/components/AppealForm";
+import AccountSettings from "@/components/AccountSettings";
 import { Cover, FundraiserCard, StatusPill } from "@/components/Campaign";
 import { AvatarInput } from "@/components/Uploads";
-import { changePassword, markNotificationsRead, saveProfile, saveAccountSettings, signOut } from "@/app/actions";
+import { markNotificationsRead, saveProfile } from "@/app/actions";
+import { db } from "@/lib/supabase/server";
 import { requireViewer } from "@/lib/auth";
-import { getCategories, getMyAppeals, myBookmarks, myCampaigns, myChanges, myNotifications, reviewNotes, unreadCount } from "@/lib/data";
+import { getCategories, myBookmarks, myCampaigns, myChanges, myNotifications, reviewNotes, unreadCount } from "@/lib/data";
 import { DEPARTMENTS } from "@/lib/constants";
 import { fmtDate } from "@/lib/format";
-import { isLocale, localeNames, locales, t, type Locale } from "@/lib/i18n";
+import { isLocale, t, type Locale } from "@/lib/i18n";
 import type { Campaign, Status } from "@/lib/types";
 export const metadata: Metadata = { robots: { index: false } };
 const TABS = ["profile", "campaigns", "saved", "notifications", "settings"] as const;
@@ -161,38 +161,21 @@ async function Profile({ locale, viewer }: { locale: Locale; viewer: Awaited<Ret
 }
 
 async function Settings({ locale, viewer }: { locale: Locale; viewer: Awaited<ReturnType<typeof requireViewer>> }) {
-  const d = t(locale), x = d.dash, p = viewer.profile, nav = d.x.nav;
-  const appeals = await getMyAppeals(viewer.id);
-  return (
-    <>
-      <h1>{nav.settings}</h1>
-      <div className="stack">
-        <ActionForm action={saveAccountSettings} locale={locale} className="panel">
-          <h2>{nav.preferences}</h2>
-          <label className="field"><span>{x.appLanguage}</span><select className="input" name="email_locale" defaultValue={p.locale}>{locales.map((l) => <option key={l} value={l}>{localeNames[l]}</option>)}</select></label>
-          <label className="check"><input type="checkbox" name="email_notifications" defaultChecked={p.email_notifications} /><span>{x.emailNotifications}</span></label>
-          <div><Submit>{d.common.save}</Submit></div>
-        </ActionForm>
-        <div className="panel">
-          <h2>{nav.security}</h2>
-          <div className="field"><span>{d.auth.email}</span><p className="muted">{viewer.email}</p></div>
-          <ActionForm action={changePassword} locale={locale} className="stack" reset>
-            <label className="field"><span>{x.newPassword}</span><input className="input" type="password" name="password" minLength={8} required autoComplete="new-password" /><small>{d.auth.passwordHint}</small></label>
-            <div><Submit className="btn">{x.changePassword}</Submit></div>
-          </ActionForm>
-        </div>
-        <section id="appeals" className="stack" aria-labelledby="appeals-title">
-          <AppealForm locale={locale} />
-          <AppealHistory locale={locale} items={appeals} />
-        </section>
-        <div className="row" style={{ justifyContent: "space-between" }}>
-          <Link className="btn" href={`/${locale}/contact`}>{nav.requestDeletion}</Link>
-          <form action={signOut}>
-            <input type="hidden" name="locale" value={locale} />
-            <button type="submit" className="btn"><Icon name="logout" size={18} />{nav.signOut}</button>
-          </form>
-        </div>
-      </div>
-    </>
-  );
+  const sb = await db();
+  if (!sb) return <h1>{t(locale).x.nav.settings}</h1>;
+  const [sessionResult, activityResult, deletionResult, authResult] = await Promise.all([
+    sb.rpc("my_active_sessions"),
+    sb.rpc("my_security_activity"),
+    sb.from("account_deletion_requests").select("status").eq("user_id", viewer.id).maybeSingle(),
+    sb.auth.getUser(),
+  ]);
+  return <AccountSettings
+    locale={locale}
+    profile={viewer.profile}
+    email={viewer.email}
+    verified={Boolean(authResult.data.user?.email_confirmed_at)}
+    sessions={(sessionResult.data ?? []) as {session_id:string;created_at:string;last_seen_at:string;device:string;is_current:boolean}[]}
+    activity={(activityResult.data ?? []) as {action:string;occurred_at:string}[]}
+    deletionRequested={Boolean(deletionResult.data)}
+  />;
 }

@@ -25,6 +25,12 @@ export const getViewer = cache(async (): Promise<Viewer | null> => {
 export async function requireViewer(locale: Locale, next: string) {
   const v = await getViewer();
   if (!v) redirect(`/${locale}/login?next=${encodeURIComponent(next)}`);
+  const sb = await db();
+  if (sb) {
+    const { data, error } = await sb.auth.mfa.getAuthenticatorAssuranceLevel();
+    if (!error && data?.nextLevel === "aal2" && data.currentLevel !== "aal2")
+      redirect(`/${locale}/auth/mfa?next=${encodeURIComponent(next)}`);
+  }
   return v;
 }
 export async function requireAdmin(locale: Locale) {

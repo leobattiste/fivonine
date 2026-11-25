@@ -9,13 +9,13 @@ type P = { params: Promise<{ locale: string; id: string }> };
 export async function generateMetadata({ params }: P): Promise<Metadata> {
   const { id } = await params;
   const p = await getProfile(id);
-  return p ? { title: p.kind === "organization" && p.org_name ? p.org_name : p.display_name } : {};
+  return p?.public_profile ? { title: p.kind === "organization" && p.org_name ? p.org_name : p.display_name } : {};
 }
 export default async function ProfilePage({ params }: P) {
   const { locale, id } = await params;
   if (!isLocale(locale)) notFound();
   const p = await getProfile(id);
-  if (!p || p.banned) notFound();
+  if (!p || p.banned || !p.public_profile) notFound();
   const d = t(locale);
   const [{ items }, cats] = await Promise.all([listCampaigns({ owner: p.id, status: "all", perPage: 24 }), getCategories(true)]);
   const name = p.kind === "organization" && p.org_name ? p.org_name : p.display_name;
@@ -28,10 +28,10 @@ export default async function ProfilePage({ params }: P) {
           <p className="f-meta">
             {p.org_verified && <span className="check-tag"><Icon name="badge" size={16} />{d.profile.verifiedOrg}</span>}
             {p.kind === "organization" && p.org_type && <span>{p.org_type}</span>}
-            {(p.city || p.department) && <span><Icon name="pin" size={16} />{[p.city, p.department].filter(Boolean).join(", ")}</span>}
+            {p.show_location && (p.city || p.department) && <span><Icon name="pin" size={16} />{[p.city, p.department].filter(Boolean).join(", ")}</span>}
             <span>{d.profile.joined} {fmtDate(p.created_at, locale)}</span>
           </p>
-          {p.bio && <p className="measure">{p.bio}</p>}
+          {p.show_bio && p.bio && <p className="measure">{p.bio}</p>}
         </div>
       </header>
       <section className="stack"><h2>{d.profile.campaigns}</h2>

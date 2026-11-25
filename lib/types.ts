@@ -4,6 +4,10 @@ export type Profile = {
   id: string; display_name: string; bio: string; avatar_path: string | null; department: string | null; city: string | null;
   kind: "individual" | "organization"; org_name: string | null; org_type: string | null; org_verified: boolean;
   role: "user" | "admin"; banned: boolean; locale: Locale; email_notifications: boolean; created_at: string;
+  display_locale: Locale; date_style: "long" | "short"; currency_style: "code" | "symbol";
+  reduce_motion: boolean; large_text: boolean; high_contrast: boolean;
+  notify_fundraisers: boolean; notify_bookmarks: boolean; notify_reminders: boolean; notify_marketing: boolean;
+  public_profile: boolean; show_bio: boolean; show_location: boolean; default_anonymous: boolean;
 };
 export type OwnerLite = Pick<Profile, "id" | "display_name" | "avatar_path" | "kind" | "org_name" | "org_verified">;
 export type Status = "draft" | "pending" | "needs_changes" | "live" | "completed" | "closed" | "rejected" | "suspended";

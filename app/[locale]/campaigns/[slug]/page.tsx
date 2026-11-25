@@ -78,7 +78,7 @@ export default async function FundraiserPage({ params }: P) {
           {c.status === "completed" ? <p className="notice"><Icon name="done" size={18} />{x.supportClosed}</p> : <p className="small">{x.supportIntro}</p>}
           {methods.length > 0 && c.status !== "completed" && <SupportMethods methods={methods} locale={locale} />}
           <p className="warn-line"><Icon name="shield" size={16} />{d.support.warning}</p>
-          {c.status === "live" && <SentForm c={c} methods={methods} locale={locale} viewerName={viewer?.profile.display_name ?? ""} signedIn={Boolean(viewer)} />}
+          {c.status === "live" && <SentForm c={c} methods={methods} locale={locale} viewerName={viewer?.profile.display_name ?? ""} signedIn={Boolean(viewer)} defaultAnonymous={viewer?.profile.default_anonymous ?? false} />}
           <ShareBar url={url} title={c.title} locale={locale} />
           <div className="support-tools">
             <form action={toggleBookmark}>

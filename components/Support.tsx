@@ -36,7 +36,7 @@ export function SupportMethods({ methods, locale, compact }: { methods: Pick<Sup
     </ul>
   );
 }
-export function SentForm({ c, methods, locale, viewerName, signedIn }: { c: Campaign; methods: SupportMethod[]; locale: Locale; viewerName: string; signedIn: boolean }) {
+export function SentForm({ c, methods, locale, viewerName, signedIn, defaultAnonymous = false }: { c: Campaign; methods: SupportMethod[]; locale: Locale; viewerName: string; signedIn: boolean; defaultAnonymous?: boolean }) {
   const d = t(locale);
   if (!signedIn)
     return <Link className="btn wide" href={`/${locale}/login?next=${encodeURIComponent(`/${locale}/campaigns/${c.slug}#support`)}`}><Icon name="check" size={18} />{d.support.sent}</Link>;
@@ -59,7 +59,7 @@ export function SentForm({ c, methods, locale, viewerName, signedIn }: { c: Camp
           </select>
         </label>
         <label className="field"><span>{d.support.name}</span><input className="input" name="display_name" defaultValue={viewerName} maxLength={80} /></label>
-        <label className="check"><input type="checkbox" name="anonymous" /><span>{d.support.hideName}</span></label>
+        <label className="check"><input type="checkbox" name="anonymous" defaultChecked={defaultAnonymous} /><span>{d.support.hideName}</span></label>
         <label className="field"><span>{d.support.message} <span className="opt">({d.common.optional})</span></span><textarea className="input" name="message" rows={2} maxLength={500} /></label>
         <Submit>{d.support.sent}</Submit>
       </ActionForm>
