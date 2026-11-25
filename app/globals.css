@@ -113,7 +113,7 @@ dl, dd, figure { margin: 0; }
 .eyebrow { font-size: var(--t-sm); color: var(--muted); font-weight: 400; }
 
 /* Wordmark and its mark */
-.wordmark { display: inline-flex; align-items: center; text-decoration: none; font: inherit; font-size: var(--t-md); font-weight: 400; line-height: 1.6; letter-spacing: normal; color: var(--ink); white-space: nowrap; }
+.wordmark { display: inline-flex; align-items: center; text-decoration: none; font-family: var(--font-ms-madi), cursive; font-weight: 400; font-style: normal; font-size: clamp(1.875rem, 2.2vw, 2.25rem); line-height: 1.15; letter-spacing: normal; color: var(--ink); white-space: nowrap; }
 .mark { width: 26px; height: 26px; flex: none; }
 
 /* Buttons: primary = solid deep green; secondary = transparent with sage border. */
