@@ -30,6 +30,7 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
             <button className="btn primary">{d.x.nav.go}</button>
           </form>
           <div className="row">
+            <Link className="btn primary" href={L("/explore")}>{h.seeAll}<Icon name="right" size={18} /></Link>
             <Link className="arrow-link" href={L("/create")}>{h.organizerCta}<Icon name="arrow" size={18} /></Link>
           </div>
         </div>
