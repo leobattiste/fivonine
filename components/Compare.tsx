@@ -9,7 +9,7 @@ export default function Compare({ c, methods, change, locale, cats }: { c: Campa
   const d = t(locale), y = d.x.dash, r = change.payload.row as Record<string, unknown>;
   const show = (k: string, v: unknown): React.ReactNode => {
     if (v === null || v === undefined || v === "" || (Array.isArray(v) && !v.length)) return <span className="muted">—</span>;
-    if (k === "cover_path") return <div className="frame" style={{ aspectRatio: "4/3", maxWidth: 200 }}>{/* eslint-disable-next-line @next/next/no-img-element */}<img src={mediaUrl(String(v)) ?? ""} alt="" /></div>;
+    if (k === "cover_path") return <div className="frame" style={{ aspectRatio: "1/1", maxWidth: 200 }}>{/* eslint-disable-next-line @next/next/no-img-element */}<img src={mediaUrl(String(v)) ?? ""} alt="" /></div>;
     if (k === "cause") return cats.find((x) => x.slug === v)?.[`name_${locale}`] ?? String(v);
     if (k === "goal_amount") return fmtMoney(Number(v), (r.goal_currency as "HTG" | "USD") ?? c.goal_currency, locale);
     if (k === "urgent") return v ? "✓" : "—";

@@ -77,7 +77,7 @@ const x: X = {
     ex: { beneficiary: "Exemple : Marie Joseph, ou les élèves de l'École Saint-Paul", commune: "Exemple : Cap-Haïtien", title: "Exemple : Aidez Marie à payer son opération au Cap-Haïtien", details: "Exemple : Bénéficiaire : Marie Joseph, Cap-Haïtien, Haïti" },
     err: {
       beneficiary: "Indiquez pour qui est la collecte.", cause: "Choisissez le type de besoin.", department: "Choisissez un département, ou Diaspora.",
-      title: "Écrivez un titre d'au moins 4 caractères.", story: "Écrivez au moins 40 caractères, ou enregistrez une note vocale.", cover: "Ajoutez une photo claire.",
+      title: "Écrivez un titre d'au moins 4 caractères.", story: "Écrivez au moins 40 caractères, ou enregistrez une note vocale.", cover: "Ajoutez une photo de couverture.",
       method: "Cochez au moins un moyen et écrivez ses détails.", details: "Écrivez les détails de ce moyen.", link: "Un lien doit commencer par https://",
       contactName: "Écrivez votre nom complet.", contactEmail: "Écrivez un e-mail où vous joindre.", id: "Ajoutez le recto de votre pièce d'identité et une photo de vous la tenant.",
       consent: "Cochez les trois confirmations.", fix: "Corrigez les champs signalés pour continuer.",
@@ -86,7 +86,7 @@ const x: X = {
       titleSub: "Une seule page, environ dix minutes. Vos réponses sont enregistrées au fur et à mesure.",
       title: { label: "Titre", hint: "Dites qui a besoin d'aide et pourquoi, en une ligne.", ph: "Aidez Marie à finir ses études d'infirmière" },
       category: { label: "Catégorie", hint: "Choisissez celle qui convient le mieux." },
-      cover: { label: "Photo de couverture", hint: "La première chose que les gens voient. Utilisez une photo claire et réelle, à vous. Importez-la, faites glisser pour recadrer et vérifiez l'aperçu.", demoReplace: "Cette photo Pexels de démonstration sert uniquement d’aperçu. Pour envoyer la collecte, importez une photo nette de la vraie personne, du lieu ou du projet, prise par vous ou partagée avec autorisation. Les photos de banque d’images ne sont pas acceptées.", preview: "Aperçu sur la carte" },
+      cover: { label: "Photo de couverture", hint: "Choisissez une image. Elle sera affichée au format carré.", demoReplace: "Photo de démonstration. Ajoutez votre propre photo avant de soumettre.", uploadError: "Impossible d’envoyer ou de vérifier votre photo. Réessayez.", preview: "Aperçu sur la carte" },
       story: { label: "Votre histoire", hint: "Que s'est-il passé, qui a besoin d'aide, et que couvrira le soutien ?", voice: "Vous préférez parler ? Ajoutez un message vocal", voiceHint: "Enregistrez jusqu'à 2 minutes. Les gens pourront l'écouter sur la page de votre collecte." },
       location: { label: "Lieu", hint: "Où se trouve la personne ou le projet." },
       media: { label: "Médias", hint: "Facultatif. Plus de photos et de documents aident notre équipe et les donateurs à faire confiance à l'histoire.", photos: "Plus de photos", video: "Lien vidéo", documents: "Documents", documentsHint: "Une facture, une lettre ou un devis. Seule notre équipe de vérification voit les documents." },

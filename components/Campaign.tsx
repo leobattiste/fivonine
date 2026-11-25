@@ -89,7 +89,7 @@ export function StatusPill({ status, locale }: { status: Campaign["status"]; loc
 export function CardSkeleton() {
   return (
     <div className="fcard" aria-hidden="true">
-      <div className="sk frame" style={{ aspectRatio: "4 / 3" }} />
+      <div className="sk frame" style={{ aspectRatio: "1 / 1" }} />
       <div className="sk sk-line" style={{ width: "40%" }} />
       <div className="sk sk-line" style={{ height: 22, width: "85%" }} />
       <div className="sk sk-line" style={{ width: "95%" }} />

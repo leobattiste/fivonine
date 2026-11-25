@@ -353,14 +353,14 @@ export async function saveCampaign(_: ActionResult, f: FormData): Promise<Action
     if (missing.length) return fail(`${d.create.missing} ${missing.join(", ")}`);
   }
   if (submit && !row.cover_path) return {
-    ok: false, message: `${d.create.missing} ${d.x.form.err.cover}`, field: "cover_path"
+    ok: false, message: d.x.form.err.cover, field: "cover_path"
   };
   if (submit && row.cover_path) {
     const name = row.cover_path.slice(user.id.length + 1);
     const { data: files, error: mediaError } = await sb.storage.from("media")
       .list(user.id, { search: name, limit: 10 });
     if (mediaError || !files?.some((file) => file.name === name)) return {
-      ok: false, message: `${d.create.missing} ${d.x.form.err.cover}`, field: "cover_path"
+      ok: false, message: d.x.form.compose.cover.uploadError, field: "cover_path"
     };
   }
   if (submit) {

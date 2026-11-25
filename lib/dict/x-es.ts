@@ -79,7 +79,7 @@ const x: X = {
     ex: { beneficiary: "Ejemplo: Marie Joseph o los alumnos de École Saint-Paul", commune: "Ejemplo: Cap-Haïtien", title: "Ejemplo: Ayuda a Marie a pagar una cirugía en Cap-Haïtien", details: "Ejemplo: Destinataria: Marie Joseph, Cap-Haïtien, Haití" },
     err: {
       beneficiary: "Indica a quién va dirigida la campaña.", cause: "Elige el tipo de necesidad.", department: "Elige un departamento o Diáspora.",
-      title: "Escribe un título de al menos 4 caracteres.", story: "Escribe al menos 40 caracteres o graba una nota de voz.", cover: "Añade una foto clara.",
+      title: "Escribe un título de al menos 4 caracteres.", story: "Escribe al menos 40 caracteres o graba una nota de voz.", cover: "Sube una foto de portada.",
       method: "Selecciona al menos un medio y completa sus datos.", details: "Completa los datos de esta opción.", link: "El enlace debe comenzar con https://",
       contactName: "Escribe tu nombre completo.", contactEmail: "Escribe un correo electrónico donde podamos contactarte.", id: "Añade el anverso de tu documento de identidad y una foto tuya sosteniéndolo.",
       consent: "Marca las tres confirmaciones.", fix: "Corrige los campos señalados para continuar.",
@@ -88,7 +88,7 @@ const x: X = {
       titleSub: "Una página, unos diez minutos. Tus respuestas se guardan mientras escribes.",
       title: { label: "Título", hint: "Explica en una línea quién necesita ayuda y por qué.", ph: "Ayuda a Marie a terminar sus estudios de enfermería" },
       category: { label: "Categoría", hint: "Elige la que mejor corresponda." },
-      cover: { label: "Foto de portada", hint: "Es lo primero que verá la gente. Usa una foto propia, real y clara. Súbela, arrástrala para recortarla y comprueba la vista previa.", demoReplace: "Esta foto de demostración de Pexels es solo para la vista previa. Para enviar la campaña, sube una foto clara de la persona, lugar o proyecto real, tomada por ti o compartida con permiso. No se aceptan fotos de archivo.", preview: "Vista previa de la tarjeta" },
+      cover: { label: "Foto de portada", hint: "Elige una imagen. Se mostrará en formato cuadrado.", demoReplace: "Foto de demostración. Sube tu propia foto antes de enviar.", uploadError: "No pudimos subir o verificar tu foto. Inténtalo de nuevo.", preview: "Vista previa de la tarjeta" },
       story: { label: "Tu historia", hint: "¿Qué pasó, quién necesita ayuda y qué cubrirá el apoyo?", voice: "¿Prefieres hablar? Añade una nota de voz", voiceHint: "Graba hasta 2 minutos. Las personas podrán escucharla en la página de tu campaña." },
       location: { label: "Ubicación", hint: "Dónde está la persona o el proyecto." },
       media: { label: "Fotos y documentos", hint: "Opcional. Más fotos y documentos ayudan a nuestro equipo y a quienes apoyan a confiar en la historia.", photos: "Más fotos", video: "Enlace del video", documents: "Documentos", documentsHint: "Una factura, una carta o un presupuesto. Solo nuestro equipo de revisión puede ver los documentos." },

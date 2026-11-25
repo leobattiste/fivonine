@@ -77,7 +77,7 @@ const x = {
     ex: { beneficiary: "Example: Marie Joseph, or the students of École Saint-Paul", commune: "Example: Cap-Haïtien", title: "Example: Help Marie pay for surgery in Cap-Haïtien", details: "Example: Receiver: Marie Joseph, Cap-Haïtien, Haiti" },
     err: {
       beneficiary: "Say who the fundraiser is for.", cause: "Choose the kind of need.", department: "Choose a department, or Diaspora.",
-      title: "Write a title of at least 4 characters.", story: "Write at least 40 characters, or record a voice note.", cover: "Add one clear photo.",
+      title: "Write a title of at least 4 characters.", story: "Write at least 40 characters, or record a voice note.", cover: "Upload a cover photo.",
       method: "Tick at least one way and write its details.", details: "Write the details for this option.", link: "A link must start with https://",
       contactName: "Write your full name.", contactEmail: "Write an email we can reach you at.", id: "Add the front of your ID and a photo of you holding it.",
       consent: "Tick all three confirmations.", fix: "Fix the highlighted fields to continue.",
@@ -86,7 +86,7 @@ const x = {
       titleSub: "One page, about ten minutes. Your answers are saved as you type.",
       title: { label: "Title", hint: "Say who needs help and why, in one line.", ph: "Help Marie finish nursing school" },
       category: { label: "Category", hint: "Pick the one that fits best." },
-      cover: { label: "Cover photo", hint: "The first thing people see. Use a clear, real photo of your own. Upload it, drag to crop, and check the preview.", demoReplace: "This Pexels demo photo is for preview only. To submit, upload a clear photo of the actual person, place, or project, taken by you or shared with permission. Stock photos cannot be submitted.", preview: "Preview on the card" },
+      cover: { label: "Cover photo", hint: "Choose an image. It will be displayed as a square.", demoReplace: "Demo photo. Upload your own photo before submitting.", uploadError: "We couldn't upload or verify your photo. Please try again.", preview: "Preview on the card" },
       story: { label: "Your story", hint: "What happened, who needs help, and what will support cover?", voice: "Prefer to talk? Add a voice note", voiceHint: "Record up to 2 minutes. People can listen on your fundraiser page." },
       location: { label: "Location", hint: "Where the person or project is." },
       media: { label: "Media", hint: "Optional. More photos and papers help our team and supporters trust the story.", photos: "More photos", video: "Video link", documents: "Documents", documentsHint: "A bill, a letter or a quote. Only our review team sees documents." },

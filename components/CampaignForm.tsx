@@ -1,12 +1,11 @@
 "use client";
 import { useActionState, useEffect, useMemo, useRef, useState } from "react";
 import Icon from "./Icon";
-import Cropper from "./Cropper";
 import StoryEditor from "./StoryEditor";
 import { saveCampaign } from "@/app/actions";
 import { DEPARTMENTS, METHODS, RELATIONS, type MethodGroup } from "@/lib/constants";
 import { storyLanguages, t, type Locale } from "@/lib/i18n";
-import { uploadBlob, uploadImage, type Crop } from "@/lib/upload";
+import { uploadBlob, uploadImage } from "@/lib/upload";
 import { fmtMoney, mediaUrl } from "@/lib/format";
 import { deviceDraft, restoreDeviceDraft, type FormState, type IdentityFileField } from "@/lib/form";
 import { verificationCopy } from "@/lib/dict/verification";
@@ -31,7 +30,6 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
   const [consent, setConsent] = useState([false, false, false]);
   const [verificationConsent, setVerificationConsent] = useState(false);
   const [recording, setRecording] = useState(false);
-  const [cropFile, setCropFile] = useState<File | null>(null);
   const recorder = useRef<MediaRecorder | null>(null);
   const coverPicker = useRef<HTMLInputElement | null>(null);
   const previews = useRef<Record<string, string>>({});
@@ -136,11 +134,19 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
     catch (e) { setUpErr(e instanceof Error && e.message === "too-big" ? c.tooBig : c.uploadFailed); return null; }
     finally { setBusy(null); }
   }
-  async function useCover(crop: Crop) {
-    if (!cropFile) return;
-    const file = cropFile;
-    const path = await run("cover", () => uploadImage("media", file, { max: 1600, crop }));
-    if (path) { previews.current[path] = URL.createObjectURL(file); set("cover_path", path); setCropFile(null); }
+  async function addCover(file: File | undefined) {
+    if (!file || busy !== null || pending) return;
+    setBusy("cover");
+    setUpErr(null);
+    setErrors((old) => { const next = { ...old }; delete next.cover_path; return next; });
+    try {
+      const path = await uploadImage("media", file, { max: 1600, ratio: 1 });
+      set("cover_path", path);
+    } catch {
+      setErrors((old) => ({ ...old, cover_path: k.cover.uploadError }));
+    } finally {
+      setBusy(null);
+    }
   }
   async function addGallery(file: File | undefined) {
     if (!file) return;
@@ -282,28 +288,26 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
         <section id="s-cover" className="part">
           <header><h2>{k.cover.label}</h2><p className="muted">{k.cover.hint}</p></header>
           <div className="field">
-            {cropFile ? (
-              <Cropper file={cropFile} labels={{ ...x.crop }} busy={busy !== null || pending} onUse={useCover} onCancel={() => setCropFile(null)} />
-            ) : f.cover_path ? (
+            <input ref={coverPicker} id="cover-file" type="file" accept="image/*" hidden disabled={busy !== null || pending}
+              onChange={(e) => { const file = e.target.files?.[0]; e.target.value = ""; void addCover(file); }} />
+            {f.cover_path ? (
               <div className="stack">
                 <div className="frame cover-preview">{/* eslint-disable-next-line @next/next/no-img-element */}<img src={src(f.cover_path)} alt="" /></div>
-                {illustrativeCover && <p className="notice" role="note"><Icon name="info" size={18} />{k.cover.demoReplace}</p>}
-                <input ref={coverPicker} type="file" accept="image/*" hidden disabled={busy !== null || pending}
-                  onChange={(e) => { const file = e.target.files?.[0]; e.target.value = ""; if (file) { if (file.size > 25 * 1024 * 1024) setUpErr(c.tooBig); else setCropFile(file); } }} />
+                {illustrativeCover && <p className="small muted">{k.cover.demoReplace}</p>}
                 <div className="row">
                   <button type="button" className="btn small" data-cover-replace disabled={busy !== null || pending}
                     aria-describedby={errors.cover_path ? "e-cover_path" : undefined}
-                    onClick={() => coverPicker.current?.click()}><Icon name="camera" size={16} />{illustrativeCover ? c.addPhoto : x.crop.change}</button>
+                    onClick={() => coverPicker.current?.click()}><Icon name={busy === "cover" ? "spinner" : "camera"} size={16} />{busy === "cover" ? c.uploading : x.crop.change}</button>
                   <button type="button" className="btn small quiet" disabled={busy !== null || pending} onClick={() => set("cover_path", null)}>{x.crop.remove}</button>
                 </div>
               </div>
             ) : (
-              <label className="upload-zone" {...(errors.cover_path ? { "aria-describedby": "e-cover_path" } : {})}>
-                <input type="file" accept="image/*" disabled={busy !== null || pending} aria-invalid={errors.cover_path ? true : undefined} onChange={(e) => { const file = e.target.files?.[0]; e.target.value = ""; if (file) { if (file.size > 25 * 1024 * 1024) setUpErr(c.tooBig); else setCropFile(file); } }} />
-                <Icon name="camera" size={28} />
-                <span>{c.addPhoto}</span>
-                <span className="hint">{c.coverHint}</span>
-              </label>
+              <button type="button" className="upload-zone cover-upload" data-cover-replace
+                disabled={busy !== null || pending} aria-busy={busy === "cover"} {...inv("cover_path")}
+                onClick={() => coverPicker.current?.click()}>
+                <Icon name={busy === "cover" ? "spinner" : "camera"} size={28} />
+                <span>{busy === "cover" ? c.uploading : c.addPhoto}</span>
+              </button>
             )}
             {err("cover_path")}
           </div>
