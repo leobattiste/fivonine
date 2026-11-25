@@ -12,10 +12,10 @@ export default async function How({ params }: { params: Promise<{ locale: string
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
   const d = t(locale), h = d.how, y = d.x.pages.how;
-  const steps = (items: string[][]) => <ol>{items.map(([title, body], i) => <li key={title}><span className="n" aria-hidden="true">{i + 1}</span><h3 style={{ fontSize: "var(--t-md)" }}>{title}</h3><p>{body}</p></li>)}</ol>;
+  const steps = (items: string[][]) => <ol>{items.map(([title, body], i) => <li key={title}><span className="n" aria-hidden="true">{i + 1}</span><h3>{title}</h3><p>{body}</p></li>)}</ol>;
   return (
     <div className="wrap page" style={{ gap: 48 }}>
-      <header className="page-head"><h1 style={{ fontSize: "var(--t-3xl)", letterSpacing: "-0.045em", maxWidth: "14ch" }}>{h.title}</h1><p className="lead">{h.sub}</p></header>
+      <header className="page-head"><h1 style={{ letterSpacing: "-0.045em", maxWidth: "14ch" }}>{h.title}</h1><p className="lead">{h.sub}</p></header>
 
       <section className="stack" aria-labelledby="flow-h">
         <h2 id="flow-h">{y.flowTitle}</h2>
@@ -36,7 +36,7 @@ export default async function How({ params }: { params: Promise<{ locale: string
         <div className="stack"><h2>{h.reviewTitle}</h2><ul className="checklist">{h.review.map((r) => <li key={r}><Icon name="check" size={18} /><span>{r}</span></li>)}</ul></div>
         <div className="panel mint"><h2>{h.methodsTitle}</h2><p className="small">{h.methodsBody}</p><MethodCloud /></div>
       </section>
-      <section className="notice" style={{ padding: 24 }}><Icon name="lock" size={22} /><span><strong style={{ fontSize: "var(--t-lg)" }}>{h.moneyTitle}</strong>{h.moneyBody} <Link className="link" href={`/${locale}/safety`}>{d.footer.safety}</Link></span></section>
+      <section className="notice" style={{ padding: 24 }}><Icon name="lock" size={22} /><span><strong>{h.moneyTitle}</strong>{h.moneyBody} <Link className="link" href={`/${locale}/safety`}>{d.footer.safety}</Link></span></section>
     </div>
   );
 }

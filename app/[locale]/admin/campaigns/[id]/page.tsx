@@ -81,7 +81,7 @@ export default async function AdminCampaign({ params }: { params: Promise<{ loca
               {kv("Video", c.video_url && <a href={c.video_url} target="_blank" rel="noopener noreferrer nofollow">{c.video_url}</a>)}
             </dl>
             {voice && <audio controls preload="none" src={voice} />}
-            <div className="story" style={{ fontSize: "var(--t-md)" }} dangerouslySetInnerHTML={{ __html: storyHtml(c.story) }} />
+            <div className="story" dangerouslySetInnerHTML={{ __html: storyHtml(c.story) }} />
             {c.gallery.length > 0 && <div className="gallery">{c.gallery.map((g) => <div key={g} className="frame">{/* eslint-disable-next-line @next/next/no-img-element */}<img src={mediaUrl(g) ?? ""} alt="" loading="lazy" /></div>)}</div>}
           </section>
           <section className="panel">

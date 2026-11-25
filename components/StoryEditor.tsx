@@ -43,7 +43,7 @@ export default function StoryEditor({ value, onChange, placeholder, labels, inva
         <span className="sep" aria-hidden="true" />
         {btn(s.ul, labels.bullets, () => c().toggleBulletList().run(), <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><circle cx="3" cy="4.5" r="1.4" fill="currentColor" /><circle cx="3" cy="9" r="1.4" fill="currentColor" /><circle cx="3" cy="13.5" r="1.4" fill="currentColor" /><path d="M7 4.5h9M7 9h9M7 13.5h9" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" /></svg>)}
         {btn(s.ol, labels.numbers, () => c().toggleOrderedList().run(), <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><text x="0" y="6.5" fontSize="6" fill="currentColor" fontWeight="700">1</text><text x="0" y="11" fontSize="6" fill="currentColor" fontWeight="700">2</text><text x="0" y="15.5" fontSize="6" fill="currentColor" fontWeight="700">3</text><path d="M7 4.5h9M7 9h9M7 13.5h9" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" /></svg>)}
-        {btn(s.quote, labels.quote, () => c().toggleBlockquote().run(), <span style={{ fontSize: 22, lineHeight: 1, fontFamily: "Georgia, serif" }}>“</span>)}
+        {btn(s.quote, labels.quote, () => c().toggleBlockquote().run(), <span style={{ fontSize: 16, lineHeight: 1, fontFamily: "Georgia, serif" }}>“</span>)}
         {btn(s.link, labels.link, () => {
           if (s.link) { c().unsetLink().run(); return; }
           const url = window.prompt(labels.linkPrompt, "https://");

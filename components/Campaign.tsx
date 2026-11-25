@@ -27,7 +27,7 @@ export function Avatar({ name, path, size = 28 }: { name: string; path?: string 
     // eslint-disable-next-line @next/next/no-img-element
     <img className="avatar" src={url} alt="" width={size} height={size} style={{ width: size, height: size }} loading="lazy" />
   ) : (
-    <span className="avatar" style={{ width: size, height: size, fontSize: size * 0.36 }} aria-hidden="true">{initials(name)}</span>
+    <span className="avatar" style={{ width: size, height: size }} aria-hidden="true">{initials(name)}</span>
   );
 }
 /** Attribution for Pexels stock photography used exclusively by example drafts. */

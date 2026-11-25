@@ -54,7 +54,7 @@ export default async function Manage({ params, searchParams }: { params: Promise
             <Cover c={c} className="thumbnail" sizes="120px" />
             <div className="stack tight">
               <div className="row tight"><StatusPill status={c.status} locale={locale} />{change && <span className="tag line">{change.status === "pending" ? y.changesPending : y.changesNeeded}</span>}</div>
-              <h1 style={{ fontSize: "var(--t-xl)" }}>{c.title}</h1>
+              <h1>{c.title}</h1>
               <p className="muted small measure">{change?.status === "pending" ? y.changesPendingBody : y.explain[c.status]}</p>
             </div>
           </div>

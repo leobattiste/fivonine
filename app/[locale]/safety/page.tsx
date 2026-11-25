@@ -13,7 +13,7 @@ export default async function Safety({ params }: { params: Promise<{ locale: str
   const d = t(locale), p = d.pages.safety, s = d.x.pages.safety;
   const block = (title: string, items: string[], icon: IconName, cls = "", ordered = false) => {
     const List = ordered ? "ol" : "ul";
-    return <section className={cls}><h2 style={{ fontSize: "var(--t-lg)" }}>{title}</h2><List className="checklist">{items.map((i, n) => <li key={i}>{ordered ? <strong>{n + 1}.</strong> : <Icon name={icon} size={18} />}<span>{i}</span></li>)}</List></section>;
+    return <section className={cls}><h2>{title}</h2><List className="checklist">{items.map((i, n) => <li key={i}>{ordered ? <strong>{n + 1}.</strong> : <Icon name={icon} size={18} />}<span>{i}</span></li>)}</List></section>;
   };
   return (
     <div className="wrap page" style={{ gap: 32 }}>

@@ -18,7 +18,7 @@ export default async function Resources({ params }: { params: Promise<{ locale: 
       <div className="guides">
         {r.guides.map((g) => (
           <section key={g.id} id={g.id} className="guide" aria-labelledby={`${g.id}-h`}>
-            <h2 id={`${g.id}-h`} style={{ fontSize: "var(--t-lg)" }}>{g.title}</h2>
+            <h2 id={`${g.id}-h`}>{g.title}</h2>
             <ul>{g.points.map((p) => <li key={p}>{p}</li>)}</ul>
           </section>
         ))}
