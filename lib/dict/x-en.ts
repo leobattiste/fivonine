@@ -9,8 +9,8 @@ const x = {
     unread: (n: number) => (n === 1 ? "1 unread" : `${n} unread`),
   },
   home: {
-    title: "A helping hand for Haitians, wherever they are.",
-    sub: "Read real stories from people in Haiti and across the diaspora, then send support directly to them in the way they receive it. We review every fundraiser before it goes public.",
+    title: "Haitians helping Haitians.",
+    sub: "Yon Kout Men is a fundraising platform for Haitians in Haiti and across the diaspora to share their needs, raise support, and receive help directly.",
     browse: "Browse by need",
     stories: "Stories to read today",
     storiesSub: "Chosen by our review team.",

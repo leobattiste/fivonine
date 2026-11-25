@@ -23,25 +23,8 @@ export default async function Home({ params }: { params: Promise<{ locale: strin
         <div className="hero-copy">
           <h1 id="hero-title">{h.title}</h1>
           <p className="lead">{h.sub}</p>
-          <form role="search" className="searchbar big" action={L("/explore")} method="get">
-            <Icon name="search" size={22} />
-            <label htmlFor="hero-q" className="sr">{d.x.nav.searchLabel}</label>
-            <input id="hero-q" name="q" type="search" placeholder={d.x.nav.searchHint} maxLength={60} enterKeyHint="search" />
-            <button className="btn primary">{d.x.nav.go}</button>
-          </form>
-          <div className="row">
-            <Link className="arrow-link" href={L("/create")}>{h.organizerCta}<Icon name="arrow" size={18} /></Link>
-          </div>
         </div>
-        <div className="hero-art">
-          <PexelsPhoto photo={PHOTOS.jacmel} locale={locale} priority sizes="(min-width: 900px) 28vw, 55vw" />
-          <PexelsPhoto photo={PHOTOS.huddle} locale={locale} sizes="(min-width: 900px) 22vw, 45vw" />
-          <div className="note">
-            <Icon name="hand" size={26} />
-            <strong>{h.steps[0][0]}</strong>
-            <p>{h.steps[1][0]}.</p>
-          </div>
-        </div>
+        <PexelsPhoto photo={PHOTOS.huddle} locale={locale} className="hero-image" priority sizes="(min-width: 900px) 50vw, 100vw" />
       </section>
 
       {cats.length > 0 && (

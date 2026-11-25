@@ -9,8 +9,8 @@ const x: X = {
     unread: (n: number) => (n === 1 ? "1 non lue" : `${n} non lues`),
   },
   home: {
-    title: "Un coup de main pour les Haïtiens, où qu'ils soient.",
-    sub: "Lisez de vraies histoires de personnes en Haïti et dans la diaspora, puis envoyez votre soutien directement, de la façon dont elles le reçoivent. Chaque collecte est vérifiée avant d'être publiée.",
+    title: "Des Haïtiens qui s’entraident.",
+    sub: "Yon Kout Men est une plateforme de collecte de fonds qui permet aux Haïtiens en Haïti et dans la diaspora de partager leurs besoins et de recevoir de l’aide directement.",
     browse: "Parcourir par besoin",
     stories: "Histoires à lire aujourd'hui",
     storiesSub: "Choisies par notre équipe de vérification.",

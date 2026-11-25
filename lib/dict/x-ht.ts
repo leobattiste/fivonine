@@ -11,8 +11,8 @@ const x: X = {
     unread: (n: number) => (n === 1 ? "1 poko li" : `${n} poko li`),
   },
   home: {
-    title: "Yon kout men pou Ayisyen, kèlkeswa kote yo ye.",
-    sub: "Li istwa reyèl moun ann Ayiti ak nan dyaspora a, epi voye sipò dirèkteman ba yo nan fason yo ka resevwa li. Nou egzamine chak kanpay anvan nou pibliye li.",
+    title: "Ayisyen k ap ede Ayisyen.",
+    sub: "Yon Kout Men se yon platfòm kote Ayisyen ann Ayiti ak nan dyaspora a ka pataje bezwen yo, ranmase sipò epi resevwa èd dirèkteman.",
     browse: "Chèche selon bezwen an",
     stories: "Istwa pou w li jodi a",
     storiesSub: "Ekip verifikasyon nou an chwazi yo.",
