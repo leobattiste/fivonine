@@ -19,7 +19,7 @@ export default async function How({ params }: { params: Promise<{ locale: string
 
       <section className="stack" aria-labelledby="flow-h">
         <h2 id="flow-h">{y.flowTitle}</h2>
-        <div className="flow">
+        <div className="flow" role="group" aria-label={y.flowTitle}>
           <div className="node"><Icon name="user" size={22} />{y.flowSupporter}</div>
           <div className="via">{y.flowVia}</div>
           <div className="node"><Icon name="hand" size={22} />{y.flowOrganizer}</div>

@@ -33,6 +33,11 @@ export default async function Admin({ params, searchParams }: { params: Promise<
         </nav>
         <div className="stack" style={{ gap: 20, minWidth: 0 }}>
           <header className="row spread end"><div className="stack tight"><h1>{title}</h1><p className="xs muted">Signed in as {me.profile.display_name}. Every decision is recorded in the audit log.</p></div></header>
+          {tab === "queue" && <div className="admin-stats">
+            {([["queue", "Review queue", counts.pending + counts.changes], ["reports", "Reports", counts.reports], ["vouches", "Vouches", counts.vouches], ["messages", "Messages", counts.messages]] as [string, string, number][]).map(([key, label, value]) => (
+              <Link href={`${base}?tab=${key}`} key={key} className="stat-tile"><span>{label}</span><strong>{value}</strong><span className="stat-next"><Icon name="arrow" size={18} /></span></Link>
+            ))}
+          </div>}
           {tab === "queue" && <Queue locale={locale} />}
           {tab === "campaigns" && (
             <>

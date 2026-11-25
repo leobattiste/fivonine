@@ -115,31 +115,7 @@ export default async function FundraiserPage({ params }: P) {
                 <div className="who">
                   <Avatar name={who} path={c.owner.avatar_path} size={56} />
                   <div><strong>{who}</strong>{since && <p className="small muted">{x.memberSince} {fmtDate(since, locale)}</p>}</div>
-                  <section id="updates" className="f-section" aria-labelledby="updates-h">
-            <h2 id="updates-h">{x.tabs.updates}</h2>
-            {updates.length ? (
-              <ol className="timeline">
-                {updates.map((u) => (
-                  <li key={u.id}>
-                    <time dateTime={u.created_at}>{fmtDate(u.created_at, locale)}{u.author?.display_name ? `, ${u.author.display_name}` : ""}</time>
-                    {u.body.split(/\n{2,}/).map((para, i) => <p key={i}>{para}</p>)}
-                    {u.proof.length > 0 && (
-                      <div className="gallery" aria-label={d.campaign.proof}>
-                        {u.proof.map((g) => <div key={g} className="frame">{/* eslint-disable-next-line @next/next/no-img-element */}<img src={mediaUrl(g) ?? ""} alt={d.campaign.proof} loading="lazy" /></div>)}
-                      </div>
-                    )}
-                  </li>
-                ))}
-              </ol>
-            ) : <p className="muted">{x.noUpdates}</p>}
-            {notes.length > 0 && (
-              <div className="stack" style={{ marginTop: 16 }}>
-                <h3>{x.notes}</h3>
-                <p className="small muted">{x.notesHint}</p>
-                <ul className="notes">{notes.map((k) => <li key={k.id}><strong className="small">{k.anonymous || !k.display_name ? d.common.anonymous : k.display_name}</strong><p>{k.message}</p></li>)}</ul>
-              </div>
-            )}
-          </section>
+
 
         </div>
                 {team.length > 0 && <p className="small"><Icon name="group" size={16} /> {x.team}: {team.map((m) => m.profile?.display_name).filter(Boolean).join(", ")}</p>}
@@ -179,6 +155,32 @@ export default async function FundraiserPage({ params }: P) {
               </details>
             )}
             {!mine && <Link className="arrow-link small" href={`/${locale}/report?campaign=${c.slug}`}><Icon name="flag" size={16} />{x.report}</Link>}
+          </section>
+
+          <section id="updates" className="f-section" aria-labelledby="updates-h">
+            <h2 id="updates-h">{x.tabs.updates}</h2>
+            {updates.length ? (
+              <ol className="timeline">
+                {updates.map((u) => (
+                  <li key={u.id}>
+                    <time dateTime={u.created_at}>{fmtDate(u.created_at, locale)}{u.author?.display_name ? `, ${u.author.display_name}` : ""}</time>
+                    {u.body.split(/\n{2,}/).map((para, i) => <p key={i}>{para}</p>)}
+                    {u.proof.length > 0 && (
+                      <div className="gallery" aria-label={d.campaign.proof}>
+                        {u.proof.map((g) => <div key={g} className="frame">{/* eslint-disable-next-line @next/next/no-img-element */}<img src={mediaUrl(g) ?? ""} alt={d.campaign.proof} loading="lazy" /></div>)}
+                      </div>
+                    )}
+                  </li>
+                ))}
+              </ol>
+            ) : <p className="muted">{x.noUpdates}</p>}
+            {notes.length > 0 && (
+              <div className="stack" style={{ marginTop: 16 }}>
+                <h3>{x.notes}</h3>
+                <p className="small muted">{x.notesHint}</p>
+                <ul className="notes">{notes.map((k) => <li key={k.id}><strong className="small">{k.anonymous || !k.display_name ? d.common.anonymous : k.display_name}</strong><p>{k.message}</p></li>)}</ul>
+              </div>
+            )}
           </section>
         </div>
 
