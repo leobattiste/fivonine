@@ -33,6 +33,7 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
   const [recording, setRecording] = useState(false);
   const [cropFile, setCropFile] = useState<File | null>(null);
   const recorder = useRef<MediaRecorder | null>(null);
+  const coverPicker = useRef<HTMLInputElement | null>(null);
   const previews = useRef<Record<string, string>>({});
   const [state, action, pending] = useActionState(saveCampaign, null);
 
@@ -67,6 +68,10 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
   const src = (path: string) => previews.current[path] ?? mediaUrl(path) ?? "";
 
   const methods = useMemo(() => Object.entries(f.methods).filter(([, v]) => v.details.trim().length >= 3).map(([method, v]) => ({ method, details: v.details.trim(), link: v.link.trim() })), [f.methods]);
+  // A stock/demo preview is not a valid fundraiser cover for review.
+  // Only an image uploaded to the organizer's media folder can satisfy this requirement.
+  const uploadedCover = Boolean(f.cover_path && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\/[a-z0-9-]{8,60}\.(webp|jpg|jpeg|png)$/i.test(f.cover_path));
+  const illustrativeCover = Boolean(f.cover_path && !uploadedCover);
   const consentOk = (live || consent.every(Boolean)) && verificationConsent;
 
   // What is missing, by section. The checklist and the submit button read from the same rules.
@@ -74,7 +79,7 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
     const e: Record<string, string> = {};
     if (f.title.trim().length < 4) e.title = x.err.title;
     if (!f.cause) e.cause = x.err.cause;
-    if (!f.cover_path) e.cover_path = x.err.cover;
+    if (!uploadedCover) e.cover_path = illustrativeCover ? k.cover.demoReplace : x.err.cover;
     if (plain(f.story).length < 40 && !f.voice_path) e.story = x.err.story;
     if (!f.department) e.department = x.err.department;
     if (f.beneficiary_name.trim().length < 2) e.beneficiary_name = c.needRecipient;
@@ -110,8 +115,20 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
   const jump = (section: string) => {
     const el = document.getElementById(`s-${section}`);
     el?.scrollIntoView({ behavior: "smooth", block: "start" });
-    requestAnimationFrame(() => (el?.querySelector<HTMLElement>('[aria-invalid="true"]') ?? el?.querySelector<HTMLElement>("input:not([type=radio]), select, textarea, button, [contenteditable=true]"))?.focus({ preventScroll: true }));
+    requestAnimationFrame(() => ((section === "cover" ? el?.querySelector<HTMLElement>("[data-cover-replace]") : null)
+      ?? el?.querySelector<HTMLElement>('[aria-invalid="true"]')
+      ?? el?.querySelector<HTMLElement>("input:not([type=radio]), select, textarea, button, [contenteditable=true]"))?.focus({ preventScroll: true }));
   };
+
+  // Server-side validation can reject a cover path that the browser could not verify.
+  // Point the organizer at the exact field instead of showing an unexplained footer error.
+  useEffect(() => {
+    if (state?.ok === false && state.field === "cover_path") {
+      setErrors((previous) => ({ ...previous, cover_path: state.message }));
+      jump("cover");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state]);
 
   async function run<T>(key: string, job: () => Promise<T>): Promise<T | null> {
     setBusy(key); setUpErr(null);
@@ -220,7 +237,12 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
         const submitter = (e.nativeEvent as SubmitEvent).submitter as HTMLButtonElement | null;
         if (submitter?.value === "submit") {
           const keys = Object.keys(missing);
-          if (keys.length) { e.preventDefault(); setErrors(missing); jump(sectionOf(keys[0])); }
+          if (keys.length) {
+            e.preventDefault();
+            setErrors(missing);
+            // A missing or illustrative cover is especially easy to miss when a preview is visible.
+            jump(sectionOf(keys.includes("cover_path") ? "cover_path" : keys[0]));
+          }
         }
       }}>
       <input type="hidden" name="locale" value={locale} />
@@ -265,8 +287,13 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
             ) : f.cover_path ? (
               <div className="stack">
                 <div className="frame cover-preview">{/* eslint-disable-next-line @next/next/no-img-element */}<img src={src(f.cover_path)} alt="" /></div>
+                {illustrativeCover && <p className="notice" role="note"><Icon name="info" size={18} />{k.cover.demoReplace}</p>}
+                <input ref={coverPicker} type="file" accept="image/*" hidden disabled={busy !== null || pending}
+                  onChange={(e) => { const file = e.target.files?.[0]; e.target.value = ""; if (file) { if (file.size > 25 * 1024 * 1024) setUpErr(c.tooBig); else setCropFile(file); } }} />
                 <div className="row">
-                  <label className="btn small"><input type="file" accept="image/*" hidden disabled={busy !== null || pending} onChange={(e) => { const file = e.target.files?.[0]; e.target.value = ""; if (file) setCropFile(file); }} /><Icon name="camera" size={16} />{x.crop.change}</label>
+                  <button type="button" className="btn small" data-cover-replace disabled={busy !== null || pending}
+                    aria-describedby={errors.cover_path ? "e-cover_path" : undefined}
+                    onClick={() => coverPicker.current?.click()}><Icon name="camera" size={16} />{illustrativeCover ? c.addPhoto : x.crop.change}</button>
                   <button type="button" className="btn small quiet" disabled={busy !== null || pending} onClick={() => set("cover_path", null)}>{x.crop.remove}</button>
                 </div>
               </div>

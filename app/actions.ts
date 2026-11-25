@@ -290,6 +290,17 @@ export async function saveCampaign(_: ActionResult, f: FormData): Promise<Action
   }
   const submit = f.get("intent") === "submit";
   const own = (v: unknown) => (typeof v === "string" && new RegExp(`^${user.id}/[a-z0-9-]{8,60}\\.(webp|jpg|jpeg|png|webm|m4a|mp4|ogg|mp3|pdf)$`).test(v) ? v : null);
+  const ownedCover = own(p.cover_path);
+  const uploadedCoverPath = ownedCover && /\.(webp|jpg|jpeg|png)$/.test(ownedCover) ? ownedCover : null;
+  // Existing Pexels/demo covers are for preview while editing a draft only.
+  // They cannot satisfy the real-photo requirement for submission.
+  let previewCover: string | null = null;
+  if (!submit && !uploadedCoverPath && typeof p.id === "string" && UUID.test(p.id) &&
+      typeof p.cover_path === "string" && /^(?:pexels:[0-9]{4,10}|demo:[a-z0-9-]+\.svg)$/.test(p.cover_path)) {
+    const { data: existingDraft } = await sb.from("campaigns").select("cover_path")
+      .eq("id", p.id).eq("owner_id", user.id).eq("status", "draft").maybeSingle();
+    if (existingDraft?.cover_path === p.cover_path) previewCover = p.cover_path;
+  }
   const title = str(p.title, 120), story = cleanStory(str(p.story, 20000));
   const storyLen = storyText(story).length;
   if (storyLen > 8000) return fail(d.common.error);
@@ -306,7 +317,7 @@ export async function saveCampaign(_: ActionResult, f: FormData): Promise<Action
     goal_currency: p.goal_currency === "USD" ? "USD" : "HTG",
     deadline: /^\d{4}-\d{2}-\d{2}$/.test(str(p.deadline, 10)) ? str(p.deadline, 10) : null,
     urgent: p.urgent === true,
-    cover_path: own(p.cover_path),
+    cover_path: uploadedCoverPath ?? previewCover,
     gallery: (Array.isArray(p.gallery) ? p.gallery : []).map(own).filter((x): x is string => Boolean(x)).slice(0, 6),
     video_url: /^https:\/\/[^\s]+$/.test(video) ? video : null,
     voice_path: own(p.voice_path),
@@ -341,7 +352,17 @@ export async function saveCampaign(_: ActionResult, f: FormData): Promise<Action
     if (!p.consent) missing.push(d.create.needConsent);
     if (missing.length) return fail(`${d.create.missing} ${missing.join(", ")}`);
   }
-  if (submit && !row.cover_path) return fail(`${d.create.missing} ${d.x.form.err.cover}`);
+  if (submit && !row.cover_path) return {
+    ok: false, message: `${d.create.missing} ${d.x.form.err.cover}`, field: "cover_path"
+  };
+  if (submit && row.cover_path) {
+    const name = row.cover_path.slice(user.id.length + 1);
+    const { data: files, error: mediaError } = await sb.storage.from("media")
+      .list(user.id, { search: name, limit: 10 });
+    if (mediaError || !files?.some((file) => file.name === name)) return {
+      ok: false, message: `${d.create.missing} ${d.x.form.err.cover}`, field: "cover_path"
+    };
+  }
   if (submit) {
     // An owner-prefixed path is not proof of an upload. Check the private bucket before accepting it.
     const paths = [priv.id_front_path!, priv.selfie_path!];

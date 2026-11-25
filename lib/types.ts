@@ -36,5 +36,5 @@ export type Vouch = { id: string; campaign_id: string; voucher_id: string; role:
 export type Category = { slug: string; name_ht: string; name_fr: string; name_en: string; name_es: string; position: number; active: boolean };
 export type Settings = { emergency: { active: boolean } & Record<Locale, string>; rate: { htg_per_usd: number } };
 export type Notification = { id: string; kind: string; campaign_id: string | null; payload: { title?: string; slug?: string; note?: string }; read_at: string | null; created_at: string };
-export type ActionResult = { ok: boolean; message: string; id?: string; at?: string; undo?: string } | null;
+export type ActionResult = { ok: boolean; message: string; id?: string; at?: string; undo?: string; field?: "cover_path" } | null;
 export type Appeal = { id: string; campaign_id: string | null; body: string; status: "open" | "accepted" | "declined"; admin_note: string | null; created_at: string };

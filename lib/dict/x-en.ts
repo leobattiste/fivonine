@@ -86,7 +86,7 @@ const x = {
       titleSub: "One page, about ten minutes. Your answers are saved as you type.",
       title: { label: "Title", hint: "Say who needs help and why, in one line.", ph: "Help Marie finish nursing school" },
       category: { label: "Category", hint: "Pick the one that fits best." },
-      cover: { label: "Cover photo", hint: "The first thing people see. Use a clear, real photo of your own. Upload it, drag to crop, and check the preview.", preview: "Preview on the card" },
+      cover: { label: "Cover photo", hint: "The first thing people see. Use a clear, real photo of your own. Upload it, drag to crop, and check the preview.", demoReplace: "This Pexels demo photo is for preview only. To submit, upload a clear photo of the actual person, place, or project, taken by you or shared with permission. Stock photos cannot be submitted.", preview: "Preview on the card" },
       story: { label: "Your story", hint: "What happened, who needs help, and what will support cover?", voice: "Prefer to talk? Add a voice note", voiceHint: "Record up to 2 minutes. People can listen on your fundraiser page." },
       location: { label: "Location", hint: "Where the person or project is." },
       media: { label: "Media", hint: "Optional. More photos and papers help our team and supporters trust the story.", photos: "More photos", video: "Video link", documents: "Documents", documentsHint: "A bill, a letter or a quote. Only our review team sees documents." },

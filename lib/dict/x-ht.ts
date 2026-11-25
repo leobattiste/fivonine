@@ -88,7 +88,7 @@ const x: X = {
       titleSub: "Yon sèl paj, anviwon dis minit. Repons ou yo anrejistre pandan w ap ekri.",
       title: { label: "Tit", hint: "Di kiyès ki bezwen èd ak poukisa, nan yon sèl liy.", ph: "Ede Marie fini lekòl enfimyè" },
       category: { label: "Kategori", hint: "Chwazi sa ki pi byen koresponn lan." },
-      cover: { label: "Foto prensipal", hint: "Se premye bagay moun wè. Sèvi ak yon foto reyèl pa w ki klè. Telechaje li, trennen li pou w koupe l jan ou vle, epi verifye apèsi a.", preview: "Apèsi sou kat la" },
+      cover: { label: "Foto prensipal", hint: "Se premye bagay moun wè. Sèvi ak yon foto reyèl pa w ki klè. Telechaje li, trennen li pou w koupe l jan ou vle, epi verifye apèsi a.", demoReplace: "Foto demonstrasyon Pexels sa a se pou apèsi sèlman. Pou soumèt kanpay la, telechaje yon foto klè ki montre moun, kote oswa pwojè reyèl la, ou menm ou pran oswa yo ba ou pèmisyon pataje. Foto stok pa aksepte.", preview: "Apèsi sou kat la" },
       story: { label: "Istwa w", hint: "Kisa ki pase, kiyès ki bezwen èd, epi kisa sipò a ap peye?", voice: "Ou ta pito pale? Ajoute yon mesaj vokal", voiceHint: "Anrejistre jiska 2 minit. Moun ka koute li sou paj kanpay ou a." },
       location: { label: "Kote", hint: "Kote moun nan oswa pwojè a ye." },
       media: { label: "Foto ak lòt dokiman", hint: "Si ou vle. Plis foto ak dokiman ede ekip nou an ak moun ki bay sipò yo fè istwa a konfyans.", photos: "Plis foto", video: "Lyen videyo", documents: "Dokiman", documentsHint: "Yon fakti, yon lèt oswa yon estimasyon pri. Se ekip verifikasyon nou an sèlman ki wè dokiman yo." },
