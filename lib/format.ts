@@ -21,6 +21,10 @@ export function mediaUrl(path: string | null | undefined) {
     return `data:image/svg+xml;utf8,${svg.replace(/#/g, "%23")}`;
   }
   if (path.startsWith("demo:")) return `/demo/${path.slice(5)}`;
+  // Verified Pexels photo IDs for illustrative demo fundraiser covers.
+  // Restrict remote URLs to numeric photo IDs on the Pexels image CDN.
+  const pexels = /^pexels:([0-9]{4,10})$/.exec(path);
+  if (pexels) return `https://images.pexels.com/photos/${pexels[1]}/pexels-photo-${pexels[1]}.jpeg?auto=compress&cs=tinysrgb&w=1400`;
   return `${SUPABASE_URL}/storage/v1/object/public/media/${path.split("/").map(encodeURIComponent).join("/")}`;
 }
 /** Self-reported total, expressed in the campaign's goal currency. */

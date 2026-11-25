@@ -30,12 +30,23 @@ export function Avatar({ name, path, size = 28 }: { name: string; path?: string 
     <span className="avatar" style={{ width: size, height: size, fontSize: size * 0.36 }} aria-hidden="true">{initials(name)}</span>
   );
 }
+/** Attribution for Pexels stock photography used exclusively by example drafts. */
+const pexelsDemoCredits: Record<string, string> = {
+  "28503361": "The Design Lady",
+  "27176065": "Helena Lopes",
+  "8942700": "Mikhail Nilov",
+  "5125690": "Roger Brown",
+};
 export function Cover({ c, className = "", sizes = "(min-width: 900px) 33vw, 100vw", priority, noIconFallback = false }: { c: Pick<Campaign, "cover_path" | "cause">; className?: string; sizes?: string; priority?: boolean; noIconFallback?: boolean }) {
   const url = mediaUrl(c.cover_path);
+  const pexelsId = /^pexels:([0-9]{4,10})$/.exec(c.cover_path ?? "")?.[1];
   return url ? (
     <div className={`frame ${className}`}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={url} alt="" sizes={sizes} loading={priority ? "eager" : "lazy"} decoding="async" />
+      <img src={url} alt={pexelsId ? "Illustrative stock photo, not a real fundraiser beneficiary" : ""} sizes={sizes} loading={priority ? "eager" : "lazy"} decoding="async" />
+      {pexelsId && <a className="credit-over" href={`https://www.pexels.com/photo/${pexelsId}/`} target="_blank" rel="noopener noreferrer">
+        {pexelsDemoCredits[pexelsId] ?? "Photographer"} / Pexels
+      </a>}
     </div>
   ) : (
     <div className={`frame empty ${className}`} aria-hidden="true">{!noIconFallback && <Icon name={causeIcon[c.cause ?? "other"] ?? "hand"} size={44} />}</div>
