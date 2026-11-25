@@ -8,7 +8,7 @@ import AppealHistory from "@/components/AppealHistory";
 import AppealForm from "@/components/AppealForm";
 import { Cover, FundraiserCard, StatusPill } from "@/components/Campaign";
 import { AvatarInput } from "@/components/Uploads";
-import { changePassword, markNotificationsRead, saveProfile } from "@/app/actions";
+import { changePassword, markNotificationsRead, saveProfile, signOut } from "@/app/actions";
 import { requireViewer } from "@/lib/auth";
 import { getCategories, getMyAppeals, myBookmarks, myCampaigns, myChanges, myNotifications, reviewNotes, unreadCount } from "@/lib/data";
 import { DEPARTMENTS } from "@/lib/constants";
@@ -163,6 +163,10 @@ async function Profile({ locale, viewer }: { locale: Locale; viewer: Awaited<Ret
             <label className="field"><span>{x.newPassword}</span><input className="input" type="password" name="password" minLength={8} required autoComplete="new-password" /><small>{d.auth.passwordHint}</small></label>
             <div><Submit className="btn">{x.changePassword}</Submit></div>
           </ActionForm>
+          <form action={signOut} className="row">
+            <input type="hidden" name="locale" value={locale} />
+            <button type="submit" className="btn"><Icon name="logout" size={18} />{d.x.nav.signOut}</button>
+          </form>
           <section id="appeals" className="stack" aria-labelledby="appeals-title">
             <AppealForm locale={locale} />
             <AppealHistory locale={locale} items={appeals} />
