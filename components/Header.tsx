@@ -76,8 +76,22 @@ export default function Header({ locale, viewer }: { locale: Locale; viewer: Vie
           ) : (
             <Link className="btn quiet only-wide" href={L("/login")}>{n.signIn}</Link>
           )}
+          <label className="lang lang-icon only-narrow" htmlFor="lang-mobile">
+            <Icon name="language" size={24} />
+            <span className="sr">{d.nav.language}</span>
+            <select id="lang-mobile" aria-label={d.nav.language} value={locale} onChange={(e) => switchLocale(e.target.value as Locale)}>
+              {locales.map((l) => <option key={l} value={l}>{localeNames[l]}</option>)}
+            </select>
+          </label>
+          <Link
+            className="btn icon-only only-narrow header-account-icon"
+            href={viewer ? L("/dashboard?tab=profile") : L("/login")}
+            aria-label={viewer ? n.profile : n.signIn}
+          >
+            <Icon name="userCircle" size={24} />
+          </Link>
           <button className="btn icon-only only-narrow menu-btn" onClick={() => drawer.current?.showModal()} aria-label={n.openMenu}>
-            <span className="menu-lines" aria-hidden="true"><span /><span /></span>{viewer && viewer.unread > 0 && <span className="count" aria-hidden="true">{viewer.unread}</span>}
+            <Icon name="menu" size={26} />{viewer && viewer.unread > 0 && <span className="count" aria-hidden="true">{viewer.unread}</span>}
           </button>
         </div>
       </div>
@@ -94,7 +108,6 @@ export default function Header({ locale, viewer }: { locale: Locale; viewer: Vie
           </nav>
           {viewer ? <div className="pop" style={{ position: "static", width: "auto", animation: "none", boxShadow: "none" }}><p className="who"><strong>{viewer.name}</strong>{n.account}</p>{accountItems}</div>
             : <Link className="btn wide" href={L("/login")}>{n.signIn}</Link>}
-          {language("lang-drawer")}
         </div>
       </dialog>
     </header>

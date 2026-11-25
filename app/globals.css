@@ -184,11 +184,12 @@ a.chip:hover, button.chip:hover { border-color: var(--green); }
   .only-wide { display: inline-flex !important; }
   .only-narrow { display: none !important; }
 }
-/* Two-line mobile menu icon. No visual padding or surface; preserve a large hit area. */
-.btn.icon-only.menu-btn { position: relative; width: 28px; min-width: 28px; height: 44px; min-height: 44px; padding: 0; border: 0; background: transparent; }
-.menu-btn::before { content: ""; position: absolute; inset: 0 -8px; }
-.menu-lines { display: flex; flex-direction: column; justify-content: center; gap: 6px; width: 26px; height: 20px; pointer-events: none; }
-.menu-lines > span { width: 100%; height: 2px; border-radius: 999px; background: currentColor; }
+/* Mobile header actions: bare icons, aligned and finger-friendly without visible padding. */
+.lang.lang-icon { position: relative; display: inline-flex; align-items: center; justify-content: center; flex: none; width: 44px; height: 44px; }
+.lang.lang-icon .icon { position: static; }
+.lang.lang-icon select { position: absolute; inset: 0; width: 100%; height: 100%; min-height: 0; padding: 0; border: 0; opacity: 0; cursor: pointer; }
+.lang.lang-icon:has(select:focus-visible) { outline: 3px solid var(--green); outline-offset: 2px; border-radius: 16px; }
+.btn.icon-only.header-account-icon, .btn.icon-only.menu-btn { --h: 44px; position: relative; width: 44px; min-width: 44px; height: 44px; min-height: 44px; padding: 0; border: 0; background: transparent; }
 .menu-btn .count { position: absolute; top: -4px; right: -4px; }
 
 /* Account menu */
