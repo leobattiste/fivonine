@@ -196,10 +196,10 @@ a.chip:hover, button.chip:hover { border-color: var(--green); }
 /* Header: in the page flow, no rule, no shadow. */
 .site-header { position: relative; z-index: 20; background: var(--white); }
 .header-bar { display: flex; align-items: center; gap: 18px; min-height: 76px; }
-.main-nav { display: none; gap: 4px; }
-.main-nav a { display: inline-flex; align-items: center; min-height: var(--ctl-sm); padding: 0 14px; border: 1.5px solid var(--sage); border-radius: var(--pill); background: transparent; text-decoration: none; font-weight: 400; font-size: var(--t-sm); transition: border-color var(--fast), background var(--fast); }
-.main-nav a:hover { border-color: var(--green); }
-.main-nav a[aria-current="page"] { background: var(--green); border-color: var(--green); color: var(--white); }
+.main-nav { display: none; align-items: center; justify-content: center; gap: clamp(16px, 2vw, 32px); }
+.main-nav a { display: inline-flex; align-items: center; justify-content: center; min-height: var(--ctl-sm); padding: 0; border: 0; background: transparent; text-decoration: none; font-weight: 400; font-size: var(--t-sm); white-space: nowrap; }
+.main-nav a:hover { text-decoration: underline; text-underline-offset: 6px; }
+.main-nav a[aria-current="page"] { color: var(--green); text-decoration: underline; text-underline-offset: 6px; }
 .header-tools { margin-left: auto; display: flex; align-items: center; gap: 8px; }
 .lang { position: relative; display: inline-flex; align-items: center; }
 .lang select { appearance: none; min-height: var(--ctl-sm); padding: 0 10px 0 32px; border-radius: 16px; border: 0; background: transparent; font-weight: 400; font-size: var(--t-sm); cursor: pointer; }
@@ -207,7 +207,11 @@ a.chip:hover, button.chip:hover { border-color: var(--green); }
 .lang .icon { position: absolute; left: 12px; pointer-events: none; }
 .only-wide { display: none !important; }
 @media (min-width: 1000px) {
-  .main-nav { display: flex; }
+  /* Center desktop navigation in the viewport, independent of left and right tools. */
+  .header-bar { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); }
+  .header-bar > .wordmark { justify-self: start; }
+  .main-nav { display: flex; justify-self: center; }
+  .header-tools { margin-left: 0; justify-self: end; }
   .only-wide { display: inline-flex !important; }
   .only-narrow { display: none !important; }
 }
