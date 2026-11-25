@@ -537,6 +537,7 @@ const en = {
     changes_approved: (t: string) => `Your changes are now public: ${t}`,
     admin_pending: (t: string) => `New campaign to review: ${t}`,
     admin_report: (t: string) => `New report on: ${t}`,
+    admin_deletion_request: (_t: string) => "Account deletion request requires review",
     campaign_live: (t: string) => `Your campaign is public: ${t}`,
     campaign_needs_changes: (t: string) => `Changes needed on: ${t}`,
     campaign_rejected: (t: string) => `Your campaign wasn't approved: ${t}`,

@@ -539,6 +539,7 @@ const ht: Dict = {
     changes_approved: (t: string) => `Chanjman ou yo piblik kounye a: ${t}`,
     admin_pending: (t: string) => `Nouvo kanpay pou egzamine: ${t}`,
     admin_report: (t: string) => `Nouvo rapò sou: ${t}`,
+    admin_deletion_request: (_t: string) => "Gen yon demann pou efase yon kont pou egzamine",
     campaign_live: (t: string) => `Kanpay ou piblik: ${t}`,
     campaign_needs_changes: (t: string) => `Chanjman nesesè sou: ${t}`,
     campaign_rejected: (t: string) => `Kanpay ou pa apwouve: ${t}`,

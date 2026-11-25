@@ -538,6 +538,7 @@ const fr: Dict = {
     changes_approved: (t: string) => `Vos modifications sont publiées : ${t}`,
     admin_pending: (t: string) => `Nouvelle campagne à vérifier : ${t}`,
     admin_report: (t: string) => `Nouveau signalement sur : ${t}`,
+    admin_deletion_request: (_t: string) => "Demande de suppression de compte à examiner",
     campaign_live: (t: string) => `Votre campagne est publique : ${t}`,
     campaign_needs_changes: (t: string) => `Modifications demandées pour : ${t}`,
     campaign_rejected: (t: string) => `Votre campagne n'a pas été approuvée : ${t}`,

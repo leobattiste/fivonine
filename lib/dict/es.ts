@@ -539,6 +539,7 @@ const es: Dict = {
     changes_approved: (t: string) => `Tus cambios ya son públicos: ${t}`,
     admin_pending: (t: string) => `Nueva campaña por revisar: ${t}`,
     admin_report: (t: string) => `Nuevo reporte sobre: ${t}`,
+    admin_deletion_request: (_t: string) => "Solicitud de eliminación de cuenta para revisar",
     campaign_live: (t: string) => `Tu campaña es pública: ${t}`,
     campaign_needs_changes: (t: string) => `Se necesitan cambios en: ${t}`,
     campaign_rejected: (t: string) => `Tu campaña no fue aprobada: ${t}`,

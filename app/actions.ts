@@ -7,6 +7,7 @@ import { createClient } from "@supabase/supabase-js";
 import { SUPABASE_KEY, SUPABASE_URL } from "@/lib/supabase/config";
 import { db } from "@/lib/supabase/server";
 import { isLocale, t, LOCALE_COOKIE, type Locale } from "@/lib/i18n";
+import { accountCopy } from "@/lib/account-copy";
 import { profileReady, safeNext } from "@/lib/auth";
 import { cleanStory, storyText } from "@/lib/story";
 import { drainOutbox } from "@/lib/email";
@@ -154,6 +155,13 @@ export async function saveAccountSettings(_: ActionResult, f: FormData): Promise
       notify_marketing: checked("notify_marketing"),
     };
   } else if (scope === "privacy") {
+    if (!checked("public_profile")) {
+      const { count, error: campaignCheckError } = await sb.from("campaigns")
+        .select("id", { count: "exact", head: true })
+        .eq("owner_id", user.id).in("status", ["live", "completed"]);
+      if (campaignCheckError) return fail(d.common.error);
+      if (count && count > 0) return fail(accountCopy(locale).cannotHide);
+    }
     patch = {
       public_profile: checked("public_profile"),
       show_bio: checked("show_bio"),
