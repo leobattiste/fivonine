@@ -5,15 +5,21 @@ import { db } from "./supabase/server";
 import { FIXTURES, fxProfile } from "./fixtures";
 import type { Profile } from "./types";
 import type { Locale } from "./i18n";
+import { checked } from "./data-errors";
+import { isMissingSession } from "./auth-errors";
 export type Viewer = { id: string; email: string; profile: Profile };
 export const getViewer = cache(async (): Promise<Viewer | null> => {
   if (FIXTURES) return process.env.FIVONINE_FIXTURE_USER ? { id: fxProfile.id, email: "roseline@example.com", profile: fxProfile } : null;
   const sb = await db();
   if (!sb) return null;
-  const { data } = await sb.auth.getUser();
+  const { data, error } = await sb.auth.getUser();
+  if (error && !isMissingSession(error)) {
+    console.error("[auth:viewer] unavailable", error.code ?? "unknown");
+    throw new Error("Account information is temporarily unavailable.");
+  }
   if (!data.user) return null;
-  const { data: profile } = await sb.from("profiles").select("*").eq("id", data.user.id).maybeSingle();
-  if (!profile) return null;
+  const { data: profile } = checked(await sb.from("profiles").select("*").eq("id", data.user.id).maybeSingle(), "viewer_profile");
+  if (!profile) throw new Error("Account information is temporarily unavailable.");
   return { id: data.user.id, email: data.user.email ?? "", profile: profile as Profile };
 });
 export async function requireViewer(locale: Locale, next: string) {

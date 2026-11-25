@@ -1,0 +1,88 @@
+import type { Locale } from "../i18n";
+
+type VerificationCopy = {
+  title: string; intro: string; identityHint: string; format: string; contactHint: string;
+  recipientHint: string; contactDetailsHint: string; consent: string; consentError: string;
+  uploaded: string; invalidFile: string; replace: string; beneficiaryHint: string;
+  privateDraft: string; correction: string; recipientEvidence: string;
+  remove: (label: string) => string;
+};
+
+export const verificationCopy: Record<Locale, VerificationCopy> = {
+  en: {
+    title: "Private verification",
+    intro: "Before publication, our team must check your identity and who receives the support. These documents stay private and never appear on your fundraiser.",
+    identityHint: "Add a clear government-issued photo ID and a photo of yourself holding it. Your face and the details on the ID must be readable.",
+    format: "JPEG, PNG or WebP photo. Up to 8 MB after processing.",
+    contactHint: "Use your full legal name as it appears on your ID and an email where we can reach you.",
+    recipientHint: "For every support method, include the recipient’s full name as on their ID and their account or number. Explain below if a different person receives the money.",
+    contactDetailsHint: "Give a phone or WhatsApp number and the best time to reach you. If someone else receives support, explain their relationship to you and the beneficiary, and why they are authorized to receive it.",
+    consent: "I give the review team permission to use these private documents to check my identity and recipient details. I confirm I have permission to share them.",
+    consentError: "Please confirm permission for the private verification checks.",
+    uploaded: "Private photo uploaded",
+    invalidFile: "Choose a JPEG, PNG or WebP image for identity verification.",
+    replace: "Replace photo",
+    beneficiaryHint: "Name the person or group who needs support and explain your relationship to them. These details appear on the fundraiser.",
+    privateDraft: "Private contacts and identity documents are not saved in this browser’s device draft. Save to your account to keep them.",
+    correction: "What our review team needs you to correct",
+    recipientEvidence: "Optional private evidence can include the recipient’s authorization or a document showing their relationship to the beneficiary. Never put ID photos in the public gallery.",
+    remove: (label: string) => `Remove ${label.toLowerCase()}`,
+  },
+  fr: {
+    title: "Vérification privée",
+    intro: "Avant publication, notre équipe doit vérifier votre identité et qui reçoit le soutien. Ces documents restent privés et ne figurent jamais sur votre collecte.",
+    identityHint: "Ajoutez une photo nette d’une pièce d’identité officielle avec photo et une photo de vous tenant cette pièce. Votre visage et les informations du document doivent être lisibles.",
+    format: "Photo JPEG, PNG ou WebP. Jusqu’à 8 Mo après traitement.",
+    contactHint: "Indiquez votre nom complet tel qu’il figure sur votre pièce d’identité et un e-mail où nous pouvons vous joindre.",
+    recipientHint: "Pour chaque moyen de soutien, indiquez le nom complet du destinataire tel qu’il figure sur sa pièce d’identité et son compte ou numéro. Expliquez ci-dessous si une autre personne reçoit l’argent.",
+    contactDetailsHint: "Indiquez un numéro de téléphone ou WhatsApp et le meilleur moment pour vous joindre. Si quelqu’un d’autre reçoit le soutien, expliquez son lien avec vous et le bénéficiaire, ainsi que son autorisation à recevoir les fonds.",
+    consent: "J’autorise l’équipe de vérification à utiliser ces documents privés pour vérifier mon identité et les coordonnées du destinataire. Je confirme avoir l’autorisation de les partager.",
+    consentError: "Veuillez autoriser les vérifications privées.",
+    uploaded: "Photo privée envoyée",
+    invalidFile: "Choisissez une image JPEG, PNG ou WebP pour la vérification d’identité.",
+    replace: "Remplacer la photo",
+    beneficiaryHint: "Nommez la personne ou le groupe qui a besoin de soutien et précisez votre lien. Ces informations figurent sur la collecte.",
+    privateDraft: "Les contacts privés et les pièces d’identité ne sont pas conservés dans le brouillon de ce navigateur. Enregistrez dans votre compte pour les conserver.",
+    correction: "Ce que notre équipe vous demande de corriger",
+    recipientEvidence: "Les justificatifs privés facultatifs peuvent inclure l’autorisation du destinataire ou un document montrant son lien avec le bénéficiaire. Ne mettez jamais de pièces d’identité dans la galerie publique.",
+    remove: (label: string) => `Retirer : ${label}`,
+  },
+  ht: {
+    title: "Verifikasyon prive",
+    intro: "Anvan piblikasyon, ekip nou an dwe verifye idantite ou ak kiyès k ap resevwa sipò a. Dokiman sa yo rete prive epi yo pa janm parèt sou kanpay ou.",
+    identityHint: "Ajoute yon foto klè yon pyès idantite ofisyèl ki gen foto ou, epi yon foto ou ki montre ou kenbe pyès la. Figi ou ak enfòmasyon sou pyès la dwe klè.",
+    format: "Foto JPEG, PNG oswa WebP. Jiska 8 MB apre tretman.",
+    contactHint: "Bay non konplè ou jan li parèt sou pyès idantite ou ak yon imèl kote nou ka jwenn ou.",
+    recipientHint: "Pou chak fason pou bay sipò, mete non konplè moun k ap resevwa a jan li sou pyès idantite li, ansanm ak kont oswa nimewo li. Esplike anba a si se yon lòt moun k ap resevwa lajan an.",
+    contactDetailsHint: "Bay yon nimewo telefòn oswa WhatsApp ak pi bon lè pou jwenn ou. Si yon lòt moun resevwa sipò a, esplike relasyon li ak ou menm ak moun ki bezwen èd la, epi poukisa li gen otorizasyon resevwa li.",
+    consent: "Mwen bay ekip verifikasyon an pèmisyon itilize dokiman prive sa yo pou verifye idantite mwen ak enfòmasyon moun k ap resevwa sipò a. Mwen konfime mwen gen pèmisyon pataje yo.",
+    consentError: "Tanpri bay pèmisyon pou verifikasyon prive yo.",
+    uploaded: "Foto prive a voye",
+    invalidFile: "Chwazi yon imaj JPEG, PNG oswa WebP pou verifye idantite ou.",
+    replace: "Ranplase foto a",
+    beneficiaryHint: "Bay non moun oswa gwoup ki bezwen sipò a epi esplike relasyon ou avèk li. Enfòmasyon sa yo parèt sou kanpay la.",
+    privateDraft: "Kontak prive ak pyès idantite yo pa rete nan bouyon navigatè sa a. Anrejistre nan kont ou pou konsève yo.",
+    correction: "Sa ekip nou an mande ou korije",
+    recipientEvidence: "Prèv prive ki pa obligatwa yo ka gen otorizasyon moun k ap resevwa a oswa yon dokiman ki montre relasyon li ak moun ki bezwen èd la. Pa janm mete foto pyès idantite nan galri piblik la.",
+    remove: (label: string) => `Retire: ${label}`,
+  },
+  es: {
+    title: "Verificación privada",
+    intro: "Antes de publicar, nuestro equipo debe verificar tu identidad y quién recibe el apoyo. Estos documentos son privados y nunca aparecen en tu campaña.",
+    identityHint: "Añade una foto clara de un documento oficial de identidad con foto y una foto tuya sosteniéndolo. Tu rostro debe verse con claridad y los datos del documento deben ser legibles.",
+    format: "Foto JPEG, PNG o WebP. Hasta 8 MB después del procesamiento.",
+    contactHint: "Indica tu nombre completo tal como aparece en tu documento de identidad y un correo donde podamos contactarte.",
+    recipientHint: "Para cada método de apoyo, incluye el nombre completo del destinatario tal como aparece en su documento de identidad y su cuenta o número. Explica abajo si otra persona recibe el dinero.",
+    contactDetailsHint: "Indica un teléfono o WhatsApp y el mejor horario para contactarte. Si otra persona recibe el apoyo, explica su relación contigo y con el beneficiario, y por qué está autorizada a recibirlo.",
+    consent: "Autorizo al equipo de revisión a usar estos documentos privados para verificar mi identidad y los datos del destinatario. Confirmo que tengo permiso para compartirlos.",
+    consentError: "Confirma el permiso para las verificaciones privadas.",
+    uploaded: "Foto privada subida",
+    invalidFile: "Elige una imagen JPEG, PNG o WebP para verificar tu identidad.",
+    replace: "Reemplazar foto",
+    beneficiaryHint: "Nombra a la persona o al grupo que necesita apoyo e indica tu relación. Estos datos aparecen en la campaña.",
+    privateDraft: "Los contactos privados y los documentos de identidad no se guardan en el borrador de este navegador. Guarda en tu cuenta para conservarlos.",
+    correction: "Lo que nuestro equipo te pide corregir",
+    recipientEvidence: "Las pruebas privadas opcionales pueden incluir la autorización del destinatario o un documento que muestre su relación con el beneficiario. Nunca pongas documentos de identidad en la galería pública.",
+    remove: (label: string) => `Eliminar: ${label}`,
+  },
+};

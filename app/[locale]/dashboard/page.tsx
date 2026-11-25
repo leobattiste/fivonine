@@ -4,11 +4,13 @@ import { notFound } from "next/navigation";
 import Icon from "@/components/Icon";
 import ActionForm, { Submit } from "@/components/ActionForm";
 import DashNav from "@/components/DashNav";
+import AppealHistory from "@/components/AppealHistory";
+import AppealForm from "@/components/AppealForm";
 import { Cover, FundraiserCard, StatusPill } from "@/components/Campaign";
 import { AvatarInput } from "@/components/Uploads";
-import { changePassword, markNotificationsRead, saveProfile, submitAppeal } from "@/app/actions";
+import { changePassword, markNotificationsRead, saveProfile } from "@/app/actions";
 import { requireViewer } from "@/lib/auth";
-import { getCategories, myBookmarks, myCampaigns, myChanges, myNotifications, reviewNotes, unreadCount } from "@/lib/data";
+import { getCategories, getMyAppeals, myBookmarks, myCampaigns, myChanges, myNotifications, reviewNotes, unreadCount } from "@/lib/data";
 import { DEPARTMENTS } from "@/lib/constants";
 import { fmtDate } from "@/lib/format";
 import { isLocale, localeNames, locales, t, type Locale } from "@/lib/i18n";
@@ -114,7 +116,7 @@ async function Notifications({ locale, viewerId }: { locale: Locale; viewerId: s
         <ul className="list">
           {items.map((n) => {
             const toManage = ["campaign_needs_changes", "campaign_rejected", "campaign_suspended", "campaign_live", "new_contribution", "vouch_approved", "changes_needed", "changes_approved"].includes(n.kind);
-            const href = n.kind.startsWith("admin_") ? `/${locale}/admin` : n.campaign_id && toManage ? `/${locale}/dashboard/campaigns/${n.campaign_id}` : n.payload.slug ? `/${locale}/campaigns/${n.payload.slug}` : `/${locale}/dashboard`;
+            const href = n.kind === "appeal_accepted" || n.kind === "appeal_declined" ? `/${locale}/dashboard?tab=profile#appeals` : n.kind.startsWith("admin_") ? `/${locale}/admin` : n.campaign_id && toManage ? `/${locale}/dashboard/campaigns/${n.campaign_id}` : n.payload.slug ? `/${locale}/campaigns/${n.payload.slug}` : `/${locale}/dashboard`;
             return (
               <li key={n.id} className={n.read_at ? "" : "unread"}>
                 <div className="stack tight" style={{ flex: "1 1 300px" }}>
@@ -130,8 +132,9 @@ async function Notifications({ locale, viewerId }: { locale: Locale; viewerId: s
     </>
   );
 }
-function Profile({ locale, viewer }: { locale: Locale; viewer: Awaited<ReturnType<typeof requireViewer>> }) {
+async function Profile({ locale, viewer }: { locale: Locale; viewer: Awaited<ReturnType<typeof requireViewer>> }) {
   const d = t(locale), x = d.dash, p = viewer.profile;
+  const appeals = await getMyAppeals(viewer.id);
   return (
     <>
       <header className="row spread end"><div className="stack tight"><h1>{d.x.nav.profile}</h1><p className="muted">{viewer.email}</p></div><Link className="arrow-link small" href={`/${locale}/u/${viewer.id}`}>{x.publicProfile}<Icon name="arrow" size={16} /></Link></header>
@@ -160,11 +163,10 @@ function Profile({ locale, viewer }: { locale: Locale; viewer: Awaited<ReturnTyp
             <label className="field"><span>{x.newPassword}</span><input className="input" type="password" name="password" minLength={8} required autoComplete="new-password" /><small>{d.auth.passwordHint}</small></label>
             <div><Submit className="btn">{x.changePassword}</Submit></div>
           </ActionForm>
-          <ActionForm action={submitAppeal} locale={locale} className="panel mint" reset>
-            <h2>{x.appealTitle}</h2>
-            <label className="field"><span>{x.appealHint}</span><textarea className="input" name="body" rows={4} minLength={10} maxLength={2000} required /></label>
-            <div><Submit className="btn">{x.appealSend}</Submit></div>
-          </ActionForm>
+          <section id="appeals" className="stack" aria-labelledby="appeals-title">
+            <AppealForm locale={locale} />
+            <AppealHistory locale={locale} items={appeals} />
+          </section>
         </div>
       </div>
     </>

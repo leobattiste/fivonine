@@ -21,6 +21,8 @@ export type CampaignPrivate = {
   campaign_id: string; contact_name: string | null; contact_email: string | null; contact_details: string | null;
   id_front_path: string | null; id_back_path: string | null; selfie_path: string | null; reference_name: string | null;
   reference_contact: string | null; documents: string[]; consent_at: string | null; review_note: string | null;
+  identity_checked_at?: string | null; identity_checked_by?: string | null;
+  recipient_checked_at?: string | null; recipient_checked_by?: string | null;
 };
 export type SupportMethod = { id: string; campaign_id: string; method: string; details: string; link: string | null; position: number };
 export type CampaignChange = { campaign_id: string; author_id: string; payload: { row: Record<string, unknown>; methods: { method: string; details: string; link: string | null }[] }; status: "pending" | "needs_changes"; review_note: string | null; submitted_at: string };
@@ -31,3 +33,4 @@ export type Category = { slug: string; name_ht: string; name_fr: string; name_en
 export type Settings = { emergency: { active: boolean } & Record<Locale, string>; rate: { htg_per_usd: number } };
 export type Notification = { id: string; kind: string; campaign_id: string | null; payload: { title?: string; slug?: string; note?: string }; read_at: string | null; created_at: string };
 export type ActionResult = { ok: boolean; message: string; id?: string; at?: string; undo?: string } | null;
+export type Appeal = { id: string; campaign_id: string | null; body: string; status: "open" | "accepted" | "declined"; admin_note: string | null; created_at: string };

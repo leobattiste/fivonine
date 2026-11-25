@@ -177,3 +177,19 @@ test("offline navigation retains an already opened campaign instead of replacing
   // Member pages continue to bypass public offline caching.
   for (const route of ["/es/login", "/ht/create", "/fr/dashboard", "/en/admin"]) assert.equal(navigate(route), undefined);
 });
+
+test("offline cache stores only responses explicitly marked anonymous by the server", async () => {
+  for (const anonymous of [false, true]) {
+    const listeners = {}, stored = [];
+    vm.runInNewContext(fs.readFileSync(`${__dirname}/../public/sw.js`, "utf8"), {
+      self: { addEventListener: (name, listener) => { listeners[name] = listener; } },
+      location: { origin: "https://example.test" }, URL, Response,
+      fetch: async () => new Response("<h1>Campaign</h1>", { headers: anonymous ? { "X-Fivonine-Public-Cache": "1" } : {} }),
+      caches: { open: async () => ({ put: async (request, response) => stored.push(await response.text()) }) },
+    });
+    let response;
+    listeners.fetch({ request: { url: "https://example.test/en/campaigns/help-marie", method: "GET", mode: "navigate" }, respondWith: (result) => { response = result; } });
+    assert.equal(await (await response).text(), "<h1>Campaign</h1>");
+    assert.equal(stored.length, anonymous ? 1 : 0);
+  }
+});

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { isLocale, t } from "@/lib/i18n";
+import OperatorDetails from "./OperatorDetails";
 type Key = "safety" | "terms" | "privacy" | "guidelines" | "help";
 export const contentMeta = (key: Key) => async ({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> => {
   const { locale } = await params;
@@ -19,6 +20,7 @@ export async function ContentPage({ params, page }: { params: Promise<{ locale: 
         <nav className="toc" aria-label={d.x.pages.toc}><p>{d.x.pages.toc}</p>{p.sections.map(([h]) => <a key={h} href={`#${slug(h)}`}>{h}</a>)}</nav>
         <div className="prose">{p.sections.map(([h, body]) => <section key={h} id={slug(h)}><h2>{h}</h2><p>{body}</p></section>)}</div>
       </div>
+      {(page === "privacy" || page === "terms") && <OperatorDetails locale={locale} />}
     </div>
   );
 }

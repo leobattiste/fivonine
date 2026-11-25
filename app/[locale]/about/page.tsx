@@ -5,6 +5,7 @@ import Icon, { type IconName } from "@/components/Icon";
 import { PexelsPhoto } from "@/components/Brand";
 import { isLocale, t } from "@/lib/i18n";
 import { PHOTOS } from "@/lib/photos";
+import OperatorDetails from "@/components/OperatorDetails";
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   return isLocale(locale) ? { title: t(locale).about.title, description: t(locale).about.lead } : {};
@@ -37,6 +38,7 @@ export default async function About({ params }: { params: Promise<{ locale: stri
           <Link className="arrow-link" href={`/${locale}/transparency`}>{a.transparency}<Icon name="arrow" size={18} /></Link>
         </div>
       </section>
+      <OperatorDetails locale={locale} />
     </div>
   );
 }

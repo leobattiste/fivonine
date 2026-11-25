@@ -1,5 +1,5 @@
 "use client";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import ActionForm, { Submit } from "./ActionForm";
 import { moderate } from "@/app/admin-actions";
 import { TIERS } from "@/lib/constants";
@@ -11,14 +11,24 @@ const TEMPLATES: [string, string][] = [
   ["Proof needed", "Tanpri ajoute yon dokiman ki sipòte demann nan, tankou yon bòdwo lopital, yon lèt lekòl oswa yon devi."],
   ["Not allowed", "Kanpay sa a pa respekte règ kominote a, kidonk nou pa ka pibliye li."],
 ];
-export default function ModerationForm({ id, status, tier, featured, urgent, emergency, note }: { id: string; status: string; tier: string; featured: boolean; urgent: boolean; emergency: boolean; note: string }) {
+export default function ModerationForm({ id, status, tier, featured, urgent, emergency, note, evidenceReady, identityCheckedAt, recipientCheckedAt }: { id: string; status: string; tier: string; featured: boolean; urgent: boolean; emergency: boolean; note: string; evidenceReady: boolean; identityCheckedAt?: string | null; recipientCheckedAt?: string | null }) {
   const area = useRef<HTMLTextAreaElement>(null);
+  const [identity, setIdentity] = useState(false), [recipient, setRecipient] = useState(false);
   const live = status === "live";
   return (
     <ActionForm action={moderate} className="stack">
       <input type="hidden" name="id" value={id} />
+      <fieldset className="stack tight">
+        <legend>Required before publishing or restoring</legend>
+        {!evidenceReady && <p className="notice err">Private government ID, a separate selfie, and the organizer's consent are still required. Ask the organizer to complete verification.</p>}
+        <label className="check"><input type="checkbox" name="identity_checked" checked={identity} onChange={(e) => setIdentity(e.target.checked)} disabled={!evidenceReady} /><span>I opened the private ID and selfie and confirmed they match the organizer.</span></label>
+        <label className="check"><input type="checkbox" name="recipient_checked" checked={recipient} onChange={(e) => setRecipient(e.target.checked)} disabled={!evidenceReady} /><span>I checked the recipient's name, relationship to the beneficiary, and every current support method.</span></label>
+        {identityCheckedAt && <small>Last identity check: {new Date(identityCheckedAt).toLocaleString("en-US")}</small>}
+        {recipientCheckedAt && <small>Last recipient check: {new Date(recipientCheckedAt).toLocaleString("en-US")}</small>}
+        <small>Both confirmations are recorded with your administrator account. Earlier checks do not replace a new publishing review.</small>
+      </fieldset>
       <label className="field"><span>Verification badge</span>
-        <select className="input" name="tier" defaultValue={tier}>{TIERS.map((t) => <option key={t} value={t}>{{ none: "Reviewed only", id_checked: "Identity checked", community: "Community confirmed", organization: "Verified organization" }[t]}</option>)}</select>
+        <select className="input" name="tier" defaultValue={tier === "none" && evidenceReady ? "id_checked" : tier}>{TIERS.map((t) => <option key={t} value={t}>{{ none: "Incomplete verification (cannot publish)", id_checked: "Identity checked", community: "Community confirmed", organization: "Verified organization" }[t]}</option>)}</select>
       </label>
       <div className="row">
         <label className="check"><input type="checkbox" name="featured" defaultChecked={featured} /><span>Feature on home</span></label>
@@ -31,8 +41,8 @@ export default function ModerationForm({ id, status, tier, featured, urgent, eme
       </label>
       <div className="templates">{TEMPLATES.map(([label, text]) => <button key={label} type="button" className="chip" onClick={() => { if (area.current) { area.current.value = text; area.current.focus(); } }}>{label}</button>)}</div>
       <div className="stack tight">
-        {!live && status !== "suspended" && <Submit name="decision" value="approve">Approve and publish</Submit>}
-        {status === "suspended" && <Submit name="decision" value="restore">Restore</Submit>}
+        {!live && status !== "suspended" && <Submit name="decision" value="approve" disabled={!evidenceReady || !identity || !recipient}>Approve and publish</Submit>}
+        {status === "suspended" && <Submit name="decision" value="restore" disabled={!evidenceReady || !identity || !recipient}>Restore</Submit>}
         {!live && <Submit name="decision" value="needs_changes" className="btn">Ask for changes</Submit>}
         {!live && status !== "rejected" && <Submit name="decision" value="reject" className="btn quiet danger">Decline</Submit>}
         {status !== "suspended" && <Submit name="decision" value="suspend" className="btn quiet danger">Suspend</Submit>}

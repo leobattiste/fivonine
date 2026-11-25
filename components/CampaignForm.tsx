@@ -4,21 +4,24 @@ import Icon from "./Icon";
 import Cropper from "./Cropper";
 import StoryEditor from "./StoryEditor";
 import { saveCampaign } from "@/app/actions";
-import { DEPARTMENTS, METHODS, type MethodGroup } from "@/lib/constants";
+import { DEPARTMENTS, METHODS, RELATIONS, type MethodGroup } from "@/lib/constants";
 import { storyLanguages, t, type Locale } from "@/lib/i18n";
 import { uploadBlob, uploadImage, type Crop } from "@/lib/upload";
 import { fmtMoney, mediaUrl } from "@/lib/format";
-import { normalizeMethods, type FormState } from "@/lib/form";
+import { deviceDraft, restoreDeviceDraft, type FormState, type IdentityFileField } from "@/lib/form";
+import { verificationCopy } from "@/lib/dict/verification";
 import type { Category } from "@/lib/types";
 export type { FormState };
 
 const LINK = /^https:\/\/[^\s]+$/;
+const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const ID_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const plain = (html: string) => html.replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim();
 const time = (locale: Locale) => new Intl.DateTimeFormat(locale, { hour: "numeric", minute: "2-digit" }).format(new Date());
 
 /** One page, in the order a supporter reads it: title, category, photo, story, place, media, goal, how to help. */
-export default function CampaignForm({ locale, cats, initial, draftKey, live, email }: { locale: Locale; cats: Category[]; initial: FormState; draftKey: string | null; live: boolean; email?: string }) {
-  const d = t(locale), c = d.create, x = d.x.form, k = x.compose;
+export default function CampaignForm({ locale, cats, initial, draftKey, live, email, reviewNote }: { locale: Locale; cats: Category[]; initial: FormState; draftKey: string | null; live: boolean; email?: string; reviewNote?: string | null }) {
+  const d = t(locale), c = d.create, x = d.x.form, k = x.compose, verification = verificationCopy[locale];
   const [f, setF] = useState<FormState>(initial);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState<string | null>(null);
@@ -26,6 +29,7 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
   const [restored, setRestored] = useState(false);
   const [deviceAt, setDeviceAt] = useState<string | null>(null);
   const [consent, setConsent] = useState([false, false, false]);
+  const [verificationConsent, setVerificationConsent] = useState(false);
   const [recording, setRecording] = useState(false);
   const [cropFile, setCropFile] = useState<File | null>(null);
   const recorder = useRef<MediaRecorder | null>(null);
@@ -37,20 +41,24 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
     if (!draftKey) return;
     try {
       const raw = localStorage.getItem(draftKey);
-      if (raw) { const saved = JSON.parse(raw); setF({ ...initial, ...saved, methods: normalizeMethods(saved.methods), priv: { ...initial.priv, ...saved.priv } }); setRestored(true); }
+      if (raw) { setF(restoreDeviceDraft(initial, raw)); setRestored(true); }
     } catch {}
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [draftKey]);
   useEffect(() => {
     if (!draftKey) return;
-    const id = setTimeout(() => { try { localStorage.setItem(draftKey, JSON.stringify(f)); setDeviceAt(time(locale)); } catch {} }, 700);
+    const id = setTimeout(() => { try { localStorage.setItem(draftKey, deviceDraft(f)); setDeviceAt(time(locale)); } catch {} }, 700);
     return () => clearTimeout(id);
   }, [f, draftKey, locale]);
   // A saved draft gets an id so the next save updates it.
   useEffect(() => { if (state?.ok && state.id) setF((p) => (p.id ? p : { ...p, id: state.id })); }, [state]);
 
   const set = <K extends keyof FormState>(key: K, v: FormState[K]) => { setF((p) => ({ ...p, [key]: v })); setErrors((e) => { const n = { ...e }; delete n[key as string]; return n; }); };
-  const setPriv = <K extends keyof FormState["priv"]>(key: K, v: FormState["priv"][K]) => setF((p) => ({ ...p, priv: { ...p.priv, [key]: v } }));
+  const setPriv = <K extends keyof FormState["priv"]>(key: K, v: FormState["priv"][K]) => {
+    setF((p) => ({ ...p, priv: { ...p.priv, [key]: v } }));
+    setVerificationConsent(false);
+    setErrors((e) => { const n = { ...e }; delete n[key]; return n; });
+  };
   const setMethod = (id: string, patch: Partial<{ details: string; link: string }> | null) => setF((p) => {
     const next = { ...p.methods };
     if (patch === null) delete next[id]; else next[id] = Object.assign({ details: "", link: "" }, next[id], patch);
@@ -59,7 +67,7 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
   const src = (path: string) => previews.current[path] ?? mediaUrl(path) ?? "";
 
   const methods = useMemo(() => Object.entries(f.methods).filter(([, v]) => v.details.trim().length >= 3).map(([method, v]) => ({ method, details: v.details.trim(), link: v.link.trim() })), [f.methods]);
-  const consentOk = live || consent.every(Boolean);
+  const consentOk = (live || consent.every(Boolean)) && verificationConsent;
 
   // What is missing, by section. The checklist and the submit button read from the same rules.
   function check(): Record<string, string> {
@@ -69,29 +77,40 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
     if (!f.cover_path) e.cover_path = x.err.cover;
     if (plain(f.story).length < 40 && !f.voice_path) e.story = x.err.story;
     if (!f.department) e.department = x.err.department;
+    if (f.beneficiary_name.trim().length < 2) e.beneficiary_name = c.needRecipient;
+    if (!(RELATIONS as readonly string[]).includes(f.beneficiary_relation)) e.beneficiary_relation = c.needRecipient;
+    if (f.priv.contact_name.trim().length < 2) e.contact_name = c.needContact;
+    if (!EMAIL.test(f.priv.contact_email.trim())) e.contact_email = c.needContact;
+    if (f.priv.contact_details.trim().length < 3) e.contact_details = c.needContact;
+    if (!f.priv.id_front_path) e.id_front_path = c.needIdentity;
+    if (!f.priv.selfie_path) e.selfie_path = c.needIdentity;
     if (!methods.length) e.methods = x.err.method;
     for (const [id, v] of Object.entries(f.methods)) {
       if (v.details.trim().length < 3) e[`m.${id}`] = x.err.details;
       if (v.link.trim() && !LINK.test(v.link.trim())) e[`l.${id}`] = x.err.link;
     }
-    if (!consentOk) e.consent = x.err.consent;
+    if (!live && !consent.every(Boolean)) e.consent = x.err.consent;
+    if (!verificationConsent) e.verificationConsent = verification.consentError;
     return e;
   }
   const missing = useMemo(check, // eslint-disable-next-line react-hooks/exhaustive-deps
-    [f, consent, methods]);
-  const sectionOf = (key: string) => (key === "title" ? "title" : key === "cause" ? "category" : key === "cover_path" ? "cover" : key === "story" ? "story" : key === "department" ? "location" : key === "consent" ? "submit" : "receive");
+    [f, consent, methods, verificationConsent, live]);
+  const verificationKeys = ["contact_name", "contact_email", "contact_details", "id_front_path", "selfie_path", "verificationConsent"];
+  const sectionOf = (key: string) => (verificationKeys.includes(key) ? "verification" : key.startsWith("beneficiary_") ? "beneficiary" : key === "title" ? "title" : key === "cause" ? "category" : key === "cover_path" ? "cover" : key === "story" ? "story" : key === "department" ? "location" : key === "consent" ? "submit" : "receive");
   const items: [string, string, boolean][] = [
     ["title", k.items.title, !missing.title], ["category", k.items.category, !missing.cause], ["cover", k.items.cover, !missing.cover_path],
     ["story", k.items.story, !missing.story], ["location", k.items.location, !missing.department],
+    ["beneficiary", c.s1, !missing.beneficiary_name && !missing.beneficiary_relation],
     ["receive", k.items.receive, !Object.keys(missing).some((m) => m === "methods" || m.startsWith("m.") || m.startsWith("l."))],
-    ...(live ? [] : [["submit", k.items.consent, consentOk] as [string, string, boolean]]),
+    ["verification", verification.title, !verificationKeys.some((key) => missing[key])],
+    ...(live ? [] : [["submit", k.items.consent, consent.every(Boolean)] as [string, string, boolean]]),
   ];
   const doneCount = items.filter(([, , ok]) => ok).length;
 
   const jump = (section: string) => {
     const el = document.getElementById(`s-${section}`);
     el?.scrollIntoView({ behavior: "smooth", block: "start" });
-    requestAnimationFrame(() => el?.querySelector<HTMLElement>("input:not([type=file]):not([type=radio]), select, textarea, button, [contenteditable=true]")?.focus({ preventScroll: true }));
+    requestAnimationFrame(() => (el?.querySelector<HTMLElement>('[aria-invalid="true"]') ?? el?.querySelector<HTMLElement>("input:not([type=radio]), select, textarea, button, [contenteditable=true]"))?.focus({ preventScroll: true }));
   };
 
   async function run<T>(key: string, job: () => Promise<T>): Promise<T | null> {
@@ -115,6 +134,12 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
     if (!file) return;
     const path = await run("documents", () => uploadImage("documents", file, { max: 2000 }));
     if (path) setF((p) => ({ ...p, priv: { ...p.priv, documents: [...p.priv.documents, path].slice(0, 8) } }));
+  }
+  async function addIdentity(key: IdentityFileField, file: File | undefined) {
+    if (!file) return;
+    if (!ID_IMAGE_TYPES.includes(file.type)) { setUpErr(verification.invalidFile); return; }
+    const path = await run(key, () => uploadImage("documents", file, { max: 2400 }));
+    if (path) setPriv(key, path);
   }
   async function toggleRecord() {
     if (recording) { recorder.current?.stop(); return; }
@@ -141,6 +166,22 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
   const err = (key: string) => errors[key] ? <p className="field-error" id={`e-${key}`}><Icon name="alert" size={15} />{errors[key]}</p> : null;
   const inv = (key: string) => ({ "aria-invalid": errors[key] ? true : undefined, "aria-describedby": errors[key] ? `e-${key}` : undefined });
   const opt = <span className="opt"> ({x.optional})</span>;
+  const identityInput = (key: IdentityFileField, label: string, optional = false) => (
+    <div className="field">
+      <strong id={`${key}-label`}>{label}{optional ? opt : null}</strong>
+      {f.priv[key] && <p className="small" role="status"><Icon name="lock" size={16} /> {verification.uploaded}</p>}
+      <label className="upload-zone small">
+        <input id={`verify-${key}`} type="file" accept="image/jpeg,image/png,image/webp" capture={key === "selfie_path" ? "user" : "environment"}
+          disabled={busy !== null || pending} aria-labelledby={`${key}-label`} aria-required={!optional} {...inv(key)}
+          aria-describedby={`identity-hint identity-format${errors[key] ? ` e-${key}` : ""}`}
+          onChange={(e) => { const file = e.target.files?.[0]; e.target.value = ""; void addIdentity(key, file); }} />
+        <Icon name={busy === key ? "spinner" : "camera"} size={22} className={busy === key ? "icon spin" : "icon"} />
+        <span>{busy === key ? c.uploading : f.priv[key] ? verification.replace : c.addPhoto}</span>
+      </label>
+      {f.priv[key] && <button type="button" className="btn small quiet" disabled={busy !== null || pending} aria-label={verification.remove(label)} onClick={() => setPriv(key, null)}>{d.common.remove}</button>}
+      {err(key)}
+    </div>
+  );
   const groups: [MethodGroup, string, string][] = [["transfer", c.groupTransfer, c.hintTransfer], ["wallet", c.groupWallet, c.hintWallet], ["bank", c.groupBank, c.hintBank], ["app", c.groupApp, c.hintApp], ["other", d.support.other, c.hintOther]];
   const catName = cats.find((v) => v.slug === f.cause)?.[`name_${locale}`] ?? "";
   const where = [f.commune, f.department].filter(Boolean).join(", ");
@@ -168,13 +209,14 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
     </>
   );
   const draftBtn = (cls = "") => !live && (
-    <button className={`btn ${cls}`} name="intent" value="draft" disabled={pending || busy !== null || !canDraft} aria-busy={pending} title={canDraft ? undefined : x.err.title}>{pending ? x.saving : x.saveDraft}</button>
+    <button className={`btn ${cls}`} name="intent" value="draft" disabled={pending || busy !== null || recording || !canDraft} aria-busy={pending} title={canDraft ? undefined : x.err.title}>{pending ? x.saving : x.saveDraft}</button>
   );
 
   return (
     <form action={action} className="compose" noValidate
       onKeyDown={(e) => { const el = e.target as HTMLElement; if (e.key === "Enter" && el.tagName === "INPUT" && !["checkbox", "radio", "file"].includes((el as HTMLInputElement).type)) e.preventDefault(); }}
       onSubmit={(e) => {
+        if (busy !== null || pending || recording) { e.preventDefault(); return; }
         const submitter = (e.nativeEvent as SubmitEvent).submitter as HTMLButtonElement | null;
         if (submitter?.value === "submit") {
           const keys = Object.keys(missing);
@@ -192,6 +234,7 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
 
       <div className="compose-main">
         {live && <p className="notice"><Icon name="info" size={18} />{x.liveNote}</p>}
+        {reviewNote && <section className="notice" aria-labelledby="verification-correction"><Icon name="info" size={18} /><div><strong id="verification-correction">{verification.correction}</strong><p>{reviewNote}</p></div></section>}
         {restored && <p className="notice"><Icon name="undo" size={18} /><span>{x.restored} <button type="button" className="link" onClick={() => { setF(initial); setRestored(false); if (draftKey) localStorage.removeItem(draftKey); }}>{x.startOver}</button></span></p>}
         {upErr && <p className="notice err" role="alert"><Icon name="alert" size={18} />{upErr}</p>}
 
@@ -218,18 +261,18 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
           <header><h2>{k.cover.label}</h2><p className="muted">{k.cover.hint}</p></header>
           <div className="field">
             {cropFile ? (
-              <Cropper file={cropFile} labels={{ ...x.crop }} busy={busy === "cover"} onUse={useCover} onCancel={() => setCropFile(null)} />
+              <Cropper file={cropFile} labels={{ ...x.crop }} busy={busy !== null || pending} onUse={useCover} onCancel={() => setCropFile(null)} />
             ) : f.cover_path ? (
               <div className="stack">
                 <div className="frame cover-preview">{/* eslint-disable-next-line @next/next/no-img-element */}<img src={src(f.cover_path)} alt="" /></div>
                 <div className="row">
-                  <label className="btn small"><input type="file" accept="image/*" hidden onChange={(e) => { const file = e.target.files?.[0]; e.target.value = ""; if (file) setCropFile(file); }} /><Icon name="camera" size={16} />{x.crop.change}</label>
-                  <button type="button" className="btn small quiet" onClick={() => set("cover_path", null)}>{x.crop.remove}</button>
+                  <label className="btn small"><input type="file" accept="image/*" hidden disabled={busy !== null || pending} onChange={(e) => { const file = e.target.files?.[0]; e.target.value = ""; if (file) setCropFile(file); }} /><Icon name="camera" size={16} />{x.crop.change}</label>
+                  <button type="button" className="btn small quiet" disabled={busy !== null || pending} onClick={() => set("cover_path", null)}>{x.crop.remove}</button>
                 </div>
               </div>
             ) : (
               <label className="upload-zone" {...(errors.cover_path ? { "aria-describedby": "e-cover_path" } : {})}>
-                <input type="file" accept="image/*" aria-invalid={errors.cover_path ? true : undefined} onChange={(e) => { const file = e.target.files?.[0]; e.target.value = ""; if (file) { if (file.size > 25 * 1024 * 1024) setUpErr(c.tooBig); else setCropFile(file); } }} />
+                <input type="file" accept="image/*" disabled={busy !== null || pending} aria-invalid={errors.cover_path ? true : undefined} onChange={(e) => { const file = e.target.files?.[0]; e.target.value = ""; if (file) { if (file.size > 25 * 1024 * 1024) setUpErr(c.tooBig); else setCropFile(file); } }} />
                 <Icon name="camera" size={28} />
                 <span>{c.addPhoto}</span>
                 <span className="hint">{c.coverHint}</span>
@@ -275,6 +318,22 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
           </div>
         </section>
 
+        <section id="s-beneficiary" className="part">
+          <header><h2>{c.s1}</h2><p className="muted" id="beneficiary-hint">{verification.beneficiaryHint}</p></header>
+          <div className="cols-2">
+            <label className="field"><span>{c.beneficiary}</span>
+              <input className="input" value={f.beneficiary_name} maxLength={120} required aria-required="true" onChange={(e) => set("beneficiary_name", e.target.value)} {...inv("beneficiary_name")} />
+              {err("beneficiary_name")}
+            </label>
+            <label className="field"><span>{c.relation}</span>
+              <select className="input" value={f.beneficiary_relation} required aria-required="true" onChange={(e) => set("beneficiary_relation", e.target.value)} {...inv("beneficiary_relation")}>
+                <option value="">{c.choose}</option>
+                {RELATIONS.map((relation) => <option key={relation} value={relation}>{d.relations[relation]}</option>)}
+              </select>{err("beneficiary_relation")}
+            </label>
+          </div>
+        </section>
+
         <section id="s-media" className="part">
           <header><h2>{k.media.label}{opt}</h2><p className="muted">{k.media.hint}</p></header>
           <div className="field"><span>{k.media.photos}</span>
@@ -297,6 +356,7 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
           <label className="field"><span>{k.media.video}</span><input className="input" type="url" placeholder="https://" value={f.video_url} maxLength={300} onChange={(e) => set("video_url", e.target.value)} /><small>{c.videoHint}</small></label>
           <div className="field"><span>{k.media.documents}</span>
             <small>{k.media.documentsHint}</small>
+            <small>{verification.recipientEvidence}</small>
             {f.priv.documents.length > 0 && <p className="small"><Icon name="done" size={16} /> {f.priv.documents.length} {c.uploaded.toLowerCase()} <button type="button" className="link" onClick={() => setPriv("documents", [])}>{d.common.remove}</button></p>}
             {f.priv.documents.length < 8 && (
               <label className="upload-zone small"><input type="file" accept="image/*,application/pdf" disabled={busy !== null} onChange={(e) => { addDocument(e.target.files?.[0]); e.target.value = ""; }} />
@@ -318,6 +378,7 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
         <section id="s-receive" className="part">
           <header><h2>{k.receive.label}</h2><p className="muted">{k.receive.hint}</p></header>
           <p className="notice"><Icon name="eye" size={18} />{c.methodsWarn}</p>
+          <p className="small muted">{verification.recipientHint}</p>
           {err("methods")}
           <div className="method-groups">
             {groups.map(([group, label, hint]) => (
@@ -343,6 +404,42 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
           </div>
         </section>
 
+        <section id="s-verification" className="part" aria-labelledby="verification-title" aria-busy={[...verificationKeys, "id_back_path"].includes(busy ?? "")}>
+          <header><h2 id="verification-title">{verification.title}</h2><p className="muted">{verification.intro}</p></header>
+          <p className="notice"><Icon name="lock" size={18} />{c.privateNote}</p>
+          <p className="small muted" id="verification-contact-hint">{verification.contactHint}</p>
+          <div className="cols-2">
+            <label className="field"><span>{c.contactName}</span>
+              <input className="input" autoComplete="name" value={f.priv.contact_name} maxLength={120} required aria-required="true" onChange={(e) => setPriv("contact_name", e.target.value)} {...inv("contact_name")} />
+              {err("contact_name")}
+            </label>
+            <label className="field"><span>{c.contactEmail}</span>
+              <input className="input" type="email" inputMode="email" autoComplete="email" value={f.priv.contact_email} maxLength={254} required aria-required="true" onChange={(e) => setPriv("contact_email", e.target.value)} {...inv("contact_email")} />
+              {err("contact_email")}
+            </label>
+          </div>
+          <label className="field"><span>{c.contactDetails}</span>
+            <textarea className="input" rows={4} value={f.priv.contact_details} maxLength={600} required aria-required="true" onChange={(e) => setPriv("contact_details", e.target.value)} {...inv("contact_details")} aria-describedby={`verification-recipient-hint${errors.contact_details ? " e-contact_details" : ""}`} />
+            <small id="verification-recipient-hint">{verification.contactDetailsHint}</small>{err("contact_details")}
+          </label>
+          <div className="stack">
+            <p className="muted" id="identity-hint">{verification.identityHint}</p>
+            <small id="identity-format">{verification.format}</small>
+            <div className="cols-2">
+              {identityInput("id_front_path", c.idFront)}
+              {identityInput("selfie_path", c.selfie)}
+            </div>
+            {identityInput("id_back_path", c.idBack, true)}
+          </div>
+          <div className="cols-2">
+            <label className="field"><span>{c.referenceName}{opt}</span><input className="input" value={f.priv.reference_name} maxLength={120} onChange={(e) => setPriv("reference_name", e.target.value)} /></label>
+            <label className="field"><span>{c.referenceContact}{opt}</span><input className="input" value={f.priv.reference_contact} maxLength={200} onChange={(e) => setPriv("reference_contact", e.target.value)} /></label>
+          </div>
+          <label className="check"><input type="checkbox" checked={verificationConsent} required aria-required="true" onChange={(e) => { setVerificationConsent(e.target.checked); setErrors((old) => { const next = { ...old }; delete next.verificationConsent; return next; }); }} {...inv("verificationConsent")} /><span>{verification.consent}</span></label>
+          {err("verificationConsent")}
+          {draftKey && <p className="small muted"><Icon name="lock" size={15} />{verification.privateDraft}</p>}
+        </section>
+
         <section id="s-submit" className="part submit-part">
           <header><h2>{live ? x.submitChanges : k.submit.label}</h2><p className="muted">{live ? k.submit.changesHint : k.submit.hint}</p></header>
           <div className="only-compact stack tight"><p className="eyebrow">{k.side.preview}</p>{card}</div>
@@ -365,7 +462,7 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
           )}
           <div className="row end-row">
             {draftBtn()}
-            <button className="btn primary" name="intent" value="submit" disabled={pending || busy !== null} aria-busy={pending}>{pending ? <><Icon name="spinner" size={18} />{d.common.loading}</> : live ? x.submitChanges : k.submit.label}</button>
+            <button className="btn primary" name="intent" value="submit" disabled={pending || busy !== null || recording} aria-busy={pending}>{pending ? <><Icon name="spinner" size={18} />{d.common.loading}</> : live ? x.submitChanges : k.submit.label}</button>
           </div>
           <div className="stack tight">{saveState}</div>
         </section>

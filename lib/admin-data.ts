@@ -1,16 +1,16 @@
 import "server-only";
 import { db } from "./supabase/server";
+import { checked, unavailable } from "./data-errors";
 import { FIXTURES, fxCampaigns, fxCategories, fxMethods, fxMine, fxPrivate, fxProfile } from "./fixtures";
 import type { Campaign, CampaignChange, CampaignPrivate, Category, Contribution, Profile, SupportMethod, Update } from "./types";
 
 const OWNER = "owner:profiles!campaigns_owner_id_fkey(id,display_name,avatar_path,kind,org_name,org_verified)";
+async function adminDb() { return (await db()) ?? unavailable("admin_connection"); }
 export type Counts = { changes: number; pending: number; reports: number; messages: number; vouches: number; appeals: number; orgs: number };
 export async function adminCounts(): Promise<Counts> {
   if (FIXTURES) return { changes: 0, pending: 2, reports: 1, messages: 0, vouches: 1, appeals: 0, orgs: 1 };
-  const sb = await db();
-  const zero = { changes: 0, pending: 0, reports: 0, messages: 0, vouches: 0, appeals: 0, orgs: 0 };
-  if (!sb) return zero;
-  const n = async (table: string, f: (q: any) => any) => (await f(sb.from(table).select("*", { count: "exact", head: true }))).count ?? 0; // eslint-disable-line @typescript-eslint/no-explicit-any
+  const sb = await adminDb();
+  const n = async (table: string, f: (q: any) => any) => checked(await f(sb.from(table).select("*", { count: "exact", head: true })), `admin_count_${table}`).count ?? 0; // eslint-disable-line @typescript-eslint/no-explicit-any
   const [changes, pending, reports, messages, vouches, appeals, orgs] = await Promise.all([
     n("campaign_changes", (q) => q.eq("status", "pending")),
     n("campaigns", (q) => q.eq("status", "pending")), n("reports", (q) => q.eq("handled", false)), n("contact_messages", (q) => q.eq("handled", false)),
@@ -20,14 +20,13 @@ export async function adminCounts(): Promise<Counts> {
 }
 export async function adminCampaigns(status: string, q: string): Promise<Campaign[]> {
   if (FIXTURES) return status === "pending" ? fxMine.slice(1) : fxCampaigns;
-  const sb = await db();
-  if (!sb) return [];
+  const sb = await adminDb();
   let query = sb.from("campaigns").select(`*, ${OWNER}`).limit(100);
   if (status && status !== "all") query = query.eq("status", status);
   const term = q.replace(/[,()%*\\"':]/g, " ").trim().slice(0, 60);
   if (term) query = query.ilike("title", `%${term}%`);
   query = status === "pending" ? query.order("emergency", { ascending: false }).order("urgent", { ascending: false }).order("submitted_at", { ascending: true }) : query.order("updated_at", { ascending: false });
-  return ((await query).data ?? []) as Campaign[];
+  return (checked(await query, "admin_campaigns").data ?? []) as Campaign[];
 }
 export type Signal = { kind: string; other_id: string | null; other_title: string | null; detail: string };
 export type AdminDetail = {
@@ -38,9 +37,9 @@ export type AdminDetail = {
 export async function adminCampaign(id: string): Promise<AdminDetail | null> {
   if (FIXTURES)
     return { campaign: fxMine[1], owner: fxProfile, priv: fxPrivate, methods: fxMethods, updates: [], contributions: [], docs: [{ label: "ID, front", url: null }, { label: "ID, back", url: null }, { label: "Selfie with ID", url: null }], signals: [{ kind: "shared_payout", other_id: "c3", other_title: fxCampaigns[2].title, detail: "50937120000" }], reports: [], audit: [], ownerCampaigns: 3 };
-  const sb = await db();
-  if (!sb || !/^[0-9a-f-]{36}$/.test(id)) return null;
-  const { data } = await sb.from("campaigns").select("*").eq("id", id).maybeSingle();
+  if (!/^[0-9a-f-]{36}$/.test(id)) return null;
+  const sb = await adminDb();
+  const { data } = checked(await sb.from("campaigns").select("*").eq("id", id).maybeSingle(), "admin_campaign");
   if (!data) return null;
   const c = data as Campaign;
   const [owner, priv, methods, updates, contributions, signals, reports, audit, count] = await Promise.all([
@@ -54,6 +53,7 @@ export async function adminCampaign(id: string): Promise<AdminDetail | null> {
     sb.from("audit_log").select("id,action,note,created_at").eq("target_id", id).order("created_at", { ascending: false }).limit(30),
     sb.from("campaigns").select("id", { count: "exact", head: true }).eq("owner_id", c.owner_id),
   ]);
+  for (const result of [owner, priv, methods, updates, contributions, signals, reports, audit, count]) checked(result, "admin_campaign_detail");
   const p = (priv.data ?? null) as CampaignPrivate | null;
   const paths: [string, string | null][] = [["ID, front", p?.id_front_path ?? null], ["ID, back", p?.id_back_path ?? null], ["Selfie with ID", p?.selfie_path ?? null], ...(p?.documents ?? []).map((d, i): [string, string] => [`Document ${i + 1}`, d])];
   const docs = await Promise.all(paths.map(async ([label, path]) => ({ label, url: path ? (await sb.storage.from("documents").createSignedUrl(path, 600)).data?.signedUrl ?? null : null })));
@@ -61,22 +61,20 @@ export async function adminCampaign(id: string): Promise<AdminDetail | null> {
 }
 export async function adminUsers(q: string, only: string): Promise<Profile[]> {
   if (FIXTURES) return [fxProfile];
-  const sb = await db();
-  if (!sb) return [];
+  const sb = await adminDb();
   let query = sb.from("profiles").select("*").order("created_at", { ascending: false }).limit(100);
   const term = q.replace(/[,()%*\\"':]/g, " ").trim().slice(0, 60);
   if (term) query = query.or(`display_name.ilike.%${term}%,org_name.ilike.%${term}%`);
   if (only === "banned") query = query.eq("banned", true);
   if (only === "admins") query = query.eq("role", "admin");
   if (only === "orgs") query = query.eq("kind", "organization");
-  return ((await query).data ?? []) as Profile[];
+  return (checked(await query, "admin_users").data ?? []) as Profile[];
 }
 type Row = Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
 async function rows(table: string, select: string, order = "created_at", limit = 100): Promise<Row[]> {
   if (FIXTURES) return [];
-  const sb = await db();
-  if (!sb) return [];
-  return ((await sb.from(table).select(select).order(order, { ascending: false }).limit(limit)).data ?? []) as unknown as Row[];
+  const sb = await adminDb();
+  return (checked(await sb.from(table).select(select).order(order, { ascending: false }).limit(limit), `admin_${table}`).data ?? []) as unknown as Row[];
 }
 export const adminReports = () => FIXTURES ? Promise.resolve<Row[]>([{ id: "r1", reason: "payout_mismatch", body: "Nimewo MonCash la pa sou non òganizatè a.", handled: false, created_at: "2026-11-10T10:00:00Z", campaign: { id: "c4", title: fxCampaigns[3].title, slug: fxCampaigns[3].slug } }]) : rows("reports", "*, campaign:campaigns(id,title,slug)");
 export const adminMessages = () => rows("contact_messages", "*");
@@ -86,19 +84,17 @@ export const adminAudit = () => rows("audit_log", "*, actor:profiles!audit_log_a
 export const adminBlocklist = () => rows("blocklist", "*");
 export async function adminCategories(): Promise<Category[]> {
   if (FIXTURES) return fxCategories;
-  const sb = await db();
-  return sb ? (((await sb.from("categories").select("*").order("position")).data ?? []) as Category[]) : [];
+  const sb = await adminDb();
+  return (checked(await sb.from("categories").select("*").order("position"), "admin_categories").data ?? []) as Category[];
 }
 export type ChangeRow = CampaignChange & { campaign: Pick<Campaign, "id" | "title" | "slug" | "status"> | null };
 export async function adminChanges(): Promise<ChangeRow[]> {
   if (FIXTURES) return [];
-  const sb = await db();
-  if (!sb) return [];
-  return ((await sb.from("campaign_changes").select("*, campaign:campaigns(id,title,slug,status)").order("submitted_at")).data ?? []) as ChangeRow[];
+  const sb = await adminDb();
+  return (checked(await sb.from("campaign_changes").select("*, campaign:campaigns(id,title,slug,status)").order("submitted_at"), "admin_changes").data ?? []) as ChangeRow[];
 }
 export async function adminChange(id: string): Promise<CampaignChange | null> {
   if (FIXTURES) return null;
-  const sb = await db();
-  if (!sb) return null;
-  return ((await sb.from("campaign_changes").select("*").eq("campaign_id", id).maybeSingle()).data ?? null) as CampaignChange | null;
+  const sb = await adminDb();
+  return (checked(await sb.from("campaign_changes").select("*").eq("campaign_id", id).maybeSingle(), "admin_change").data ?? null) as CampaignChange | null;
 }

@@ -53,6 +53,12 @@ export default async function AdminCampaign({ params }: { params: Promise<{ loca
               <ActionForm action={decideChanges} className="stack">
                 <input type="hidden" name="id" value={c.id} />
                 <label className="field"><span>Note to the organizer</span><textarea className="input" name="note" rows={3} maxLength={2000} defaultValue={change.review_note ?? ""} /><small>Required to send changes back or discard them.</small></label>
+                <fieldset className="stack tight">
+                  <legend>Required to publish this proposed version</legend>
+                  <label className="check"><input type="checkbox" name="identity_checked" /><span>I rechecked the organizer's private ID and selfie.</span></label>
+                  <label className="check"><input type="checkbox" name="recipient_checked" /><span>I checked every recipient detail in the proposed changes above.</span></label>
+                  <small>The decision is tied to this proposed payload and recorded in the audit log. The published payment details stay unchanged until approval.</small>
+                </fieldset>
                 <div className="row">
                   <Submit name="decision" value="approve"><Icon name="check" size={16} />Publish changes</Submit>
                   <Submit name="decision" value="needs_changes" className="btn">Send back</Submit>
@@ -96,7 +102,7 @@ export default async function AdminCampaign({ params }: { params: Promise<{ loca
         <aside className="stack" style={{ gap: 20 }}>
           <section className="panel mint">
             <h2>Decision</h2>
-            <ModerationForm id={c.id} status={c.status} tier={c.tier} featured={c.featured} urgent={c.urgent} emergency={c.emergency} note={priv?.review_note ?? ""} />
+            <ModerationForm id={c.id} status={c.status} tier={c.tier} featured={c.featured} urgent={c.urgent} emergency={c.emergency} note={priv?.review_note ?? ""} evidenceReady={Boolean(priv?.id_front_path && priv.selfie_path && priv.id_front_path !== priv.selfie_path && priv.consent_at && docs.filter((d) => ["ID, front", "Selfie with ID"].includes(d.label)).every((d) => d.url))} identityCheckedAt={priv?.identity_checked_at} recipientCheckedAt={priv?.recipient_checked_at} />
           </section>
           <section className="panel">
             <h2>Organizer (private)</h2>
