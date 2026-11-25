@@ -1,5 +1,6 @@
 import type { Locale } from "./i18n";
 export type MethodDraft = { details: string; link: string };
+export type IdentityFileField = "id_front_path" | "id_back_path" | "selfie_path";
 export type FormState = {
   id?: string; title: string; story: string; cause: string; department: string; commune: string; beneficiary_name: string; beneficiary_relation: string;
   goal_amount: string; goal_currency: string; deadline: string; urgent: boolean; cover_path: string | null; gallery: string[]; video_url: string;
@@ -14,3 +15,19 @@ export const emptyForm = (locale: Locale, name = "", email = ""): FormState => (
 /** Older drafts stored each method as plain text. */
 export const normalizeMethods = (m: unknown): Record<string, MethodDraft> =>
   Object.fromEntries(Object.entries((m && typeof m === "object" ? m : {}) as Record<string, unknown>).map(([k, v]) => [k, typeof v === "string" ? { details: v, link: "" } : { details: String((v as MethodDraft)?.details ?? ""), link: String((v as MethodDraft)?.link ?? "") }]));
+
+/** Device drafts must never persist identity documents or private contact details. */
+export function deviceDraft(form: FormState): string {
+  const { priv, ...publicDraft } = form;
+  void priv;
+  return JSON.stringify(publicDraft);
+}
+
+/** Ignore private data left in drafts saved by older versions of the form. */
+export function restoreDeviceDraft(initial: FormState, raw: string): FormState {
+  const saved = JSON.parse(raw);
+  if (!saved || typeof saved !== "object" || Array.isArray(saved)) return initial;
+  const { priv, ...publicDraft } = saved;
+  void priv;
+  return { ...initial, ...publicDraft, methods: normalizeMethods(saved.methods), priv: initial.priv };
+}

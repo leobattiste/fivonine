@@ -20,8 +20,10 @@ async function admin() {
   if (!data.user) return null;
   const { data: p } = await sb.from("profiles").select("role,banned").eq("id", data.user.id).maybeSingle();
   if (p?.role !== "admin" || p.banned) return null;
-  const log = (action: string, target_type: string, target_id: string, note = "") =>
-    sb.from("audit_log").insert({ actor_id: data.user!.id, action, target_type, target_id, note: note.slice(0, 2000) || null });
+  const log = async (action: string, target_type: string, target_id: string, note = "") => {
+    const { error } = await sb.from("audit_log").insert({ actor_id: data.user!.id, action, target_type, target_id: target_id.slice(0, 80), note: note.slice(0, 2000) || null });
+    if (error) throw new Error("The operation could not be added to the audit log.");
+  };
   return { sb, uid: data.user.id, log };
 }
 const refresh = () => revalidatePath("/", "layout");
@@ -34,16 +36,12 @@ export async function moderate(_: ActionResult, f: FormData): Promise<ActionResu
   const map: Record<string, string> = { approve: "live", needs_changes: "needs_changes", reject: "rejected", suspend: "suspended", restore: "live" };
   if (decision !== "flags" && !map[decision]) return fail("Choose a decision.");
   if (["needs_changes", "reject", "suspend"].includes(decision) && note.length < 5) return fail("Write a reason. The organizer will read it.");
-  const patch: Record<string, unknown> = { featured: f.get("featured") === "on", urgent: f.get("urgent") === "on", emergency: f.get("emergency") === "on" };
-  if ((TIERS as readonly string[]).includes(tier)) patch.tier = tier;
-  if (decision !== "flags") {
-    patch.status = map[decision];
-    const { error: ne } = await a.sb.from("campaign_private").upsert({ campaign_id: id, review_note: note || null }, { onConflict: "campaign_id" });
-    if (ne) return fail(ne.message);
-  }
-  const { error } = await a.sb.from("campaigns").update(patch).eq("id", id);
-  if (error) return fail(error.message);
-  await a.log(`campaign_${decision}`, "campaign", id, note);
+  if (!(TIERS as readonly string[]).includes(tier)) return fail("Choose a verification badge.");
+  const { data, error } = await a.sb.rpc("review_campaign", {
+    cid: id, decision, review_note: note, checked_identity: f.get("identity_checked") === "on", checked_recipient: f.get("recipient_checked") === "on", badge: tier,
+    flags: { featured: f.get("featured") === "on", urgent: f.get("urgent") === "on", emergency: f.get("emergency") === "on" },
+  });
+  if (error || data !== "ok") return fail(error?.message ?? "The decision was not saved.");
   after(() => drainOutbox());
   refresh();
   return done(decision === "flags" ? "Settings saved." : `Decision recorded: ${map[decision].replace("_", " ")}.`);
@@ -52,16 +50,17 @@ export async function setBan(f: FormData) {
   const a = await admin();
   const id = s(f, "user_id"), banned = f.get("banned") === "1";
   if (!a || !UUID.test(id) || id === a.uid) return;
-  await a.sb.from("profiles").update({ banned }).eq("id", id);
-  if (banned) await a.sb.from("campaigns").update({ status: "suspended" }).eq("owner_id", id).in("status", ["live", "pending", "needs_changes"]);
-  await a.log(banned ? "user_ban" : "user_unban", "user", id, s(f, "note", 500));
+  const { data, error } = await a.sb.rpc("set_account_restriction", { uid: id, restricted: banned, reason: s(f, "note", 500) });
+  if (error || data !== "ok") throw new Error(error?.message ?? "The account restriction was not saved.");
+  after(() => drainOutbox());
   refresh();
 }
 export async function setRole(f: FormData) {
   const a = await admin();
   const id = s(f, "user_id"), role = s(f, "role") === "admin" ? "admin" : "user";
   if (!a || !UUID.test(id) || id === a.uid) return;
-  await a.sb.from("profiles").update({ role }).eq("id", id);
+  const { data, error } = await a.sb.from("profiles").update({ role }).eq("id", id).select("id").single();
+  if (error || !data) throw new Error(error?.message ?? "The user was not found.");
   await a.log(`user_role_${role}`, "user", id);
   refresh();
 }
@@ -69,7 +68,8 @@ export async function verifyOrg(f: FormData) {
   const a = await admin();
   const id = s(f, "user_id"), on = f.get("on") === "1";
   if (!a || !UUID.test(id)) return;
-  await a.sb.from("profiles").update({ org_verified: on }).eq("id", id);
+  const { data, error } = await a.sb.from("profiles").update({ org_verified: on }).eq("id", id).select("id").single();
+  if (error || !data) throw new Error(error?.message ?? "The organization was not found.");
   await a.log(on ? "org_verify" : "org_unverify", "user", id);
   refresh();
 }
@@ -77,7 +77,8 @@ export async function resolveItem(f: FormData) {
   const a = await admin();
   const id = s(f, "id"), table = s(f, "table"), handled = f.get("handled") !== "0";
   if (!a || !UUID.test(id) || !["reports", "contact_messages"].includes(table)) return;
-  await a.sb.from(table).update({ handled }).eq("id", id);
+  const { data, error } = await a.sb.from(table).update({ handled }).eq("id", id).select("id").single();
+  if (error || !data) throw new Error(error?.message ?? "The item was not found.");
   await a.log(`${table}_handled`, table, id);
   refresh();
 }
@@ -85,7 +86,8 @@ export async function decideVouch(f: FormData) {
   const a = await admin();
   const id = s(f, "id"), status = s(f, "status");
   if (!a || !UUID.test(id) || !["approved", "declined"].includes(status)) return;
-  await a.sb.from("vouches").update({ status }).eq("id", id);
+  const { data, error } = await a.sb.from("vouches").update({ status }).eq("id", id).select("id").single();
+  if (error || !data) throw new Error(error?.message ?? "The vouch was not found.");
   await a.log(`vouch_${status}`, "vouch", id);
   after(() => drainOutbox());
   refresh();
@@ -94,15 +96,20 @@ export async function decideAppeal(f: FormData) {
   const a = await admin();
   const id = s(f, "id"), status = s(f, "status");
   if (!a || !UUID.test(id) || !["accepted", "declined"].includes(status)) return;
-  await a.sb.from("appeals").update({ status, admin_note: s(f, "note", 1000) || null }).eq("id", id);
-  await a.log(`appeal_${status}`, "appeal", id, s(f, "note", 1000));
+  const note = s(f, "note", 1000);
+  if (note.length < 5) throw new Error("Write a reply for the member.");
+  const { data, error } = await a.sb.from("appeals").update({ status, admin_note: note }).eq("id", id).eq("status", "open").select("id").single();
+  if (error || !data) throw new Error(error?.message ?? "This appeal is no longer waiting.");
+  // The database records the decision and enqueues its member notification atomically.
+  after(() => drainOutbox());
   refresh();
 }
 export async function setHidden(f: FormData) {
   const a = await admin();
   const id = s(f, "id"), table = s(f, "table"), hidden = f.get("hidden") === "1";
   if (!a || !UUID.test(id) || !["campaign_updates", "contributions"].includes(table)) return;
-  await a.sb.from(table).update({ hidden }).eq("id", id);
+  const { data, error } = await a.sb.from(table).update({ hidden }).eq("id", id).select("id").single();
+  if (error || !data) throw new Error(error?.message ?? "The item was not found.");
   await a.log(hidden ? "hide" : "unhide", table, id);
   refresh();
 }
@@ -149,7 +156,8 @@ export async function removeBlock(f: FormData) {
   const a = await admin();
   const id = s(f, "id");
   if (!a || !UUID.test(id)) return;
-  await a.sb.from("blocklist").delete().eq("id", id);
+  const { data, error } = await a.sb.from("blocklist").delete().eq("id", id).select("id").single();
+  if (error || !data) throw new Error(error?.message ?? "The blocklist item was not found.");
   await a.log("blocklist_remove", "blocklist", id);
   refresh();
 }
@@ -162,7 +170,8 @@ export async function bulkCampaigns(_: ActionResult, f: FormData): Promise<Actio
   const op = s(f, "op"), note = s(f, "note", 2000);
   if (!ids.length) return fail("Select at least one fundraiser.");
   if (op === "suspend" && note.length < 5) return fail("Write a reason. The organizers will read it.");
-  const { data: before } = await a.sb.from("campaigns").select("id,status,featured").in("id", ids);
+  const { data: before, error: readError } = await a.sb.from("campaigns").select("id,status,featured").in("id", ids);
+  if (readError || !before?.length) return fail(readError?.message ?? "No selected fundraisers were found.");
   let patch: Record<string, unknown>;
   if (op === "feature") patch = { featured: true };
   else if (op === "unfeature") patch = { featured: false };
@@ -170,7 +179,8 @@ export async function bulkCampaigns(_: ActionResult, f: FormData): Promise<Actio
   else if (op === "undo") {
     let snapshot: { id: string; status: string; featured: boolean }[] = [];
     try { snapshot = JSON.parse(s(f, "snapshot", 20000)); } catch { return fail("Nothing to undo."); }
-    for (const row of snapshot.filter((r) => UUID.test(r.id))) await a.sb.from("campaigns").update({ status: row.status, featured: row.featured }).eq("id", row.id);
+    const { data, error } = await a.sb.rpc("undo_campaign_flags", { snapshot });
+    if (error || data !== "ok") return fail(error?.message ?? "The previous settings could not be restored.");
     await a.log("bulk_undo", "campaign", snapshot.map((r) => r.id).join(",").slice(0, 200));
     refresh();
     return done(`Undone for ${snapshot.length}.`);
@@ -178,12 +188,11 @@ export async function bulkCampaigns(_: ActionResult, f: FormData): Promise<Actio
   if (op === "suspend") {
     const live = (before ?? []).filter((r) => ["live", "pending", "needs_changes"].includes(r.status)).map((r) => r.id);
     if (!live.length) return fail("None of the selected fundraisers can be suspended.");
-    await a.sb.from("campaign_private").upsert(live.map((campaign_id) => ({ campaign_id, review_note: note })), { onConflict: "campaign_id" });
-    const { error } = await a.sb.from("campaigns").update(patch).in("id", live);
-    if (error) return fail(error.message);
+    const { data, error } = await a.sb.rpc("suspend_campaigns", { ids: live, reason: note });
+    if (error || data !== live.length) return fail(error?.message ?? "The selected fundraisers could not all be suspended.");
   } else {
-    const { error } = await a.sb.from("campaigns").update(patch).in("id", ids);
-    if (error) return fail(error.message);
+    const { data, error } = await a.sb.from("campaigns").update(patch).in("id", ids).select("id");
+    if (error || data?.length !== ids.length) return fail(error?.message ?? "Some selected fundraisers were not found. Refresh and retry.");
   }
   await a.log(`bulk_${op}`, "campaign", ids.join(",").slice(0, 200), note);
   after(() => drainOutbox());
@@ -196,19 +205,18 @@ export async function decideChanges(_: ActionResult, f: FormData): Promise<Actio
   const id = s(f, "id"), decision = s(f, "decision"), note = s(f, "note", 2000);
   if (!UUID.test(id)) return fail("Unknown fundraiser.");
   if (decision === "approve") {
-    const { data, error } = await a.sb.rpc("apply_campaign_changes", { cid: id });
+    const { data, error } = await a.sb.rpc("apply_campaign_changes", { cid: id, checked_identity: f.get("identity_checked") === "on", checked_recipient: f.get("recipient_checked") === "on" });
     if (error || data !== "ok") return fail(error?.message ?? "These changes are no longer waiting.");
   } else if (decision === "needs_changes") {
     if (note.length < 5) return fail("Write what needs to change. The organizer will read it.");
-    const { error } = await a.sb.from("campaign_changes").update({ status: "needs_changes", review_note: note }).eq("campaign_id", id);
-    if (error) return fail(error.message);
+    const { data, error } = await a.sb.from("campaign_changes").update({ status: "needs_changes", review_note: note }).eq("campaign_id", id).eq("status", "pending").select("campaign_id").single();
+    if (error || !data) return fail(error?.message ?? "These changes are no longer waiting.");
   } else if (decision === "discard") {
     if (note.length < 5) return fail("Write a reason. The organizer will read it.");
-    await a.sb.from("campaign_private").upsert({ campaign_id: id, review_note: note }, { onConflict: "campaign_id" });
-    const { error } = await a.sb.from("campaign_changes").delete().eq("campaign_id", id);
-    if (error) return fail(error.message);
+    const { data, error } = await a.sb.rpc("discard_campaign_changes", { cid: id, reason: note });
+    if (error || data !== "ok") return fail(error?.message ?? "These changes are no longer waiting.");
   } else return fail("Choose a decision.");
-  await a.log(`changes_${decision}`, "campaign", id, note);
+  if (decision === "needs_changes") await a.log(`changes_${decision}`, "campaign", id, note);
   after(() => drainOutbox());
   refresh();
   return done(decision === "approve" ? "Changes published." : decision === "discard" ? "Changes discarded." : "Sent back to the organizer.");

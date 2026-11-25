@@ -1,6 +1,5 @@
 "use server";
 import { revalidatePath } from "next/cache";
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { after } from "next/server";
 import { db } from "@/lib/supabase/server";
@@ -9,6 +8,7 @@ import { profileReady, safeNext } from "@/lib/auth";
 import { cleanStory, storyText } from "@/lib/story";
 import { drainOutbox } from "@/lib/email";
 import { slugify } from "@/lib/format";
+import { isMissingSession, magicLinkFailure } from "@/lib/auth-errors";
 import { METHOD_IDS, REASONS, RELATIONS, VOUCH_ROLES, DEPARTMENTS, SITE_URL } from "@/lib/constants";
 import type { ActionResult } from "@/lib/types";
 
@@ -24,13 +24,13 @@ const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 async function ctx(f: FormData) {
   const locale = L(f), d = t(locale), sb = await db();
-  const user = sb ? (await sb.auth.getUser()).data.user : null;
+  const auth = sb ? await sb.auth.getUser() : null;
+  if (auth?.error && !isMissingSession(auth.error)) throw new Error("Authentication is temporarily unavailable. Please try again.");
+  const user = auth?.data.user ?? null;
   return { locale, d, sb, user };
 }
 async function origin() {
-  const h = await headers();
-  const o = h.get("origin");
-  if (o && /^https?:\/\//.test(o)) return o;
+  // Use the configured callback origin rather than trusting a caller-supplied Origin header.
   return SITE_URL;
 }
 
@@ -55,8 +55,11 @@ export async function signUp(_: ActionResult, f: FormData): Promise<ActionResult
     email, password,
     options: { data: { display_name: name, locale }, emailRedirectTo: `${await origin()}/${locale}/auth/callback?next=${encodeURIComponent(next)}` },
   });
-  if (error) return fail(error.status === 429 ? d.auth.rate : /registered|exists/i.test(error.message) ? d.auth.exists : /password/i.test(error.message) ? d.auth.weak : d.common.error);
-  if (data.user && data.user.identities && data.user.identities.length === 0) return fail(d.auth.exists);
+  if (error) {
+    if (["email_exists", "user_already_exists"].includes(error.code ?? "")) return done(d.auth.confirmSent);
+    return fail(error.status === 429 ? d.auth.rate : /password/i.test(error.message) ? d.auth.weak : d.auth.deliveryError);
+  }
+  if (data.user && data.user.identities && data.user.identities.length === 0) return done(d.auth.confirmSent);
   if (data.session) redirect(next);
   return done(d.auth.confirmSent);
 }
@@ -67,7 +70,11 @@ export async function magicLink(_: ActionResult, f: FormData): Promise<ActionRes
   if (!EMAIL.test(email)) return fail(d.common.required);
   const next = safeNext(s(f, "next", 300), `/${locale}/dashboard`);
   const { error } = await sb.auth.signInWithOtp({ email, options: { shouldCreateUser: false, emailRedirectTo: `${await origin()}/${locale}/auth/callback?next=${encodeURIComponent(next)}` } });
-  if (error?.status === 429) return fail(d.auth.rate);
+  const failure = magicLinkFailure(error);
+  if (failure) {
+    console.error("[auth:magic_link] failed", error?.code ?? "unknown");
+    return fail(failure === "rate" ? d.auth.rate : d.auth.deliveryError);
+  }
   return done(d.auth.magicSent);
 }
 export async function signOut(f: FormData) {
@@ -165,7 +172,9 @@ export async function saveCampaign(_: ActionResult, f: FormData): Promise<Action
     contact_name: str(pv.contact_name, 120) || null,
     contact_email: EMAIL.test(str(pv.contact_email, 254)) ? str(pv.contact_email, 254) : null,
     contact_details: str(pv.contact_details, 600) || null,
-    id_front_path: own(pv.id_front_path), id_back_path: own(pv.id_back_path), selfie_path: own(pv.selfie_path),
+    id_front_path: /\.(webp|jpg|jpeg|png)$/.test(own(pv.id_front_path) ?? "") ? own(pv.id_front_path) : null,
+    id_back_path: /\.(webp|jpg|jpeg|png)$/.test(own(pv.id_back_path) ?? "") ? own(pv.id_back_path) : null,
+    selfie_path: /\.(webp|jpg|jpeg|png)$/.test(own(pv.selfie_path) ?? "") ? own(pv.selfie_path) : null,
     reference_name: str(pv.reference_name, 120) || null, reference_contact: str(pv.reference_contact, 200) || null,
     documents: (Array.isArray(pv.documents) ? pv.documents : []).map(own).filter((x): x is string => Boolean(x)).slice(0, 8),
   };
@@ -176,11 +185,25 @@ export async function saveCampaign(_: ActionResult, f: FormData): Promise<Action
     if (!row.department) missing.push(d.create.needPlace);
     if (storyLen < 40 && !row.voice_path) missing.push(d.create.needStory);
     if (!methods.length) missing.push(d.create.needMethod);
+    if (!priv.id_front_path || !priv.selfie_path) missing.push(d.create.needIdentity);
+    if (!row.beneficiary_name || !row.beneficiary_relation) missing.push(d.create.needRecipient);
+    if (!priv.contact_name || !priv.contact_email || !priv.contact_details) missing.push(d.create.needContact);
     if (!p.consent) missing.push(d.create.needConsent);
     if (missing.length) return fail(`${d.create.missing} ${missing.join(", ")}`);
   }
   if (submit && !row.cover_path) return fail(`${d.create.missing} ${d.x.form.err.cover}`);
-  const { data: me } = await sb.from("profiles").select("display_name,bio,department,city").eq("id", user.id).maybeSingle();
+  if (submit) {
+    // An owner-prefixed path is not proof of an upload. Check the private bucket before accepting it.
+    const paths = [priv.id_front_path!, priv.selfie_path!];
+    const results = await Promise.all(paths.map(async (path) => {
+      const name = path.slice(user.id.length + 1);
+      const { data, error } = await sb.storage.from("documents").list(user.id, { search: name, limit: 10 });
+      return !error && data?.some((object) => object.name === name);
+    }));
+    if (results.some((exists) => !exists)) return fail(d.create.needIdentity);
+  }
+  const { data: me, error: profileError } = await sb.from("profiles").select("display_name,bio,department,city").eq("id", user.id).maybeSingle();
+  if (profileError) return fail(d.common.error);
   if (!me || !profileReady(me)) return fail(d.x.setup.need);
   // The organizer is the profile that posts it: contact details come from the account.
   if (!priv.contact_name) priv.contact_name = me.display_name;
@@ -195,14 +218,21 @@ export async function saveCampaign(_: ActionResult, f: FormData): Promise<Action
   }
   // A public fundraiser keeps its published version; the edit waits in review as proposed changes.
   if (status === "live") {
-    const privRow = { campaign_id: id, ...priv };
+    const privRow = { campaign_id: id, ...priv, ...(submit && p.consent ? { consent_at: new Date().toISOString() } : {}) };
     const { error: pe } = await sb.from("campaign_private").upsert(privRow, { onConflict: "campaign_id" });
     if (pe) return fail(d.common.error);
-    const { error } = await sb.from("campaign_changes").upsert({ campaign_id: id, author_id: user.id, payload: { row, methods }, status: "pending" }, { onConflict: "campaign_id" });
-    if (error) return fail(d.common.error);
-    after(() => drainOutbox());
-    revalidatePath(`/${locale}/dashboard`);
-    redirect(`/${locale}/dashboard/campaigns/${id}?changes=1`);
+    // Replacing verified evidence withdraws publication in the database. Resubmit that draft normally.
+    const { data: latest, error: latestError } = await sb.from("campaigns").select("status").eq("id", id).single();
+    if (latestError || !latest) return fail(d.common.error);
+    status = latest.status;
+    if (status === "live") {
+      const { error } = await sb.from("campaign_changes").upsert({ campaign_id: id, author_id: user.id, payload: { row, methods }, status: "pending" }, { onConflict: "campaign_id" });
+      if (error) return fail(d.common.error);
+      after(() => drainOutbox());
+      revalidatePath(`/${locale}/dashboard`);
+      redirect(`/${locale}/dashboard/campaigns/${id}?changes=1`);
+    }
+    if (status !== "needs_changes") return fail(d.common.error);
   }
   if (id) {
     const { error } = await sb.from("campaigns").update(row).eq("id", id);
@@ -215,7 +245,8 @@ export async function saveCampaign(_: ActionResult, f: FormData): Promise<Action
   const privRow = { campaign_id: id, ...priv, ...(submit && p.consent ? { consent_at: new Date().toISOString() } : {}) };
   const { error: pe } = await sb.from("campaign_private").upsert(privRow, { onConflict: "campaign_id" });
   if (pe) return fail(d.common.error);
-  const { data: current } = await sb.from("support_methods").select("method,details,link,position").eq("campaign_id", id).order("position");
+  const { data: current, error: methodsError } = await sb.from("support_methods").select("method,details,link,position").eq("campaign_id", id).order("position");
+  if (methodsError) return fail(d.common.error);
   const same = (current ?? []).length === methods.length && (current ?? []).every((c, i) => c.method === methods[i].method && c.details === methods[i].details && (c.link ?? null) === methods[i].link);
   if (!same) {
     const { error: de } = await sb.from("support_methods").delete().eq("campaign_id", id);
@@ -267,8 +298,19 @@ export async function postUpdate(_: ActionResult, f: FormData): Promise<ActionRe
   if (!UUID.test(id) || !body) return fail(d.common.required);
   let proof: string[] = [];
   try {
-    proof = (JSON.parse(String(f.get("proof") || "[]")) as unknown[]).filter((x): x is string => typeof x === "string" && x.startsWith(`${user.id}/`)).slice(0, 6);
-  } catch {}
+    const submitted: unknown = JSON.parse(String(f.get("proof") || "[]"));
+    const ownPhoto = new RegExp(`^${user.id}/[a-z0-9-]{8,60}\\.(webp|jpg|jpeg|png)$`);
+    if (!Array.isArray(submitted) || submitted.length > 6 || submitted.some((path) => typeof path !== "string" || !ownPhoto.test(path))) return fail(d.common.error);
+    proof = submitted;
+  } catch { return fail(d.common.error); }
+  if (proof.length) {
+    const uploaded = await Promise.all(proof.map(async (path) => {
+      const name = path.slice(user.id.length + 1);
+      const { data, error } = await sb.storage.from("media").list(user.id, { search: name, limit: 10 });
+      return !error && data?.some((object) => object.name === name);
+    }));
+    if (uploaded.some((exists) => !exists)) return fail(d.common.error);
+  }
   const { error } = await sb.from("campaign_updates").insert({ campaign_id: id, author_id: user.id, body, proof });
   if (error) return fail(d.common.error);
   after(() => drainOutbox());

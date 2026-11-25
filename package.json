@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
-    "test": "tsc --noEmit && node --test scripts/test-i18n.cjs"
+    "test": "tsc --noEmit && node --test scripts/test-*.cjs",
+    "test:browser": "node scripts/test-browser.cjs",
+    "test:security": "node scripts/test-verification.cjs"
   },
   "dependencies": {
     "@fontsource-variable/bricolage-grotesque": "^5.2.5",

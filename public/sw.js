@@ -1,5 +1,5 @@
 /* Fivonine service worker: keeps opened pages readable on a weak or lost connection. */
-const CACHE = "fivonine-v3";
+const CACHE = "fivonine-v4";
 const offlineCopy = {
   en: ["You're offline", "Try again when your connection is back."],
   fr: ["Vous êtes hors ligne", "Réessayez quand votre connexion sera rétablie."],
@@ -28,7 +28,12 @@ self.addEventListener("fetch", (event) => {
   }
   if (req.mode === "navigate") {
     event.respondWith(
-      fetch(req).then((res) => { if (res.ok) { const copy = res.clone(); caches.open(CACHE).then((c) => c.put(req, copy)); } return res; })
+      fetch(req).then(async (res) => {
+        if (res.ok && res.headers.get("X-Fivonine-Public-Cache") === "1") {
+          try { const cache = await caches.open(CACHE); await cache.put(req, res.clone()); } catch { /* Storage limits must not hide a successful response. */ }
+        }
+        return res;
+      })
         .catch(() => caches.match(req).then((hit) => hit || offlinePage(url.pathname))),
     );
   }

@@ -6,6 +6,7 @@ import ActionForm, { Submit } from "@/components/ActionForm";
 import { sendContact } from "@/app/actions";
 import { getViewer } from "@/lib/auth";
 import { isLocale, t } from "@/lib/i18n";
+import OperatorDetails from "@/components/OperatorDetails";
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   return isLocale(locale) ? { title: t(locale).contact.title } : {};
@@ -37,6 +38,7 @@ export default async function Contact({ params }: { params: Promise<{ locale: st
           </ul>
         </aside>
       </div>
+      <OperatorDetails locale={locale} />
     </div>
   );
 }

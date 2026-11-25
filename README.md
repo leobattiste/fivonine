@@ -32,7 +32,7 @@ Run `npm test` for TypeScript and translation/routing/offline regression checks,
 ## Rules the database enforces
 
 - The public sees only campaigns that are `live` or `completed`. Organizers cannot publish, feature or badge their own campaign.
-- Changing a public campaign, including its support details, sends it back to review.
+- Proposed public edits wait for review while the previous version stays visible. New recipient details require fresh checks before they replace the published details.
 - IDs, selfies, documents and contact details are private to the organizer and admins. Verification files sit in a private storage bucket.
 - "I sent it" amounts are self-reported and labelled that way. The reporter's account is never exposed.
 
@@ -42,4 +42,14 @@ Run `npm test` for TypeScript and translation/routing/offline regression checks,
 2. In Supabase Authentication: set the Site URL, allow `https://<domain>/*/auth/callback`, and add custom SMTP (the built-in mailer only sends a few emails per hour).
 3. In Vercel: set `NEXT_PUBLIC_SITE_URL`, `RESEND_API_KEY`, `RESEND_FROM` and `CRON_SECRET` so notification emails send. `APP_BACKEND_SECRET` is already set.
 4. Have a lawyer review Terms, Privacy and the guidelines. Have a native speaker review the Kreyòl and French text.
-5. Set `PUBLIC_LAUNCH=true` to let search engines index the site.
+5. Complete the acceptance and operational checks in [the launch runbook](docs/launch-runbook.md). Only then set `LAUNCH_CHECKS_PASSED=true` and `PUBLIC_LAUNCH=true` in production; missing configuration keeps indexing disabled.
+
+## Launch verification and reliability
+
+Organizers must provide private government ID, a separate selfie, contact details and consent. Publishing/restoring requires explicit identity and recipient checks by another administrator, recorded with evidence fingerprints and an audit trail. The database enforces the same rules as the forms.
+
+Individual supporter amounts are restricted to their donor, organizer and administrators. Public notes use a limited projection without amounts or account IDs. Member appeal decisions are visible in their account and queued for email delivery.
+
+Run `npm test`, `npm run test:security`, `npm run test:browser` and `npm run build`. Database tests use a disposable local PostgreSQL Docker container; browser tests use local fixtures. The runbook distinguishes these checks from the required real Auth/Storage/email and backup-restore acceptance evidence.
+
+`/api/health` is a read-only uptime endpoint; launch readiness remains false until configuration and operational QA are complete. Authenticated cron/health requests report delivery failures and queue health without returning secret values.

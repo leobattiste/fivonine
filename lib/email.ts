@@ -3,51 +3,118 @@ import { createClient } from "@supabase/supabase-js";
 import { SUPABASE_KEY, SUPABASE_URL, supabaseEnabled } from "./supabase/config";
 import { isLocale, t, type Locale } from "./i18n";
 import { SITE_URL } from "./constants";
-type Job = { id: string; recipient: string; locale: string; kind: string; payload: { title?: string; slug?: string; note?: string } };
-function render(job: Job) {
+import { DeliveryFailure, processEmailBatch, unconfiguredEmailRun, type EmailJob, type EmailFailure } from "./email-worker";
+function render(job: EmailJob) {
   const locale: Locale = isLocale(job.locale) ? job.locale : "fr";
   const d = t(locale);
   const make = (d.notif as Record<string, (title: string) => string>)[job.kind];
   const title = job.payload.title ?? "";
   const subject = make ? make(title) : "yon kout men";
-  const path = job.kind.startsWith("admin_") ? "admin" : ["campaign_needs_changes", "campaign_rejected", "campaign_suspended"].includes(job.kind) || !job.payload.slug ? "dashboard" : `campaigns/${job.payload.slug}`;
+  const path = job.kind.startsWith("admin_") ? "admin" : job.kind.startsWith("appeal_") ? "dashboard?tab=profile#appeals" : ["campaign_needs_changes", "campaign_rejected", "campaign_suspended"].includes(job.kind) || !job.payload.slug ? "dashboard" : `campaigns/${job.payload.slug}`;
   const lines = [d.email.greeting, "", subject, "", `${d.email.open} ${SITE_URL}/${locale}/${path}`];
   if (job.payload.note) lines.push("", `${d.email.noteLabel} ${job.payload.note}`);
   lines.push("", "yon kout men", "", d.email.footer);
   return { subject, text: lines.join("\n") };
 }
-/** Sends queued notification emails. Does nothing until email delivery is configured. */
+const pause = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
+const report = (failure: EmailFailure | { stage: "config" | "reminders" | "health"; code: string }) => console.error("email_delivery", failure);
+function emailDb() {
+  return createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { persistSession: false },
+    global: { fetch: (input, init) => fetch(input, { ...init, signal: AbortSignal.timeout(5000) }) } });
+}
+/** Accepting an email and recording that acceptance are separate, observable steps. */
 export async function drainOutbox() {
   const secret = process.env.APP_BACKEND_SECRET, key = process.env.RESEND_API_KEY, from = process.env.RESEND_FROM;
-  if (!secret || !key || !from || !supabaseEnabled) return { sent: 0, failed: 0, configured: false };
-  const sb = createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { persistSession: false } });
-  const { data, error } = await sb.rpc("claim_email_batch", { backend_secret: secret });
-  if (error) return { sent: 0, failed: 0, configured: true };
-  let sent = 0, failed = 0;
-  for (const job of (data ?? []) as Job[]) {
-    let ok = false, err = "";
-    try {
-      const { subject, text } = render(job);
-      const res = await fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json", "Idempotency-Key": `fivonine-${job.id}` },
-        body: JSON.stringify({ from, to: [job.recipient], subject, text }),
-        signal: AbortSignal.timeout(15000),
-      });
-      ok = res.ok;
-      if (!ok) err = `Provider status ${res.status}`;
-    } catch (e) {
-      err = e instanceof Error ? e.message : "Delivery failed";
-    }
-    await sb.rpc("finish_email", { backend_secret: secret, email_id: job.id, ok, err });
-    if (ok) sent++; else failed++;
+  if (!secret || !key || !from || !supabaseEnabled) {
+    report({ stage: "config", code: "email_not_configured" });
+    return unconfiguredEmailRun();
   }
-  return { sent, failed, configured: true };
+  let sb: ReturnType<typeof emailDb>;
+  try { sb = emailDb(); }
+  catch {
+    report({ stage: "config", code: "invalid_database_config" });
+    return unconfiguredEmailRun();
+  }
+  let lastSendAt = 0;
+  return processEmailBatch({
+    report,
+    claim: async () => {
+      const { data, error } = await sb.rpc("claim_email_batch_v2", { backend_secret: secret });
+      if (error || !Array.isArray(data)) throw new Error("claim_rpc_failed");
+      return data as EmailJob[];
+    },
+    start: async (job) => {
+      const { error } = await sb.rpc("start_email_delivery", { backend_secret: secret, email_id: job.id, lease: job.lease_token });
+      if (error) throw new Error("start_rpc_failed");
+    },
+    send: async (job) => {
+      let body: string;
+      try { body = JSON.stringify({ from, to: [job.recipient], ...render(job) }); }
+      catch { throw new DeliveryFailure("permanent", "invalid_email_payload"); }
+      let uncertainAttempt = false;
+      for (let attempt = 0; attempt < 2; attempt++) {
+        const gap = Math.max(0, 550 - (Date.now() - lastSendAt));
+        if (gap) await pause(gap);
+        lastSendAt = Date.now();
+        let failure: DeliveryFailure;
+        try {
+          const res = await fetch("https://api.resend.com/emails", {
+            method: "POST",
+            headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json", "Idempotency-Key": `fivonine-${job.id}` },
+            body, signal: AbortSignal.timeout(8000),
+          });
+          if (res.ok) {
+            const payload = await res.json().catch(() => null);
+            if (typeof payload?.id === "string" && payload.id) return;
+            failure = new DeliveryFailure("uncertain", "provider_invalid_response");
+          } else {
+            failure = new DeliveryFailure(res.status === 429 ? "retryable" : res.status >= 500 || res.status === 408 ? "uncertain" : "permanent", "provider_http_error", res.status);
+          }
+        } catch { failure = new DeliveryFailure("uncertain", "provider_unavailable"); }
+        uncertainAttempt ||= failure.outcome === "uncertain";
+        if (attempt === 1 || failure.outcome === "permanent") {
+          // A rate-limited replay cannot rule out acceptance of an earlier timed-out request.
+          if (uncertainAttempt && failure.outcome === "retryable") throw new DeliveryFailure("uncertain", failure.code, failure.httpStatus);
+          throw failure;
+        }
+        await pause(1000);
+      }
+    },
+    finish: async (job, outcome, code) => {
+      // The RPC is idempotent for this lease, including a lost success response.
+      for (let attempt = 0; attempt < 2; attempt++) {
+        try {
+          const { error } = await sb.rpc("finish_email_result", { backend_secret: secret, email_id: job.id, lease: job.lease_token, outcome, err: code });
+          if (!error) return;
+        } catch { /* Retry the acknowledgement without sending the email again. */ }
+        if (!attempt) await pause(100);
+      }
+      throw new Error("finish_rpc_failed");
+    },
+  });
 }
 export async function enqueueReminders() {
   const secret = process.env.APP_BACKEND_SECRET;
-  if (!secret || !supabaseEnabled) return 0;
-  const sb = createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { persistSession: false } });
-  const { data } = await sb.rpc("enqueue_reminders", { backend_secret: secret });
-  return Number(data ?? 0);
+  if (!secret || !supabaseEnabled) return { status: "not_configured" as const, queued: 0 };
+  try {
+    const { data, error } = await emailDb().rpc("enqueue_reminders", { backend_secret: secret });
+    if (error || typeof data !== "number" || !Number.isInteger(data) || data < 0) throw new Error("reminder_rpc_failed");
+    return { status: "ok" as const, queued: data };
+  } catch {
+    report({ stage: "reminders", code: "reminder_rpc_failed" });
+    return { status: "failed" as const, queued: 0 };
+  }
+}
+export async function getEmailQueueHealth() {
+  const secret = process.env.APP_BACKEND_SECRET;
+  if (!secret || !supabaseEnabled) return { status: "not_configured" as const };
+  try {
+    const { data, error } = await emailDb().rpc("email_queue_health", { backend_secret: secret });
+    const fields = ["pending", "failed", "quarantined", "uncertain", "processing"] as const;
+    if (error || !data || fields.some((field) => !Number.isSafeInteger(data[field]) || data[field] < 0)) throw new Error("queue_health_failed");
+    return { status: "ok" as const, pending: Number(data.pending), failed: Number(data.failed), quarantined: Number(data.quarantined), uncertain: Number(data.uncertain), processing: Number(data.processing) };
+  } catch {
+    report({ stage: "health", code: "queue_health_failed" });
+    return { status: "failed" as const };
+  }
 }

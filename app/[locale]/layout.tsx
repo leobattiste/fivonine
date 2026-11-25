@@ -1,5 +1,6 @@
 import { GeistSans } from "geist/font/sans";
 import type { Metadata, Viewport } from "next";
+import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import "../globals.css";
 import Header from "@/components/Header";
@@ -12,19 +13,22 @@ import { htmlLang, isLocale, locales, t } from "@/lib/i18n";
 import { getViewer } from "@/lib/auth";
 import { getSettings, unreadCount } from "@/lib/data";
 import { SITE_URL } from "@/lib/constants";
+import { canIndexPublicSite } from "@/lib/launch-readiness";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   if (!isLocale(locale)) return {};
   const d = t(locale);
-  const open = process.env.PUBLIC_LAUNCH === "true";
+  const open = canIndexPublicSite();
+  const pathname = (await headers()).get("x-fivonine-pathname") ?? `/${locale}`;
+  const suffix = pathname.startsWith(`/${locale}/`) ? pathname.slice(locale.length + 1) : "";
   return {
     metadataBase: new URL(SITE_URL),
     title: { default: `yon kout men: ${d.x.home.title}`, template: "%s | yon kout men" },
     description: d.meta.description,
     robots: { index: open, follow: open },
     openGraph: { siteName: "yon kout men", type: "website", locale: htmlLang[locale] },
-    alternates: { languages: Object.fromEntries(locales.map((l) => [htmlLang[l], `/${l}`])) },
+    alternates: { canonical: `/${locale}${suffix}`, languages: Object.fromEntries(locales.map((l) => [htmlLang[l], `/${l}${suffix}`])) },
     appleWebApp: { capable: true, title: "yon kout men", statusBarStyle: "default" },
   };
 }
