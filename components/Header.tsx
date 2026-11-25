@@ -77,7 +77,7 @@ export default function Header({ locale, viewer }: { locale: Locale; viewer: Vie
             <Link className="btn quiet only-wide" href={L("/login")}>{n.signIn}</Link>
           )}
           <button className="btn icon-only only-narrow menu-btn" onClick={() => drawer.current?.showModal()} aria-label={n.openMenu}>
-            <Icon name="menu" />{viewer && viewer.unread > 0 && <span className="count" aria-hidden="true">{viewer.unread}</span>}
+            <span className="menu-lines" aria-hidden="true"><span /><span /></span>{viewer && viewer.unread > 0 && <span className="count" aria-hidden="true">{viewer.unread}</span>}
           </button>
         </div>
       </div>
