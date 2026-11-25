@@ -6,7 +6,7 @@ const x: X = {
   nav: {
     explore: "Donar", fundraiser: "Recaudar fondos", how: "Cómo funciona", about: "Quiénes somos", share: "Compartir una campaña", search: "Buscar", searchLabel: "Buscar campañas",
     searchHint: "Un nombre, un lugar o una necesidad", go: "Buscar", signIn: "Iniciar sesión", account: "Cuenta", openMenu: "Abrir el menú", closeMenu: "Cerrar el menú",
-    dashboard: "Resumen", fundraisers: "Mis campañas", saved: "Guardadas", notifications: "Notificaciones", profile: "Perfil", admin: "Administración", signOut: "Cerrar sesión",
+    dashboard: "Resumen", fundraisers: "Mis campañas", saved: "Marcadores", notifications: "Notificaciones", profile: "Perfil", admin: "Administración", signOut: "Cerrar sesión",
     unread: (n: number) => (n === 1 ? "1 sin leer" : `${n} sin leer`),
   },
   home: {
