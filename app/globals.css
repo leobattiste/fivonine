@@ -89,16 +89,16 @@ dl, dd, figure { margin: 0; }
 .wordmark { display: inline-flex; align-items: center; text-decoration: none; font: inherit; font-size: var(--t-md); font-weight: 400; line-height: 1.6; letter-spacing: normal; color: var(--ink); white-space: nowrap; }
 .mark { width: 26px; height: 26px; flex: none; }
 
-/* Buttons. Primary actions carry the kout corner. */
-.btn { --h: var(--ctl); height: var(--h); display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: var(--h); padding: 0 20px; border-radius: 12px; border: 1.5px solid transparent; background: var(--sage); color: var(--green); font-weight: 600; font-size: var(--t-sm); line-height: 1.15; text-decoration: none; white-space: nowrap; transition: background var(--fast), color var(--fast), border-color var(--fast), transform var(--fast), box-shadow var(--fast); -webkit-tap-highlight-color: transparent; }
-.btn:hover { border-color: var(--green); }
+/* Buttons: primary = solid deep green; secondary = transparent with sage border. */
+.btn { --h: var(--ctl); height: var(--h); display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: var(--h); padding: 0 20px; border-radius: 12px; border: 1.5px solid var(--sage); background: transparent; color: var(--green); font-weight: 600; font-size: var(--t-sm); line-height: 1.15; text-decoration: none; white-space: nowrap; transition: background var(--fast), color var(--fast), border-color var(--fast), transform var(--fast), box-shadow var(--fast); -webkit-tap-highlight-color: transparent; }
+.btn:hover { border-color: var(--sage); text-decoration: underline; }
 .btn:active:not(:disabled) { transform: translateY(1px) scale(.985); }
-.btn.primary { background: var(--green); color: var(--white); }
+.btn.primary { background: var(--green); color: var(--white); border-color: var(--green); }
 .btn.primary:hover { background: var(--green); text-decoration: underline; }
 .btn.quiet { border-color: transparent; background: transparent; }
-.btn.quiet:hover { background: var(--mint); }
-.btn.soft { border-color: transparent; background: var(--mint); }
-.btn.soft:hover { background: var(--mint-deep); text-decoration: underline; }
+.btn.quiet:hover { background: transparent; text-decoration: underline; }
+.btn.soft { border-color: var(--sage); background: transparent; }
+.btn.soft:hover { background: transparent; text-decoration: underline; }
 .btn.small { --h: var(--ctl-sm); padding: 0 16px; }
 .btn.large { --h: 56px; padding: 0 24px; font-size: var(--t-md); }
 .btn.wide { width: 100%; }
@@ -304,8 +304,8 @@ dialog::backdrop { background: rgba(31, 80, 59, .45); }
 .organizer-cta .copy { padding: 28px 22px; display: flex; flex-direction: column; gap: 16px; align-items: flex-start; }
 .organizer-cta h2 { color: var(--white); font-size: var(--t-2xl); }
 .organizer-cta p { opacity: .9; max-width: 48ch; }
-.organizer-cta .btn { background: var(--white); color: var(--green); border-color: var(--white); }
-.organizer-cta .btn:hover { background: var(--mint); }
+.organizer-cta .btn:not(.primary) { background: transparent; color: var(--white); border-color: var(--sage); }
+.organizer-cta .btn:not(.primary):hover { background: transparent; border-color: var(--sage); }
 .organizer-cta .arrow-link { color: var(--white); }
 @media (min-width: 900px) { .organizer-cta { grid-template-columns: 1fr 1.2fr; } .organizer-cta .copy { padding: 44px; justify-content: center; } }
 
@@ -489,8 +489,8 @@ dialog::backdrop { background: rgba(31, 80, 59, .45); }
 .confirm-card h1, .confirm-card h2 { color: var(--white); }
 .confirm-card .tick { display: grid; place-items: center; width: 56px; height: 56px; border-radius: 12px; background: var(--white); color: var(--green); animation: tick 420ms var(--ease) both 120ms; }
 @keyframes tick { from { transform: scale(.6); opacity: 0; } }
-.confirm-card .btn { border-color: var(--white); }
-.confirm-card .btn.quiet { color: var(--white); border-color: rgba(255,255,255,.5); background: transparent; }
+.confirm-card .btn:not(.primary) { color: var(--white); border-color: var(--sage); background: transparent; }
+.confirm-card .btn.quiet { color: var(--white); border-color: var(--sage); background: transparent; }
 .confirm-card dl { display: flex; flex-wrap: wrap; gap: 6px 24px; }
 .confirm-card dt { font-size: var(--t-xs); opacity: .8; }
 .confirm-card dd { font-weight: 650; }
@@ -548,7 +548,7 @@ dialog::backdrop { background: rgba(31, 80, 59, .45); }
 .toolbar .searchbar .btn { --h: var(--ctl-sm); }
 .toolbar select { min-height: var(--ctl); border-radius: 12px; padding: 0 40px 0 14px; border: 1.5px solid var(--line-strong); font-size: 1rem; font-weight: 500; appearance: none; background: var(--white) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5 6 6.5l5-5' fill='none' stroke='%231f503b' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 15px center; }
 .bulkbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 10px 12px; border-radius: 12px; background: var(--green); color: var(--white); animation: pop var(--fast) var(--ease); }
-.bulkbar .btn { --h: var(--ctl-sm); background: var(--white); border-color: var(--white); }
+.bulkbar .btn:not(.primary) { --h: var(--ctl-sm); background: transparent; color: var(--white); border-color: var(--sage); }
 .bulkbar .input { height: var(--ctl-sm); min-height: var(--ctl-sm); padding: 4px 10px; border-radius: 12px; flex: 1 1 200px; }
 .table-wrap { overflow-x: auto; border-radius: 12px; border: 1.5px solid var(--line); }
 .table { width: 100%; border-collapse: collapse; font-size: var(--t-sm); }
@@ -595,7 +595,7 @@ details.disclose[open] > summary::after { transform: rotate(45deg); }
 .track .n { grid-row: 1 / 3; display: grid; place-items: center; width: 36px; height: 36px; border-radius: 12px; background: var(--white); color: var(--green); font-weight: 700; font-size: var(--t-sm); }
 .track li p { font-size: var(--t-sm); color: inherit; opacity: .85; }
 .track .btn { align-self: flex-start; }
-.track.dark .btn { background: var(--white); color: var(--green); border-color: var(--white); }
+.track.dark .btn:not(.primary) { background: transparent; color: var(--white); border-color: var(--sage); }
 .flow { display: grid; gap: 12px; align-items: center; }
 .flow .node { padding: 18px; border-radius: 12px; border: 1.5px solid var(--green); font-weight: 650; display: flex; flex-direction: column; gap: 4px; }
 .flow .node small { font-weight: 400; color: var(--muted); }
@@ -684,15 +684,6 @@ details.disclose[open] > summary::after { transform: rotate(45deg); }
 .searchbar input { width: 100%; }
 .panel .method { background: var(--mint); }
 .panel.mint .chip, .support .chip, .empty .chip { background: var(--white); }
-/* On sage backgrounds, secondary buttons use white for clear separation. */
-.panel.mint .btn:not(.primary):not(.quiet):not(.danger),
-.support .btn:not(.primary):not(.quiet):not(.danger),
-.empty .btn:not(.primary):not(.quiet):not(.danger),
-.band.mint .btn:not(.primary):not(.quiet):not(.danger),
-.track:not(.dark) .btn:not(.primary):not(.quiet):not(.danger) {
-  background: var(--white);
-  border-color: var(--line-strong);
-}
 .panel.mint .method { background: var(--white); }
 
 /* Icon controls (menu, close, dismiss) carry no background or border. */
