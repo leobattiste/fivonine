@@ -19,7 +19,7 @@ export default function MfaPanel({ locale }: { locale: Locale }) {
     if (!sb) return;
     const { data, error } = await sb.auth.mfa.listFactors();
     if (error) { setError(c.mfaError); return; }
-    setEnabled((data?.totp ?? []).filter(f => f.status === "verified"));
+    setEnabled((data?.totp ?? []).filter((f: Factor) => f.status === "verified"));
   }
   useEffect(() => { void refresh(); }, [locale]);
   async function enroll() {
@@ -80,9 +80,9 @@ export function MfaChallenge({ locale, next }: { locale: Locale; next: string })
   useEffect(()=>{
     const sb=browserDb();
     if(!sb)return;
-    void sb.auth.mfa.listFactors().then(({data,error})=>{
+    void sb.auth.mfa.listFactors().then(({data,error}: {data: {totp: Factor[]} | null; error: unknown})=>{
       if(error) setError(c.mfaError);
-      else setFactors((data?.totp??[]).filter(x=>x.status==="verified"));
+      else setFactors((data?.totp??[]).filter((x: Factor)=>x.status==="verified"));
     });
   },[locale]);
   async function verify(){
