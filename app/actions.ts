@@ -181,6 +181,16 @@ export async function saveAccountSettings(_: ActionResult, f: FormData): Promise
   return done(d.common.saved);
 }
 
+export async function anonymizePastSupport(_: ActionResult, f: FormData): Promise<ActionResult> {
+  const { d, sb, user, locale } = await ctx(f);
+  if (!sb || !user) return fail(d.common.signInFirst);
+  if (s(f, "confirm") !== "ANONYMOUS") return fail(accountCopy(locale).anonymousConfirm);
+  const { data, error } = await sb.rpc("anonymize_my_support");
+  if (error || typeof data !== "number") return fail(d.common.error);
+  revalidatePath(`/${locale}`, "layout");
+  return done(accountCopy(locale).anonymousDone);
+}
+
 export async function changeAccountEmail(_: ActionResult, f: FormData): Promise<ActionResult> {
   const { locale, d, sb, user } = await ctx(f);
   if (!sb || !user) return fail(d.common.signInFirst);

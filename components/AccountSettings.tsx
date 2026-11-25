@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import ActionForm, { Submit } from "./ActionForm";
 import Icon from "./Icon";
 import MfaPanel from "./MfaPanel";
-import { changePassword, changeAccountEmail, deleteEmptyAccount, requestAccountDeletion, saveAccountSettings, signOut, signOutOtherSessions } from "@/app/actions";
+import { anonymizePastSupport, changePassword, changeAccountEmail, deleteEmptyAccount, requestAccountDeletion, saveAccountSettings, signOut, signOutOtherSessions } from "@/app/actions";
 import { accountCopy } from "@/lib/account-copy";
 import { localeNames, locales, type Locale } from "@/lib/i18n";
 import type { Profile } from "@/lib/types";
@@ -86,6 +86,14 @@ export default function AccountSettings({ locale, profile, email, verified, sess
         {yes("default_anonymous", profile.default_anonymous, c.anonymous)}
         <p className="small muted">{c.privacyHint}</p>
         <div><Submit>{c.save}</Submit></div>
+      </ActionForm>
+      <ActionForm action={anonymizePastSupport} locale={locale} className="panel" onSuccess={refresh}>
+        <h2>{c.hidePast}</h2>
+        <p className="small muted">{c.hidePastHint}</p>
+        <label className="field"><span>{c.anonymousConfirm}</span>
+          <input className="input" name="confirm" required pattern="ANONYMOUS" placeholder="ANONYMOUS" autoComplete="off" />
+        </label>
+        <div><Submit className="btn">{c.hidePast}</Submit></div>
       </ActionForm>
       <section className="panel">
         <h2>{c.download}</h2>
