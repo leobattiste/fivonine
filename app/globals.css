@@ -51,6 +51,14 @@ img { display: block; }
 a { color: inherit; text-decoration-thickness: 1.5px; text-underline-offset: 3px; }
 button, input, select, textarea { font: inherit; color: inherit; }
 button { cursor: pointer; background: none; border: 0; padding: 0; }
+/* Prevent rounded tap flashes and pointer-focus rings on interactive controls.
+   Keep :focus-visible outlines for keyboard and assistive navigation. */
+button, a, select, summary, [role="button"] { -webkit-tap-highlight-color: transparent; }
+button:focus:not(:focus-visible),
+a:focus:not(:focus-visible),
+select:focus:not(:focus-visible),
+summary:focus:not(:focus-visible),
+[role="button"]:focus:not(:focus-visible) { outline: none; }
 h1, h2, h3, h4 { margin: 0; color: var(--ink); letter-spacing: -0.025em; line-height: 1.1; text-wrap: balance; font-weight: 650; }
 h1 { font-size: var(--t-2xl); }
 h2 { font-size: var(--t-xl); }
