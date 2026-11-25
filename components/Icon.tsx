@@ -1,6 +1,6 @@
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
-  Search01Icon, Bookmark01Icon, Share08Icon, WhatsappIcon, Copy01Icon, Tick02Icon, Flag01Icon, GlobeIcon, LanguagesIcon, MenuTwoLineIcon, Cancel01Icon, UserIcon, UserCircleIcon,
+  Search01Icon, Bookmark01Icon, Share08Icon, WhatsappIcon, Copy01Icon, Tick02Icon, Flag01Icon, GlobeIcon, LanguagesIcon, MenuTwoLineIcon, Cancel01Icon as XIcon, UserIcon, UserCircleIcon,
   Notification01Icon, SecurityCheckIcon, Alert02Icon, Camera01Icon, Mic01Icon, QrCodeIcon, PrinterIcon, Location01Icon, Calendar03Icon,
   ArrowRight01Icon, ArrowLeft01Icon, Add01Icon, Delete02Icon, Edit02Icon, CheckmarkBadge01Icon, Mail01Icon, UserGroupIcon,
   Building03Icon, ViewIcon, Settings01Icon, Image01Icon, Clock01Icon, HelpCircleIcon, Link01Icon, StopIcon, ChurchIcon, HandHeartIcon, Home01Icon,
@@ -10,7 +10,7 @@ import {
 } from "@hugeicons/core-free-icons";
 const map = {
   search: Search01Icon, bookmark: Bookmark01Icon, share: Share08Icon, whatsapp: WhatsappIcon, copy: Copy01Icon, check: Tick02Icon, flag: Flag01Icon,
-  globe: GlobeIcon, language: LanguagesIcon, menu: MenuTwoLineIcon, close: Cancel01Icon, user: UserIcon, userCircle: UserCircleIcon, bell: Notification01Icon, shield: SecurityCheckIcon, alert: Alert02Icon,
+  globe: GlobeIcon, language: LanguagesIcon, menu: MenuTwoLineIcon, close: XIcon, x: XIcon, user: UserIcon, userCircle: UserCircleIcon, bell: Notification01Icon, shield: SecurityCheckIcon, alert: Alert02Icon,
   camera: Camera01Icon, mic: Mic01Icon, qr: QrCodeIcon, print: PrinterIcon, pin: Location01Icon, calendar: Calendar03Icon, right: ArrowRight01Icon,
   left: ArrowLeft01Icon, plus: Add01Icon, trash: Delete02Icon, edit: Edit02Icon, badge: CheckmarkBadge01Icon,
   mail: Mail01Icon, group: UserGroupIcon, building: Building03Icon, eye: ViewIcon, settings: Settings01Icon, image: Image01Icon, clock: Clock01Icon,

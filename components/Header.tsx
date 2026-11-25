@@ -43,10 +43,11 @@ export default function Header({ locale, viewer }: { locale: Locale; viewer: Vie
   const initials = viewer ? viewer.name.split(/\s+/).map((w) => w[0]).slice(0, 2).join("").toUpperCase() : "";
   const accountItems = (includeProfile: boolean) => viewer && (
     <>
-      <Link href={L("/dashboard")}><Icon name="dashboard" size={18} />{n.dashboard}</Link>
+      {includeProfile && <Link href={L("/dashboard")}><Icon name="userCircle" size={18} />{n.profile}</Link>}
+      <Link href={L("/dashboard?tab=campaigns")}><Icon name="hand" size={18} />{n.fundraisers}</Link>
       <Link href={L("/dashboard?tab=saved")}><Icon name="bookmark" size={18} />{n.saved}</Link>
       <Link href={L("/dashboard?tab=notifications")}><Icon name="bell" size={18} />{n.notifications}{viewer.unread > 0 && <span className="count" aria-label={n.unread(viewer.unread)}>{viewer.unread}</span>}</Link>
-      {includeProfile && <Link href={L("/dashboard?tab=profile")}><Icon name="user" size={18} />{n.profile}</Link>}
+      <Link href={L("/dashboard?tab=settings")}><Icon name="settings" size={18} />{n.settings}</Link>
       {viewer.admin && <Link href={L("/admin")}><Icon name="settings" size={18} />{n.admin}</Link>}
       <hr />
       <form action={signOut}><input type="hidden" name="locale" value={locale} /><button><Icon name="logout" size={18} />{n.signOut}</button></form>
@@ -85,7 +86,7 @@ export default function Header({ locale, viewer }: { locale: Locale; viewer: Vie
           </label>
           <Link
             className="btn icon-only only-narrow header-account-icon"
-            href={viewer ? L("/dashboard?tab=profile") : L("/login")}
+            href={viewer ? L("/dashboard") : L("/login")}
             aria-label={viewer ? n.profile : n.signIn}
           >
             <Icon name="userCircle" size={24} />
@@ -100,7 +101,7 @@ export default function Header({ locale, viewer }: { locale: Locale; viewer: Vie
       <dialog ref={drawer} className="drawer" aria-label={d.nav.menu} onClick={(e) => e.target === drawer.current && drawer.current?.close()}>
         <div className="drawer-head">
           <Link className="wordmark" href={L("")}><Wordmark /></Link>
-          <button className="btn icon-only close-control" autoFocus onClick={() => drawer.current?.close()} aria-label={n.closeMenu}><Icon name="close" /></button>
+          <button className="btn icon-only close-control" autoFocus onClick={() => drawer.current?.close()} aria-label={n.closeMenu}><Icon name="x" size={26} /></button>
         </div>
         <div className="drawer-body">
           <nav className="drawer-nav" aria-label={d.nav.menu}>

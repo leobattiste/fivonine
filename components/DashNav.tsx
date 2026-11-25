@@ -12,18 +12,18 @@ export default function DashNav({ locale, tab, unread }: { locale: Locale; tab: 
     if (!nav || !active || nav.scrollWidth <= nav.clientWidth) return;
     const navRect = nav.getBoundingClientRect();
     const activeRect = active.getBoundingClientRect();
-    const margin = 8;
+    const margin = 20;
     if (activeRect.left < navRect.left + margin) {
       nav.scrollLeft += activeRect.left - navRect.left - margin;
     } else if (activeRect.right > navRect.right - margin) {
       nav.scrollLeft += activeRect.right - navRect.right + margin;
     }
   }, [tab]);
-  const items: [string, string, IconName, number?][] = [["campaigns", n.dashboard, "dashboard"], ["saved", n.saved, "bookmark"], ["notifications", n.notifications, "bell", unread], ["profile", n.profile, "user"]];
+  const items: [string, string, IconName, number?][] = [["profile", n.profile, "userCircle"], ["campaigns", n.fundraisers, "hand"], ["saved", n.saved, "bookmark"], ["notifications", n.notifications, "bell", unread], ["settings", n.settings, "settings"]];
   return (
     <nav ref={navRef} className="side-nav" aria-label={n.account}>
       {items.map(([k, label, icon, count]) => (
-        <Link key={k} href={`/${locale}/dashboard${k === "campaigns" ? "" : `?tab=${k}`}`} aria-current={tab === k ? "page" : undefined}><Icon name={icon} size={18} />{label}{count ? <span className="count">{count}</span> : null}</Link>
+        <Link key={k} href={`/${locale}/dashboard${k === "profile" ? "" : `?tab=${k}`}`} aria-current={tab === k ? "page" : undefined}><Icon name={icon} size={18} />{label}{count ? <span className="count">{count}</span> : null}</Link>
       ))}
     </nav>
   );

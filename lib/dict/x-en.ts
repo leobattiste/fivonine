@@ -5,6 +5,7 @@ const x = {
     explore: "Donate", fundraiser: "Fundraise", how: "How it works", about: "About", share: "Share a fundraiser", search: "Search", searchLabel: "Search fundraisers",
     searchHint: "A name, a place or a need", go: "Search", signIn: "Sign in", account: "Account", openMenu: "Open menu", closeMenu: "Close menu",
     dashboard: "Overview", fundraisers: "My fundraisers", saved: "Bookmarked", notifications: "Notifications", profile: "Profile", admin: "Admin", signOut: "Sign out",
+    settings: "Settings", preferences: "Preferences", security: "Security", requestDeletion: "Request account deletion",
     unread: (n: number) => (n === 1 ? "1 unread" : `${n} unread`),
   },
   home: {

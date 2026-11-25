@@ -7,6 +7,7 @@ const x: X = {
     explore: "Fè yon don", fundraiser: "Ranmase sipò", how: "Kijan sa mache", about: "Sou nou", share: "Pataje yon kanpay", search: "Chèche", searchLabel: "Chèche kanpay",
     searchHint: "Yon non, yon kote oswa yon bezwen", go: "Chèche", signIn: "Konekte", account: "Kont", openMenu: "Louvri meni an", closeMenu: "Fèmen meni an",
     dashboard: "Apèsi", fundraisers: "Kanpay mwen yo", saved: "Favori mwen yo", notifications: "Notifikasyon", profile: "Pwofil", admin: "Administrasyon", signOut: "Dekonekte",
+    settings: "Paramèt", preferences: "Preferans", security: "Sekirite", requestDeletion: "Mande pou efase kont mwen",
     unread: (n: number) => (n === 1 ? "1 poko li" : `${n} poko li`),
   },
   home: {

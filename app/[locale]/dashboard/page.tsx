@@ -8,7 +8,7 @@ import AppealHistory from "@/components/AppealHistory";
 import AppealForm from "@/components/AppealForm";
 import { Cover, FundraiserCard, StatusPill } from "@/components/Campaign";
 import { AvatarInput } from "@/components/Uploads";
-import { changePassword, markNotificationsRead, saveProfile, signOut } from "@/app/actions";
+import { changePassword, markNotificationsRead, saveProfile, saveAccountSettings, signOut } from "@/app/actions";
 import { requireViewer } from "@/lib/auth";
 import { getCategories, getMyAppeals, myBookmarks, myCampaigns, myChanges, myNotifications, reviewNotes, unreadCount } from "@/lib/data";
 import { DEPARTMENTS } from "@/lib/constants";
@@ -16,14 +16,14 @@ import { fmtDate } from "@/lib/format";
 import { isLocale, localeNames, locales, t, type Locale } from "@/lib/i18n";
 import type { Campaign, Status } from "@/lib/types";
 export const metadata: Metadata = { robots: { index: false } };
-const TABS = ["campaigns", "saved", "notifications", "profile"] as const;
+const TABS = ["profile", "campaigns", "saved", "notifications", "settings"] as const;
 
 export default async function Dashboard({ params, searchParams }: { params: Promise<{ locale: string }>; searchParams: Promise<{ tab?: string }> }) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
   const viewer = await requireViewer(locale, `/${locale}/dashboard`);
   const d = t(locale), sp = await searchParams;
-  const tab = (TABS as readonly string[]).includes(sp.tab ?? "") ? (sp.tab as (typeof TABS)[number]) : "campaigns";
+  const tab = (TABS as readonly string[]).includes(sp.tab ?? "") ? (sp.tab as (typeof TABS)[number]) : "profile";
   const unread = await unreadCount(viewer.id);
   return (
     <div className="wrap page">
@@ -31,10 +31,11 @@ export default async function Dashboard({ params, searchParams }: { params: Prom
         <DashNav locale={locale} tab={tab} unread={unread} />
         <div className="stack" style={{ gap: 28, minWidth: 0 }}>
           {viewer.profile.banned && <p className="notice err"><Icon name="lock" size={18} />{d.dash.restricted}</p>}
-          {tab === "campaigns" && <Overview locale={locale} viewerId={viewer.id} name={viewer.profile.display_name} />}
+          {tab === "campaigns" && <Overview locale={locale} viewerId={viewer.id} />}
           {tab === "saved" && <Saved locale={locale} viewerId={viewer.id} />}
           {tab === "notifications" && <Notifications locale={locale} viewerId={viewer.id} />}
           {tab === "profile" && <Profile locale={locale} viewer={viewer} />}
+          {tab === "settings" && <Settings locale={locale} viewer={viewer} />}
         </div>
       </div>
     </div>
@@ -42,7 +43,7 @@ export default async function Dashboard({ params, searchParams }: { params: Prom
 }
 
 const ATTN: Status[] = ["needs_changes", "draft", "rejected", "suspended"];
-async function Overview({ locale, viewerId, name }: { locale: Locale; viewerId: string; name: string }) {
+async function Overview({ locale, viewerId }: { locale: Locale; viewerId: string }) {
   const d = t(locale), x = d.x.dash, L = (p: string) => `/${locale}${p}`;
   const [items, changes] = await Promise.all([myCampaigns(viewerId), myChanges(viewerId)]);
   const notes = await reviewNotes(items.map((c) => c.id));
@@ -75,7 +76,7 @@ async function Overview({ locale, viewerId, name }: { locale: Locale; viewerId: 
   return (
     <>
       <header className="row spread end">
-        <div className="stack tight"><h1>{x.hello(name.split(" ")[0])}</h1><p className="muted">{x.title}</p></div>
+        <div className="stack tight"><h1>{d.x.nav.fundraisers}</h1></div>
         <Link className="btn primary" href={L("/create")}><Icon name="plus" size={18} />{d.x.nav.share}</Link>
       </header>
       {!items.length ? (
@@ -116,7 +117,7 @@ async function Notifications({ locale, viewerId }: { locale: Locale; viewerId: s
         <ul className="list">
           {items.map((n) => {
             const toManage = ["campaign_needs_changes", "campaign_rejected", "campaign_suspended", "campaign_live", "new_contribution", "vouch_approved", "changes_needed", "changes_approved"].includes(n.kind);
-            const href = n.kind === "appeal_accepted" || n.kind === "appeal_declined" ? `/${locale}/dashboard?tab=profile#appeals` : n.kind.startsWith("admin_") ? `/${locale}/admin` : n.campaign_id && toManage ? `/${locale}/dashboard/campaigns/${n.campaign_id}` : n.payload.slug ? `/${locale}/campaigns/${n.payload.slug}` : `/${locale}/dashboard`;
+            const href = n.kind === "appeal_accepted" || n.kind === "appeal_declined" ? `/${locale}/dashboard?tab=settings#appeals` : n.kind.startsWith("admin_") ? `/${locale}/admin` : n.campaign_id && toManage ? `/${locale}/dashboard/campaigns/${n.campaign_id}` : n.payload.slug ? `/${locale}/campaigns/${n.payload.slug}` : `/${locale}/dashboard`;
             return (
               <li key={n.id} className={n.read_at ? "" : "unread"}>
                 <div className="stack tight" style={{ flex: "1 1 300px" }}>
@@ -134,10 +135,9 @@ async function Notifications({ locale, viewerId }: { locale: Locale; viewerId: s
 }
 async function Profile({ locale, viewer }: { locale: Locale; viewer: Awaited<ReturnType<typeof requireViewer>> }) {
   const d = t(locale), x = d.dash, p = viewer.profile;
-  const appeals = await getMyAppeals(viewer.id);
   return (
     <>
-      <header className="row spread end"><div className="stack tight"><h1>{d.x.nav.profile}</h1><p className="muted">{viewer.email}</p></div><Link className="arrow-link small" href={`/${locale}/u/${viewer.id}`}>{x.publicProfile}<Icon name="arrow" size={16} /></Link></header>
+      <header className="row spread end"><h1>{d.x.nav.profile}</h1><Link className="arrow-link small" href={`/${locale}/u/${viewer.id}`}>{x.publicProfile}<Icon name="arrow" size={16} /></Link></header>
       <div className="manage-grid">
         <ActionForm action={saveProfile} locale={locale} className="panel">
           <label className="field"><span>{x.displayName}</span><input className="input" name="display_name" required maxLength={80} defaultValue={p.display_name} /></label>
@@ -153,24 +153,44 @@ async function Profile({ locale, viewer }: { locale: Locale; viewer: Awaited<Ret
             <label className="field"><span>{x.orgType}</span><input className="input" name="org_type" maxLength={60} placeholder={x.orgTypeHint} defaultValue={p.org_type ?? ""} /></label>
           </div>
           {p.kind === "organization" && <p className="small muted">{p.org_verified ? x.orgVerified : x.orgPending}</p>}
+          <div><Submit>{d.common.save}</Submit></div>
+        </ActionForm>
+      </div>
+    </>
+  );
+}
+
+async function Settings({ locale, viewer }: { locale: Locale; viewer: Awaited<ReturnType<typeof requireViewer>> }) {
+  const d = t(locale), x = d.dash, p = viewer.profile, nav = d.x.nav;
+  const appeals = await getMyAppeals(viewer.id);
+  return (
+    <>
+      <h1>{nav.settings}</h1>
+      <div className="stack">
+        <ActionForm action={saveAccountSettings} locale={locale} className="panel">
+          <h2>{nav.preferences}</h2>
           <label className="field"><span>{x.appLanguage}</span><select className="input" name="email_locale" defaultValue={p.locale}>{locales.map((l) => <option key={l} value={l}>{localeNames[l]}</option>)}</select></label>
           <label className="check"><input type="checkbox" name="email_notifications" defaultChecked={p.email_notifications} /><span>{x.emailNotifications}</span></label>
           <div><Submit>{d.common.save}</Submit></div>
         </ActionForm>
-        <div className="stack">
-          <ActionForm action={changePassword} locale={locale} className="panel" reset>
-            <h2>{x.changePassword}</h2>
+        <div className="panel">
+          <h2>{nav.security}</h2>
+          <div className="field"><span>{d.auth.email}</span><p className="muted">{viewer.email}</p></div>
+          <ActionForm action={changePassword} locale={locale} className="stack" reset>
             <label className="field"><span>{x.newPassword}</span><input className="input" type="password" name="password" minLength={8} required autoComplete="new-password" /><small>{d.auth.passwordHint}</small></label>
             <div><Submit className="btn">{x.changePassword}</Submit></div>
           </ActionForm>
-          <form action={signOut} className="row">
+        </div>
+        <section id="appeals" className="stack" aria-labelledby="appeals-title">
+          <AppealForm locale={locale} />
+          <AppealHistory locale={locale} items={appeals} />
+        </section>
+        <div className="row" style={{ justifyContent: "space-between" }}>
+          <Link className="btn" href={`/${locale}/contact`}>{nav.requestDeletion}</Link>
+          <form action={signOut}>
             <input type="hidden" name="locale" value={locale} />
-            <button type="submit" className="btn"><Icon name="logout" size={18} />{d.x.nav.signOut}</button>
+            <button type="submit" className="btn"><Icon name="logout" size={18} />{nav.signOut}</button>
           </form>
-          <section id="appeals" className="stack" aria-labelledby="appeals-title">
-            <AppealForm locale={locale} />
-            <AppealHistory locale={locale} items={appeals} />
-          </section>
         </div>
       </div>
     </>

@@ -106,15 +106,27 @@ export async function saveProfile(_: ActionResult, f: FormData): Promise<ActionR
     redirect(safeNext(s(f, "next", 300), `/${locale}/create`));
   }
   const kind = s(f, "kind") === "organization" ? "organization" : "individual";
-  const department = s(f, "department", 40), avatar = s(f, "avatar_path", 200), emailLocale = s(f, "email_locale");
+  const department = s(f, "department", 40), avatar = s(f, "avatar_path", 200);
   const patch: Record<string, unknown> = {
     display_name, bio: s(f, "bio", 600), city: s(f, "city", 80) || null,
     department: (DEPARTMENTS as readonly string[]).includes(department) ? department : null,
     kind, org_name: kind === "organization" ? s(f, "org_name", 120) || null : null, org_type: kind === "organization" ? s(f, "org_type", 60) || null : null,
-    email_notifications: f.get("email_notifications") === "on", locale: isLocale(emailLocale) ? emailLocale : locale,
   };
   if (avatar && avatar.startsWith(`${user.id}/`)) patch.avatar_path = avatar;
   const { error } = await sb.from("profiles").update(patch).eq("id", user.id);
+  if (error) return fail(d.common.error);
+  revalidatePath(`/${locale}/dashboard`);
+  return done(d.common.saved);
+}
+
+export async function saveAccountSettings(_: ActionResult, f: FormData): Promise<ActionResult> {
+  const { locale, d, sb, user } = await ctx(f);
+  if (!sb || !user) return fail(d.common.signInFirst);
+  const emailLocale = s(f, "email_locale");
+  const { error } = await sb.from("profiles").update({
+    locale: isLocale(emailLocale) ? emailLocale : locale,
+    email_notifications: f.get("email_notifications") === "on",
+  }).eq("id", user.id);
   if (error) return fail(d.common.error);
   revalidatePath(`/${locale}/dashboard`);
   return done(d.common.saved);
@@ -289,7 +301,7 @@ export async function deleteCampaign(f: FormData) {
   if (!sb || !user || !UUID.test(id)) return;
   await sb.from("campaigns").delete().eq("id", id).eq("owner_id", user.id);
   revalidatePath(`/${locale}/dashboard`);
-  redirect(`/${locale}/dashboard`);
+  redirect(`/${locale}/dashboard?tab=campaigns`);
 }
 export async function postUpdate(_: ActionResult, f: FormData): Promise<ActionResult> {
   const { locale, d, sb, user } = await ctx(f);

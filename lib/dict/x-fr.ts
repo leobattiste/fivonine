@@ -5,6 +5,7 @@ const x: X = {
     explore: "Donner", fundraiser: "Collecter", how: "Comment ça marche", about: "À propos", share: "Partager une collecte", search: "Rechercher", searchLabel: "Rechercher des collectes",
     searchHint: "Un nom, un lieu, un besoin", go: "Rechercher", signIn: "Se connecter", account: "Compte", openMenu: "Ouvrir le menu", closeMenu: "Fermer le menu",
     dashboard: "Vue d'ensemble", fundraisers: "Mes collectes", saved: "Favoris", notifications: "Notifications", profile: "Profil", admin: "Admin", signOut: "Se déconnecter",
+    settings: "Paramètres", preferences: "Préférences", security: "Sécurité", requestDeletion: "Demander la suppression du compte",
     unread: (n: number) => (n === 1 ? "1 non lue" : `${n} non lues`),
   },
   home: {
