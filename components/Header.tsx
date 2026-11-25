@@ -41,12 +41,12 @@ export default function Header({ locale, viewer }: { locale: Locale; viewer: Vie
     </label>
   );
   const initials = viewer ? viewer.name.split(/\s+/).map((w) => w[0]).slice(0, 2).join("").toUpperCase() : "";
-  const accountItems = viewer && (
+  const accountItems = (includeProfile: boolean) => viewer && (
     <>
       <Link href={L("/dashboard")}><Icon name="dashboard" size={18} />{n.dashboard}</Link>
       <Link href={L("/dashboard?tab=saved")}><Icon name="bookmark" size={18} />{n.saved}</Link>
       <Link href={L("/dashboard?tab=notifications")}><Icon name="bell" size={18} />{n.notifications}{viewer.unread > 0 && <span className="count" aria-label={n.unread(viewer.unread)}>{viewer.unread}</span>}</Link>
-      <Link href={L("/dashboard?tab=profile")}><Icon name="user" size={18} />{n.profile}</Link>
+      {includeProfile && <Link href={L("/dashboard?tab=profile")}><Icon name="user" size={18} />{n.profile}</Link>}
       {viewer.admin && <Link href={L("/admin")}><Icon name="settings" size={18} />{n.admin}</Link>}
       <hr />
       <form action={signOut}><input type="hidden" name="locale" value={locale} /><button><Icon name="logout" size={18} />{n.signOut}</button></form>
@@ -71,7 +71,7 @@ export default function Header({ locale, viewer }: { locale: Locale; viewer: Vie
                 {viewer.unread > 0 && <span className="count" aria-label={n.unread(viewer.unread)}>{viewer.unread}</span>}
                 <Icon name="down" size={16} />
               </button>
-              {acct && <div className="pop" role="menu"><p className="who"><strong>{viewer.name}</strong>{n.account}</p>{accountItems}</div>}
+              {acct && <div className="pop" role="menu"><p className="who"><strong>{viewer.name}</strong>{n.account}</p>{accountItems(true)}</div>}
             </div>
           ) : (
             <Link className="btn quiet only-wide" href={L("/login")}>{n.signIn}</Link>
@@ -91,7 +91,7 @@ export default function Header({ locale, viewer }: { locale: Locale; viewer: Vie
             <Icon name="userCircle" size={24} />
           </Link>
           <button className="btn icon-only only-narrow menu-btn" onClick={() => drawer.current?.showModal()} aria-label={n.openMenu}>
-            <Icon name="menu" size={26} />{viewer && viewer.unread > 0 && <span className="count" aria-hidden="true">{viewer.unread}</span>}
+            <Icon name="menu" size={26} />
           </button>
         </div>
       </div>
@@ -106,7 +106,7 @@ export default function Header({ locale, viewer }: { locale: Locale; viewer: Vie
           <nav className="drawer-nav" aria-label={d.nav.menu}>
             {[["", d.nav.home] as [string, string], ...links].map(([href, label]) => <Link key={href} href={L(href)} aria-current={(href ? isActive(href) : path === L("")) ? "page" : undefined}>{label}<Icon name="right" /></Link>)}
           </nav>
-          {viewer ? <div className="pop" style={{ position: "static", width: "auto", animation: "none", boxShadow: "none" }}><p className="who"><strong>{viewer.name}</strong>{n.account}</p>{accountItems}</div>
+          {viewer ? <div className="pop" style={{ position: "static", width: "auto", animation: "none", boxShadow: "none" }}><p className="who"><strong>{viewer.name}</strong>{n.account}</p>{accountItems(false)}</div>
             : <Link className="btn wide" href={L("/login")}>{n.signIn}</Link>}
         </div>
       </dialog>
