@@ -38,7 +38,7 @@ function UpdateFields({ locale, id, proof, setProof, body, setBody, busy, setBus
           {proof.map((path, index) => (
             <span className="thumb" key={path}>
               <span className="frame">{/* eslint-disable-next-line @next/next/no-img-element */}<img src={mediaUrl(path) ?? undefined} alt={m.proofPhoto(index + 1)} /></span>
-              <button type="button" disabled={pending} aria-label={m.removeProof(index + 1)} onClick={() => setProof((photos) => photos.filter((photo) => photo !== path))}><Icon name="close" size={14} /></button>
+              <button type="button" className="close-control" disabled={pending} aria-label={m.removeProof(index + 1)} onClick={() => setProof((photos) => photos.filter((photo) => photo !== path))}><Icon name="close" size={14} /></button>
             </span>
           ))}
         </div>

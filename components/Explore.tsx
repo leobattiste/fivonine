@@ -54,7 +54,7 @@ export default function ExploreShell({ locale, options, children }: { locale: Lo
       {chips.length > 0 && (
         <div className="active-filters">
           {chips.map(([k, v]) => (
-            <span key={k} className="chip on">{v}<button type="button" aria-label={x.removeFilter(v)} onClick={() => push({ [k]: "" })}><Icon name="close" size={14} /></button></span>
+            <span key={k} className="chip on">{v}<button type="button" className="close-control" aria-label={x.removeFilter(v)} onClick={() => push({ [k]: "" })}><Icon name="close" size={14} /></button></span>
           ))}
           <button type="button" className="link small" onClick={() => start(() => router.replace(path, { scroll: false }))}>{x.clearAll}</button>
         </div>
@@ -63,7 +63,7 @@ export default function ExploreShell({ locale, options, children }: { locale: Lo
       <div className="results" data-busy={busy} aria-busy={busy}>{children}</div>
 
       <dialog ref={drawer} className="drawer" aria-label={x.filters} onClick={(e) => e.target === drawer.current && drawer.current?.close()}>
-        <div className="drawer-head"><h2>{x.filters}</h2><button type="button" className="btn icon-only" autoFocus onClick={() => drawer.current?.close()} aria-label={t(locale).x.common.close}><Icon name="close" /></button></div>
+        <div className="drawer-head"><h2>{x.filters}</h2><button type="button" className="btn icon-only close-control" autoFocus onClick={() => drawer.current?.close()} aria-label={t(locale).x.common.close}><Icon name="close" /></button></div>
         <div className="drawer-body">
           {([["cause", x.cause, options.causes, x.anyCause], ["place", x.location, options.places, x.anywhere], ["status", x.status, statusOpts, null], ["sort", x.sort, sortOpts, null]] as [string, string, Opt[], string | null][]).map(([key, title, opts, all]) => (
             <fieldset key={key} className="field">

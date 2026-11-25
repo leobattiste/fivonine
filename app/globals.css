@@ -726,6 +726,10 @@ dialog:focus, dialog:focus-visible, dialog *:focus:not(:focus-visible) { outline
 .drawer .wordmark:focus { outline: none; }
 .lang select:focus:not(:focus-visible), .filterbar select:focus:not(:focus-visible), .toolbar select:focus:not(:focus-visible) { outline: none; }
 .btn.icon-only:focus-visible { outline: 2px solid var(--sage); outline-offset: 2px; color: var(--green); }
+/* Close/dismiss controls stay visually bare during clicks; keep a quiet keyboard cue. */
+button.close-control { -webkit-tap-highlight-color: transparent; }
+button.close-control:focus:not(:focus-visible) { outline: none; box-shadow: none; }
+button.close-control:focus-visible { outline: 2px solid var(--sage); outline-offset: 2px; }
 
 /* Story editor */
 .story-editor { border: 1.5px solid var(--sage); border-radius: 16px; background: transparent; overflow: hidden; transition: border-color var(--fast); }
@@ -841,3 +845,14 @@ textarea.input { border-radius: var(--r); padding: 14px 18px; }
 .checklist-side button:hover { background: var(--mint); }
 .checklist-side .dot { display: grid; place-items: center; width: 20px; height: 20px; flex: none; border-radius: 999px; border: 1.5px solid var(--line-strong); }
 .checklist-side .ok .dot { background: var(--green); border-color: var(--green); color: var(--white); }
+
+/* Final touch-only overrides must follow the more-specific icon focus rules.
+   This prevents iOS Safari from showing an outline after tapping Close, Menu, or other icons. */
+@media (hover: none) and (pointer: coarse) {
+  .btn.icon-only:focus-visible,
+  button.close-control:focus-visible,
+  .lang.lang-icon:has(select:focus-visible) {
+    outline: none;
+    box-shadow: none;
+  }
+}

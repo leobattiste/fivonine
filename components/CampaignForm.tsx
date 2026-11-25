@@ -341,7 +341,7 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
               <div className="thumbs">
                 {f.gallery.map((p) => (
                   <span key={p} className="thumb"><span className="frame">{/* eslint-disable-next-line @next/next/no-img-element */}<img src={src(p)} alt="" /></span>
-                    <button type="button" aria-label={d.common.remove} onClick={() => set("gallery", f.gallery.filter((v) => v !== p))}><Icon name="close" size={14} /></button></span>
+                    <button type="button" className="close-control" aria-label={d.common.remove} onClick={() => set("gallery", f.gallery.filter((v) => v !== p))}><Icon name="close" size={14} /></button></span>
                 ))}
               </div>
             )}

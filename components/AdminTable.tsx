@@ -76,7 +76,7 @@ export default function AdminTable({ rows, base }: { rows: AdminRow[]; base: str
         <div className="toast" role="status">
           <span>{toast.message}</span>
           {toast.undo && <form action={action}><input type="hidden" name="snapshot" value={toast.undo} />{JSON.parse(toast.undo).map((r: { id: string }) => <input key={r.id} type="hidden" name="ids" value={r.id} />)}<Btn op="undo"><Icon name="undo" size={15} />Undo</Btn></form>}
-          <button className="btn small icon-only" onClick={() => setToast(null)} aria-label="Dismiss" style={{ background: "transparent", color: "inherit", borderColor: "transparent" }}><Icon name="close" size={16} /></button>
+          <button className="btn small icon-only close-control" onClick={() => setToast(null)} aria-label="Dismiss" style={{ background: "transparent", color: "inherit", borderColor: "transparent" }}><Icon name="close" size={16} /></button>
         </div>
       )}
     </>
