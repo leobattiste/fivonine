@@ -1,4 +1,3 @@
-import { GeistSans } from "geist/font/sans";
 import type { Metadata, Viewport } from "next";
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
@@ -45,7 +44,7 @@ export default async function Layout({ children, params }: { children: React.Rea
   const unread = viewer ? await unreadCount(viewer.id) : 0;
   const banner = settings.emergency.active ? settings.emergency[locale] || settings.emergency.fr : "";
   return (
-    <html lang={htmlLang[locale]} className={GeistSans.variable}
+    <html lang={htmlLang[locale]}
       data-large-text={viewer?.profile.large_text ? "true" : undefined}
       data-high-contrast={viewer?.profile.high_contrast ? "true" : undefined}
       data-reduce-motion={viewer?.profile.reduce_motion ? "true" : undefined}

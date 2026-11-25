@@ -7,6 +7,22 @@
    like a hand held out. It marks photos, cards, primary buttons, the active nav item and the page loader.
    Layout: every page runs full width with 20px outer edges. Text columns stay readable inside it. */
 
+/* Switzer by Indian Type Foundry, served by Fontshare. Variable weights 100–900. */
+@font-face {
+  font-family: "Switzer";
+  src: url("https://cdn.fontshare.com/wf/HJHZ26OECMTXRH7JXPFC7EVIHDSLT2RA/LJRNLR7WCPF3PY3SZ7B2LHNUTQMFNCHL/4MCJYGQDIOOXHWSIIB2OYNDBEALJSOGN.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Switzer";
+  src: url("https://cdn.fontshare.com/wf/KDSQNRHYYJCWSLSNMQTKJOY7QNC2IBLM/HGYBIGJ4X7DYUETLTGW4BIVO3FCWLJUR/AFY5UJBPUVSDM77Q42DSHPT5JUNR7N4Y.woff2") format("woff2");
+  font-style: italic;
+  font-weight: 100 900;
+  font-display: swap;
+}
+
 :root {
   /* Brand palette: white surfaces, sage sections, green emphasis */
   --white: #FFFFFF;
@@ -30,7 +46,7 @@
   --item: 44px;     /* menu and list rows */
   --pad: 24px;      /* card padding */
   --gap: 16px;      /* gap inside cards */
-  --font: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font: "Switzer", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --kout: 16px;
   --kout-md: 16px;
   --kout-sm: 16px;
