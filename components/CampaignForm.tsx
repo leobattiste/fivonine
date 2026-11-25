@@ -18,11 +18,19 @@ const ID_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const plain = (html: string) => html.replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim();
 const time = (locale: Locale) => new Intl.DateTimeFormat(locale, { hour: "numeric", minute: "2-digit" }).format(new Date());
 
-/** One page, in the order a supporter reads it: title, category, photo, story, place, media, goal, how to help. */
+/** One visible section at a time, with shared draft state and final submission validation. */
 export default function CampaignForm({ locale, cats, initial, draftKey, live, email, reviewNote }: { locale: Locale; cats: Category[]; initial: FormState; draftKey: string | null; live: boolean; email?: string; reviewNote?: string | null }) {
   const d = t(locale), c = d.create, x = d.x.form, k = x.compose, verification = verificationCopy[locale];
   const [f, setF] = useState<FormState>(initial);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [navigation, setNavigation] = useState<{ section: string; target: "tab" | "panel" | "error" } | null>(null);
+  const activeStep = navigation?.section ?? "title";
+  const navCopy = {
+    en: { previous: "Previous", next: "Next", review: "Review", support: "Support" },
+    fr: { previous: "Précédent", next: "Suivant", review: "Vérifier", support: "Soutien" },
+    ht: { previous: "Anvan", next: "Apre", review: "Revize", support: "Sipò" },
+    es: { previous: "Anterior", next: "Siguiente", review: "Revisar", support: "Apoyo" },
+  }[locale];
   const [busy, setBusy] = useState<string | null>(null);
   const [upErr, setUpErr] = useState<string | null>(null);
   const [restored, setRestored] = useState(false);
@@ -100,23 +108,50 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
     [f, consent, methods, verificationConsent, live]);
   const verificationKeys = ["contact_name", "contact_email", "contact_details", "id_front_path", "selfie_path", "verificationConsent"];
   const sectionOf = (key: string) => (verificationKeys.includes(key) ? "verification" : key.startsWith("beneficiary_") ? "beneficiary" : key === "title" ? "title" : key === "cause" ? "category" : key === "cover_path" ? "cover" : key === "story" ? "story" : key === "department" ? "location" : key === "consent" ? "submit" : "receive");
-  const items: [string, string, boolean][] = [
-    ["title", k.items.title, !missing.title], ["category", k.items.category, !missing.cause], ["cover", k.items.cover, !missing.cover_path],
-    ["story", k.items.story, !missing.story], ["location", k.items.location, !missing.department],
-    ["beneficiary", c.s1, !missing.beneficiary_name && !missing.beneficiary_relation],
-    ["receive", k.items.receive, !Object.keys(missing).some((m) => m === "methods" || m.startsWith("m.") || m.startsWith("l."))],
-    ["verification", verification.title, !verificationKeys.some((key) => missing[key])],
-    ...(live ? [] : [["submit", k.items.consent, consent.every(Boolean)] as [string, string, boolean]]),
+  const items: [string, string][] = [
+    ["title", k.items.title], ["category", k.items.category], ["cover", k.items.cover],
+    ["story", k.items.story], ["location", k.items.location], ["beneficiary", c.s1],
+    ["media", k.media.label], ["goal", k.goal.label], ["receive", navCopy.support],
+    ["verification", verification.title], ["submit", navCopy.review],
   ];
-  const doneCount = items.filter(([, , ok]) => ok).length;
-
-  const jump = (section: string) => {
-    const el = document.getElementById(`s-${section}`);
-    el?.scrollIntoView({ behavior: "smooth", block: "start" });
-    requestAnimationFrame(() => ((section === "cover" ? el?.querySelector<HTMLElement>("[data-cover-replace]") : null)
-      ?? el?.querySelector<HTMLElement>('[aria-invalid="true"]')
-      ?? el?.querySelector<HTMLElement>("input:not([type=radio]), select, textarea, button, [contenteditable=true]"))?.focus({ preventScroll: true }));
+  const stepIndex = items.findIndex(([id]) => id === activeStep);
+  const lastStep = stepIndex === items.length - 1;
+  const navigationLocked = pending || busy !== null || recording;
+  const jump = (section: string, target: "tab" | "panel" | "error" = "error") => {
+    setNavigation({ section, target });
   };
+  const nextStep = () => {
+    if (navigationLocked || lastStep) return;
+    const sectionErrors = Object.fromEntries(Object.entries(missing).filter(([key]) => sectionOf(key) === activeStep));
+    setErrors((old) => ({ ...Object.fromEntries(Object.entries(old).filter(([key]) => sectionOf(key) !== activeStep)), ...sectionErrors }));
+    if (Object.keys(sectionErrors).length) jump(activeStep, "error");
+    else jump(items[stepIndex + 1][0], "panel");
+  };
+  // Keep all panels mounted so field values and the story editor survive navigation.
+  // Scroll and focus only after React has revealed the selected panel.
+  useEffect(() => {
+    if (!navigation) return;
+    const { section, target } = navigation;
+    const tab = document.getElementById(`wizard-tab-${section}`);
+    const rail = document.getElementById("wizard-tabs");
+    if (tab && rail) {
+      const tr = tab.getBoundingClientRect(), rr = rail.getBoundingClientRect();
+      if (tr.left < rr.left || tr.right > rr.right) rail.scrollLeft += tr.left - rr.left - (rr.width - tr.width) / 2;
+    }
+    const panel = document.getElementById(`s-${section}`);
+    if (target === "tab") { tab?.focus({ preventScroll: true }); return; }
+    if (target === "error") {
+      const field = (section === "cover" ? panel?.querySelector<HTMLElement>("[data-cover-replace]") : null)
+        ?? panel?.querySelector<HTMLElement>('[aria-invalid="true"]:not([type="hidden"])')
+        ?? panel?.querySelector<HTMLElement>("input:not([type=hidden]), select, textarea, button, [contenteditable=true]")
+        ?? panel;
+      field?.focus({ preventScroll: true });
+      (field?.closest(".field") ?? panel)?.scrollIntoView({ block: "start", behavior: "auto" });
+    } else {
+      panel?.focus({ preventScroll: true });
+      document.getElementById("wizard-top")?.scrollIntoView({ block: "start", behavior: "auto" });
+    }
+  }, [navigation]);
 
   // Server-side validation can reject a cover path that the browser could not verify.
   // Point the organizer at the exact field instead of showing an unexplained footer error.
@@ -236,7 +271,7 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
   );
 
   return (
-    <form action={action} className="compose" noValidate
+    <form action={action} className="compose wizard-form" noValidate
       onKeyDown={(e) => { const el = e.target as HTMLElement; if (e.key === "Enter" && el.tagName === "INPUT" && !["checkbox", "radio", "file"].includes((el as HTMLInputElement).type)) e.preventDefault(); }}
       onSubmit={(e) => {
         if (busy !== null || pending || recording) { e.preventDefault(); return; }
@@ -254,10 +289,29 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
       <input type="hidden" name="locale" value={locale} />
       <input type="hidden" name="payload" value={payload} />
 
-      <div className="compose-bar" role="status">
-        <span className="step-progress" aria-hidden="true"><span style={{ width: `${(doneCount / items.length) * 100}%` }} /></span>
-        <span className="small"><strong>{k.side.ready(doneCount, items.length)}</strong></span>
-        {!live && <span className="grow-end">{draftBtn("small")}</span>}
+      <div id="wizard-top" className="wizard-top">
+        <div id="wizard-tabs" className="wizard-tabs tabs" role="tablist" aria-label={x.title}>
+          {items.map(([id, label], i) => (
+            <button type="button" key={id} id={`wizard-tab-${id}`} role="tab"
+              aria-selected={activeStep === id} aria-controls={`s-${id}`}
+              tabIndex={activeStep === id ? 0 : -1} disabled={navigationLocked}
+              onClick={() => jump(id, "tab")}
+              onKeyDown={(e) => {
+                let next = i;
+                if (e.key === "ArrowRight") next = (i + 1) % items.length;
+                else if (e.key === "ArrowLeft") next = (i + items.length - 1) % items.length;
+                else if (e.key === "Home") next = 0;
+                else if (e.key === "End") next = items.length - 1;
+                else return;
+                e.preventDefault();
+                jump(items[next][0], "tab");
+              }}>{label}</button>
+          ))}
+        </div>
+        <div className="wizard-progress">
+          <span className="small muted" aria-live="polite">{x.stepOf(stepIndex + 1, items.length)}</span>
+          <span className="step-progress" aria-hidden="true"><span style={{ width: `${((stepIndex + 1) / items.length) * 100}%` }} /></span>
+        </div>
       </div>
 
       <div className="compose-main">
@@ -266,7 +320,7 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
         {restored && <p className="notice"><Icon name="undo" size={18} /><span>{x.restored} <button type="button" className="link" onClick={() => { setF(initial); setRestored(false); if (draftKey) localStorage.removeItem(draftKey); }}>{x.startOver}</button></span></p>}
         {upErr && <p className="notice err" role="alert"><Icon name="alert" size={18} />{upErr}</p>}
 
-        <section id="s-title" className="part">
+        <section id="s-title" className="part" role="tabpanel" aria-labelledby="wizard-tab-title" tabIndex={-1} hidden={activeStep !== "title"}>
           <header><h2>{k.title.label}</h2><p className="muted">{k.title.hint}</p></header>
           <label className="field"><span className="sr">{k.title.label}</span>
             <input className="input big" value={f.title} maxLength={120} placeholder={k.title.ph} onChange={(e) => set("title", e.target.value)} {...inv("title")} />
@@ -274,7 +328,7 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
           </label>
         </section>
 
-        <section id="s-category" className="part">
+        <section id="s-category" className="part" role="tabpanel" aria-labelledby="wizard-tab-category" tabIndex={-1} hidden={activeStep !== "category"}>
           <header><h2>{k.category.label}</h2><p className="muted">{k.category.hint}</p></header>
           <fieldset className="field" {...(errors.cause ? { "aria-describedby": "e-cause" } : {})}>
             <legend className="sr">{k.category.label}</legend>
@@ -285,7 +339,7 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
           </fieldset>
         </section>
 
-        <section id="s-cover" className="part">
+        <section id="s-cover" className="part" role="tabpanel" aria-labelledby="wizard-tab-cover" tabIndex={-1} hidden={activeStep !== "cover"}>
           <header><h2>{k.cover.label}</h2><p className="muted">{k.cover.hint}</p></header>
           <div className="field">
             <input ref={coverPicker} id="cover-file" type="file" accept="image/*" hidden disabled={busy !== null || pending}
@@ -313,7 +367,7 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
           </div>
         </section>
 
-        <section id="s-story" className="part">
+        <section id="s-story" className="part" role="tabpanel" aria-labelledby="wizard-tab-story" tabIndex={-1} hidden={activeStep !== "story"}>
           <header><h2>{k.story.label}</h2><p className="muted" id="story-hint">{k.story.hint}</p></header>
           <div className="field">
             <label htmlFor="story-editor" className="sr">{k.story.label}</label>
@@ -336,7 +390,7 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
           </label>
         </section>
 
-        <section id="s-location" className="part">
+        <section id="s-location" className="part" role="tabpanel" aria-labelledby="wizard-tab-location" tabIndex={-1} hidden={activeStep !== "location"}>
           <header><h2>{k.location.label}</h2><p className="muted">{k.location.hint}</p></header>
           <div className="cols-2">
             <label className="field"><span>{c.department}</span>
@@ -349,7 +403,7 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
           </div>
         </section>
 
-        <section id="s-beneficiary" className="part">
+        <section id="s-beneficiary" className="part" role="tabpanel" aria-labelledby="wizard-tab-beneficiary" tabIndex={-1} hidden={activeStep !== "beneficiary"}>
           <header><h2>{c.s1}</h2><p className="muted" id="beneficiary-hint">{verification.beneficiaryHint}</p></header>
           <div className="cols-2">
             <label className="field"><span>{c.beneficiary}</span>
@@ -365,7 +419,7 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
           </div>
         </section>
 
-        <section id="s-media" className="part">
+        <section id="s-media" className="part" role="tabpanel" aria-labelledby="wizard-tab-media" tabIndex={-1} hidden={activeStep !== "media"}>
           <header><h2>{k.media.label}{opt}</h2><p className="muted">{k.media.hint}</p></header>
           <div className="field"><span>{k.media.photos}</span>
             {f.gallery.length > 0 && (
@@ -396,7 +450,7 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
           </div>
         </section>
 
-        <section id="s-goal" className="part">
+        <section id="s-goal" className="part" role="tabpanel" aria-labelledby="wizard-tab-goal" tabIndex={-1} hidden={activeStep !== "goal"}>
           <header><h2>{k.goal.label}{opt}</h2><p className="muted">{k.goal.hint}</p></header>
           <label className="field narrow"><span className="sr">{k.goal.label}</span>
             <span className="joined">
@@ -406,7 +460,7 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
           </label>
         </section>
 
-        <section id="s-receive" className="part">
+        <section id="s-receive" className="part" role="tabpanel" aria-labelledby="wizard-tab-receive" tabIndex={-1} hidden={activeStep !== "receive"}>
           <header><h2>{k.receive.label}</h2><p className="muted">{k.receive.hint}</p></header>
           <p className="notice"><Icon name="eye" size={18} />{c.methodsWarn}</p>
           <p className="small muted">{verification.recipientHint}</p>
@@ -435,7 +489,7 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
           </div>
         </section>
 
-        <section id="s-verification" className="part" aria-labelledby="verification-title" aria-busy={[...verificationKeys, "id_back_path"].includes(busy ?? "")}>
+        <section id="s-verification" className="part" role="tabpanel" aria-labelledby="wizard-tab-verification" tabIndex={-1} hidden={activeStep !== "verification"} aria-busy={[...verificationKeys, "id_back_path"].includes(busy ?? "")}>
           <header><h2 id="verification-title">{verification.title}</h2><p className="muted">{verification.intro}</p></header>
           <p className="notice"><Icon name="lock" size={18} />{c.privateNote}</p>
           <p className="small muted" id="verification-contact-hint">{verification.contactHint}</p>
@@ -471,9 +525,9 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
           {draftKey && <p className="small muted"><Icon name="lock" size={15} />{verification.privateDraft}</p>}
         </section>
 
-        <section id="s-submit" className="part submit-part">
+        <section id="s-submit" className="part submit-part" role="tabpanel" aria-labelledby="wizard-tab-submit" tabIndex={-1} hidden={activeStep !== "submit"}>
           <header><h2>{live ? x.submitChanges : k.submit.label}</h2><p className="muted">{live ? k.submit.changesHint : k.submit.hint}</p></header>
-          <div className="only-compact stack tight"><p className="eyebrow">{k.side.preview}</p>{card}</div>
+          <div className="wizard-review-preview stack tight"><p className="eyebrow">{k.side.preview}</p>{card}</div>
           {!live && (
             <fieldset className="field stack" style={{ gap: 12 }}>
               <legend className="sr">{k.items.consent}</legend>
@@ -487,37 +541,27 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
             <li><Icon name="clock" size={18} /><span>{k.submit.eta}</span></li>
             <li><Icon name="mail" size={18} /><span>{k.submit.reach(mail)}</span></li>
           </ul>
-          {Object.keys(errors).length > 0 && (
-            <div className="notice err" role="alert"><Icon name="alert" size={18} /><span><strong>{c.missing}</strong>
-              <span className="row tight" style={{ marginTop: 8 }}>{items.filter(([, , ok]) => !ok).map(([id, label]) => <button key={id} type="button" className="chip" onClick={() => jump(id)}>{label}</button>)}</span></span></div>
+          {Object.keys(missing).length > 0 && (
+            <div className="notice err"><Icon name="alert" size={18} /><span><strong>{c.missing}</strong>
+              <span className="row tight" style={{ marginTop: 8 }}>{items.filter(([id]) => Object.keys(missing).some((key) => sectionOf(key) === id)).map(([id, label]) => <button key={id} type="button" className="chip" disabled={navigationLocked} onClick={() => { setErrors(missing); jump(id); }}>{label}</button>)}</span></span></div>
           )}
-          <div className="row end-row">
-            {draftBtn()}
-            <button className="btn primary" name="intent" value="submit" disabled={pending || busy !== null || recording} aria-busy={pending}>{pending ? <><Icon name="spinner" size={18} />{d.common.loading}</> : live ? x.submitChanges : k.submit.label}</button>
+        </section>
+        <div className="wizard-footer">
+          <div className="wizard-actions">
+            <button type="button" className="btn" disabled={stepIndex === 0 || navigationLocked}
+              onClick={() => jump(items[stepIndex - 1][0], "panel")}><Icon name="left" size={16} />{navCopy.previous}</button>
+            <div className="wizard-action-end">
+              {draftBtn()}
+              {lastStep ? (
+                <button className="btn primary" type="submit" name="intent" value="submit" disabled={navigationLocked} aria-busy={pending}>{pending ? <><Icon name="spinner" size={18} />{d.common.loading}</> : live ? x.submitChanges : k.submit.label}</button>
+              ) : (
+                <button className="btn primary" type="button" disabled={navigationLocked} onClick={nextStep}>{navCopy.next}<Icon name="arrow" size={16} /></button>
+              )}
+            </div>
           </div>
           <div className="stack tight">{saveState}</div>
-        </section>
+        </div>
       </div>
-
-      <aside className="compose-side" aria-label={k.side.preview}>
-        <div className="stack tight">
-          <p className="eyebrow">{k.side.preview}</p>
-          {card}
-          <p className="small muted">{k.side.previewHint}</p>
-        </div>
-        <div className="stack tight">
-          <p className="eyebrow">{k.side.list} · {k.side.ready(doneCount, items.length)}</p>
-          <ul className="checklist-side">
-            {items.map(([id, label, ok]) => (
-              <li key={id}><button type="button" onClick={() => jump(id)} className={ok ? "ok" : ""}><span className="dot">{ok ? <Icon name="check" size={14} /> : null}</span>{label}</button></li>
-            ))}
-          </ul>
-        </div>
-        <div className="stack tight">
-          {draftBtn()}
-          {saveState}
-        </div>
-      </aside>
     </form>
   );
 }
