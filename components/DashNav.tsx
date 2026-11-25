@@ -1,11 +1,27 @@
+"use client";
+import { useEffect, useRef } from "react";
 import Link from "next/link";
 import Icon, { type IconName } from "./Icon";
 import { t, type Locale } from "@/lib/i18n";
 export default function DashNav({ locale, tab, unread }: { locale: Locale; tab: string; unread: number }) {
   const n = t(locale).x.nav;
+  const navRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const nav = navRef.current;
+    const active = nav?.querySelector<HTMLElement>('a[aria-current="page"]');
+    if (!nav || !active || nav.scrollWidth <= nav.clientWidth) return;
+    const navRect = nav.getBoundingClientRect();
+    const activeRect = active.getBoundingClientRect();
+    const margin = 8;
+    if (activeRect.left < navRect.left + margin) {
+      nav.scrollLeft += activeRect.left - navRect.left - margin;
+    } else if (activeRect.right > navRect.right - margin) {
+      nav.scrollLeft += activeRect.right - navRect.right + margin;
+    }
+  }, [tab]);
   const items: [string, string, IconName, number?][] = [["campaigns", n.dashboard, "dashboard"], ["saved", n.saved, "bookmark"], ["notifications", n.notifications, "bell", unread], ["profile", n.profile, "user"]];
   return (
-    <nav className="side-nav" aria-label={n.account}>
+    <nav ref={navRef} className="side-nav" aria-label={n.account}>
       {items.map(([k, label, icon, count]) => (
         <Link key={k} href={`/${locale}/dashboard${k === "campaigns" ? "" : `?tab=${k}`}`} aria-current={tab === k ? "page" : undefined}><Icon name={icon} size={18} />{label}{count ? <span className="count">{count}</span> : null}</Link>
       ))}

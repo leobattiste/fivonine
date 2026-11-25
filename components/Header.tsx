@@ -106,8 +106,7 @@ export default function Header({ locale, viewer }: { locale: Locale; viewer: Vie
           <nav className="drawer-nav" aria-label={d.nav.menu}>
             {[["", d.nav.home] as [string, string], ...links].map(([href, label]) => <Link key={href} href={L(href)} aria-current={(href ? isActive(href) : path === L("")) ? "page" : undefined}>{label}<Icon name="right" /></Link>)}
           </nav>
-          {viewer ? <div className="pop" style={{ position: "static", width: "auto", animation: "none", boxShadow: "none" }}><p className="who"><strong>{viewer.name}</strong>{n.account}</p>{accountItems(false)}</div>
-            : <Link className="btn wide" href={L("/login")}>{n.signIn}</Link>}
+          {/* Account and language actions live in the mobile header. */}
         </div>
       </dialog>
     </header>

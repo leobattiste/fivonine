@@ -43,7 +43,7 @@
   color-scheme: light;
 }
 *, *::before, *::after { box-sizing: border-box; }
-html { -webkit-text-size-adjust: 100%; scroll-padding-top: 24px; }
+html { -webkit-text-size-adjust: 100%; scroll-padding-top: 24px; background: var(--white); }
 body { margin: 0; background: var(--white); color: var(--ink); font: 400 var(--t-md)/1.6 var(--font); font-synthesis: none; -webkit-font-smoothing: antialiased; min-height: 100vh; display: flex; flex-direction: column; }
 main { flex: 1; display: block; }
 img, svg, audio, video { max-width: 100%; }
@@ -513,15 +513,22 @@ dialog::backdrop { background: rgba(31, 80, 59, .45); }
 @media (min-width: 900px) { .confirm-card { padding: 40px; } }
 
 /* ---------- Organizer area ---------- */
-.dash-shell { display: grid; gap: 28px; align-items: start; }
+.dash-shell { display: grid; grid-template-columns: minmax(0, 1fr); min-width: 0; gap: 28px; align-items: start; }
 @media (min-width: 1000px) { .dash-shell { grid-template-columns: 240px minmax(0, 1fr); gap: 48px; } }
-.side-nav { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; }
-.side-nav a { display: flex; align-items: center; gap: 10px; min-height: var(--item); padding: 0 14px; border: 1.5px solid var(--sage); border-radius: var(--pill); background: transparent; text-decoration: none; font-weight: 400; font-size: var(--t-sm); white-space: nowrap; }
+/* Mobile tab navigation: never shrink pills or allow text and badges to overlap. */
+.side-nav { display: flex; min-width: 0; width: 100%; max-width: 100%; gap: 8px; padding: 2px 0 8px; overflow-x: auto; overflow-y: hidden; overscroll-behavior-x: contain; -webkit-overflow-scrolling: touch; scrollbar-width: none; scroll-snap-type: x proximity; }
+.side-nav::-webkit-scrollbar { display: none; }
+.side-nav a { display: inline-flex; flex: 0 0 auto; width: max-content; align-items: center; gap: 8px; min-height: var(--item); padding: 0 16px; border: 1.5px solid var(--sage); border-radius: var(--pill); background: transparent; text-decoration: none; font-weight: 400; font-size: var(--t-sm); line-height: 1.3; white-space: nowrap; scroll-snap-align: start; }
+.side-nav a .icon, .side-nav a .count { flex-shrink: 0; }
 .side-nav a:hover { border-color: var(--green); }
 .side-nav a[aria-current="page"] { background: var(--green); border-color: var(--green); color: var(--white); }
-.side-nav a .count { margin-left: auto; }
+.side-nav a .count { margin-left: 0; }
 .side-nav a[aria-current="page"] .count { background: var(--white); color: var(--green); }
-@media (min-width: 1000px) { .side-nav { flex-direction: column; position: sticky; top: 20px; } }
+@media (min-width: 1000px) {
+  .side-nav { flex-direction: column; position: sticky; top: 20px; overflow-x: visible; overflow-y: visible; scroll-snap-type: none; }
+  .side-nav a { width: 100%; }
+  .side-nav a .count { margin-left: auto; }
+}
 .f-rows { display: flex; flex-direction: column; gap: 12px; }
 .f-row { display: grid; gap: 16px; padding: 16px; border-radius: 16px; border: 1.5px solid var(--line); }
 .f-row.attn { border-color: var(--green); background: var(--mint); }
@@ -554,7 +561,7 @@ dialog::backdrop { background: rgba(31, 80, 59, .45); }
 .list > li.unread { font-weight: 400; }
 
 /* ---------- Admin ---------- */
-.admin-shell { display: grid; gap: 20px; align-items: start; font-size: var(--t-sm); }
+.admin-shell { display: grid; grid-template-columns: minmax(0, 1fr); min-width: 0; gap: 20px; align-items: start; font-size: var(--t-sm); }
 @media (min-width: 1000px) { .admin-shell { grid-template-columns: 220px minmax(0, 1fr); gap: 32px; } }
 .admin-shell h1 { font-size: var(--t-xl); }
 .admin-shell h2 { font-size: var(--t-lg); }
@@ -674,6 +681,10 @@ details.disclose[open] > summary::after { transform: rotate(45deg); }
 
 /* Footer: no rule, no separator. */
 .site-footer { background: var(--sage); margin-top: 24px; }
+@media (max-width: 999px) {
+  /* Keep the bottom iOS browser chrome white instead of sampling the sage footer. */
+  .site-footer { background: var(--white); }
+}
 .footer-grid { display: grid; gap: 32px; padding-block: 48px 24px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr)); }
 .footer-grid .brand-col { display: flex; flex-direction: column; gap: 14px; grid-column: 1 / -1; }
 @media (min-width: 900px) { .footer-grid { grid-template-columns: 1.6fr repeat(3, 1fr); } .footer-grid .brand-col { grid-column: auto; } }
