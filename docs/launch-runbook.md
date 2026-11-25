@@ -55,3 +55,21 @@ Release in stages:
 5. Enable indexing only after every live acceptance condition and owner disclosure is complete, then verify robots, canonical/alternate links and campaign sitemap URLs.
 
 For rollback, keep the additive database changes and mandatory verification gates. An older client cannot approve fundraisers without the new checks. Do not restore public supporter-amount access or fabricate reviewer stamps to make a rollback appear successful. Prefer redeploying a reviewed application build compatible with the new RPCs.
+
+## Release evidence: 25 November 2026
+
+Application release `46856ce2025bc00c8b1f4d9caae81a330b76e8d8` (PR #5) reached production on Vercel. All four launch migrations were applied in the staged order above; their filenames match the recorded database versions. The final contribution-read restriction was applied after the application was serving production.
+
+Validated production behavior: public health returns HTTP 200 with `launchReady:false`; authenticated health confirms database reachability and backend queue access; invalid cron credentials return 401. The queue has zero pending, failed or uncertain deliveries and two quarantined historical test notices, with no real email sent during this release. All four locale home/about/privacy/contact/explore pages render, preserve canonical URLs and remain noindex. Anonymous dashboard requests redirect to login, and the internal test fundraiser returns 404 in every locale. Robots remains disallow-all and the test fundraiser is absent from the sitemap. Anonymous database checks confirm no contribution table/amount privileges and no private document visibility. All campaign, private-record, profile and outbox row counts were preserved.
+
+Automated evidence: production build, 42 application/form/translation/worker tests, 23 local browser checks, and 12 isolated PostgreSQL 17 workflow/security checks passed. These do not replace the live acceptance evidence required above.
+
+Still required before public launch:
+
+- Supply the real operator name/country, public support email and document-retention policy, plus named moderation and support coverage.
+- Configure a verified sending identity/domain, scoped platform email key and Supabase Auth SMTP; complete real delivery, recovery and designated-account Auth/Storage/review acceptance checks.
+- Enable [Supabase leaked-password protection](https://supabase.com/docs/guides/auth/password-security#password-strength-and-leaked-password-protection), which the security advisor still reports as disabled. The connected tools do not expose Auth configuration updates. The two informational no-policy notices concern intentionally private backend credentials and outbox tables.
+- Provide genuine launch fundraisers and complete their independent identity/recipient reviews.
+- Verify the backup schedule, complete a restore drill and connect external uptime/error alerts. Complete policy and native-language review.
+
+`PUBLIC_LAUNCH=false` and `LAUNCH_CHECKS_PASSED=false` remain in production. Do not treat the deployed safeguards or the healthy uptime response as approval to enable indexing.

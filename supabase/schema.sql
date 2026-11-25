@@ -1426,7 +1426,7 @@ revoke all on function private.public_contribution_notes(uuid),public.public_con
 grant execute on function private.public_contribution_notes(uuid),public.public_contribution_notes(uuid) to anon,authenticated;
 commit;
 
--- 20261125013628_restrict_contribution_reads.sql
+-- 20261125052128_restrict_contribution_reads.sql
 -- Apply after the new application is deployed and reads public notes through its safe projection.
 begin;
 revoke select on public.contributions from public,anon,authenticated;
