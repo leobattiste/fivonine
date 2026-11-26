@@ -918,8 +918,6 @@ textarea.input { border-radius: var(--r); padding: 14px 18px; }
 .wizard-tabs.tabs { display: flex; flex-wrap: nowrap; gap: 8px; overflow-x: auto; overflow-y: hidden; padding: 4px 3px 10px; scrollbar-width: thin; max-width: 100%; }
 .wizard-tabs.tabs button { flex: 0 0 auto; white-space: nowrap; }
 .wizard-tabs.tabs button:disabled { opacity: .65; cursor: not-allowed; }
-.wizard-progress { display: flex; align-items: center; gap: 16px; }
-.wizard-progress .step-progress { flex: 1; min-width: 24px; }
 .wizard-form .compose-main { width: 100%; max-width: 640px; margin-inline: auto; gap: 24px; }
 .wizard-form .part { min-width: 0; min-height: 190px; }
 .wizard-form .part[hidden] { display: none !important; }

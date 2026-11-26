@@ -307,12 +307,8 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
                 else return;
                 e.preventDefault();
                 jump(items[next][0], "tab");
-              }}>{label}</button>
+              }}>{i + 1}. {label}</button>
           ))}
-        </div>
-        <div className="wizard-progress">
-          <span className="small muted" aria-live="polite">{x.stepOf(stepIndex + 1, items.length)}</span>
-          <span className="step-progress" aria-hidden="true"><span style={{ width: `${((stepIndex + 1) / items.length) * 100}%` }} /></span>
         </div>
       </div>
 
