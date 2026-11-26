@@ -15,7 +15,7 @@ export type Tier = "none" | "id_checked" | "community" | "organization";
 export type Progress = { total_htg: number; total_usd: number; supporters: number };
 export type Campaign = {
   id: string; slug: string; owner_id: string; status: Status; title: string; story: string; cause: string | null;
-  department: string | null; commune: string | null; beneficiary_name: string | null; beneficiary_relation: string | null;
+  country_code?: string | null; organization_role?: string | null; department: string | null; commune: string | null; beneficiary_name: string | null; beneficiary_relation: string | null;
   goal_amount: number | null; goal_currency: "HTG" | "USD"; deadline: string | null; urgent: boolean; emergency: boolean;
   cover_path: string | null; gallery: string[]; video_url: string | null; voice_path: string | null; tier: Tier;
   featured: boolean; language: Locale; created_at: string; updated_at: string; submitted_at: string | null;

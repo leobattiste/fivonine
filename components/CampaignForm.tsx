@@ -4,12 +4,14 @@ import Icon from "./Icon";
 import StoryEditor from "./StoryEditor";
 import { saveCampaign } from "@/app/actions";
 import { DEPARTMENTS, METHODS, RELATIONS, type MethodGroup } from "@/lib/constants";
-import { storyLanguages, t, type Locale } from "@/lib/i18n";
-import { uploadBlob, uploadImage } from "@/lib/upload";
-import { fmtMoney, mediaUrl } from "@/lib/format";
+import { t, type Locale } from "@/lib/i18n";
+import { uploadImage } from "@/lib/upload";
+import { fmtMoney, mediaUrl, campaignPlace } from "@/lib/format";
 import { deviceDraft, restoreDeviceDraft, type FormState, type IdentityFileField } from "@/lib/form";
 import { verificationCopy } from "@/lib/dict/verification";
 import type { Category } from "@/lib/types";
+import { countryOptions, isCountry } from "@/lib/countries";
+import { formatPayment, parsePayment, paymentFields, paymentLabel, paymentValid, splitContact, formatContact } from "@/lib/payment-fields";
 export type { FormState };
 
 const LINK = /^https:\/\/[^\s]+$/;
@@ -31,6 +33,8 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
     ht: { previous: "Anvan", next: "Apre", basics: "Konsènan", story: "Istwa", goal: "Objektif", media: "Medya", support: "Don", review: "Revize", who: "Pou kiyès w ap ranmase sipò?", self: "Pou tèt mwen", other: "Yon lòt moun", org: "Yon òganizasyon", selfHint: "Pou pwòp bezwen mwen.", otherHint: "Pou yon lòt moun, yon fanmi oswa yon kominote.", orgHint: "Pou yon òganizasyon oswa yon gwoup kominotè.", orgName: "Non òganizasyon an", selfName: "Non w", authorization: "Ajoute dokiman ki montre ou gen pèmisyon pou ranmase sipò pou moun nan oswa òganizasyon an.", diaspora: "Vil, rejyon ak peyi", noGoal: "Mwen pa gen yon objektif presi", edit: "Modifye" },
     es: { previous: "Anterior", next: "Siguiente", basics: "Acerca de", story: "Historia", goal: "Meta", media: "Multimedia", support: "Donaciones", review: "Revisar", who: "¿Para quién recaudas fondos?", self: "Para mí", other: "Para otra persona", org: "Una organización", selfHint: "Para mis propias necesidades.", otherHint: "Para otra persona, familia o comunidad.", orgHint: "Para una organización o un grupo comunitario.", orgName: "Nombre de la organización", selfName: "Tu nombre", authorization: "Adjunta documentación que acredite tu autorización para recaudar fondos para el destinatario o la organización.", diaspora: "Ciudad, región y país", noGoal: "No tengo una meta específica", edit: "Editar" },
   }[locale];
+  const ui = {"en":{"country":"Country","location":"Where is the beneficiary located?","city":"City, state or region","role":"Your role in the organization","story":"Tell your story","title":"Fundraiser title","desc":"Description","storyHelp":"Explain why you are fundraising and how donations will help.","goal":"How much would you like to raise?","deadline":"End date","photos":"Photos","photoTitle":"Add photos to your fundraiser","photoHelp":"Upload up to 10 photos. Choose one as your cover.","cover":"Cover","makeCover":"Make cover","delete":"Delete","photoMenu":"Photo options","uploading":"Uploading photos","photoError":"Some photos could not be uploaded. Try again.","requiredCountry":"Choose a country.","requiredLocation":"Enter the city, state or region.","requiredRole":"Enter your role.","invalidDate":"Choose a valid end date.","invalidGoal":"Enter a positive amount.","contact":"Contact information","identity":"Identity documents","evidence":"Supporting evidence","phone":"Phone or WhatsApp","contactExtra":"Additional contact or recipient details","privacy":"Share only the payment information supporters need. It will appear on your fundraiser.","reviewTitle":"Review your fundraiser","complete":"Complete","noGoal":"No fixed goal","summaryPhotos":"photos","summaryMethods":"receiving methods","summaryDocs":"private documents provided","details":"Payment details","addMethod":"Add method","removeMethod":"Remove method","chooseMethod":"Choose a payment method"},"fr":{"country":"Pays","location":"Où se trouve le bénéficiaire ?","city":"Ville, État ou région","role":"Votre rôle dans l’organisation","story":"Racontez votre histoire","title":"Titre de la collecte","desc":"Description","storyHelp":"Expliquez pourquoi vous collectez des fonds et comment les dons aideront.","goal":"Combien souhaitez-vous collecter ?","deadline":"Date de fin","photos":"Photos","photoTitle":"Ajoutez des photos à votre collecte","photoHelp":"Ajoutez jusqu’à 10 photos. Choisissez une photo de couverture.","cover":"Couverture","makeCover":"Définir comme couverture","delete":"Supprimer","photoMenu":"Options de la photo","uploading":"Envoi des photos","photoError":"Certaines photos n’ont pas pu être envoyées. Réessayez.","requiredCountry":"Choisissez un pays.","requiredLocation":"Indiquez la ville, l’État ou la région.","requiredRole":"Indiquez votre rôle.","invalidDate":"Choisissez une date valide.","invalidGoal":"Saisissez un montant positif.","contact":"Coordonnées","identity":"Pièces d’identité","evidence":"Justificatifs","phone":"Téléphone ou WhatsApp","contactExtra":"Autres coordonnées ou précisions sur le destinataire","privacy":"Partagez uniquement les coordonnées de paiement nécessaires. Elles apparaîtront sur votre collecte.","reviewTitle":"Vérifiez votre collecte","complete":"Terminé","noGoal":"Sans objectif fixe","summaryPhotos":"photos","summaryMethods":"moyens de réception","summaryDocs":"documents privés fournis","details":"Coordonnées de paiement","addMethod":"Ajouter un moyen","removeMethod":"Retirer le moyen","chooseMethod":"Choisir un moyen de paiement"},"ht":{"country":"Peyi","location":"Ki kote benefisyè a ye?","city":"Vil, eta oswa rejyon","role":"Wòl ou nan òganizasyon an","story":"Rakonte istwa w","title":"Tit ranmasaj la","desc":"Deskripsyon","storyHelp":"Esplike poukisa w ap ranmase sipò ak kijan don yo pral ede.","goal":"Konbyen ou ta renmen ranmase?","deadline":"Dat fen","photos":"Foto","photoTitle":"Ajoute foto nan ranmasaj ou a","photoHelp":"Ajoute jiska 10 foto. Chwazi youn kòm foto kouvèti.","cover":"Kouvèti","makeCover":"Mete kòm kouvèti","delete":"Efase","photoMenu":"Opsyon foto","uploading":"N ap voye foto yo","photoError":"Gen foto ki pa t voye. Eseye ankò.","requiredCountry":"Chwazi yon peyi.","requiredLocation":"Antre vil, eta oswa rejyon an.","requiredRole":"Antre wòl ou.","invalidDate":"Chwazi yon dat ki valab.","invalidGoal":"Antre yon montan ki pozitif.","contact":"Enfòmasyon kontak","identity":"Pyès idantite","evidence":"Dokiman prèv","phone":"Telefòn oswa WhatsApp","contactExtra":"Lòt detay kontak oswa sou moun k ap resevwa a","privacy":"Pataje sèlman enfòmasyon peman moun bezwen. Yo pral parèt sou ranmasaj ou a.","reviewTitle":"Revize ranmasaj ou a","complete":"Konplè","noGoal":"Pa gen objektif fiks","summaryPhotos":"foto","summaryMethods":"fason pou resevwa","summaryDocs":"dokiman prive bay","details":"Detay peman","addMethod":"Ajoute yon fason","removeMethod":"Retire fason an","chooseMethod":"Chwazi yon fason pou resevwa"},"es":{"country":"País","location":"¿Dónde se encuentra el beneficiario?","city":"Ciudad, estado o región","role":"Tu función en la organización","story":"Cuenta tu historia","title":"Título de la recaudación","desc":"Descripción","storyHelp":"Explica por qué recaudas fondos y cómo ayudarán las donaciones.","goal":"¿Cuánto te gustaría recaudar?","deadline":"Fecha de finalización","photos":"Fotos","photoTitle":"Añade fotos a tu recaudación","photoHelp":"Sube hasta 10 fotos. Elige una como portada.","cover":"Portada","makeCover":"Establecer como portada","delete":"Eliminar","photoMenu":"Opciones de foto","uploading":"Subiendo fotos","photoError":"No se pudieron subir algunas fotos. Inténtalo de nuevo.","requiredCountry":"Selecciona un país.","requiredLocation":"Introduce la ciudad, estado o región.","requiredRole":"Introduce tu función.","invalidDate":"Selecciona una fecha válida.","invalidGoal":"Introduce un importe positivo.","contact":"Información de contacto","identity":"Documentos de identidad","evidence":"Documentos justificativos","phone":"Teléfono o WhatsApp","contactExtra":"Otros datos de contacto o del destinatario","privacy":"Comparte solo los datos necesarios para recibir pagos. Aparecerán en tu recaudación.","reviewTitle":"Revisa tu recaudación","complete":"Completo","noGoal":"Sin meta fija","summaryPhotos":"fotos","summaryMethods":"métodos de recepción","summaryDocs":"documentos privados aportados","details":"Datos de pago","addMethod":"Añadir método","removeMethod":"Quitar método","chooseMethod":"Elegir método de pago"}}[locale];
+  const countries = useMemo(() => countryOptions(locale), [locale]);
   const beneficiaryType = f.beneficiary_relation === "self" ? "self" : f.beneficiary_relation === "organization" ? "org" : f.beneficiary_relation ? "other" : "";
   const [noGoal, setNoGoal] = useState(false);
   const [busy, setBusy] = useState<string | null>(null);
@@ -38,11 +42,18 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
   const [deviceAt, setDeviceAt] = useState<string | null>(null);
   const [consent, setConsent] = useState([false, false, false]);
   const [verificationConsent, setVerificationConsent] = useState(false);
-  const [recording, setRecording] = useState(false);
-  const recorder = useRef<MediaRecorder | null>(null);
-  const coverPicker = useRef<HTMLInputElement | null>(null);
+  const [photoMenu, setPhotoMenu] = useState<string | null>(null);
+  const [photoProgress, setPhotoProgress] = useState({done:0,total:0});
+  const photoPicker = useRef<HTMLInputElement | null>(null);
+  const [methodToAdd, setMethodToAdd] = useState("");
   const previews = useRef<Record<string, string>>({});
   const [state, action, pending] = useActionState(saveCampaign, null);
+  useEffect(() => {
+    if (!photoMenu) return;
+    const close = (e: PointerEvent) => { if (!(e.target as HTMLElement)?.closest?.(".photo-tile")) setPhotoMenu(null); };
+    document.addEventListener("pointerdown",close);
+    return () => document.removeEventListener("pointerdown",close);
+  }, [photoMenu]);
 
   // Restore from this device, then keep a copy as the organizer types.
   useEffect(() => {
@@ -77,6 +88,7 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
   const methods = useMemo(() => Object.entries(f.methods).filter(([, v]) => v.details.trim().length >= 3).map(([method, v]) => ({ method, details: v.details.trim(), link: v.link.trim() })), [f.methods]);
   // A stock/demo preview is not a valid fundraiser cover for review.
   // Only an image uploaded to the organizer's media folder can satisfy this requirement.
+  const photos = Array.from(new Set([f.cover_path, ...f.gallery].filter((p): p is string => Boolean(p)))).slice(0, 10);
   const uploadedCover = Boolean(f.cover_path && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\/[a-z0-9-]{8,60}\.(webp|jpg|jpeg|png)$/i.test(f.cover_path));
   const illustrativeCover = Boolean(f.cover_path && !uploadedCover);
   const consentOk = (live || consent.every(Boolean)) && verificationConsent;
@@ -87,19 +99,23 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
     if (f.title.trim().length < 4) e.title = x.err.title;
     if (!f.cause) e.cause = x.err.cause;
     if (!uploadedCover) e.cover_path = illustrativeCover ? k.cover.demoReplace : x.err.cover;
-    if (plain(f.story).length < 40 && !f.voice_path) e.story = x.err.story;
-    if (!f.department) e.department = x.err.department;
-    if (f.video_url.trim() && !LINK.test(f.video_url.trim())) e.video_url = x.err.link;
+    if (plain(f.story).length < 40) e.story = ({en:"Write at least 40 characters.",fr:"Écrivez au moins 40 caractères.",ht:"Ekri omwen 40 karaktè.",es:"Escribe al menos 40 caracteres."})[locale];
+    if (!isCountry(f.country_code)) e.country_code = ui.requiredCountry;
+    if (f.country_code === "HT" && (!f.department || f.department === "Diaspora")) e.department = x.err.department;
+    if (isCountry(f.country_code) && f.country_code !== "HT" && !f.commune.trim()) e.commune = ui.requiredLocation;
+    if (f.beneficiary_relation === "organization" && !f.organization_role.trim()) e.organization_role = ui.requiredRole;
+    if (f.goal_amount.trim() && (!Number.isFinite(Number(f.goal_amount)) || Number(f.goal_amount) <= 0)) e.goal_amount = ui.invalidGoal;
+    if (f.deadline && !/^\d{4}-\d{2}-\d{2}$/.test(f.deadline)) e.deadline = ui.invalidDate;
     if (f.beneficiary_relation && f.beneficiary_name.trim().length < 2) e.beneficiary_name = c.needRecipient;
     if (!(RELATIONS as readonly string[]).includes(f.beneficiary_relation)) e.beneficiary_relation = c.needRecipient;
     if (f.priv.contact_name.trim().length < 2) e.contact_name = c.needContact;
     if (!EMAIL.test(f.priv.contact_email.trim())) e.contact_email = c.needContact;
-    if (f.priv.contact_details.trim().length < 3) e.contact_details = c.needContact;
+    if (splitContact(f.priv.contact_details).phone.trim().length < 3) e.contact_details = c.needContact;
     if (!f.priv.id_front_path) e.id_front_path = c.needIdentity;
     if (!f.priv.selfie_path) e.selfie_path = c.needIdentity;
     if (!methods.length) e.methods = x.err.method;
     for (const [id, v] of Object.entries(f.methods)) {
-      if (v.details.trim().length < 3) e[`m.${id}`] = x.err.details;
+      if (!paymentValid(id, v.details, v.link)) e[`m.${id}`] = x.err.details;
       if (v.link.trim() && !LINK.test(v.link.trim())) e[`l.${id}`] = x.err.link;
     }
     if (!live && !consent.every(Boolean)) e.consent = x.err.consent;
@@ -109,15 +125,15 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
   const missing = useMemo(check, // eslint-disable-next-line react-hooks/exhaustive-deps
     [f, consent, methods, verificationConsent, live]);
   const verificationKeys = ["contact_name", "contact_email", "contact_details", "id_front_path", "selfie_path", "verificationConsent"];
-  const sectionOf = (key: string) => verificationKeys.includes(key) ? "verification" : key.startsWith("beneficiary_") || key === "cause" || key === "department" ? "basics" : key === "title" || key === "story" ? "story" : key === "cover_path" || key === "video_url" ? "media" : key === "consent" ? "submit" : "receive";
+  const sectionOf = (key: string) => verificationKeys.includes(key) ? "verification" : key.startsWith("beneficiary_") || ["cause", "department", "country_code", "commune", "organization_role"].includes(key) ? "basics" : key === "title" || key === "story" ? "story" : key === "goal_amount" || key === "deadline" ? "goal" : key === "cover_path" ? "media" : key === "consent" ? "submit" : "receive";
   const items: [string, string][] = [
     ["basics", navCopy.basics], ["story", navCopy.story], ["goal", navCopy.goal],
-    ["media", navCopy.media], ["receive", navCopy.support],
-    ["verification", verification.title], ["submit", navCopy.review],
+    ["media", ui.photos], ["receive", navCopy.support],
+    ["verification", c.s5], ["submit", navCopy.review],
   ];
   const stepIndex = items.findIndex(([id]) => id === activeStep);
   const lastStep = stepIndex === items.length - 1;
-  const navigationLocked = pending || busy !== null || recording;
+  const navigationLocked = pending || busy !== null;
   const jump = (section: string, target: "tab" | "panel" | "error" = "error") => {
     setNavigation({ section, target });
   };
@@ -170,24 +186,43 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
     catch (e) { setUpErr(e instanceof Error && e.message === "too-big" ? c.tooBig : c.uploadFailed); return null; }
     finally { setBusy(null); }
   }
-  async function addCover(file: File | undefined) {
-    if (!file || busy !== null || pending) return;
-    setBusy("cover");
-    setUpErr(null);
-    setErrors((old) => { const next = { ...old }; delete next.cover_path; return next; });
+  async function addPhotos(files: FileList | null) {
+    if (!files || busy !== null || pending) return;
+    const selected = Array.from(files).slice(0, Math.max(0, 10 - photos.length));
+    if (!selected.length) return;
+    setBusy("photos"); setUpErr(null); setPhotoProgress({done:0,total:selected.length});
+    const paths: string[] = [];
+    let failed = false;
     try {
-      const path = await uploadImage("media", file, { max: 1600, ratio: 1 });
-      set("cover_path", path);
-    } catch {
-      setErrors((old) => ({ ...old, cover_path: k.cover.uploadError }));
-    } finally {
-      setBusy(null);
-    }
+      for (let i = 0; i < selected.length; i++) {
+        try { paths.push(await uploadImage("media", selected[i], { max: 1600 })); }
+        catch { failed = true; }
+        setPhotoProgress({done:i + 1,total:selected.length});
+      }
+      if (paths.length) {
+        setF((p) => {
+          const old = Array.from(new Set([p.cover_path, ...p.gallery].filter((v): v is string => Boolean(v))));
+          const cover = p.cover_path && !/^(pexels|demo):/.test(p.cover_path) ? p.cover_path : paths[0];
+          const all = Array.from(new Set([cover, ...old, ...paths])).filter(v => !/^(pexels|demo):/.test(v)).slice(0, 10);
+          return { ...p, cover_path: cover, gallery: all.filter(v => v !== cover) };
+        });
+        setErrors((old) => { const next = { ...old }; delete next.cover_path; return next; });
+      }
+      if (failed) setUpErr(ui.photoError);
+    } finally { setBusy(null); }
   }
-  async function addGallery(file: File | undefined) {
-    if (!file) return;
-    const path = await run("gallery", () => uploadImage("media", file, { max: 1600 }));
-    if (path) { previews.current[path] = URL.createObjectURL(file); setF((p) => ({ ...p, gallery: [...p.gallery, path].slice(0, 6) })); }
+  function makeCover(path: string) {
+    setF((p) => ({ ...p, cover_path: path, gallery: Array.from(new Set([p.cover_path, ...p.gallery].filter((v): v is string => Boolean(v && v !== path)))).slice(0, 9) }));
+    setPhotoMenu(null);
+    setErrors((old) => { const next = { ...old }; delete next.cover_path; return next; });
+  }
+  function deletePhoto(path: string) {
+    setF((p) => {
+      const all = Array.from(new Set([p.cover_path, ...p.gallery].filter((v): v is string => Boolean(v && v !== path))));
+      const cover = p.cover_path === path ? all[0] ?? null : p.cover_path;
+      return { ...p, cover_path: cover, gallery: all.filter(v => v !== cover).slice(0, 9) };
+    });
+    setPhotoMenu(null);
   }
   async function addDocument(file: File | undefined) {
     if (!file) return;
@@ -200,27 +235,6 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
     const path = await run(key, () => uploadImage("documents", file, { max: 2400 }));
     if (path) setPriv(key, path);
   }
-  async function toggleRecord() {
-    if (recording) { recorder.current?.stop(); return; }
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const type = ["audio/webm", "audio/mp4", "audio/ogg"].find((m) => MediaRecorder.isTypeSupported(m)) ?? "";
-      const rec = new MediaRecorder(stream, type ? { mimeType: type } : undefined);
-      const chunks: Blob[] = [];
-      rec.ondataavailable = (e) => chunks.push(e.data);
-      rec.onstop = async () => {
-        stream.getTracks().forEach((tr) => tr.stop());
-        setRecording(false);
-        const blob = new Blob(chunks, { type: (rec.mimeType || "audio/webm").split(";")[0] });
-        const path = await run("voice", () => uploadBlob("media", blob));
-        if (path) { previews.current[path] = URL.createObjectURL(blob); set("voice_path", path); }
-      };
-      recorder.current = rec;
-      rec.start(); setRecording(true);
-      setTimeout(() => rec.state === "recording" && rec.stop(), 120000);
-    } catch { setUpErr(c.micDenied); }
-  }
-
   const payload = JSON.stringify({ ...f, methods, consent: consentOk });
   const err = (key: string) => errors[key] ? <p className="field-error" id={`e-${key}`}><Icon name="alert" size={15} />{errors[key]}</p> : null;
   const inv = (key: string) => ({ "aria-invalid": errors[key] ? true : undefined, "aria-describedby": errors[key] ? `e-${key}` : undefined });
@@ -243,8 +257,9 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
   );
   const groups: [MethodGroup, string, string][] = [["transfer", c.groupTransfer, c.hintTransfer], ["wallet", c.groupWallet, c.hintWallet], ["bank", c.groupBank, c.hintBank], ["app", c.groupApp, c.hintApp], ["other", d.support.other, c.hintOther]];
   const catName = cats.find((v) => v.slug === f.cause)?.[`name_${locale}`] ?? "";
-  const where = [f.commune, f.department].filter(Boolean).join(", ");
+  const where = campaignPlace(f, locale);
   const amount = Number(f.goal_amount) > 0 ? fmtMoney(Number(f.goal_amount), f.goal_currency, locale) : null;
+  const summaries: Record<string,string> = { basics: [beneficiaryType ? navCopy[beneficiaryType] : "", f.beneficiary_name, catName, where].filter(Boolean).join(" · "), story: f.title, goal: [amount ?? ui.noGoal, f.deadline].filter(Boolean).join(" · "), media: `${photos.length} ${ui.summaryPhotos}`, receive: `${methods.length} ${ui.summaryMethods}`, verification: `${[f.priv.id_front_path, f.priv.id_back_path, f.priv.selfie_path, ...f.priv.documents].filter(Boolean).length} ${ui.summaryDocs}` };
   const savedAccount = state?.ok && state.at ? x.savedAccount(state.at) : null;
   const mail = f.priv.contact_email || email || "";
   const canDraft = f.title.trim().length >= 4;
@@ -268,14 +283,14 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
     </>
   );
   const draftBtn = (cls = "") => !live && (
-    <button className={`btn ${cls}`} name="intent" value="draft" disabled={pending || busy !== null || recording || !canDraft} aria-busy={pending} title={canDraft ? undefined : x.err.title}>{pending ? x.saving : x.saveDraft}</button>
+    <button className={`btn ${cls}`} name="intent" value="draft" disabled={pending || busy !== null || !canDraft} aria-busy={pending} title={canDraft ? undefined : x.err.title}>{pending ? x.saving : x.saveDraft}</button>
   );
 
   return (
     <form action={action} className="compose wizard-form" noValidate
       onKeyDown={(e) => { const el = e.target as HTMLElement; if (e.key === "Enter" && el.tagName === "INPUT" && !["checkbox", "radio", "file"].includes((el as HTMLInputElement).type)) e.preventDefault(); }}
       onSubmit={(e) => {
-        if (busy !== null || pending || recording) { e.preventDefault(); return; }
+        if (busy !== null || pending) { e.preventDefault(); return; }
         const submitter = (e.nativeEvent as SubmitEvent).submitter as HTMLButtonElement | null;
         if (submitter?.value === "submit") {
           const keys = Object.keys(missing);
@@ -326,7 +341,7 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
                   <input type="radio" name="beneficiary-type" value={type} checked={beneficiaryType === type} {...inv("beneficiary_relation")}
                     onChange={() => {
                       if (beneficiaryType === type) return;
-                      setF((old) => ({ ...old, beneficiary_relation: type === "org" ? "organization" : type === "self" ? "self" : "other", beneficiary_name: type === "self" ? old.priv.contact_name : "" }));
+                      setF((old) => ({ ...old, beneficiary_relation: type === "org" ? "organization" : type === "self" ? "self" : "other", beneficiary_name: type === "self" ? old.priv.contact_name : "", organization_role: "" }));
                       setVerificationConsent(false);
                       setErrors((old) => { const next = { ...old }; delete next.beneficiary_name; delete next.beneficiary_relation; return next; });
                     }} />
@@ -341,6 +356,7 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
               <input className="input" value={f.beneficiary_name} maxLength={120} required aria-required="true" onChange={(e) => set("beneficiary_name", e.target.value)} {...inv("beneficiary_name")} />
               {err("beneficiary_name")}
             </label>
+            {beneficiaryType === "org" && <label className="field"><span>{ui.role}</span><input className="input" maxLength={120} value={f.organization_role} onChange={(e) => set("organization_role", e.target.value)} {...inv("organization_role")} />{err("organization_role")}</label>}
             {beneficiaryType === "other" && <label className="field"><span>{c.relation}</span>
               <select className="input" value={f.beneficiary_relation} onChange={(e) => set("beneficiary_relation", e.target.value)}>
                 {RELATIONS.filter((relation) => relation !== "self" && relation !== "organization").map((relation) => <option key={relation} value={relation}>{d.relations[relation]}</option>)}
@@ -358,129 +374,84 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
           </fieldset>
           </div>
           <div className="wizard-group">
-          <header><h2>{k.location.label}</h2><p className="muted">{k.location.hint}</p></header>
-          <div className="cols-2">
-            <label className="field"><span>{c.department}</span>
-              <select className="input" value={f.department} onChange={(e) => set("department", e.target.value)} {...inv("department")}>
-                <option value="">{c.choose}</option>
-                {DEPARTMENTS.map((v) => <option key={v}>{v}</option>)}
-              </select>{err("department")}
-            </label>
-            <label className="field"><span>{f.department === "Diaspora" ? navCopy.diaspora : c.commune}{opt}</span><input className="input" value={f.commune} maxLength={80} placeholder={x.ex.commune} onChange={(e) => set("commune", e.target.value)} /></label>
-          </div>
+          <header><h2>{ui.location}</h2></header>
+          <label className="field"><span>{ui.country}</span>
+            <select className="input" value={f.country_code} {...inv("country_code")} onChange={(e) => { const code = e.target.value; setF(p => ({ ...p, country_code: code, department: code && code !== "HT" ? "Diaspora" : "", commune: !p.country_code && p.department === "Diaspora" ? p.commune : "" })); setErrors(old => { const next = {...old}; delete next.country_code; delete next.department; delete next.commune; return next; }); }}>
+              <option value="">{c.choose}</option>
+              {countries.map(({code, name}) => <option key={code} value={code}>{name}</option>)}
+            </select>{err("country_code")}
+          </label>
+          {f.country_code === "HT" ? <div className="cols-2">
+            <label className="field"><span>{c.department}</span><select className="input" value={f.department === "Diaspora" ? "" : f.department} onChange={(e) => set("department", e.target.value)} {...inv("department")}><option value="">{c.choose}</option>{DEPARTMENTS.filter(v => v !== "Diaspora").map(v => <option key={v}>{v}</option>)}</select>{err("department")}</label>
+            <label className="field"><span>{c.commune}{opt}</span><input className="input" value={f.commune} maxLength={80} onChange={(e) => set("commune", e.target.value)} /></label>
+          </div> : f.country_code && <label className="field"><span>{ui.city}</span><input className="input" value={f.commune} maxLength={80} onChange={(e) => set("commune", e.target.value)} {...inv("commune")} />{err("commune")}</label>}
           </div>
         </section>
 
         <section id="s-story" className="part wizard-panel" role="tabpanel" aria-labelledby="wizard-tab-story" tabIndex={-1} hidden={activeStep !== "story"}>
-          <div className="wizard-group">
-          <header><h2>{k.title.label}</h2><p className="muted">{k.title.hint}</p></header>
-          <label className="field"><span className="sr">{k.title.label}</span>
-            <input className="input big" value={f.title} maxLength={120} placeholder={k.title.ph} onChange={(e) => set("title", e.target.value)} {...inv("title")} />
-            <small>{f.title.length}/120</small>{err("title")}
+          <header><h2>{ui.story}</h2><p className="muted">{ui.storyHelp}</p></header>
+          <label className="field"><span>{ui.title}</span>
+            <input className="input" value={f.title} maxLength={Math.max(80, initial.title.length)} placeholder={k.title.ph} onChange={(e) => set("title", e.target.value)} {...inv("title")} />
+            <small>{f.title.length}/{Math.max(80, initial.title.length)}</small>{err("title")}
           </label>
-          </div>
-          <div className="wizard-group">
-          <header><h2>{k.story.label}</h2><p className="muted" id="story-hint">{k.story.hint}</p></header>
           <div className="field">
-            <label htmlFor="story-editor" className="sr">{k.story.label}</label>
-            <StoryEditor id="story-editor" value={f.story} onChange={(html) => set("story", html)} placeholder={x.editor.placeholder} labels={x.editor} invalid={Boolean(errors.story)} describedBy={errors.story ? "e-story story-hint" : "story-hint"} />
+            <label htmlFor="story-editor">{ui.desc}</label>
+            <StoryEditor id="story-editor" value={f.story} onChange={(html) => set("story", html)} placeholder={ui.storyHelp} labels={x.editor} invalid={Boolean(errors.story)} describedBy={errors.story ? "e-story" : undefined} />
             {err("story")}
-          </div>
-          <div className="voice-box">
-            <div className="stack tight">
-              <strong>{k.story.voice}{opt}</strong>
-              <small className="muted">{k.story.voiceHint}</small>
-            </div>
-            <div className="row">
-              <button type="button" className={`btn small ${recording ? "danger" : ""}`} onClick={toggleRecord} disabled={busy !== null && busy !== "voice"}><Icon name={recording ? "stop" : "mic"} size={16} />{recording ? c.stop : f.voice_path ? c.record : c.record}</button>
-              {busy === "voice" && <span className="small muted">{c.uploading}</span>}
-              {f.voice_path && !recording && <><audio controls preload="none" src={src(f.voice_path)} /><button type="button" className="btn small quiet" onClick={() => set("voice_path", null)}>{d.common.remove}</button></>}
-            </div>
-          </div>
-          <label className="field narrow"><span>{c.language}</span>
-            <select className="input" value={f.language} onChange={(e) => set("language", e.target.value)}>{Object.entries(storyLanguages).map(([l, name]) => <option key={l} value={l}>{name}</option>)}</select>
-          </label>
           </div>
         </section>
 
         <section id="s-goal" className="part" role="tabpanel" aria-labelledby="wizard-tab-goal" tabIndex={-1} hidden={activeStep !== "goal"}>
-          <header><h2>{k.goal.label}{opt}</h2><p className="muted">{k.goal.hint}</p></header>
-          <label className="field narrow"><span className="sr">{k.goal.label}</span>
+          <header><h2>{ui.goal}</h2></header>
+          <label className="field"><span>{k.goal.label}{opt}</span>
             <span className="joined">
-              <input className="input" inputMode="numeric" value={f.goal_amount} disabled={noGoal} placeholder="50000" onChange={(e) => set("goal_amount", e.target.value.replace(/[^\d]/g, "").slice(0, 9))} />
+              <input className="input" inputMode="decimal" value={f.goal_amount} disabled={noGoal} placeholder="0.00" {...inv("goal_amount")} onChange={(e) => { const v = e.target.value.replace(",", "."); if (/^\d{0,9}(\.\d{0,2})?$/.test(v)) set("goal_amount", v); }} />
               <select className="input" aria-label={d.support.currency} value={f.goal_currency} disabled={noGoal} onChange={(e) => set("goal_currency", e.target.value)}><option>HTG</option><option>USD</option></select>
             </span>
           </label>
+          {err("goal_amount")}
           <label className="check"><input type="checkbox" checked={noGoal} onChange={(e) => { setNoGoal(e.target.checked); if (e.target.checked) set("goal_amount", ""); }} /><span>{navCopy.noGoal}</span></label>
+          <label className="field"><span>{ui.deadline}{opt}</span><input className="input" type="date" value={f.deadline} onChange={(e) => set("deadline", e.target.value)} {...inv("deadline")} />{err("deadline")}</label>
         </section>
 
         <section id="s-media" className="part wizard-panel" role="tabpanel" aria-labelledby="wizard-tab-media" tabIndex={-1} hidden={activeStep !== "media"}>
-          <div className="wizard-group">
-          <header><h2>{k.cover.label}</h2><p className="muted">{k.cover.hint}</p></header>
-          <div className="field">
-            <input ref={coverPicker} id="cover-file" type="file" accept="image/*" hidden disabled={busy !== null || pending}
-              onChange={(e) => { const file = e.target.files?.[0]; e.target.value = ""; void addCover(file); }} />
-            {f.cover_path ? (
-              <div className="stack">
-                <div className="frame cover-preview">{/* eslint-disable-next-line @next/next/no-img-element */}<img src={src(f.cover_path)} alt="" /></div>
-                {illustrativeCover && <p className="small muted">{k.cover.demoReplace}</p>}
-                <div className="row">
-                  <button type="button" className="btn small" data-cover-replace disabled={busy !== null || pending}
-                    {...inv("cover_path")}
-                    onClick={() => coverPicker.current?.click()}><Icon name={busy === "cover" ? "spinner" : "camera"} size={16} />{busy === "cover" ? c.uploading : x.crop.change}</button>
-                  <button type="button" className="btn small quiet" disabled={busy !== null || pending} onClick={() => set("cover_path", null)}>{x.crop.remove}</button>
-                </div>
+          <header><h2>{ui.photoTitle}</h2><p className="muted">{ui.photoHelp}</p></header>
+          <input ref={photoPicker} type="file" accept="image/*" multiple hidden disabled={navigationLocked} onChange={(e) => { const files = e.target.files; void addPhotos(files); e.target.value = ""; }} />
+          <div className="photo-grid">
+            {photos.map((p, i) => (
+              <div className="photo-tile" key={p}>
+                <div className="frame">{/* eslint-disable-next-line @next/next/no-img-element */}<img src={src(p)} alt={`${ui.photos} ${i + 1}`} /></div>
+                {f.cover_path === p && <span className="photo-cover-label">{ui.cover}</span>}
+                <button type="button" className="photo-options-btn" aria-label={`${ui.photoMenu} ${i + 1}`} aria-expanded={photoMenu === p} disabled={navigationLocked} onClick={() => setPhotoMenu(photoMenu === p ? null : p)} onKeyDown={(e) => { if(e.key === "Escape") setPhotoMenu(null); }}><Icon name="more" size={20}/></button>
+                {photoMenu === p && <div className="photo-options-menu">
+                  {f.cover_path !== p && !/^(pexels|demo):/.test(p) && <button type="button" disabled={navigationLocked} onClick={() => makeCover(p)}>{ui.makeCover}</button>}
+                  <button type="button" disabled={navigationLocked} onClick={() => deletePhoto(p)}>{ui.delete}</button>
+                </div>}
               </div>
-            ) : (
-              <button type="button" className="upload-zone cover-upload" data-cover-replace
-                disabled={busy !== null || pending} aria-busy={busy === "cover"} {...inv("cover_path")}
-                onClick={() => coverPicker.current?.click()}>
-                <Icon name={busy === "cover" ? "spinner" : "camera"} size={28} />
-                <span>{busy === "cover" ? c.uploading : c.addPhoto}</span>
-              </button>
-            )}
-            {err("cover_path")}
+            ))}
+            {photos.length < 10 && <button type="button" className="upload-zone photo-add" data-cover-replace aria-busy={busy === "photos"} disabled={navigationLocked} {...inv("cover_path")} onClick={() => photoPicker.current?.click()}><Icon name={busy === "photos" ? "spinner" : "plus"} size={24}/><span>{busy === "photos" ? ui.uploading : c.addPhoto}</span>{busy === "photos" && <small>{photoProgress.done}/{photoProgress.total}</small>}</button>}
           </div>
-          </div>
-          <div className="wizard-group">
-          <header><h2>{k.media.photos}{opt}</h2><p className="muted">{k.media.hint}</p></header>
-          <div className="field"><span>{k.media.photos}</span>
-            {f.gallery.length > 0 && (
-              <div className="thumbs">
-                {f.gallery.map((p) => (
-                  <span key={p} className="thumb"><span className="frame">{/* eslint-disable-next-line @next/next/no-img-element */}<img src={src(p)} alt="" /></span>
-                    <button type="button" className="close-control" aria-label={d.common.remove} onClick={() => set("gallery", f.gallery.filter((v) => v !== p))}><Icon name="close" size={14} /></button></span>
-                ))}
-              </div>
-            )}
-            {f.gallery.length < 6 && (
-              <label className="upload-zone small">
-                <input type="file" accept="image/*" disabled={busy !== null} onChange={(e) => { addGallery(e.target.files?.[0]); e.target.value = ""; }} />
-                <Icon name={busy === "gallery" ? "spinner" : "plus"} size={22} className={busy === "gallery" ? "icon spin" : "icon"} />
-                <span>{busy === "gallery" ? c.uploading : c.addPhoto}</span>
-              </label>
-            )}
-          </div>
-          <label className="field"><span>{k.media.video}</span><input className="input" type="url" placeholder="https://" value={f.video_url} maxLength={300} onChange={(e) => set("video_url", e.target.value)} {...inv("video_url")} /><small>{c.videoHint}</small>{err("video_url")}</label>
-          </div>
+          <p className="xs muted">{photos.length}/10</p>
+          {illustrativeCover && <p className="small muted">{k.cover.demoReplace}</p>}
+          {err("cover_path")}
         </section>
 
         <section id="s-receive" className="part" role="tabpanel" aria-labelledby="wizard-tab-receive" tabIndex={-1} hidden={activeStep !== "receive"}>
-          <header><h2>{k.receive.label}</h2><p className="muted">{k.receive.hint}</p></header>
-          <p className="notice"><Icon name="eye" size={18} />{c.methodsWarn}</p>
-          <p className="small muted">{verification.recipientHint}</p>
+          <header><h2>{k.receive.label}</h2></header>
           {err("methods")}
+          <label className="field"><span>{ui.addMethod}</span><select className="input" value={methodToAdd} onChange={(e) => { const id=e.target.value; if(id) setMethod(id, {details:formatPayment(id,{},locale)}); setMethodToAdd(""); }} disabled={Object.keys(f.methods).length >= 12 || navigationLocked}><option value="">{ui.chooseMethod}</option>{groups.map(([group,label]) => <optgroup key={group} label={label}>{METHODS.filter(m => m.group === group && !f.methods[m.id]).map(m => <option key={m.id} value={m.id}>{m.name || d.support.other}</option>)}</optgroup>)}</select></label>
           <div className="method-groups">
-            {groups.map(([group, label, hint]) => (
+            {Object.keys(f.methods).length > 0 && <p className="small muted">{({en:"Public payment details",fr:"Coordonnées de paiement publiques",ht:"Enfòmasyon peman piblik",es:"Datos de pago públicos"})[locale]}</p>}
+            {groups.filter(([group]) => METHODS.some(m => m.group === group && f.methods[m.id])).map(([group, label, hint]) => (
               <fieldset key={group} className="field method-pick"><legend>{label}</legend>
-                {METHODS.filter((m) => m.group === group).map((m) => {
-                  const v = f.methods[m.id], on = Boolean(v), name = m.name || d.support.other;
+                {METHODS.filter((m) => m.group === group && f.methods[m.id]).map((m) => {
+                  const v = f.methods[m.id], on = Boolean(v), name = m.name || d.support.other, values = parsePayment(m.id,v.details);
                   return (
                     <div key={m.id} className={`opt-row ${on ? "on" : ""}`}>
-                      <label className="check"><input type="checkbox" checked={on} onChange={(e) => setMethod(m.id, e.target.checked ? {} : null)} /><span><strong>{name}</strong></span></label>
+                      <div className="row" style={{justifyContent:"space-between"}}><span>{name}</span><button type="button" className="btn small quiet" aria-label={ui.removeMethod + " " + name} onClick={() => setMethod(m.id, null)}><Icon name="close" size={18}/></button></div>
                       {on && (
                         <>
-                          <label className="field"><span className="sr">{name}</span><textarea className="input" rows={3} maxLength={600} placeholder={hint} value={v.details} onChange={(e) => setMethod(m.id, { details: e.target.value })} {...inv(`m.${m.id}`)} />{err(`m.${m.id}`)}</label>
+                          {values ? <div className="stack tight">{paymentFields(m.id).map(key => <label key={key} className="field"><span>{paymentLabel(key,locale)}{key==="handle" ? opt : null}</span><input className="input" inputMode={key==="phone"?"tel":undefined} maxLength={key==="instructions"?240:100} value={values[key]??""} onChange={e=>setMethod(m.id,{details:formatPayment(m.id,{...values,[key]:e.target.value},locale)})} {...inv(`m.${m.id}`)} /></label>)}{err(`m.${m.id}`)}</div> : <label className="field"><span>{ui.details}</span><textarea className="input" rows={3} maxLength={600} placeholder={hint} value={v.details} onChange={(e) => setMethod(m.id, { details: e.target.value })} {...inv(`m.${m.id}`)} />{err(`m.${m.id}`)}</label>}
                           {(group === "app" || group === "other" || v.link) && (
                             <label className="field"><span>{x.link}{opt}</span><input className="input" type="url" inputMode="url" placeholder="https://" maxLength={300} value={v.link} onChange={(e) => setMethod(m.id, { link: e.target.value })} {...inv(`l.${m.id}`)} /><small>{x.linkHint}</small>{err(`l.${m.id}`)}</label>
                           )}
@@ -496,7 +467,7 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
 
         <section id="s-verification" className="part" role="tabpanel" aria-labelledby="wizard-tab-verification" tabIndex={-1} hidden={activeStep !== "verification"} aria-busy={[...verificationKeys, "id_back_path"].includes(busy ?? "")}>
           <header><h2 id="verification-title">{verification.title}</h2><p className="muted">{verification.intro}</p></header>
-          <p className="notice"><Icon name="lock" size={18} />{c.privateNote}</p>
+          <h3>{ui.contact}</h3>
           <p className="small muted" id="verification-contact-hint">{verification.contactHint}</p>
           <div className="cols-2">
             <label className="field"><span>{c.contactName}</span>
@@ -508,11 +479,10 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
               {err("contact_email")}
             </label>
           </div>
-          <label className="field"><span>{c.contactDetails}</span>
-            <textarea className="input" rows={4} value={f.priv.contact_details} maxLength={600} required aria-required="true" onChange={(e) => setPriv("contact_details", e.target.value)} {...inv("contact_details")} aria-describedby={`verification-recipient-hint${errors.contact_details ? " e-contact_details" : ""}`} />
-            <small id="verification-recipient-hint">{verification.contactDetailsHint}</small>{err("contact_details")}
-          </label>
+          <label className="field"><span>{ui.phone}</span><input className="input" type="tel" inputMode="tel" autoComplete="tel" value={splitContact(f.priv.contact_details).phone} maxLength={60} onChange={(e)=>setPriv("contact_details",formatContact(e.target.value,splitContact(f.priv.contact_details).notes))} {...inv("contact_details")}/>{err("contact_details")}</label>
+          <label className="field"><span>{ui.contactExtra}{opt}</span><textarea className="input" rows={3} maxLength={500} value={splitContact(f.priv.contact_details).notes} onChange={(e)=>setPriv("contact_details",formatContact(splitContact(f.priv.contact_details).phone,e.target.value))}/></label>
           <div className="stack">
+            <h3>{ui.identity}</h3>
             <p className="muted" id="identity-hint">{verification.identityHint}</p>
             <small id="identity-format">{verification.format}</small>
             <div className="cols-2">
@@ -525,11 +495,12 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
             <label className="field"><span>{c.referenceName}{opt}</span><input className="input" value={f.priv.reference_name} maxLength={120} onChange={(e) => setPriv("reference_name", e.target.value)} /></label>
             <label className="field"><span>{c.referenceContact}{opt}</span><input className="input" value={f.priv.reference_contact} maxLength={200} onChange={(e) => setPriv("reference_contact", e.target.value)} /></label>
           </div>
+          <h3>{ui.evidence}</h3>
           {beneficiaryType && beneficiaryType !== "self" && <p className="muted">{navCopy.authorization}</p>}
           <div className="field"><span>{k.media.documents}</span>
             <small>{k.media.documentsHint}</small>
             <small>{verification.recipientEvidence}</small>
-            {f.priv.documents.length > 0 && <p className="small"><Icon name="done" size={16} /> {f.priv.documents.length} {c.uploaded.toLowerCase()} <button type="button" className="link" onClick={() => setPriv("documents", [])}>{d.common.remove}</button></p>}
+            {f.priv.documents.map((path, i) => <div className="row" key={path}><Icon name="done" size={16}/><span>{k.media.documents} {i + 1} · {c.uploaded}</span><button type="button" className="btn small quiet" onClick={() => setPriv("documents", f.priv.documents.filter(p => p !== path))}>{d.common.remove}</button></div>)}
             {f.priv.documents.length < 8 && (
               <label className="upload-zone small"><input type="file" accept="image/*,application/pdf" disabled={busy !== null} onChange={(e) => { addDocument(e.target.files?.[0]); e.target.value = ""; }} />
                 <Icon name={busy === "documents" ? "spinner" : "file"} size={22} className={busy === "documents" ? "icon spin" : "icon"} /><span>{busy === "documents" ? c.uploading : c.addDocument}</span></label>
@@ -541,12 +512,12 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
         </section>
 
         <section id="s-submit" className="part submit-part" role="tabpanel" aria-labelledby="wizard-tab-submit" tabIndex={-1} hidden={activeStep !== "submit"}>
-          <header><h2>{live ? x.submitChanges : k.submit.label}</h2><p className="muted">{live ? k.submit.changesHint : k.submit.hint}</p></header>
+          <header><h2>{ui.reviewTitle}</h2><p className="muted">{live ? k.submit.changesHint : k.submit.hint}</p></header>
           <div className="wizard-review-preview stack tight"><p className="eyebrow">{k.side.preview}</p>{card}</div>
           <div className="wizard-review-sections">
             {items.slice(0, -1).map(([id, label]) => (
               <div className="wizard-review-row" key={id}>
-                <div><span>{label}</span><small className="muted">{Object.keys(missing).some((key) => sectionOf(key) === id) ? c.missing : x.done}</small></div>
+                <div><span>{label}</span><small className="muted">{summaries[id] || ui.complete}</small>{Object.keys(missing).some((key) => sectionOf(key) === id) && <small className="field-error">{c.missing}</small>}</div>
                 <button type="button" className="btn small quiet" disabled={navigationLocked} onClick={() => jump(id, "panel")}>{navCopy.edit}</button>
               </div>
             ))}

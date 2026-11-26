@@ -11,7 +11,7 @@ import ModerationForm from "@/components/ModerationForm";
 import { requireAdmin } from "@/lib/auth";
 import { adminCampaign, adminChange } from "@/lib/admin-data";
 import { getCategories } from "@/lib/data";
-import { fmtDate, fmtMoney, mediaUrl } from "@/lib/format";
+import { fmtDate, fmtMoney, mediaUrl, campaignPlace } from "@/lib/format";
 import { isLocale } from "@/lib/i18n";
 import { storyHtml } from "@/lib/story";
 export const metadata: Metadata = { title: "Review fundraiser", robots: { index: false } };
@@ -73,7 +73,8 @@ export default async function AdminCampaign({ params }: { params: Promise<{ loca
             <dl className="kv">
               {kv("For", `${c.beneficiary_name ?? ""}${c.beneficiary_relation ? ` (${c.beneficiary_relation})` : ""}`)}
               {kv("Need", cats.find((x) => x.slug === c.cause)?.name_en ?? c.cause)}
-              {kv("Place", [c.commune, c.department].filter(Boolean).join(", "))}
+              {kv("Place", campaignPlace(c))}
+              {c.organization_role && kv("Organization role", c.organization_role)}
               {kv("Goal", c.goal_amount ? fmtMoney(Number(c.goal_amount), c.goal_currency, "en") : "No fixed goal")}
               {kv("End date", c.deadline)}
               {kv("Language", c.language)}

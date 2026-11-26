@@ -1,4 +1,6 @@
 "use server";
+import { isCountry } from "@/lib/countries";
+import { paymentValid, splitContact } from "@/lib/payment-fields";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { after } from "next/server";
@@ -272,7 +274,7 @@ export async function deleteEmptyAccount(_: ActionResult, f: FormData): Promise<
 
 /* ---------- Campaigns ---------- */
 type Payload = {
-  id?: string; title?: string; story?: string; cause?: string; department?: string; commune?: string; beneficiary_name?: string; beneficiary_relation?: string;
+  id?: string; title?: string; story?: string; cause?: string; country_code?: string; organization_role?: string; department?: string; commune?: string; beneficiary_name?: string; beneficiary_relation?: string;
   goal_amount?: string | number | null; goal_currency?: string; deadline?: string; urgent?: boolean; cover_path?: string | null; gallery?: string[];
   video_url?: string; voice_path?: string | null; language?: string; methods?: { method: string; details: string; link?: string }[];
   priv?: { contact_name?: string; contact_email?: string; contact_details?: string; id_front_path?: string | null; id_back_path?: string | null; selfie_path?: string | null; reference_name?: string; reference_contact?: string; documents?: string[] };
@@ -309,16 +311,18 @@ export async function saveCampaign(_: ActionResult, f: FormData): Promise<Action
   const row = {
     title, story,
     cause: str(p.cause, 40) || null,
-    department: (DEPARTMENTS as readonly string[]).includes(str(p.department, 40)) ? str(p.department, 40) : null,
+    country_code: isCountry(p.country_code) ? p.country_code : null,
+    organization_role: p.beneficiary_relation === "organization" ? str(p.organization_role, 120) || null : null,
+    department: isCountry(p.country_code) && p.country_code !== "HT" ? "Diaspora" : (DEPARTMENTS as readonly string[]).includes(str(p.department, 40)) && p.department !== "Diaspora" ? str(p.department, 40) : null,
     commune: str(p.commune, 80) || null,
     beneficiary_name: str(p.beneficiary_name, 120) || null,
     beneficiary_relation: (RELATIONS as readonly string[]).includes(str(p.beneficiary_relation, 40)) ? str(p.beneficiary_relation, 40) : null,
-    goal_amount: Number.isFinite(goal) && goal > 0 ? Math.min(Math.round(goal), 999999999) : null,
+    goal_amount: Number.isFinite(goal) && goal > 0 ? Math.min(Math.round(goal * 100) / 100, 999999999) : null,
     goal_currency: p.goal_currency === "USD" ? "USD" : "HTG",
     deadline: /^\d{4}-\d{2}-\d{2}$/.test(str(p.deadline, 10)) ? str(p.deadline, 10) : null,
     urgent: p.urgent === true,
     cover_path: uploadedCoverPath ?? previewCover,
-    gallery: (Array.isArray(p.gallery) ? p.gallery : []).map(own).filter((x): x is string => Boolean(x)).slice(0, 6),
+    gallery: Array.from(new Set((Array.isArray(p.gallery) ? p.gallery : []).map(own).filter((x): x is string => Boolean(x && /\\.(webp|jpg|jpeg|png)$/.test(x) && x !== uploadedCoverPath)))).slice(0, 9),
     video_url: /^https:\/\/[^\s]+$/.test(video) ? video : null,
     voice_path: own(p.voice_path),
     language: isLocale(str(p.language, 2)) ? str(p.language, 2) : locale,
@@ -343,12 +347,13 @@ export async function saveCampaign(_: ActionResult, f: FormData): Promise<Action
   if (submit) {
     const missing: string[] = [];
     if (!row.cause) missing.push(d.create.needCause);
-    if (!row.department) missing.push(d.create.needPlace);
-    if (storyLen < 40 && !row.voice_path) missing.push(d.create.needStory);
-    if (!methods.length) missing.push(d.create.needMethod);
+    if (!row.country_code || !row.department || (row.country_code !== "HT" && !row.commune)) missing.push(d.create.needPlace);
+    if (row.beneficiary_relation === "organization" && !row.organization_role) missing.push(d.create.needRecipient);
+    if (storyLen < 40) missing.push(({en:"a description of at least 40 characters",fr:"une description d’au moins 40 caractères",ht:"yon deskripsyon omwen 40 karaktè",es:"una descripción de al menos 40 caracteres"})[locale]);
+    if (!methods.length || methods.some(m => !paymentValid(m.method,m.details,m.link??""))) missing.push(d.create.needMethod);
     if (!priv.id_front_path || !priv.selfie_path) missing.push(d.create.needIdentity);
     if (!row.beneficiary_name || !row.beneficiary_relation) missing.push(d.create.needRecipient);
-    if (!priv.contact_name || !priv.contact_email || !priv.contact_details) missing.push(d.create.needContact);
+    if (!priv.contact_name || !priv.contact_email || !priv.contact_details || splitContact(priv.contact_details).phone.length < 3) missing.push(d.create.needContact);
     if (!p.consent) missing.push(d.create.needConsent);
     if (missing.length) return fail(`${d.create.missing} ${missing.join(", ")}`);
   }
@@ -356,12 +361,12 @@ export async function saveCampaign(_: ActionResult, f: FormData): Promise<Action
     ok: false, message: d.x.form.err.cover, field: "cover_path"
   };
   if (submit && row.cover_path) {
-    const name = row.cover_path.slice(user.id.length + 1);
-    const { data: files, error: mediaError } = await sb.storage.from("media")
-      .list(user.id, { search: name, limit: 10 });
-    if (mediaError || !files?.some((file) => file.name === name)) return {
-      ok: false, message: d.x.form.compose.cover.uploadError, field: "cover_path"
-    };
+    const checks = await Promise.all([row.cover_path,...row.gallery].map(async(path)=>{
+      const name=path.slice(user.id.length+1);
+      const {data:files,error}=await sb.storage.from("media").list(user.id,{search:name,limit:10});
+      return !error && Boolean(files?.some(file=>file.name===name));
+    }));
+    if (checks.some(ok=>!ok)) return {ok:false,message:d.x.form.compose.cover.uploadError,field:"cover_path"};
   }
   if (submit) {
     // An owner-prefixed path is not proof of an upload. Check the private bucket before accepting it.

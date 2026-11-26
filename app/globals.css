@@ -953,3 +953,18 @@ textarea.input { border-radius: var(--r); padding: 14px 18px; }
 .wizard-review-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; border-bottom: 1px solid var(--sage); padding-block: 12px; }
 .wizard-review-row > div { display: grid; gap: 2px; }
 .wizard-review-row small { font-size: var(--text-tiny); }
+
+/* Fundraiser photo library, including the selected cover. */
+.photo-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; min-width:0; }
+.photo-tile { position:relative; min-width:0; }
+.photo-tile > .frame, .photo-add { width:100%; aspect-ratio:1/1; }
+.photo-tile > .frame { border:1.5px solid var(--sage); }
+.photo-tile > .frame img { object-fit:cover; }
+.photo-add.upload-zone { min-height:0; padding:12px; max-width:none; }
+.photo-options-btn { position:absolute; top:8px; right:8px; z-index:2; width:40px; height:40px; display:grid; place-items:center; border-radius:999px; color:var(--green); background:var(--white); border:1px solid var(--sage); }
+.photo-cover-label { position:absolute; left:8px; bottom:8px; z-index:1; border-radius:999px; background:var(--green); color:var(--white); padding:4px 10px; font-size:var(--text-tiny); }
+.photo-options-menu { position:absolute; top:54px; right:0; z-index:5; width:max-content; max-width:calc(100vw - 40px); min-width:136px; display:grid; padding:4px; border:1.5px solid var(--sage); border-radius:16px; background:var(--white); box-shadow:0 8px 30px #1f503b26; }
+.photo-options-menu button { padding:10px 12px; min-height:40px; text-align:left; border-radius:12px; }
+.photo-options-menu button:hover,.photo-options-menu button:focus-visible { background:var(--sage); }
+.photo-options-menu button:last-child { color:var(--err); }
+@media(max-width:480px){.photo-grid {grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;}}

@@ -24,6 +24,12 @@ export default function StoryEditor({ value, onChange, placeholder, labels, inva
     if (!editor) return;
     editor.setOptions({ editorProps: { attributes: { class: "story-editor-body story", id, role: "textbox", "aria-multiline": "true", ...(describedBy ? { "aria-describedby": describedBy } : {}), ...(invalid ? { "aria-invalid": "true" } : {}) } } });
   }, [editor, invalid, describedBy, id]);
+  useEffect(() => {
+    if (!editor) return;
+    const target = toHtml(value);
+    if ((editor.isEmpty && !target) || editor.getHTML() === target) return;
+    editor.commands.setContent(target, { emitUpdate: false });
+  }, [editor, value]);
   const e = editor;
   const s = e ? {
     bold: e.isActive("bold"), italic: e.isActive("italic"), h2: e.isActive("heading", { level: 2 }), ul: e.isActive("bulletList"), ol: e.isActive("orderedList"),

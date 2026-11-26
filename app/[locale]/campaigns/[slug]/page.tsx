@@ -37,7 +37,7 @@ export default async function FundraiserPage({ params }: P) {
   const mine = viewer?.id === c.owner_id;
   const change = mine || viewer?.profile.role === "admin" ? await getChange(c.id) : null;
   const path = `/${locale}/campaigns/${c.slug}`, url = `${SITE_URL}${path}`;
-  const where = place(c), who = ownerName(c);
+  const where = place(c, locale), who = ownerName(c);
   const voice = mediaUrl(c.voice_path);
   const notes = contributions.filter((k) => k.message);
   const relation = c.beneficiary_relation ? d.relations[c.beneficiary_relation as keyof typeof d.relations] : "";

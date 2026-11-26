@@ -1,3 +1,4 @@
+import { campaignPlace } from "@/lib/format";
 import { ImageResponse } from "next/og";
 import { getCampaign } from "@/lib/data";
 import { mediaUrl } from "@/lib/format";
@@ -13,7 +14,7 @@ export default async function Image({ params }: { params: Promise<{ locale: stri
   const c = data && ["live", "completed"].includes(data.campaign.status) ? data.campaign : null;
   const cover = c?.cover_path && !c.cover_path.startsWith("fixture:") ? mediaUrl(c.cover_path) : null;
   const title = c?.title ?? d.home.headline;
-  const place = c ? [c.commune, c.department].filter(Boolean).join(", ") : "";
+  const place = c ? campaignPlace(c, isLocale(locale) ? locale : "fr") : "";
   return new ImageResponse(
     (
       <div style={{ width: "100%", height: "100%", display: "flex", background: "#ffffff", color: "#1f503b", fontFamily: "sans-serif" }}>

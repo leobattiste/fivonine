@@ -1,3 +1,4 @@
+import { countryName } from "@/lib/countries";
 import { METHODS } from "@/lib/constants";
 import { fmtMoney, mediaUrl } from "@/lib/format";
 import { t, type Locale } from "@/lib/i18n";
@@ -10,6 +11,8 @@ export default function Compare({ c, methods, change, locale, cats }: { c: Campa
   const show = (k: string, v: unknown): React.ReactNode => {
     if (v === null || v === undefined || v === "" || (Array.isArray(v) && !v.length)) return <span className="muted">—</span>;
     if (k === "cover_path") return <div className="frame" style={{ aspectRatio: "1/1", maxWidth: 200 }}>{/* eslint-disable-next-line @next/next/no-img-element */}<img src={mediaUrl(String(v)) ?? ""} alt="" /></div>;
+    if (k === "country_code") return countryName(String(v),locale);
+    if (k === "gallery" && Array.isArray(v)) return <div className="gallery">{v.map((path,i)=><div key={i} className="frame" style={{aspectRatio:"1/1"}}><img src={mediaUrl(String(path))??""} alt="" loading="lazy"/></div>)}</div>;
     if (k === "cause") return cats.find((x) => x.slug === v)?.[`name_${locale}`] ?? String(v);
     if (k === "goal_amount") return fmtMoney(Number(v), (r.goal_currency as "HTG" | "USD") ?? c.goal_currency, locale);
     if (k === "urgent") return v ? "✓" : "—";
@@ -17,7 +20,8 @@ export default function Compare({ c, methods, change, locale, cats }: { c: Campa
     if (k === "story") v = storyText(String(v));
     return <span style={{ whiteSpace: "pre-wrap" }}>{String(v).length > 400 ? `${String(v).slice(0, 400)}…` : String(v)}</span>;
   };
-  const keys = Object.keys(y.fields).filter((k) => k !== "methods" && k in r) as (keyof typeof y.fields)[];
+  const labels: Record<string,string> = {...y.fields,country_code:({en:"Country",fr:"Pays",ht:"Peyi",es:"País"})[locale],organization_role:({en:"Organization role",fr:"Rôle dans l’organisation",ht:"Wòl nan òganizasyon an",es:"Función en la organización"})[locale]};
+  const keys = Object.keys(labels).filter((k) => k !== "methods" && k in r);
   const diffs = keys.filter((k) => JSON.stringify((c as unknown as Record<string, unknown>)[k] ?? null) !== JSON.stringify(r[k] ?? null) && !(k === "goal_amount" && Number(c.goal_amount ?? 0) === Number(r[k] ?? 0)));
   const fmtM = (ms: { method: string; details: string; link?: string | null }[]) => ms.map((m) => `${METHODS.find((x) => x.id === m.method)?.name || d.support.other}: ${m.details}${m.link ? `\n${m.link}` : ""}`).join("\n\n");
   const methodsChanged = fmtM(methods) !== fmtM(change.payload.methods);
@@ -25,7 +29,7 @@ export default function Compare({ c, methods, change, locale, cats }: { c: Campa
     <dl className="compare">
       <div className="labels"><span /><span>{y.published}</span><span>{y.proposed}</span></div>
       {diffs.map((k) => (
-        <div key={k}><dt>{y.fields[k]}</dt><dd className="was"><span className="sr">{y.published}: </span>{show(k, (c as unknown as Record<string, unknown>)[k])}</dd><dd className="now"><span className="sr">{y.proposed}: </span>{show(k, r[k])}</dd></div>
+        <div key={k}><dt>{labels[k]}</dt><dd className="was"><span className="sr">{y.published}: </span>{show(k, (c as unknown as Record<string, unknown>)[k])}</dd><dd className="now"><span className="sr">{y.proposed}: </span>{show(k, r[k])}</dd></div>
       ))}
       {methodsChanged && <div><dt>{y.fields.methods}</dt><dd className="was" style={{ whiteSpace: "pre-wrap" }}>{fmtM(methods)}</dd><dd className="now" style={{ whiteSpace: "pre-wrap" }}>{fmtM(change.payload.methods)}</dd></div>}
       {!diffs.length && !methodsChanged && <div><dd className="muted">—</dd></div>}

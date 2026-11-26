@@ -1,9 +1,10 @@
+import { countryName } from "./countries";
 import type { Campaign, Progress, Settings } from "./types";
 import type { Locale } from "./i18n";
 import { SUPABASE_URL } from "./supabase/config";
 const intl: Record<Locale, string> = { fr: "fr-FR", en: "en-US", ht: "fr-HT", es: "es-419" };
 export const fmtNumber = (n: number, locale: Locale) => new Intl.NumberFormat(intl[locale], { maximumFractionDigits: 0 }).format(n);
-export const fmtMoney = (n: number, currency: string, locale: Locale) => `${fmtNumber(n, locale)} ${currency}`;
+export const fmtMoney = (n: number, currency: string, locale: Locale) => `${new Intl.NumberFormat(intl[locale], { maximumFractionDigits: 2 }).format(n)} ${currency}`;
 const kreyolMonths = ["janvye", "fevriye", "mas", "avril", "me", "jen", "jiyè", "out", "septanm", "oktòb", "novanm", "desanm"];
 export function fmtDate(iso: string, locale: Locale) {
   const date = new Date(iso);
@@ -44,3 +45,5 @@ export function slugify(title: string) {
   return `${base}-${rand}`.replace(/-+/g, "-");
 }
 export const cleanSearch = (q: string) => q.replace(/[,()%*\\"':]/g, " ").replace(/\s+/g, " ").trim().slice(0, 60);
+
+export const campaignPlace = (c: { commune?: string | null; department?: string | null; country_code?: string | null }, locale: Locale = "en") => [c.commune, c.department !== "Diaspora" ? c.department : c.country_code ? null : c.department, c.country_code ? countryName(c.country_code, locale) : null].filter(Boolean).join(", ");

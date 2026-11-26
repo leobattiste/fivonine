@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Icon, { causeIcon } from "./Icon";
-import { fmtMoney, initials, mediaUrl } from "@/lib/format";
+import { fmtMoney, initials, mediaUrl, campaignPlace } from "@/lib/format";
 import { t, type Locale } from "@/lib/i18n";
 import type { Campaign, Category, Tier } from "@/lib/types";
 import { storyText } from "@/lib/story";
@@ -10,7 +10,7 @@ export const causeName = (cats: Category[], slug: string | null, locale: Locale)
   return c ? c[`name_${locale}`] : "";
 };
 export const ownerName = (c: Campaign) => (c.owner ? (c.owner.kind === "organization" && c.owner.org_name ? c.owner.org_name : c.owner.display_name) : "");
-export const place = (c: Pick<Campaign, "commune" | "department">) => [c.commune, c.department].filter(Boolean).join(", ");
+export const place = (c: Pick<Campaign, "commune" | "department" | "country_code">, locale: Locale = "en") => campaignPlace(c, locale);
 export const excerpt = (story: string, n = 170) => {
   const s = storyText(story).replace(/\s+/g, " ").trim();
   return s.length > n ? `${s.slice(0, n).replace(/\s+\S*$/, "")}…` : s;
@@ -55,7 +55,7 @@ export function Cover({ c, className = "", sizes = "(min-width: 900px) 33vw, 100
   );
 }
 export function FundraiserCard({ c, locale, cats, priority, simplified = false }: { c: Campaign; locale: Locale; cats: Category[]; priority?: boolean; simplified?: boolean }) {
-  const d = t(locale), where = place(c), cause = causeName(cats, c.cause, locale);
+  const d = t(locale), where = place(c, locale), cause = causeName(cats, c.cause, locale);
   if (simplified) {
     return (
       <article className="fcard fcard-simple">
