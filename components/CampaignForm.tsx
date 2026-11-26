@@ -35,7 +35,6 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
   const [noGoal, setNoGoal] = useState(false);
   const [busy, setBusy] = useState<string | null>(null);
   const [upErr, setUpErr] = useState<string | null>(null);
-  const [restored, setRestored] = useState(false);
   const [deviceAt, setDeviceAt] = useState<string | null>(null);
   const [consent, setConsent] = useState([false, false, false]);
   const [verificationConsent, setVerificationConsent] = useState(false);
@@ -50,7 +49,7 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
     if (!draftKey) return;
     try {
       const raw = localStorage.getItem(draftKey);
-      if (raw) { setF(restoreDeviceDraft(initial, raw)); setRestored(true); }
+      if (raw) setF(restoreDeviceDraft(initial, raw));
     } catch {}
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [draftKey]);
@@ -315,7 +314,6 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
       <div className="compose-main">
         {live && <p className="notice"><Icon name="info" size={18} />{x.liveNote}</p>}
         {reviewNote && <section className="notice" aria-labelledby="verification-correction"><Icon name="info" size={18} /><div><strong id="verification-correction">{verification.correction}</strong><p>{reviewNote}</p></div></section>}
-        {restored && <p className="notice"><Icon name="undo" size={18} /><span>{x.restored} <button type="button" className="link" onClick={() => { setF(initial); setNoGoal(false); setErrors({}); setRestored(false); if (draftKey) localStorage.removeItem(draftKey); jump("basics", "panel"); }}>{x.startOver}</button></span></p>}
         {upErr && <p className="notice err" role="alert"><Icon name="alert" size={18} />{upErr}</p>}
 
         <section id="s-basics" className="part wizard-panel" role="tabpanel" aria-labelledby="wizard-tab-basics" tabIndex={-1} hidden={activeStep !== "basics"}>
