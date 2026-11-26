@@ -920,7 +920,7 @@ textarea.input { border-radius: var(--r); padding: 14px 18px; }
 .wizard-tabs.tabs button:disabled { opacity: .65; cursor: not-allowed; }
 .wizard-progress { display: flex; align-items: center; gap: 16px; }
 .wizard-progress .step-progress { flex: 1; min-width: 24px; }
-.wizard-form .compose-main { width: 100%; max-width: 760px; margin-inline: auto; gap: 24px; }
+.wizard-form .compose-main { width: 100%; max-width: 640px; margin-inline: auto; gap: 24px; }
 .wizard-form .part { min-width: 0; min-height: 190px; }
 .wizard-form .part[hidden] { display: none !important; }
 .wizard-form .part:focus { outline: none; }
@@ -937,3 +937,21 @@ textarea.input { border-radius: var(--r); padding: 14px 18px; }
   .wizard-action-end .btn { white-space: normal; text-align: center; height: auto; }
   .wizard-form .part { min-height: 140px; }
 }
+
+/* Seven-step application: grouped fields within each visible panel. */
+.wizard-form .wizard-top { width: 100%; max-width: 980px; margin-inline: auto; }
+.wizard-form .wizard-panel { gap: 24px; }
+.wizard-group { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.wizard-group + .wizard-group { border-top: 1px solid var(--sage); padding-top: 24px; }
+.wizard-group > header { display: flex; flex-direction: column; gap: 4px; }
+.beneficiary-options { display: grid; gap: 10px; }
+.beneficiary-choice { display: flex; gap: 14px; align-items: center; border: 1.5px solid var(--sage); border-radius: 16px; padding: 16px; cursor: pointer; }
+.beneficiary-choice > input { flex: none; width: 20px; height: 20px; margin: 0; accent-color: var(--green); }
+.beneficiary-choice > span { display: grid; gap: 2px; min-width: 0; }
+.beneficiary-choice small { color: var(--muted); font-size: var(--text-tiny); }
+.beneficiary-choice:has(input:checked) { border-color: var(--green); background: transparent; }
+.beneficiary-choice:focus-within { outline: 2px solid var(--sage); outline-offset: 2px; }
+.wizard-review-sections { display: grid; }
+.wizard-review-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; border-bottom: 1px solid var(--sage); padding-block: 12px; }
+.wizard-review-row > div { display: grid; gap: 2px; }
+.wizard-review-row small { font-size: var(--text-tiny); }

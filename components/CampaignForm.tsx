@@ -24,13 +24,15 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
   const [f, setF] = useState<FormState>(initial);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [navigation, setNavigation] = useState<{ section: string; target: "tab" | "panel" | "error" } | null>(null);
-  const activeStep = navigation?.section ?? "title";
+  const activeStep = navigation?.section ?? "basics";
   const navCopy = {
-    en: { previous: "Previous", next: "Next", review: "Review", support: "Support" },
-    fr: { previous: "Précédent", next: "Suivant", review: "Vérifier", support: "Soutien" },
-    ht: { previous: "Anvan", next: "Apre", review: "Revize", support: "Sipò" },
-    es: { previous: "Anterior", next: "Siguiente", review: "Revisar", support: "Apoyo" },
+    en: { previous: "Previous", next: "Next", basics: "Basics", story: "Story", goal: "Goal", media: "Media", support: "Donations", review: "Review", who: "Who are you fundraising for?", self: "Myself", other: "Someone else", org: "An organization", selfHint: "For my own needs.", otherHint: "For another person, family or community.", orgHint: "For an organization or community group.", orgName: "Organization name", selfName: "Your name", authorization: "Include supporting evidence that you have permission to fundraise for the recipient or organization.", diaspora: "City, state or region, and country", noGoal: "I don't have a specific goal", edit: "Edit" },
+    fr: { previous: "Précédent", next: "Suivant", basics: "Informations", story: "Histoire", goal: "Objectif", media: "Médias", support: "Dons", review: "Vérifier", who: "Pour qui organisez-vous cette collecte ?", self: "Moi-même", other: "Une autre personne", org: "Une organisation", selfHint: "Pour mes propres besoins.", otherHint: "Pour une personne, une famille ou une communauté.", orgHint: "Pour une organisation ou un groupe communautaire.", orgName: "Nom de l'organisation", selfName: "Votre nom", authorization: "Ajoutez des justificatifs de votre autorisation à collecter pour le bénéficiaire ou l’organisation.", diaspora: "Ville, région et pays", noGoal: "Je n'ai pas d'objectif précis", edit: "Modifier" },
+    ht: { previous: "Anvan", next: "Apre", basics: "Enfòmasyon", story: "Istwa", goal: "Objektif", media: "Medya", support: "Don", review: "Revize", who: "Pou kiyès w ap ranmase sipò?", self: "Pou tèt mwen", other: "Yon lòt moun", org: "Yon òganizasyon", selfHint: "Pou pwòp bezwen mwen.", otherHint: "Pou yon lòt moun, yon fanmi oswa yon kominote.", orgHint: "Pou yon òganizasyon oswa yon gwoup kominotè.", orgName: "Non òganizasyon an", selfName: "Non w", authorization: "Ajoute dokiman ki montre ou gen pèmisyon pou ranmase sipò pou moun nan oswa òganizasyon an.", diaspora: "Vil, rejyon ak peyi", noGoal: "Mwen pa gen yon objektif presi", edit: "Modifye" },
+    es: { previous: "Anterior", next: "Siguiente", basics: "Datos básicos", story: "Historia", goal: "Meta", media: "Multimedia", support: "Donaciones", review: "Revisar", who: "¿Para quién recaudas fondos?", self: "Para mí", other: "Para otra persona", org: "Una organización", selfHint: "Para mis propias necesidades.", otherHint: "Para otra persona, familia o comunidad.", orgHint: "Para una organización o un grupo comunitario.", orgName: "Nombre de la organización", selfName: "Tu nombre", authorization: "Adjunta documentación que acredite tu autorización para recaudar fondos para el destinatario o la organización.", diaspora: "Ciudad, región y país", noGoal: "No tengo una meta específica", edit: "Editar" },
   }[locale];
+  const beneficiaryType = f.beneficiary_relation === "self" ? "self" : f.beneficiary_relation === "organization" ? "org" : f.beneficiary_relation ? "other" : "";
+  const [noGoal, setNoGoal] = useState(false);
   const [busy, setBusy] = useState<string | null>(null);
   const [upErr, setUpErr] = useState<string | null>(null);
   const [restored, setRestored] = useState(false);
@@ -88,7 +90,8 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
     if (!uploadedCover) e.cover_path = illustrativeCover ? k.cover.demoReplace : x.err.cover;
     if (plain(f.story).length < 40 && !f.voice_path) e.story = x.err.story;
     if (!f.department) e.department = x.err.department;
-    if (f.beneficiary_name.trim().length < 2) e.beneficiary_name = c.needRecipient;
+    if (f.video_url.trim() && !LINK.test(f.video_url.trim())) e.video_url = x.err.link;
+    if (f.beneficiary_relation && f.beneficiary_name.trim().length < 2) e.beneficiary_name = c.needRecipient;
     if (!(RELATIONS as readonly string[]).includes(f.beneficiary_relation)) e.beneficiary_relation = c.needRecipient;
     if (f.priv.contact_name.trim().length < 2) e.contact_name = c.needContact;
     if (!EMAIL.test(f.priv.contact_email.trim())) e.contact_email = c.needContact;
@@ -107,11 +110,10 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
   const missing = useMemo(check, // eslint-disable-next-line react-hooks/exhaustive-deps
     [f, consent, methods, verificationConsent, live]);
   const verificationKeys = ["contact_name", "contact_email", "contact_details", "id_front_path", "selfie_path", "verificationConsent"];
-  const sectionOf = (key: string) => (verificationKeys.includes(key) ? "verification" : key.startsWith("beneficiary_") ? "beneficiary" : key === "title" ? "title" : key === "cause" ? "category" : key === "cover_path" ? "cover" : key === "story" ? "story" : key === "department" ? "location" : key === "consent" ? "submit" : "receive");
+  const sectionOf = (key: string) => verificationKeys.includes(key) ? "verification" : key.startsWith("beneficiary_") || key === "cause" || key === "department" ? "basics" : key === "title" || key === "story" ? "story" : key === "cover_path" || key === "video_url" ? "media" : key === "consent" ? "submit" : "receive";
   const items: [string, string][] = [
-    ["title", k.items.title], ["category", k.items.category], ["cover", k.items.cover],
-    ["story", k.items.story], ["location", k.items.location], ["beneficiary", c.s1],
-    ["media", k.media.label], ["goal", k.goal.label], ["receive", navCopy.support],
+    ["basics", navCopy.basics], ["story", navCopy.story], ["goal", navCopy.goal],
+    ["media", navCopy.media], ["receive", navCopy.support],
     ["verification", verification.title], ["submit", navCopy.review],
   ];
   const stepIndex = items.findIndex(([id]) => id === activeStep);
@@ -141,7 +143,7 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
     const panel = document.getElementById(`s-${section}`);
     if (target === "tab") { tab?.focus({ preventScroll: true }); return; }
     if (target === "error") {
-      const field = (section === "cover" ? panel?.querySelector<HTMLElement>("[data-cover-replace]") : null)
+      const field = (section === "media" ? panel?.querySelector<HTMLElement>('[data-cover-replace][aria-invalid="true"]') : null)
         ?? panel?.querySelector<HTMLElement>('[aria-invalid="true"]:not([type="hidden"])')
         ?? panel?.querySelector<HTMLElement>("input:not([type=hidden]), select, textarea, button, [contenteditable=true]")
         ?? panel;
@@ -158,7 +160,7 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
   useEffect(() => {
     if (state?.ok === false && state.field === "cover_path") {
       setErrors((previous) => ({ ...previous, cover_path: state.message }));
-      jump("cover");
+      jump("media");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state]);
@@ -281,8 +283,8 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
           if (keys.length) {
             e.preventDefault();
             setErrors(missing);
-            // A missing or illustrative cover is especially easy to miss when a preview is visible.
-            jump(sectionOf(keys.includes("cover_path") ? "cover_path" : keys[0]));
+            const first = items.find(([id]) => keys.some((key) => sectionOf(key) === id));
+            jump(first?.[0] ?? "submit");
           }
         }
       }}>
@@ -317,18 +319,41 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
       <div className="compose-main">
         {live && <p className="notice"><Icon name="info" size={18} />{x.liveNote}</p>}
         {reviewNote && <section className="notice" aria-labelledby="verification-correction"><Icon name="info" size={18} /><div><strong id="verification-correction">{verification.correction}</strong><p>{reviewNote}</p></div></section>}
-        {restored && <p className="notice"><Icon name="undo" size={18} /><span>{x.restored} <button type="button" className="link" onClick={() => { setF(initial); setRestored(false); if (draftKey) localStorage.removeItem(draftKey); }}>{x.startOver}</button></span></p>}
+        {restored && <p className="notice"><Icon name="undo" size={18} /><span>{x.restored} <button type="button" className="link" onClick={() => { setF(initial); setNoGoal(false); setErrors({}); setRestored(false); if (draftKey) localStorage.removeItem(draftKey); jump("basics", "panel"); }}>{x.startOver}</button></span></p>}
         {upErr && <p className="notice err" role="alert"><Icon name="alert" size={18} />{upErr}</p>}
 
-        <section id="s-title" className="part" role="tabpanel" aria-labelledby="wizard-tab-title" tabIndex={-1} hidden={activeStep !== "title"}>
-          <header><h2>{k.title.label}</h2><p className="muted">{k.title.hint}</p></header>
-          <label className="field"><span className="sr">{k.title.label}</span>
-            <input className="input big" value={f.title} maxLength={120} placeholder={k.title.ph} onChange={(e) => set("title", e.target.value)} {...inv("title")} />
-            <small>{f.title.length}/120</small>{err("title")}
-          </label>
-        </section>
-
-        <section id="s-category" className="part" role="tabpanel" aria-labelledby="wizard-tab-category" tabIndex={-1} hidden={activeStep !== "category"}>
+        <section id="s-basics" className="part wizard-panel" role="tabpanel" aria-labelledby="wizard-tab-basics" tabIndex={-1} hidden={activeStep !== "basics"}>
+          <header><h2>{navCopy.who}</h2></header>
+          <fieldset className="field">
+            <legend className="sr">{navCopy.who}</legend>
+            <div className="beneficiary-options">
+              {(["self", "other", "org"] as const).map((type) => (
+                <label className="beneficiary-choice" key={type}>
+                  <input type="radio" name="beneficiary-type" value={type} checked={beneficiaryType === type} {...inv("beneficiary_relation")}
+                    onChange={() => {
+                      if (beneficiaryType === type) return;
+                      setF((old) => ({ ...old, beneficiary_relation: type === "org" ? "organization" : type === "self" ? "self" : "other", beneficiary_name: type === "self" ? old.priv.contact_name : "" }));
+                      setVerificationConsent(false);
+                      setErrors((old) => { const next = { ...old }; delete next.beneficiary_name; delete next.beneficiary_relation; return next; });
+                    }} />
+                  <span><strong>{navCopy[type]}</strong><small>{navCopy[type === "self" ? "selfHint" : type === "org" ? "orgHint" : "otherHint"]}</small></span>
+                </label>
+              ))}
+            </div>
+            {err("beneficiary_relation")}
+          </fieldset>
+          {beneficiaryType && <div className="stack">
+            <label className="field"><span>{beneficiaryType === "self" ? navCopy.selfName : beneficiaryType === "org" ? navCopy.orgName : c.beneficiary}</span>
+              <input className="input" value={f.beneficiary_name} maxLength={120} required aria-required="true" onChange={(e) => set("beneficiary_name", e.target.value)} {...inv("beneficiary_name")} />
+              {err("beneficiary_name")}
+            </label>
+            {beneficiaryType === "other" && <label className="field"><span>{c.relation}</span>
+              <select className="input" value={f.beneficiary_relation} onChange={(e) => set("beneficiary_relation", e.target.value)}>
+                {RELATIONS.filter((relation) => relation !== "self" && relation !== "organization").map((relation) => <option key={relation} value={relation}>{d.relations[relation]}</option>)}
+              </select>
+            </label>}
+          </div>}
+          <div className="wizard-group">
           <header><h2>{k.category.label}</h2><p className="muted">{k.category.hint}</p></header>
           <fieldset className="field" {...(errors.cause ? { "aria-describedby": "e-cause" } : {})}>
             <legend className="sr">{k.category.label}</legend>
@@ -337,37 +362,30 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
             </div>
             {err("cause")}
           </fieldset>
-        </section>
-
-        <section id="s-cover" className="part" role="tabpanel" aria-labelledby="wizard-tab-cover" tabIndex={-1} hidden={activeStep !== "cover"}>
-          <header><h2>{k.cover.label}</h2><p className="muted">{k.cover.hint}</p></header>
-          <div className="field">
-            <input ref={coverPicker} id="cover-file" type="file" accept="image/*" hidden disabled={busy !== null || pending}
-              onChange={(e) => { const file = e.target.files?.[0]; e.target.value = ""; void addCover(file); }} />
-            {f.cover_path ? (
-              <div className="stack">
-                <div className="frame cover-preview">{/* eslint-disable-next-line @next/next/no-img-element */}<img src={src(f.cover_path)} alt="" /></div>
-                {illustrativeCover && <p className="small muted">{k.cover.demoReplace}</p>}
-                <div className="row">
-                  <button type="button" className="btn small" data-cover-replace disabled={busy !== null || pending}
-                    aria-describedby={errors.cover_path ? "e-cover_path" : undefined}
-                    onClick={() => coverPicker.current?.click()}><Icon name={busy === "cover" ? "spinner" : "camera"} size={16} />{busy === "cover" ? c.uploading : x.crop.change}</button>
-                  <button type="button" className="btn small quiet" disabled={busy !== null || pending} onClick={() => set("cover_path", null)}>{x.crop.remove}</button>
-                </div>
-              </div>
-            ) : (
-              <button type="button" className="upload-zone cover-upload" data-cover-replace
-                disabled={busy !== null || pending} aria-busy={busy === "cover"} {...inv("cover_path")}
-                onClick={() => coverPicker.current?.click()}>
-                <Icon name={busy === "cover" ? "spinner" : "camera"} size={28} />
-                <span>{busy === "cover" ? c.uploading : c.addPhoto}</span>
-              </button>
-            )}
-            {err("cover_path")}
+          </div>
+          <div className="wizard-group">
+          <header><h2>{k.location.label}</h2><p className="muted">{k.location.hint}</p></header>
+          <div className="cols-2">
+            <label className="field"><span>{c.department}</span>
+              <select className="input" value={f.department} onChange={(e) => set("department", e.target.value)} {...inv("department")}>
+                <option value="">{c.choose}</option>
+                {DEPARTMENTS.map((v) => <option key={v}>{v}</option>)}
+              </select>{err("department")}
+            </label>
+            <label className="field"><span>{f.department === "Diaspora" ? navCopy.diaspora : c.commune}{opt}</span><input className="input" value={f.commune} maxLength={80} placeholder={x.ex.commune} onChange={(e) => set("commune", e.target.value)} /></label>
+          </div>
           </div>
         </section>
 
-        <section id="s-story" className="part" role="tabpanel" aria-labelledby="wizard-tab-story" tabIndex={-1} hidden={activeStep !== "story"}>
+        <section id="s-story" className="part wizard-panel" role="tabpanel" aria-labelledby="wizard-tab-story" tabIndex={-1} hidden={activeStep !== "story"}>
+          <div className="wizard-group">
+          <header><h2>{k.title.label}</h2><p className="muted">{k.title.hint}</p></header>
+          <label className="field"><span className="sr">{k.title.label}</span>
+            <input className="input big" value={f.title} maxLength={120} placeholder={k.title.ph} onChange={(e) => set("title", e.target.value)} {...inv("title")} />
+            <small>{f.title.length}/120</small>{err("title")}
+          </label>
+          </div>
+          <div className="wizard-group">
           <header><h2>{k.story.label}</h2><p className="muted" id="story-hint">{k.story.hint}</p></header>
           <div className="field">
             <label htmlFor="story-editor" className="sr">{k.story.label}</label>
@@ -388,39 +406,50 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
           <label className="field narrow"><span>{c.language}</span>
             <select className="input" value={f.language} onChange={(e) => set("language", e.target.value)}>{Object.entries(storyLanguages).map(([l, name]) => <option key={l} value={l}>{name}</option>)}</select>
           </label>
-        </section>
-
-        <section id="s-location" className="part" role="tabpanel" aria-labelledby="wizard-tab-location" tabIndex={-1} hidden={activeStep !== "location"}>
-          <header><h2>{k.location.label}</h2><p className="muted">{k.location.hint}</p></header>
-          <div className="cols-2">
-            <label className="field"><span>{c.department}</span>
-              <select className="input" value={f.department} onChange={(e) => set("department", e.target.value)} {...inv("department")}>
-                <option value="">{c.choose}</option>
-                {DEPARTMENTS.map((v) => <option key={v}>{v}</option>)}
-              </select>{err("department")}
-            </label>
-            <label className="field"><span>{c.commune}{opt}</span><input className="input" value={f.commune} maxLength={80} placeholder={x.ex.commune} onChange={(e) => set("commune", e.target.value)} /></label>
           </div>
         </section>
 
-        <section id="s-beneficiary" className="part" role="tabpanel" aria-labelledby="wizard-tab-beneficiary" tabIndex={-1} hidden={activeStep !== "beneficiary"}>
-          <header><h2>{c.s1}</h2><p className="muted" id="beneficiary-hint">{verification.beneficiaryHint}</p></header>
-          <div className="cols-2">
-            <label className="field"><span>{c.beneficiary}</span>
-              <input className="input" value={f.beneficiary_name} maxLength={120} required aria-required="true" onChange={(e) => set("beneficiary_name", e.target.value)} {...inv("beneficiary_name")} />
-              {err("beneficiary_name")}
-            </label>
-            <label className="field"><span>{c.relation}</span>
-              <select className="input" value={f.beneficiary_relation} required aria-required="true" onChange={(e) => set("beneficiary_relation", e.target.value)} {...inv("beneficiary_relation")}>
-                <option value="">{c.choose}</option>
-                {RELATIONS.map((relation) => <option key={relation} value={relation}>{d.relations[relation]}</option>)}
-              </select>{err("beneficiary_relation")}
-            </label>
-          </div>
+        <section id="s-goal" className="part" role="tabpanel" aria-labelledby="wizard-tab-goal" tabIndex={-1} hidden={activeStep !== "goal"}>
+          <header><h2>{k.goal.label}{opt}</h2><p className="muted">{k.goal.hint}</p></header>
+          <label className="field narrow"><span className="sr">{k.goal.label}</span>
+            <span className="joined">
+              <input className="input" inputMode="numeric" value={f.goal_amount} disabled={noGoal} placeholder="50000" onChange={(e) => set("goal_amount", e.target.value.replace(/[^\d]/g, "").slice(0, 9))} />
+              <select className="input" aria-label={d.support.currency} value={f.goal_currency} disabled={noGoal} onChange={(e) => set("goal_currency", e.target.value)}><option>HTG</option><option>USD</option></select>
+            </span>
+          </label>
+          <label className="check"><input type="checkbox" checked={noGoal} onChange={(e) => { setNoGoal(e.target.checked); if (e.target.checked) set("goal_amount", ""); }} /><span>{navCopy.noGoal}</span></label>
         </section>
 
-        <section id="s-media" className="part" role="tabpanel" aria-labelledby="wizard-tab-media" tabIndex={-1} hidden={activeStep !== "media"}>
-          <header><h2>{k.media.label}{opt}</h2><p className="muted">{k.media.hint}</p></header>
+        <section id="s-media" className="part wizard-panel" role="tabpanel" aria-labelledby="wizard-tab-media" tabIndex={-1} hidden={activeStep !== "media"}>
+          <div className="wizard-group">
+          <header><h2>{k.cover.label}</h2><p className="muted">{k.cover.hint}</p></header>
+          <div className="field">
+            <input ref={coverPicker} id="cover-file" type="file" accept="image/*" hidden disabled={busy !== null || pending}
+              onChange={(e) => { const file = e.target.files?.[0]; e.target.value = ""; void addCover(file); }} />
+            {f.cover_path ? (
+              <div className="stack">
+                <div className="frame cover-preview">{/* eslint-disable-next-line @next/next/no-img-element */}<img src={src(f.cover_path)} alt="" /></div>
+                {illustrativeCover && <p className="small muted">{k.cover.demoReplace}</p>}
+                <div className="row">
+                  <button type="button" className="btn small" data-cover-replace disabled={busy !== null || pending}
+                    {...inv("cover_path")}
+                    onClick={() => coverPicker.current?.click()}><Icon name={busy === "cover" ? "spinner" : "camera"} size={16} />{busy === "cover" ? c.uploading : x.crop.change}</button>
+                  <button type="button" className="btn small quiet" disabled={busy !== null || pending} onClick={() => set("cover_path", null)}>{x.crop.remove}</button>
+                </div>
+              </div>
+            ) : (
+              <button type="button" className="upload-zone cover-upload" data-cover-replace
+                disabled={busy !== null || pending} aria-busy={busy === "cover"} {...inv("cover_path")}
+                onClick={() => coverPicker.current?.click()}>
+                <Icon name={busy === "cover" ? "spinner" : "camera"} size={28} />
+                <span>{busy === "cover" ? c.uploading : c.addPhoto}</span>
+              </button>
+            )}
+            {err("cover_path")}
+          </div>
+          </div>
+          <div className="wizard-group">
+          <header><h2>{k.media.photos}{opt}</h2><p className="muted">{k.media.hint}</p></header>
           <div className="field"><span>{k.media.photos}</span>
             {f.gallery.length > 0 && (
               <div className="thumbs">
@@ -438,26 +467,8 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
               </label>
             )}
           </div>
-          <label className="field"><span>{k.media.video}</span><input className="input" type="url" placeholder="https://" value={f.video_url} maxLength={300} onChange={(e) => set("video_url", e.target.value)} /><small>{c.videoHint}</small></label>
-          <div className="field"><span>{k.media.documents}</span>
-            <small>{k.media.documentsHint}</small>
-            <small>{verification.recipientEvidence}</small>
-            {f.priv.documents.length > 0 && <p className="small"><Icon name="done" size={16} /> {f.priv.documents.length} {c.uploaded.toLowerCase()} <button type="button" className="link" onClick={() => setPriv("documents", [])}>{d.common.remove}</button></p>}
-            {f.priv.documents.length < 8 && (
-              <label className="upload-zone small"><input type="file" accept="image/*,application/pdf" disabled={busy !== null} onChange={(e) => { addDocument(e.target.files?.[0]); e.target.value = ""; }} />
-                <Icon name={busy === "documents" ? "spinner" : "file"} size={22} className={busy === "documents" ? "icon spin" : "icon"} /><span>{busy === "documents" ? c.uploading : c.addDocument}</span></label>
-            )}
+          <label className="field"><span>{k.media.video}</span><input className="input" type="url" placeholder="https://" value={f.video_url} maxLength={300} onChange={(e) => set("video_url", e.target.value)} {...inv("video_url")} /><small>{c.videoHint}</small>{err("video_url")}</label>
           </div>
-        </section>
-
-        <section id="s-goal" className="part" role="tabpanel" aria-labelledby="wizard-tab-goal" tabIndex={-1} hidden={activeStep !== "goal"}>
-          <header><h2>{k.goal.label}{opt}</h2><p className="muted">{k.goal.hint}</p></header>
-          <label className="field narrow"><span className="sr">{k.goal.label}</span>
-            <span className="joined">
-              <input className="input" inputMode="numeric" value={f.goal_amount} placeholder="50000" onChange={(e) => set("goal_amount", e.target.value.replace(/[^\d]/g, "").slice(0, 9))} />
-              <select className="input" aria-label={d.support.currency} value={f.goal_currency} onChange={(e) => set("goal_currency", e.target.value)}><option>HTG</option><option>USD</option></select>
-            </span>
-          </label>
         </section>
 
         <section id="s-receive" className="part" role="tabpanel" aria-labelledby="wizard-tab-receive" tabIndex={-1} hidden={activeStep !== "receive"}>
@@ -520,6 +531,16 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
             <label className="field"><span>{c.referenceName}{opt}</span><input className="input" value={f.priv.reference_name} maxLength={120} onChange={(e) => setPriv("reference_name", e.target.value)} /></label>
             <label className="field"><span>{c.referenceContact}{opt}</span><input className="input" value={f.priv.reference_contact} maxLength={200} onChange={(e) => setPriv("reference_contact", e.target.value)} /></label>
           </div>
+          {beneficiaryType && beneficiaryType !== "self" && <p className="muted">{navCopy.authorization}</p>}
+          <div className="field"><span>{k.media.documents}</span>
+            <small>{k.media.documentsHint}</small>
+            <small>{verification.recipientEvidence}</small>
+            {f.priv.documents.length > 0 && <p className="small"><Icon name="done" size={16} /> {f.priv.documents.length} {c.uploaded.toLowerCase()} <button type="button" className="link" onClick={() => setPriv("documents", [])}>{d.common.remove}</button></p>}
+            {f.priv.documents.length < 8 && (
+              <label className="upload-zone small"><input type="file" accept="image/*,application/pdf" disabled={busy !== null} onChange={(e) => { addDocument(e.target.files?.[0]); e.target.value = ""; }} />
+                <Icon name={busy === "documents" ? "spinner" : "file"} size={22} className={busy === "documents" ? "icon spin" : "icon"} /><span>{busy === "documents" ? c.uploading : c.addDocument}</span></label>
+            )}
+          </div>
           <label className="check"><input type="checkbox" checked={verificationConsent} required aria-required="true" onChange={(e) => { setVerificationConsent(e.target.checked); setErrors((old) => { const next = { ...old }; delete next.verificationConsent; return next; }); }} {...inv("verificationConsent")} /><span>{verification.consent}</span></label>
           {err("verificationConsent")}
           {draftKey && <p className="small muted"><Icon name="lock" size={15} />{verification.privateDraft}</p>}
@@ -528,6 +549,14 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
         <section id="s-submit" className="part submit-part" role="tabpanel" aria-labelledby="wizard-tab-submit" tabIndex={-1} hidden={activeStep !== "submit"}>
           <header><h2>{live ? x.submitChanges : k.submit.label}</h2><p className="muted">{live ? k.submit.changesHint : k.submit.hint}</p></header>
           <div className="wizard-review-preview stack tight"><p className="eyebrow">{k.side.preview}</p>{card}</div>
+          <div className="wizard-review-sections">
+            {items.slice(0, -1).map(([id, label]) => (
+              <div className="wizard-review-row" key={id}>
+                <div><span>{label}</span><small className="muted">{Object.keys(missing).some((key) => sectionOf(key) === id) ? c.missing : x.done}</small></div>
+                <button type="button" className="btn small quiet" disabled={navigationLocked} onClick={() => jump(id, "panel")}>{navCopy.edit}</button>
+              </div>
+            ))}
+          </div>
           {!live && (
             <fieldset className="field stack" style={{ gap: 12 }}>
               <legend className="sr">{k.items.consent}</legend>
