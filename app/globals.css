@@ -968,3 +968,20 @@ textarea.input { border-radius: var(--r); padding: 14px 18px; }
 .photo-options-menu button:hover,.photo-options-menu button:focus-visible { background:var(--sage); }
 .photo-options-menu button:last-child { color:var(--err); }
 @media(max-width:480px){.photo-grid {grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;}}
+
+/* Desktop page content uses all available width within the shared 20px gutter.
+   Keep intrinsic card, modal, image and reading measures independent of the page width. */
+@media (min-width: 1000px) {
+  .wrap { width: 100%; max-width: none; }
+  .wizard-form .wizard-top,
+  .wizard-form .compose-main,
+  .compose-main,
+  .step-panel,
+  .account-settings,
+  .settings-section .field,
+  .settings-section .stack,
+  .auth-box,
+  .faq { width: 100%; max-width: none; margin-inline: 0; }
+  .doc { grid-template-columns: 260px minmax(0, 1fr); }
+  .wizard-form .photo-grid { grid-template-columns: repeat(auto-fill, minmax(min(100%, 180px), 1fr)); }
+}
