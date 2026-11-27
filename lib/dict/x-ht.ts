@@ -4,7 +4,7 @@ import type { X } from "./x-en";
 const x: X = {
   brand: { name: "yon kout men", tagline: "Yon kout men ant Ayisyen, kèlkeswa kote yo ye." },
   nav: {
-    explore: "Fè yon don", fundraiser: "Ranmase sipò", how: "Kijan sa mache", about: "Sou nou", share: "Pataje yon kanpay", search: "Chèche", searchLabel: "Chèche kanpay",
+    explore: "Fè yon don", fundraiser: "Ranmase sipò", how: "Kijan sa mache", about: "Sou nou", share: "Kreye yon kanpay", search: "Chèche", searchLabel: "Chèche kanpay",
     searchHint: "Yon non, yon kote oswa yon bezwen", go: "Chèche", signIn: "Konekte", account: "Kont", openMenu: "Louvri meni an", closeMenu: "Fèmen meni an",
     dashboard: "Apèsi", fundraisers: "Kanpay mwen yo", saved: "Favori mwen yo", notifications: "Notifikasyon", profile: "Pwofil", admin: "Administrasyon", signOut: "Dekonekte",
     settings: "Paramèt", preferences: "Preferans", security: "Sekirite", requestDeletion: "Mande pou efase kont mwen",
@@ -26,7 +26,7 @@ const x: X = {
     ],
     organizerTitle: "W ap chèche sipò pou yon moun?",
     organizerBody: "Ekri istwa a an kreyòl, franse, angle oswa panyòl, ajoute yon foto, epi di kijan ou resevwa sipò. Anjeneral, nou egzamine li nan de jou.",
-    organizerCta: "Pataje yon kanpay",
+    organizerCta: "Kreye yon kanpay",
     organizerLink: "Li gid òganizatè a",
     emptyTitle: "Premye kanpay yo ap pase anba verifikasyon",
     emptyBody: "Nou li chak istwa epi nou verifye chak òganizatè anvan nou pibliye yon kanpay. Se poutèt sa paj sa a vid pou kounye a. Tounen talè, oswa pataje premye kanpay la.",
@@ -177,7 +177,7 @@ const x: X = {
     toc: "Sou paj sa a",
     how: {
       flowTitle: "Kote lajan an ale", flowSupporter: "Ou menm", flowOrganizer: "Òganizatè a", flowVia: "Transfè, bous mobil, bank oswa aplikasyon", flowUs: "yon kout men pibliye istwa a ak enfòmasyon yo. Lajan an pa janm pase nan men nou.",
-      giveCta: "Dekouvri kanpay yo", needCta: "Pataje yon kanpay",
+      giveCta: "Dekouvri kanpay yo", needCta: "Kreye yon kanpay",
     },
     about: { photo: "Jakmèl, Sidès" },
   },
