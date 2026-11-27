@@ -6,6 +6,7 @@ import { addContribution } from "@/app/actions";
 import { METHODS, methodName } from "@/lib/constants";
 import { t, type Locale } from "@/lib/i18n";
 import type { Campaign, SupportMethod } from "@/lib/types";
+import { paymentRows, parsePayment } from "@/lib/payment-fields";
 
 const host = (url: string) => { try { return new URL(url).host.replace(/^www\./, ""); } catch { return url; } };
 
@@ -16,13 +17,16 @@ export function SupportMethods({ methods, locale, compact }: { methods: Pick<Sup
     <ul className="stack tight" style={{ gap: 10 }}>
       {methods.map((m) => {
         const name = methodName(m.method, d.support.other);
+        const rows = paymentRows(m.method, m.details, locale), parsed = parsePayment(m.method, m.details);
+        // Copy the part a supporter pastes into their app: the number, account or handle.
+        const copyText = (parsed?.phone || parsed?.account || parsed?.handle || "").trim() || m.details;
         return (
           <li className="method" key={m.method}>
             <div className="method-head">
               <strong>{name}</strong>
-              {!compact && <CopyButton text={m.details} locale={locale} label={x.copyDetails} />}
+              {!compact && <CopyButton text={copyText} locale={locale} label={x.copyDetails} />}
             </div>
-            <pre>{m.details}</pre>
+            {rows ? <dl className="method-rows">{rows.map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl> : <pre>{m.details}</pre>}
             {m.link && (
               <a className="btn small ext" href={m.link} target="_blank" rel="noopener noreferrer nofollow" aria-describedby={undefined}>
                 <span>{x.open(name)}</span><Icon name="external" size={16} />

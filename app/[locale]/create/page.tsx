@@ -9,6 +9,7 @@ import { profileReady, requireViewer } from "@/lib/auth";
 import { getCategories } from "@/lib/data";
 import { isLocale, t } from "@/lib/i18n";
 import { countryOptions } from "@/lib/countries";
+import { formText } from "@/lib/dict/form";
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   return isLocale(locale) ? { title: t(locale).x.form.title } : {};
@@ -22,7 +23,7 @@ export default async function Create({ params }: { params: Promise<{ locale: str
   return (
     <div className="wrap page">
       <header className="row spread end">
-        <div className="stack tight"><h1>{d.x.form.title}</h1><p className="lead">{d.x.form.sub}</p></div>
+        <div className="stack tight"><h1>{formText[locale].x.title}</h1></div>
         <Link className="arrow-link small" href={`/${locale}/resources`}><Icon name="guide" size={18} />{d.x.home.organizerLink}</Link>
       </header>
       {viewer.profile.banned ? <p className="notice err"><Icon name="lock" size={18} />{d.dash.restricted}</p> : !profileReady(viewer.profile) ? (

@@ -1,12 +1,15 @@
 import type { Locale } from "./i18n";
 import { METHODS } from "./constants";
+import { formText } from "./dict/form";
 type Field = "holder" | "phone" | "account" | "currency" | "country" | "city" | "handle" | "name" | "instructions";
-const labels: Record<Locale,Record<Field,string>> = {
+// Labels used before the form copy rewrite. Stored details may still use them, so parsing keeps accepting them.
+const legacyLabels: Record<Locale,Record<Field,string>> = {
  en: { holder:"Account holder or recipient name", phone:"Phone number", account:"Account number", currency:"Currency", country:"Country", city:"City", handle:"Payment handle or email", name:"Method name", instructions:"Receiving instructions" },
  fr: { holder:"Nom du titulaire ou du destinataire", phone:"Numéro de téléphone", account:"Numéro de compte", currency:"Devise", country:"Pays", city:"Ville", handle:"Identifiant ou e-mail de paiement", name:"Nom du moyen", instructions:"Instructions de réception" },
  ht: { holder:"Non moun k ap resevwa a", phone:"Nimewo telefòn", account:"Nimewo kont", currency:"Lajan", country:"Peyi", city:"Vil", handle:"Idantifyan oswa imèl peman", name:"Non metòd la", instructions:"Enstriksyon pou resevwa" },
  es: { holder:"Nombre del titular o destinatario", phone:"Número de teléfono", account:"Número de cuenta", currency:"Moneda", country:"País", city:"Ciudad", handle:"Usuario o correo de pago", name:"Nombre del método", instructions:"Instrucciones de recepción" }
 };
+const labels: Record<Locale,Record<Field,string>> = { en: formText.en.pay, fr: formText.fr.pay, ht: formText.ht.pay, es: formText.es.pay };
 export function paymentFields(method: string): Field[] {
  const group=METHODS.find(m=>m.id===method)?.group;
  if(group==="wallet") return ["holder","phone"];
@@ -22,11 +25,17 @@ export function parsePayment(method: string,details: string): Partial<Record<Fie
  if(lines.length!==keys.length) return null;
  const out: Partial<Record<Field,string>>={};
  for(let i=0;i<keys.length;i++){
-  const key=keys[i], prefix=Object.values(labels).map(l=>l[key]+":").find(p=>lines[i].startsWith(p));
+  const key=keys[i], prefix=[...Object.values(labels),...Object.values(legacyLabels)].map(l=>l[key]+":").find(p=>lines[i].startsWith(p));
   if(!prefix) return null;
   out[key]=lines[i].slice(prefix.length).replace(/^ /,"");
  }
  return out;
+}
+/** Structured rows for public display, labelled in the viewer's language. Null for free-text details. */
+export function paymentRows(method: string,details: string,locale: Locale): [string,string][] | null {
+ const values=parsePayment(method,details);
+ if(!values) return null;
+ return paymentFields(method).filter(k=>values[k]?.trim()).map(k=>[labels[locale][k], k==="phone" ? formatWalletNumber(values[k]!) : values[k]!.trim()]);
 }
 export function formatPayment(method: string,values: Partial<Record<Field,string>>,locale: Locale): string {
  return paymentFields(method).map(k=>labels[locale][k]+": "+(values[k]??"").replace(/[\r\n]+/g," ")).join("\n");
