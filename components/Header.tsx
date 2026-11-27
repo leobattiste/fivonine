@@ -135,12 +135,14 @@ export default function Header({ locale, viewer }: { locale: Locale; viewer: Vie
             {([["/explore", n.explore, m.donateSub], ["/create", n.fundraiser, m.fundraiseSub]] as [string, string, string][]).map(([href, label, sub]) => (
               <Link key={href} className="drawer-row" href={L(href)} aria-current={isActive(href) ? "page" : undefined}><span><span className="r-t">{label}</span><small>{sub}</small></span><Icon name="right" size={22} /></Link>
             ))}
-            <Link className="drawer-row" href={L("/about")} aria-current={isActive("/about") ? "page" : undefined}><span className="r-t">{n.about}</span><Icon name="right" size={22} /></Link>
-            <div className="drawer-sub">
-              {([["/about", m.who], ["/how-it-works", m.how], ["/help", m.help]] as [string, string][]).map(([href, label]) => (
-                <Link key={href} href={L(href)} aria-current={isActive(href) ? "page" : undefined}>{label}<Icon name="right" size={18} /></Link>
-              ))}
-            </div>
+            <details className="drawer-about" open={["/about", "/how-it-works", "/help"].some(isActive) || undefined}>
+              <summary className="drawer-row"><span className="r-t">{n.about}</span><span className="pm" aria-hidden="true" /></summary>
+              <div className="drawer-sub">
+                {([["/about", m.who], ["/how-it-works", m.how], ["/help", m.help]] as [string, string][]).map(([href, label]) => (
+                  <Link key={href} href={L(href)} aria-current={isActive(href) ? "page" : undefined}>{label}</Link>
+                ))}
+              </div>
+            </details>
             {viewer && <form action={signOut} className="drawer-out"><input type="hidden" name="locale" value={locale} /><button><Icon name="logout" size={20} />{n.signOut}</button></form>}
           </nav>
         </div>
