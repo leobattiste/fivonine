@@ -1,15 +1,16 @@
 import type { Locale } from "./i18n";
 export type MethodDraft = { details: string; link: string };
+export type BudgetLine = { label: string; amount: string };
 export type IdentityFileField = "id_front_path" | "id_back_path" | "selfie_path";
 export type FormState = {
   id?: string; title: string; story: string; cause: string; country_code: string; organization_role: string; department: string; commune: string; beneficiary_name: string; beneficiary_relation: string;
   goal_amount: string; goal_currency: string; deadline: string; urgent: boolean; cover_path: string | null; gallery: string[]; video_url: string;
-  voice_path: string | null; language: string; methods: Record<string, MethodDraft>;
+  voice_path: string | null; language: string; methods: Record<string, MethodDraft>; budget: BudgetLine[];
   priv: { contact_name: string; contact_email: string; contact_details: string; id_front_path: string | null; id_back_path: string | null; selfie_path: string | null; reference_name: string; reference_contact: string; documents: string[] };
 };
 export const emptyForm = (locale: Locale, name = "", email = ""): FormState => ({
   title: "", story: "", cause: "", country_code: "", organization_role: "", department: "", commune: "", beneficiary_name: "", beneficiary_relation: "", goal_amount: "", goal_currency: "HTG", deadline: "",
-  urgent: false, cover_path: null, gallery: [], video_url: "", voice_path: null, language: locale, methods: {},
+  urgent: false, cover_path: null, gallery: [], video_url: "", voice_path: null, language: locale, methods: {}, budget: [],
   priv: { contact_name: name, contact_email: email, contact_details: "", id_front_path: null, id_back_path: null, selfie_path: null, reference_name: "", reference_contact: "", documents: [] },
 });
 /** Older drafts stored each method as plain text. */
@@ -29,5 +30,9 @@ export function restoreDeviceDraft(initial: FormState, raw: string): FormState {
   if (!saved || typeof saved !== "object" || Array.isArray(saved)) return initial;
   const { priv, ...publicDraft } = saved;
   void priv;
-  return { ...initial, ...publicDraft, country_code: saved.country_code || (saved.department && saved.department !== "Diaspora" ? "HT" : ""), methods: normalizeMethods(saved.methods), priv: initial.priv };
+  return { ...initial, ...publicDraft, country_code: saved.country_code || (saved.department && saved.department !== "Diaspora" ? "HT" : ""), methods: normalizeMethods(saved.methods), budget: normalizeBudget(saved.budget), priv: initial.priv };
 }
+
+/** Budget lines from the database ({label, amount:number}) or a device draft ({label, amount:string}). */
+export const normalizeBudget = (b: unknown): BudgetLine[] =>
+  (Array.isArray(b) ? b : []).slice(0, 6).map((l) => ({ label: String((l as BudgetLine)?.label ?? "").slice(0, 80), amount: (l as BudgetLine)?.amount == null ? "" : String((l as BudgetLine).amount) }));

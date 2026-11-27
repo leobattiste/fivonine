@@ -18,6 +18,7 @@ export type Campaign = {
   country_code?: string | null; organization_role?: string | null; department: string | null; commune: string | null; beneficiary_name: string | null; beneficiary_relation: string | null;
   goal_amount: number | null; goal_currency: "HTG" | "USD"; deadline: string | null; urgent: boolean; emergency: boolean;
   cover_path: string | null; gallery: string[]; video_url: string | null; voice_path: string | null; tier: Tier;
+  budget?: { label: string; amount: number }[] | null;
   featured: boolean; language: Locale; created_at: string; updated_at: string; submitted_at: string | null;
   published_at: string | null; owner?: OwnerLite | null; progress?: Progress;
 };

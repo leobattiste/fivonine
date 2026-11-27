@@ -18,9 +18,10 @@ export default function Compare({ c, methods, change, locale, cats }: { c: Campa
     if (k === "urgent") return v ? "✓" : "—";
     if (Array.isArray(v)) return `${v.length}`;
     if (k === "story") v = storyText(String(v));
+    if (k === "budget") v = Array.isArray(v) ? (v as { label: string; amount: number }[]).map((l) => `${l.label}: ${l.amount}`).join("\n") : "—";
     return <span style={{ whiteSpace: "pre-wrap" }}>{String(v).length > 400 ? `${String(v).slice(0, 400)}…` : String(v)}</span>;
   };
-  const labels: Record<string,string> = {...y.fields,country_code:({en:"Country",fr:"Pays",ht:"Peyi",es:"País"})[locale],organization_role:({en:"Organization role",fr:"Rôle dans l’organisation",ht:"Wòl nan òganizasyon an",es:"Función en la organización"})[locale]};
+  const labels: Record<string,string> = {...y.fields,country_code:({en:"Country",fr:"Pays",ht:"Peyi",es:"País"})[locale],organization_role:({en:"Organization role",fr:"Rôle dans l’organisation",ht:"Wòl nan òganizasyon an",es:"Función en la organización"})[locale],budget:({en:"Budget",fr:"Budget",ht:"Bidjè",es:"Presupuesto"})[locale]};
   const keys = Object.keys(labels).filter((k) => k !== "methods" && k in r);
   const diffs = keys.filter((k) => JSON.stringify((c as unknown as Record<string, unknown>)[k] ?? null) !== JSON.stringify(r[k] ?? null) && !(k === "goal_amount" && Number(c.goal_amount ?? 0) === Number(r[k] ?? 0)));
   const fmtM = (ms: { method: string; details: string; link?: string | null }[]) => ms.map((m) => `${METHODS.find((x) => x.id === m.method)?.name || d.support.other}: ${m.details}${m.link ? `\n${m.link}` : ""}`).join("\n\n");

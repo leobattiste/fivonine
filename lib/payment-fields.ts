@@ -31,10 +31,38 @@ export function parsePayment(method: string,details: string): Partial<Record<Fie
 export function formatPayment(method: string,values: Partial<Record<Field,string>>,locale: Locale): string {
  return paymentFields(method).map(k=>labels[locale][k]+": "+(values[k]??"").replace(/[\r\n]+/g," ")).join("\n");
 }
+export type PaymentIssue = "holder" | "phone" | "account" | "handle";
+const digits=(v: string)=>v.replace(/[\s+().-]/g,"");
+const EMAIL_RE=/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+/** Haitian mobile wallets use an 8-digit number, optionally with the 509 country code. */
+export const walletNumberOk=(v: string)=>{ const n=digits(v); return /^\d+$/.test(n) && (n.length===8 || (n.length===11 && n.startsWith("509"))); };
+export const formatWalletNumber=(v: string)=>{ const n=digits(v).replace(/^509(?=\d{8}$)/,""); return /^\d{8}$/.test(n) ? `+509 ${n.slice(0,4)} ${n.slice(4)}` : v.trim(); };
+function handleOk(method: string,v: string){
+ const h=v.trim(), n=digits(h);
+ const phone=/^\d{10,11}$/.test(n) || walletNumberOk(h);
+ if(method==="zelle") return EMAIL_RE.test(h) || phone;
+ if(method==="cash_app") return /^\$?[A-Za-z][A-Za-z0-9_]{0,19}$/.test(h) || EMAIL_RE.test(h) || phone;
+ if(method==="paypal") return EMAIL_RE.test(h) || phone || /^(https:\/\/)?(www\.)?paypal\.me\/[A-Za-z0-9_.-]+$/i.test(h);
+ return h.length>=3;
+}
+/** Format problems that would send support to the wrong place. Empty when the details look usable. */
+export function paymentIssues(method: string,details: string,link: string): PaymentIssue[] {
+ const values=parsePayment(method,details);
+ if(!values) return [];
+ const out: PaymentIssue[]=[];
+ const has=(k: Field)=>Boolean(values[k]?.trim());
+ if(has("holder") && !/\p{L}.*\p{L}/u.test(values.holder!)) out.push("holder");
+ if(has("phone") && !walletNumberOk(values.phone!)) out.push("phone");
+ if(has("account")){ const n=digits(values.account!); if(!/^[A-Za-z0-9]+$/.test(n) || (n.replace(/\D/g,"").length<6) || n.length>34) out.push("account"); }
+ if(has("handle") && !handleOk(method,values.handle!)) out.push("handle");
+ void link;
+ return out;
+}
 export function paymentValid(method: string,details: string,link: string) {
  const values=parsePayment(method,details);
  if(!values) return details.trim().length>=3;
- return paymentFields(method).every(k=>k==="handle" ? Boolean(values[k]?.trim() || link.trim()) : Boolean(values[k]?.trim()));
+ const complete=paymentFields(method).every(k=>k==="handle" ? Boolean(values[k]?.trim() || link.trim()) : Boolean(values[k]?.trim()));
+ return complete && paymentIssues(method,details,link).length===0;
 }
 const CONTACT_PREFIX="Phone / WhatsApp:";
 export function splitContact(raw: string){

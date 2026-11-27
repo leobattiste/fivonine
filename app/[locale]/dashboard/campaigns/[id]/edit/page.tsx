@@ -6,6 +6,8 @@ import CampaignForm, { type FormState } from "@/components/CampaignForm";
 import { requireViewer } from "@/lib/auth";
 import { getCategories, getChange, getManaged } from "@/lib/data";
 import { isLocale, t } from "@/lib/i18n";
+import { normalizeBudget } from "@/lib/form";
+import { countryOptions } from "@/lib/countries";
 export const metadata: Metadata = { robots: { index: false } };
 export default async function Edit({ params }: { params: Promise<{ locale: string; id: string }> }) {
   const { locale, id } = await params;
@@ -21,7 +23,7 @@ export default async function Edit({ params }: { params: Promise<{ locale: strin
   const initial: FormState = {
     id: c.id, title: c.title, story: c.story, cause: c.cause ?? "", country_code: c.country_code ?? (c.department && c.department !== "Diaspora" ? "HT" : ""), organization_role: c.organization_role ?? "", department: c.department ?? "", commune: c.commune ?? "", beneficiary_name: c.beneficiary_name ?? "",
     beneficiary_relation: c.beneficiary_relation ?? "", goal_amount: c.goal_amount ? String(Number(c.goal_amount)) : "", goal_currency: c.goal_currency, deadline: c.deadline ?? "",
-    urgent: c.urgent, cover_path: c.cover_path, gallery: c.gallery ?? [], video_url: c.video_url ?? "", voice_path: c.voice_path, language: c.language,
+    urgent: c.urgent, cover_path: c.cover_path, gallery: c.gallery ?? [], video_url: c.video_url ?? "", budget: normalizeBudget(c.budget), voice_path: c.voice_path, language: c.language,
     methods: Object.fromEntries(methods.map((m) => [m.method, { details: m.details, link: m.link ?? "" }])),
     priv: { contact_name: p?.contact_name ?? "", contact_email: p?.contact_email ?? viewer.email, contact_details: p?.contact_details ?? "", id_front_path: p?.id_front_path ?? null, id_back_path: p?.id_back_path ?? null, selfie_path: p?.selfie_path ?? null, reference_name: p?.reference_name ?? "", reference_contact: p?.reference_contact ?? "", documents: p?.documents ?? [] },
   };
@@ -30,7 +32,7 @@ export default async function Edit({ params }: { params: Promise<{ locale: strin
       <Link className="crumb" href={`/${locale}/dashboard/campaigns/${id}`}><Icon name="left" size={18} />{d.common.back}</Link>
       <header className="page-head"><h1>{d.x.form.editTitle}</h1><p className="lead">{data.campaign.title}</p></header>
       {locked ? <p className="notice err"><Icon name="lock" size={18} />{viewer.profile.banned ? d.dash.restricted : d.x.dash.explain[data.campaign.status]}</p>
-        : <CampaignForm locale={locale} cats={cats} initial={initial} draftKey={null} live={data.campaign.status === "live"} email={viewer.email} reviewNote={p?.review_note} />}
+        : <CampaignForm locale={locale} cats={cats} initial={initial} draftKey={null} live={data.campaign.status === "live"} email={viewer.email} reviewNote={p?.review_note} countryList={countryOptions(locale)} />}
     </div>
   );
 }

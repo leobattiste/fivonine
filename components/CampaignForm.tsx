@@ -11,18 +11,36 @@ import { deviceDraft, restoreDeviceDraft, type FormState, type IdentityFileField
 import { verificationCopy } from "@/lib/dict/verification";
 import type { Category } from "@/lib/types";
 import { countryOptions, isCountry } from "@/lib/countries";
-import { formatPayment, parsePayment, paymentFields, paymentLabel, paymentValid, splitContact, formatContact } from "@/lib/payment-fields";
+import { formatPayment, parsePayment, paymentFields, paymentLabel, paymentValid, paymentIssues, formatWalletNumber, splitContact, formatContact } from "@/lib/payment-fields";
+import { createFlow } from "@/lib/dict/create-flow";
 export type { FormState };
 
 const LINK = /^https:\/\/[^\s]+$/;
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const ID_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const plain = (html: string) => html.replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim();
+/** Minimal client-side sanitizer for the preview: the story editor only produces these tags. */
+const PREVIEW_TAGS = new Set(["P", "BR", "STRONG", "EM", "H2", "H3", "UL", "OL", "LI", "BLOCKQUOTE", "A"]);
+function previewHtml(html: string): string {
+  if (typeof window === "undefined" || !html) return "";
+  const doc = new DOMParser().parseFromString(/^\s*</.test(html) ? html : `<p>${html.replace(/&/g, "&amp;").replace(/</g, "&lt;")}</p>`, "text/html");
+  const walk = (el: Element) => {
+    for (const child of Array.from(el.children)) {
+      if (!PREVIEW_TAGS.has(child.tagName)) { child.replaceWith(...Array.from(child.childNodes)); continue; }
+      for (const a of Array.from(child.attributes)) if (!(child.tagName === "A" && a.name === "href" && /^https:\/\//.test(a.value))) child.removeAttribute(a.name);
+      if (child.tagName === "A") { child.setAttribute("target", "_blank"); child.setAttribute("rel", "noopener noreferrer nofollow"); }
+      walk(child);
+    }
+  };
+  walk(doc.body);
+  return doc.body.innerHTML;
+}
+const STEP_MINUTES = [1, 3, 2, 2, 2, 3, 1];
 const time = (locale: Locale) => new Intl.DateTimeFormat(locale, { hour: "numeric", minute: "2-digit" }).format(new Date());
 
 /** One visible section at a time, with shared draft state and final submission validation. */
-export default function CampaignForm({ locale, cats, initial, draftKey, live, email, reviewNote }: { locale: Locale; cats: Category[]; initial: FormState; draftKey: string | null; live: boolean; email?: string; reviewNote?: string | null }) {
-  const d = t(locale), c = d.create, x = d.x.form, k = x.compose, verification = verificationCopy[locale];
+export default function CampaignForm({ locale, cats, initial, draftKey, live, email, reviewNote, countryList }: { locale: Locale; cats: Category[]; initial: FormState; draftKey: string | null; live: boolean; email?: string; reviewNote?: string | null; countryList?: { code: string; name: string }[] }) {
+  const d = t(locale), c = d.create, x = d.x.form, k = x.compose, verification = verificationCopy[locale], cf = createFlow[locale];
   const [f, setF] = useState<FormState>(initial);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [navigation, setNavigation] = useState<{ section: string; target: "tab" | "panel" | "error" } | null>(null);
@@ -34,7 +52,7 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
     es: { previous: "Anterior", next: "Siguiente", basics: "Acerca de", story: "Historia", goal: "Meta", media: "Multimedia", support: "Donaciones", review: "Revisar", who: "¿Para quién recaudas fondos?", self: "Para mí", other: "Para otra persona", org: "Una organización", selfHint: "Para mis propias necesidades.", otherHint: "Para otra persona, familia o comunidad.", orgHint: "Para una organización o un grupo comunitario.", orgName: "Nombre de la organización", selfName: "Tu nombre", authorization: "Adjunta documentación que acredite tu autorización para recaudar fondos para el destinatario o la organización.", diaspora: "Ciudad, región y país", noGoal: "No tengo una meta específica", edit: "Editar" },
   }[locale];
   const ui = {"en":{"country":"Country","location":"Where is the beneficiary located?","city":"City, state or region","role":"Your role in the organization","story":"Tell your story","title":"Fundraiser title","desc":"Description","storyHelp":"Explain why you are fundraising and how donations will help.","goal":"How much would you like to raise?","deadline":"End date","photos":"Photos","photoTitle":"Add photos to your fundraiser","photoHelp":"Upload up to 10 photos. Choose one as your cover.","cover":"Cover","makeCover":"Make cover","delete":"Delete","photoMenu":"Photo options","uploading":"Uploading photos","photoError":"Some photos could not be uploaded. Try again.","requiredCountry":"Choose a country.","requiredLocation":"Enter the city, state or region.","requiredRole":"Enter your role.","invalidDate":"Choose a valid end date.","invalidGoal":"Enter a positive amount.","contact":"Contact information","identity":"Identity documents","evidence":"Supporting evidence","phone":"Phone or WhatsApp","contactExtra":"Additional contact or recipient details","privacy":"Share only the payment information supporters need. It will appear on your fundraiser.","reviewTitle":"Review your fundraiser","complete":"Complete","noGoal":"No fixed goal","summaryPhotos":"photos","summaryMethods":"receiving methods","summaryDocs":"private documents provided","details":"Payment details","addMethod":"Add method","removeMethod":"Remove method","chooseMethod":"Choose a payment method"},"fr":{"country":"Pays","location":"Où se trouve le bénéficiaire ?","city":"Ville, État ou région","role":"Votre rôle dans l’organisation","story":"Racontez votre histoire","title":"Titre de la collecte","desc":"Description","storyHelp":"Expliquez pourquoi vous collectez des fonds et comment les dons aideront.","goal":"Combien souhaitez-vous collecter ?","deadline":"Date de fin","photos":"Photos","photoTitle":"Ajoutez des photos à votre collecte","photoHelp":"Ajoutez jusqu’à 10 photos. Choisissez une photo de couverture.","cover":"Couverture","makeCover":"Définir comme couverture","delete":"Supprimer","photoMenu":"Options de la photo","uploading":"Envoi des photos","photoError":"Certaines photos n’ont pas pu être envoyées. Réessayez.","requiredCountry":"Choisissez un pays.","requiredLocation":"Indiquez la ville, l’État ou la région.","requiredRole":"Indiquez votre rôle.","invalidDate":"Choisissez une date valide.","invalidGoal":"Saisissez un montant positif.","contact":"Coordonnées","identity":"Pièces d’identité","evidence":"Justificatifs","phone":"Téléphone ou WhatsApp","contactExtra":"Autres coordonnées ou précisions sur le destinataire","privacy":"Partagez uniquement les coordonnées de paiement nécessaires. Elles apparaîtront sur votre collecte.","reviewTitle":"Vérifiez votre collecte","complete":"Terminé","noGoal":"Sans objectif fixe","summaryPhotos":"photos","summaryMethods":"moyens de réception","summaryDocs":"documents privés fournis","details":"Coordonnées de paiement","addMethod":"Ajouter un moyen","removeMethod":"Retirer le moyen","chooseMethod":"Choisir un moyen de paiement"},"ht":{"country":"Peyi","location":"Ki kote benefisyè a ye?","city":"Vil, eta oswa rejyon","role":"Wòl ou nan òganizasyon an","story":"Rakonte istwa w","title":"Tit ranmasaj la","desc":"Deskripsyon","storyHelp":"Esplike poukisa w ap ranmase sipò ak kijan don yo pral ede.","goal":"Konbyen ou ta renmen ranmase?","deadline":"Dat fen","photos":"Foto","photoTitle":"Ajoute foto nan ranmasaj ou a","photoHelp":"Ajoute jiska 10 foto. Chwazi youn kòm foto kouvèti.","cover":"Kouvèti","makeCover":"Mete kòm kouvèti","delete":"Efase","photoMenu":"Opsyon foto","uploading":"N ap voye foto yo","photoError":"Gen foto ki pa t voye. Eseye ankò.","requiredCountry":"Chwazi yon peyi.","requiredLocation":"Antre vil, eta oswa rejyon an.","requiredRole":"Antre wòl ou.","invalidDate":"Chwazi yon dat ki valab.","invalidGoal":"Antre yon montan ki pozitif.","contact":"Enfòmasyon kontak","identity":"Pyès idantite","evidence":"Dokiman prèv","phone":"Telefòn oswa WhatsApp","contactExtra":"Lòt detay kontak oswa sou moun k ap resevwa a","privacy":"Pataje sèlman enfòmasyon peman moun bezwen. Yo pral parèt sou ranmasaj ou a.","reviewTitle":"Revize ranmasaj ou a","complete":"Konplè","noGoal":"Pa gen objektif fiks","summaryPhotos":"foto","summaryMethods":"fason pou resevwa","summaryDocs":"dokiman prive bay","details":"Detay peman","addMethod":"Ajoute yon fason","removeMethod":"Retire fason an","chooseMethod":"Chwazi yon fason pou resevwa"},"es":{"country":"País","location":"¿Dónde se encuentra el beneficiario?","city":"Ciudad, estado o región","role":"Tu función en la organización","story":"Cuenta tu historia","title":"Título de la recaudación","desc":"Descripción","storyHelp":"Explica por qué recaudas fondos y cómo ayudarán las donaciones.","goal":"¿Cuánto te gustaría recaudar?","deadline":"Fecha de finalización","photos":"Fotos","photoTitle":"Añade fotos a tu recaudación","photoHelp":"Sube hasta 10 fotos. Elige una como portada.","cover":"Portada","makeCover":"Establecer como portada","delete":"Eliminar","photoMenu":"Opciones de foto","uploading":"Subiendo fotos","photoError":"No se pudieron subir algunas fotos. Inténtalo de nuevo.","requiredCountry":"Selecciona un país.","requiredLocation":"Introduce la ciudad, estado o región.","requiredRole":"Introduce tu función.","invalidDate":"Selecciona una fecha válida.","invalidGoal":"Introduce un importe positivo.","contact":"Información de contacto","identity":"Documentos de identidad","evidence":"Documentos justificativos","phone":"Teléfono o WhatsApp","contactExtra":"Otros datos de contacto o del destinatario","privacy":"Comparte solo los datos necesarios para recibir pagos. Aparecerán en tu recaudación.","reviewTitle":"Revisa tu recaudación","complete":"Completo","noGoal":"Sin meta fija","summaryPhotos":"fotos","summaryMethods":"métodos de recepción","summaryDocs":"documentos privados aportados","details":"Datos de pago","addMethod":"Añadir método","removeMethod":"Quitar método","chooseMethod":"Elegir método de pago"}}[locale];
-  const countries = useMemo(() => countryOptions(locale), [locale]);
+  const countries = useMemo(() => countryList ?? countryOptions(locale), [countryList, locale]);
   const beneficiaryType = f.beneficiary_relation === "self" ? "self" : f.beneficiary_relation === "organization" ? "org" : f.beneficiary_relation ? "other" : "";
   const [noGoal, setNoGoal] = useState(false);
   const [busy, setBusy] = useState<string | null>(null);
@@ -42,6 +60,9 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
   const [deviceAt, setDeviceAt] = useState<string | null>(null);
   const [consent, setConsent] = useState([false, false, false]);
   const [verificationConsent, setVerificationConsent] = useState(false);
+  const [beneficiaryConsent, setBeneficiaryConsent] = useState(false);
+  const previewDialog = useRef<HTMLDialogElement | null>(null);
+  const [previewOpen, setPreviewOpen] = useState(false);
   const [photoMenu, setPhotoMenu] = useState<string | null>(null);
   const [photoProgress, setPhotoProgress] = useState({done:0,total:0});
   const photoPicker = useRef<HTMLInputElement | null>(null);
@@ -91,7 +112,10 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
   const photos = Array.from(new Set([f.cover_path, ...f.gallery].filter((p): p is string => Boolean(p)))).slice(0, 10);
   const uploadedCover = Boolean(f.cover_path && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\/[a-z0-9-]{8,60}\.(webp|jpg|jpeg|png)$/i.test(f.cover_path));
   const illustrativeCover = Boolean(f.cover_path && !uploadedCover);
-  const consentOk = (live || consent.every(Boolean)) && verificationConsent;
+  const needsBeneficiaryConsent = !live && Boolean(beneficiaryType) && beneficiaryType !== "self";
+  const consentOk = (live || consent.every(Boolean)) && (!needsBeneficiaryConsent || beneficiaryConsent) && verificationConsent;
+  const budgetLines = f.budget.filter((l) => l.label.trim() || l.amount.trim());
+  const budgetTotal = budgetLines.reduce((sum, l) => sum + (Number(l.amount) > 0 ? Number(l.amount) : 0), 0);
 
   // What is missing, by section. The checklist and the submit button read from the same rules.
   function check(): Record<string, string> {
@@ -115,17 +139,21 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
     if (!f.priv.selfie_path) e.selfie_path = c.needIdentity;
     if (!methods.length) e.methods = x.err.method;
     for (const [id, v] of Object.entries(f.methods)) {
-      if (!paymentValid(id, v.details, v.link)) e[`m.${id}`] = x.err.details;
+      const issues = paymentIssues(id, v.details, v.link);
+      if (issues.length) e[`m.${id}`] = cf.pay[issues[0]];
+      else if (!paymentValid(id, v.details, v.link)) e[`m.${id}`] = x.err.details;
       if (v.link.trim() && !LINK.test(v.link.trim())) e[`l.${id}`] = x.err.link;
     }
-    if (!live && !consent.every(Boolean)) e.consent = x.err.consent;
+    if (f.video_url.trim() && !LINK.test(f.video_url.trim())) e.video_url = cf.video.invalid;
+    if (budgetLines.some((l) => l.label.trim().length < 2 || !(Number(l.amount) > 0))) e.budget = cf.budget.invalid;
+    if (!live && (!consent.every(Boolean) || (needsBeneficiaryConsent && !beneficiaryConsent))) e.consent = x.err.consent;
     if (!verificationConsent) e.verificationConsent = verification.consentError;
     return e;
   }
   const missing = useMemo(check, // eslint-disable-next-line react-hooks/exhaustive-deps
-    [f, consent, methods, verificationConsent, live]);
+    [f, consent, methods, verificationConsent, beneficiaryConsent, live]);
   const verificationKeys = ["contact_name", "contact_email", "contact_details", "id_front_path", "selfie_path", "verificationConsent"];
-  const sectionOf = (key: string) => verificationKeys.includes(key) ? "verification" : key.startsWith("beneficiary_") || ["cause", "department", "country_code", "commune", "organization_role"].includes(key) ? "basics" : key === "title" || key === "story" ? "story" : key === "goal_amount" || key === "deadline" ? "goal" : key === "cover_path" ? "media" : key === "consent" ? "submit" : "receive";
+  const sectionOf = (key: string) => verificationKeys.includes(key) ? "verification" : key.startsWith("beneficiary_") || ["cause", "department", "country_code", "commune", "organization_role"].includes(key) ? "basics" : key === "title" || key === "story" ? "story" : key === "goal_amount" || key === "deadline" || key === "budget" ? "goal" : key === "cover_path" || key === "video_url" ? "media" : key === "consent" ? "submit" : "receive";
   const items: [string, string][] = [
     ["basics", navCopy.basics], ["story", navCopy.story], ["goal", navCopy.goal],
     ["media", ui.photos], ["receive", navCopy.support],
@@ -235,7 +263,17 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
     const path = await run(key, () => uploadImage("documents", file, { max: 2400 }));
     if (path) setPriv(key, path);
   }
-  const payload = JSON.stringify({ ...f, methods, consent: consentOk });
+  const payload = JSON.stringify({ ...f, methods, budget: budgetLines, hadBudget: initial.budget.length > 0, consent: consentOk });
+  const setBudget = (i: number, patch: Partial<{ label: string; amount: string }> | null) => {
+    setF((p) => ({ ...p, budget: patch === null ? p.budget.filter((_, j) => j !== i) : p.budget.map((l, j) => (j === i ? { ...l, ...patch } : l)) }));
+    setErrors((e) => { const n = { ...e }; delete n.budget; return n; });
+  };
+  const inDays = (n: number) => { const t = new Date(); t.setDate(t.getDate() + n); return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, "0")}-${String(t.getDate()).padStart(2, "0")}`; };
+  const storyChars = plain(f.story).length;
+  const prompts = cf.prompts.byCause[f.cause] ?? cf.prompts.fallback;
+  const minutesLeft = STEP_MINUTES.slice(Math.max(0, stepIndex)).reduce((a, b) => a + b, 0);
+  const openPreview = () => { setPreviewOpen(true); requestAnimationFrame(() => previewDialog.current?.showModal()); };
+  const closePreview = () => { previewDialog.current?.close(); setPreviewOpen(false); };
   const err = (key: string) => errors[key] ? <p className="field-error" id={`e-${key}`}><Icon name="alert" size={15} />{errors[key]}</p> : null;
   const inv = (key: string) => ({ "aria-invalid": errors[key] ? true : undefined, "aria-describedby": errors[key] ? `e-${key}` : undefined });
   const opt = <span className="opt"> ({x.optional})</span>;
@@ -306,6 +344,10 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
       <input type="hidden" name="payload" value={payload} />
 
       <div id="wizard-top" className="wizard-top">
+        <div className="wizard-progress" aria-live="polite">
+          <div className="row spread small"><strong>{cf.stepOf(stepIndex + 1, items.length)}</strong><span className="muted">{lastStep ? cf.almostDone : cf.minutesLeft(minutesLeft)}</span></div>
+          <div className="wizard-progress-bar" role="progressbar" aria-label={cf.stepOf(stepIndex + 1, items.length)} aria-valuemin={1} aria-valuemax={items.length} aria-valuenow={stepIndex + 1}><span style={{ width: `${((stepIndex + 1) / items.length) * 100}%` }} /></div>
+        </div>
         <div id="wizard-tabs" className="wizard-tabs tabs" role="tablist" aria-label={x.title}>
           {items.map(([id, label], i) => (
             <button type="button" key={id} id={`wizard-tab-${id}`} role="tab"
@@ -396,13 +438,20 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
           </label>
           <div className="field">
             <label htmlFor="story-editor">{ui.desc}</label>
-            <StoryEditor id="story-editor" value={f.story} onChange={(html) => set("story", html)} placeholder={ui.storyHelp} labels={x.editor} invalid={Boolean(errors.story)} describedBy={errors.story ? "e-story" : undefined} />
+            {!storyChars && <div><button type="button" className="btn small soft" onClick={() => set("story", cf.prompts.guideHeadings.map((h) => `<h3>${h}</h3><p></p>`).join(""))}><Icon name="guide" size={16} />{cf.prompts.useGuide}</button></div>}
+            <StoryEditor id="story-editor" value={f.story} onChange={(html) => set("story", html)} placeholder={ui.storyHelp} labels={x.editor} invalid={Boolean(errors.story)} describedBy={errors.story ? "e-story story-meter" : "story-meter"} />
+            <p id="story-meter" className={`story-meter ${storyChars < 40 ? "low" : storyChars < 400 ? "mid" : "high"}`}><span className="story-meter-bar"><span style={{ width: `${Math.min(100, (storyChars / 600) * 100)}%` }} /></span><span>{storyChars < 40 ? cf.meter.short : storyChars < 400 ? cf.meter.ok : cf.meter.good} · {cf.meter.chars(storyChars)}</span></p>
             {err("story")}
           </div>
+          <details className="disclose story-help" open={storyChars < 400}>
+            <summary>{cf.prompts.title}</summary>
+            <ol className="story-prompts">{prompts.map((q) => <li key={q}>{q}</li>)}</ol>
+          </details>
+          <div className="story-tips"><p className="small"><strong>{cf.prompts.tipsTitle}</strong></p><ul className="small muted">{cf.prompts.tips.map((tip) => <li key={tip}><Icon name="check" size={14} />{tip}</li>)}</ul></div>
         </section>
 
         <section id="s-goal" className="part" role="tabpanel" aria-labelledby="wizard-tab-goal" tabIndex={-1} hidden={activeStep !== "goal"}>
-          <header><h2>{ui.goal}</h2></header>
+          <header><h2>{ui.goal}</h2><p className="muted">{cf.goalHint}</p></header>
           <label className="field"><span>{k.goal.label}{opt}</span>
             <span className="joined">
               <input className="input" inputMode="decimal" value={f.goal_amount} disabled={noGoal} placeholder="0.00" {...inv("goal_amount")} onChange={(e) => { const v = e.target.value.replace(",", "."); if (/^\d{0,9}(\.\d{0,2})?$/.test(v)) set("goal_amount", v); }} />
@@ -411,7 +460,32 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
           </label>
           {err("goal_amount")}
           <label className="check"><input type="checkbox" checked={noGoal} onChange={(e) => { setNoGoal(e.target.checked); if (e.target.checked) set("goal_amount", ""); }} /><span>{navCopy.noGoal}</span></label>
-          <label className="field"><span>{ui.deadline}{opt}</span><input className="input" type="date" value={f.deadline} onChange={(e) => set("deadline", e.target.value)} {...inv("deadline")} />{err("deadline")}</label>
+          <label className="field"><span>{ui.deadline}{opt}</span><input className="input" type="date" value={f.deadline} onChange={(e) => set("deadline", e.target.value)} {...inv("deadline")} /><small>{cf.deadlineHint}</small>{err("deadline")}</label>
+          <div className="row tight" role="group" aria-label={cf.deadlinePick}>
+            {[30, 60, 90].map((n) => <button key={n} type="button" className={`chip ${f.deadline === inDays(n) ? "on" : ""}`} aria-pressed={f.deadline === inDays(n)} onClick={() => set("deadline", inDays(n))}>{cf.days(n)}</button>)}
+            <button type="button" className={`chip ${!f.deadline ? "on" : ""}`} aria-pressed={!f.deadline} onClick={() => set("deadline", "")}>{cf.noEnd}</button>
+          </div>
+          <div className="wizard-group budget-block">
+            <header><h3>{cf.budget.title}{opt}</h3><p className="small muted">{cf.budget.hint}</p></header>
+            {f.budget.map((l, i) => (
+              <div className="budget-line" key={i}>
+                <label className="field"><span className={i ? "sr" : undefined}>{cf.budget.label}</span><input className="input" value={l.label} maxLength={80} placeholder={cf.budget.labelPh} onChange={(e) => setBudget(i, { label: e.target.value })} {...inv("budget")} /></label>
+                <label className="field"><span className={i ? "sr" : undefined}>{cf.budget.amount} ({f.goal_currency})</span><input className="input" inputMode="decimal" value={l.amount} placeholder="0" onChange={(e) => { const v = e.target.value.replace(",", "."); if (/^\d{0,9}(\.\d{0,2})?$/.test(v)) setBudget(i, { amount: v }); }} {...inv("budget")} /></label>
+                <button type="button" className="btn small quiet" aria-label={`${cf.budget.remove} ${i + 1}`} onClick={() => setBudget(i, null)}><Icon name="close" size={18} /></button>
+              </div>
+            ))}
+            {err("budget")}
+            {f.budget.length < 6 && <div><button type="button" className="btn small soft" onClick={() => setF((p) => ({ ...p, budget: [...p.budget, { label: "", amount: "" }] }))}><Icon name="plus" size={16} />{cf.budget.add}</button></div>}
+            {budgetTotal > 0 && (
+              <div className="budget-total">
+                <p><span>{cf.budget.total}</span><strong>{fmtMoney(budgetTotal, f.goal_currency, locale)}</strong></p>
+                {Number(f.goal_amount) !== budgetTotal && <>
+                  {Number(f.goal_amount) > 0 && <p className="small muted">{cf.budget.mismatch(fmtMoney(Number(f.goal_amount), f.goal_currency, locale), fmtMoney(budgetTotal, f.goal_currency, locale))}</p>}
+                  <div><button type="button" className="btn small" onClick={() => { setNoGoal(false); set("goal_amount", String(budgetTotal)); }}>{cf.budget.useAsGoal}</button></div>
+                </>}
+              </div>
+            )}
+          </div>
         </section>
 
         <section id="s-media" className="part wizard-panel" role="tabpanel" aria-labelledby="wizard-tab-media" tabIndex={-1} hidden={activeStep !== "media"}>
@@ -434,6 +508,10 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
           <p className="xs muted">{photos.length}/10</p>
           {illustrativeCover && <p className="small muted">{k.cover.demoReplace}</p>}
           {err("cover_path")}
+          <label className="field"><span>{cf.video.label}{opt}</span>
+            <input className="input" type="url" inputMode="url" placeholder="https://" maxLength={300} value={f.video_url} onChange={(e) => set("video_url", e.target.value)} {...inv("video_url")} />
+            <small>{cf.video.hint}</small>{err("video_url")}
+          </label>
         </section>
 
         <section id="s-receive" className="part" role="tabpanel" aria-labelledby="wizard-tab-receive" tabIndex={-1} hidden={activeStep !== "receive"}>
@@ -441,6 +519,7 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
           {err("methods")}
           <label className="field"><span>{ui.addMethod}</span><select className="input" value={methodToAdd} onChange={(e) => { const id=e.target.value; if(id) setMethod(id, {details:formatPayment(id,{},locale)}); setMethodToAdd(""); }} disabled={Object.keys(f.methods).length >= 12 || navigationLocked}><option value="">{ui.chooseMethod}</option>{groups.map(([group,label]) => <optgroup key={group} label={label}>{METHODS.filter(m => m.group === group && !f.methods[m.id]).map(m => <option key={m.id} value={m.id}>{m.name || d.support.other}</option>)}</optgroup>)}</select></label>
           <div className="method-groups">
+            {Object.keys(f.methods).length > 0 && <p className="notice warn small"><Icon name="alert" size={16} />{cf.pay.doubleCheck}</p>}
             {Object.keys(f.methods).length > 0 && <p className="small muted">{({en:"Public payment details",fr:"Coordonnées de paiement publiques",ht:"Enfòmasyon peman piblik",es:"Datos de pago públicos"})[locale]}</p>}
             {groups.filter(([group]) => METHODS.some(m => m.group === group && f.methods[m.id])).map(([group, label, hint]) => (
               <fieldset key={group} className="field method-pick"><legend>{label}</legend>
@@ -451,7 +530,7 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
                       <div className="row" style={{justifyContent:"space-between"}}><span>{name}</span><button type="button" className="btn small quiet" aria-label={ui.removeMethod + " " + name} onClick={() => setMethod(m.id, null)}><Icon name="close" size={18}/></button></div>
                       {on && (
                         <>
-                          {values ? <div className="stack tight">{paymentFields(m.id).map(key => <label key={key} className="field"><span>{paymentLabel(key,locale)}{key==="handle" ? opt : null}</span><input className="input" inputMode={key==="phone"?"tel":undefined} maxLength={key==="instructions"?240:100} value={values[key]??""} onChange={e=>setMethod(m.id,{details:formatPayment(m.id,{...values,[key]:e.target.value},locale)})} {...inv(`m.${m.id}`)} /></label>)}{err(`m.${m.id}`)}</div> : <label className="field"><span>{ui.details}</span><textarea className="input" rows={3} maxLength={600} placeholder={hint} value={v.details} onChange={(e) => setMethod(m.id, { details: e.target.value })} {...inv(`m.${m.id}`)} />{err(`m.${m.id}`)}</label>}
+                          {values ? <div className="stack tight">{values.phone?.trim() && !errors[`m.${m.id}`] && <p className="pay-confirm small"><span className="muted">{cf.pay.sendsTo}</span> <strong>{values.holder?.trim() || "—"} · {formatWalletNumber(values.phone)}</strong></p>}{paymentFields(m.id).map(key => <label key={key} className="field"><span>{paymentLabel(key,locale)}{key==="handle" ? opt : null}</span><input className="input" inputMode={key==="phone"?"tel":undefined} maxLength={key==="instructions"?240:100} value={values[key]??""} onChange={e=>setMethod(m.id,{details:formatPayment(m.id,{...values,[key]:e.target.value},locale)})} {...inv(`m.${m.id}`)} /></label>)}{err(`m.${m.id}`)}</div> : <label className="field"><span>{ui.details}</span><textarea className="input" rows={3} maxLength={600} placeholder={hint} value={v.details} onChange={(e) => setMethod(m.id, { details: e.target.value })} {...inv(`m.${m.id}`)} />{err(`m.${m.id}`)}</label>}
                           {(group === "app" || group === "other" || v.link) && (
                             <label className="field"><span>{x.link}{opt}</span><input className="input" type="url" inputMode="url" placeholder="https://" maxLength={300} value={v.link} onChange={(e) => setMethod(m.id, { link: e.target.value })} {...inv(`l.${m.id}`)} /><small>{x.linkHint}</small>{err(`l.${m.id}`)}</label>
                           )}
@@ -467,6 +546,10 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
 
         <section id="s-verification" className="part" role="tabpanel" aria-labelledby="wizard-tab-verification" tabIndex={-1} hidden={activeStep !== "verification"} aria-busy={[...verificationKeys, "id_back_path"].includes(busy ?? "")}>
           <header><h2 id="verification-title">{verification.title}</h2><p className="muted">{verification.intro}</p></header>
+          <section className="why-id" aria-labelledby="why-id-title">
+            <h3 id="why-id-title"><Icon name="lock" size={18} />{cf.why.title}</h3>
+            <dl>{cf.why.points.map(([term, body]) => <div key={term}><dt>{term}</dt><dd>{body}</dd></div>)}</dl>
+          </section>
           <h3>{ui.contact}</h3>
           <p className="small muted" id="verification-contact-hint">{verification.contactHint}</p>
           <div className="cols-2">
@@ -513,7 +596,9 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
 
         <section id="s-submit" className="part submit-part" role="tabpanel" aria-labelledby="wizard-tab-submit" tabIndex={-1} hidden={activeStep !== "submit"}>
           <header><h2>{ui.reviewTitle}</h2><p className="muted">{live ? k.submit.changesHint : k.submit.hint}</p></header>
-          <div className="wizard-review-preview stack tight"><p className="eyebrow">{k.side.preview}</p>{card}</div>
+          <div className="wizard-review-preview stack tight"><p className="eyebrow">{k.side.preview}</p>{card}
+            <div><button type="button" className="btn" onClick={openPreview}><Icon name="eye" size={18} />{cf.preview.open}</button></div>
+          </div>
           <div className="wizard-review-sections">
             {items.slice(0, -1).map(([id, label]) => (
               <div className="wizard-review-row" key={id}>
@@ -528,12 +613,14 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
               {[c.consentTruth, c.consentTerms, c.consentOff].map((label, i) => (
                 <label key={label} className="check"><input type="checkbox" checked={consent[i]} onChange={(e) => { setConsent((p) => p.map((v, j) => (j === i ? e.target.checked : v))); setErrors((er) => { const n = { ...er }; delete n.consent; return n; }); }} /><span>{label}</span></label>
               ))}
+              {needsBeneficiaryConsent && <label className="check"><input type="checkbox" checked={beneficiaryConsent} onChange={(e) => { setBeneficiaryConsent(e.target.checked); setErrors((er) => { const n = { ...er }; delete n.consent; return n; }); }} /><span>{beneficiaryType === "org" ? cf.consentOrg(f.beneficiary_name.trim()) : cf.consentOther(f.beneficiary_name.trim())}</span></label>}
               {err("consent")}
             </fieldset>
           )}
           <ul className="next-list">
             <li><Icon name="clock" size={18} /><span>{k.submit.eta}</span></li>
             <li><Icon name="mail" size={18} /><span>{k.submit.reach(mail)}</span></li>
+            {!live && <li><Icon name="group" size={18} /><span>{cf.coOrg}</span></li>}
           </ul>
           {Object.keys(missing).length > 0 && (
             <div className="notice err"><Icon name="alert" size={18} /><span><strong>{c.missing}</strong>
@@ -556,6 +643,25 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
           <div className="stack tight">{saveState}</div>
         </div>
       </div>
+      <dialog ref={previewDialog} className="modal preview-modal" aria-labelledby="preview-title" onClose={() => setPreviewOpen(false)} onClick={(e) => { if (e.target === e.currentTarget) closePreview(); }}>
+        {previewOpen && <div className="stack">
+          <div className="preview-head"><div><p className="eyebrow" id="preview-title">{cf.preview.title}</p><p className="small muted">{cf.preview.note}</p></div><button type="button" className="btn small quiet" aria-label={cf.preview.close} onClick={closePreview}><Icon name="close" size={20} /></button></div>
+          {f.cover_path ? <div className="frame preview-cover">{/* eslint-disable-next-line @next/next/no-img-element */}<img src={src(f.cover_path)} alt="" /></div> : <div className="frame empty preview-cover"><Icon name="image" size={40} /></div>}
+          <div className="stack tight">
+            <p className="small muted">{[catName, where].filter(Boolean).join(" · ")}</p>
+            <h2>{f.title.trim() || k.title.ph}</h2>
+            <p className="small">{cf.preview.organizer} <strong>{f.priv.contact_name.trim() || "—"}</strong>{f.beneficiary_name.trim() && beneficiaryType !== "self" ? <> · {d.x.dash.fields.beneficiary_name}: <strong>{f.beneficiary_name.trim()}</strong></> : null}</p>
+            {amount && <p className="preview-goal">{amount}</p>}
+          </div>
+          {f.video_url.trim() && LINK.test(f.video_url.trim()) && <p><a className="btn small" href={f.video_url.trim()} target="_blank" rel="noopener noreferrer nofollow"><Icon name="external" size={16} />{cf.preview.video}</a></p>}
+          {storyChars ? <div className="story" dangerouslySetInnerHTML={{ __html: previewHtml(f.story) }} /> : <p className="muted">{cf.preview.noStory}</p>}
+          {budgetTotal > 0 && <section className="stack tight"><h3>{cf.preview.budget}</h3><ul className="budget-list">{budgetLines.filter((l) => Number(l.amount) > 0).map((l, i) => <li key={i}><span>{l.label}</span><strong>{fmtMoney(Number(l.amount), f.goal_currency, locale)}</strong></li>)}</ul></section>}
+          <section className="stack tight"><h3>{cf.preview.support}</h3>
+            {methods.length ? <ul className="preview-methods">{methods.map((m) => <li key={m.method}><strong>{METHODS.find((v) => v.id === m.method)?.name || d.support.other}</strong><span className="small" style={{ whiteSpace: "pre-line" }}>{m.details}</span>{m.link && <span className="small muted">{m.link}</span>}</li>)}</ul> : <p className="muted">{cf.preview.noMethods}</p>}
+          </section>
+          <div><button type="button" className="btn primary" onClick={closePreview}>{cf.preview.close}</button></div>
+        </div>}
+      </dialog>
     </form>
   );
 }

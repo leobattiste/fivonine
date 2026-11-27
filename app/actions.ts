@@ -277,6 +277,7 @@ type Payload = {
   id?: string; title?: string; story?: string; cause?: string; country_code?: string; organization_role?: string; department?: string; commune?: string; beneficiary_name?: string; beneficiary_relation?: string;
   goal_amount?: string | number | null; goal_currency?: string; deadline?: string; urgent?: boolean; cover_path?: string | null; gallery?: string[];
   video_url?: string; voice_path?: string | null; language?: string; methods?: { method: string; details: string; link?: string }[];
+  budget?: { label?: string; amount?: string | number }[]; hadBudget?: boolean;
   priv?: { contact_name?: string; contact_email?: string; contact_details?: string; id_front_path?: string | null; id_back_path?: string | null; selfie_path?: string | null; reference_name?: string; reference_contact?: string; documents?: string[] };
   consent?: boolean;
 };
@@ -327,6 +328,12 @@ export async function saveCampaign(_: ActionResult, f: FormData): Promise<Action
     voice_path: own(p.voice_path),
     language: isLocale(str(p.language, 2)) ? str(p.language, 2) : locale,
   };
+  // Optional public breakdown. Only written when the organizer filled it, so drafts keep working before the column exists.
+  const budget = (Array.isArray(p.budget) ? p.budget : [])
+    .map((l) => ({ label: str(l?.label, 80), amount: Math.round(Number(l?.amount) * 100) / 100 }))
+    .filter((l) => l.label.length >= 2 && Number.isFinite(l.amount) && l.amount > 0 && l.amount <= 999999999)
+    .slice(0, 6);
+  const fullRow: typeof row & { budget?: typeof budget | null } = budget.length ? { ...row, budget } : p.hadBudget === true ? { ...row, budget: null } : row;
   const seen = new Set<string>();
   const methods = (Array.isArray(p.methods) ? p.methods : [])
     .map((m) => { const link = str(m?.link, 300); return { method: str(m?.method, 30), details: str(m?.details, 600), link: /^https:\/\/[^\s]+$/.test(link) ? link : null }; })
@@ -402,7 +409,7 @@ export async function saveCampaign(_: ActionResult, f: FormData): Promise<Action
     if (latestError || !latest) return fail(d.common.error);
     status = latest.status;
     if (status === "live") {
-      const { error } = await sb.from("campaign_changes").upsert({ campaign_id: id, author_id: user.id, payload: { row, methods }, status: "pending" }, { onConflict: "campaign_id" });
+      const { error } = await sb.from("campaign_changes").upsert({ campaign_id: id, author_id: user.id, payload: { row: fullRow, methods }, status: "pending" }, { onConflict: "campaign_id" });
       if (error) return fail(d.common.error);
       after(() => drainOutbox());
       revalidatePath(`/${locale}/dashboard`);
@@ -411,10 +418,10 @@ export async function saveCampaign(_: ActionResult, f: FormData): Promise<Action
     if (status !== "needs_changes") return fail(d.common.error);
   }
   if (id) {
-    const { error } = await sb.from("campaigns").update(row).eq("id", id);
+    const { error } = await sb.from("campaigns").update(fullRow).eq("id", id);
     if (error) return fail(error.message.includes("no longer") ? error.message : d.common.error);
   } else {
-    const { data, error } = await sb.from("campaigns").insert({ ...row, slug: slugify(title), owner_id: user.id, status: "draft" }).select("id").single();
+    const { data, error } = await sb.from("campaigns").insert({ ...fullRow, slug: slugify(title), owner_id: user.id, status: "draft" }).select("id").single();
     if (error || !data) return fail(/limit|restricted/i.test(error?.message ?? "") ? (error?.message ?? d.common.error) : d.common.error);
     id = data.id;
   }
