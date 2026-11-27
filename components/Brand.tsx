@@ -4,8 +4,8 @@ import type { Locale } from "@/lib/i18n";
 export function Mark({ className = "mark" }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 26 26" aria-hidden="true">
-      <path d="M2 8a6 6 0 0 1 6-6h10a6 6 0 0 1 6 6v10a6 6 0 0 1-6 6H3.5A1.5 1.5 0 0 1 2 22.5Z" fill="#1f503b" />
-      <path d="M11 11.5a2.5 2.5 0 0 1 2.5-2.5h3a2.5 2.5 0 0 1 2.5 2.5v3a2.5 2.5 0 0 1-2.5 2.5H11.6a.6.6 0 0 1-.6-.6Z" fill="#d4e5d3" />
+      <path d="M2 8a6 6 0 0 1 6-6h10a6 6 0 0 1 6 6v10a6 6 0 0 1-6 6H3.5A1.5 1.5 0 0 1 2 22.5Z" fill="#111111" />
+      <path d="M11 11.5a2.5 2.5 0 0 1 2.5-2.5h3a2.5 2.5 0 0 1 2.5 2.5v3a2.5 2.5 0 0 1-2.5 2.5H11.6a.6.6 0 0 1-.6-.6Z" fill="#EDEDED" />
     </svg>
   );
 }
