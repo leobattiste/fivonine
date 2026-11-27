@@ -6,6 +6,7 @@ import ActionForm, { Confirm, Submit } from "@/components/ActionForm";
 import { Cover, StatusPill } from "@/components/Campaign";
 import { ClearDraft, CopyButton, ShareBar } from "@/components/Bits";
 import { createFlow } from "@/lib/dict/create-flow";
+import { formText } from "@/lib/dict/form";
 import { UpdateForm } from "@/components/Uploads";
 import { addTeamMember, deleteCampaign, deleteUpdate, discardChanges, removeTeamMember, setCampaignStatus } from "@/app/actions";
 import { requireViewer } from "@/lib/auth";
@@ -80,7 +81,7 @@ export default async function Manage({ params, searchParams }: { params: Promise
             <Cover c={c} className="thumbnail" sizes="120px" />
             <div className="stack tight">
               <div className="row tight"><StatusPill status={c.status} locale={locale} />{change && <span className="tag line">{change.status === "pending" ? y.changesPending : y.changesNeeded}</span>}</div>
-              <h1>{c.title}</h1>
+              <h1>{c.title || formText[locale].intro.untitled}</h1>
               <p className="muted small measure">{change?.status === "pending" ? y.changesPendingBody : y.explain[c.status]}</p>
             </div>
           </div>

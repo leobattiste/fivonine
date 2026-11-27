@@ -50,12 +50,12 @@ export default async function Create({ params, searchParams }: { params: Promise
     const [data, change] = await Promise.all([getManaged(sp.draft), getChange(sp.draft)]);
     if (!data || data.campaign.owner_id !== viewer.id || !resumable(data.campaign.status)) redirect(`/${locale}/create`);
     initial = formFromSaved(data, change, viewer.email);
-    key = `${deviceKey}-${data.campaign.id}`;
+    key = "";
   }
   return (
     <div className="wrap page">
       <header className="row spread end"><div className="stack tight"><h1>{F.x.title}</h1></div></header>
-      <CampaignForm locale={locale} cats={cats} initial={initial} draftKey={key} live={false} autosave resetDevice={Boolean(sp.new)} email={viewer.email} countryList={countryOptions(locale)} />
+      <CampaignForm locale={locale} cats={cats} initial={initial} draftKey={key || null} live={false} autosave resetDevice={Boolean(sp.new)} email={viewer.email} countryList={countryOptions(locale)} />
     </div>
   );
 }

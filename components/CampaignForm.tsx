@@ -7,7 +7,7 @@ import { DEPARTMENTS, METHODS, RELATIONS, type MethodGroup } from "@/lib/constan
 import { t, type Locale } from "@/lib/i18n";
 import { uploadImage, uploadVideo, VIDEO_TYPES } from "@/lib/upload";
 import { fmtMoney, mediaUrl, campaignPlace } from "@/lib/format";
-import { deviceDraft, restoreDeviceDraft, type FormState, type IdentityFileField } from "@/lib/form";
+import { restoreDeviceDraft, type FormState, type IdentityFileField } from "@/lib/form";
 import { formText } from "@/lib/dict/form";
 import type { Category } from "@/lib/types";
 import { countryOptions, isCountry } from "@/lib/countries";
@@ -57,7 +57,6 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
   const beneficiaryType = f.beneficiary_relation === "self" ? "self" : f.beneficiary_relation === "organization" ? "org" : f.beneficiary_relation ? "other" : "";
   const [busy, setBusy] = useState<string | null>(null);
   const [upErr, setUpErr] = useState<string | null>(null);
-  const [deviceAt, setDeviceAt] = useState<string | null>(null);
   const [consent, setConsent] = useState([false, false, false]);
   const [verificationConsent, setVerificationConsent] = useState(false);
   const [beneficiaryConsent, setBeneficiaryConsent] = useState(false);
@@ -76,22 +75,16 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
     return () => document.removeEventListener("pointerdown",close);
   }, [photoMenu]);
 
-  // Restore from this device, then keep a copy as the organizer types.
+  // Drafts live in the account only. Answers left on this device by the old form are moved into the
+  // account once (autosave picks them up), then every device copy is removed.
   useEffect(() => {
-    if (!draftKey) return;
     try {
-      // "Start a new one": forget the unsaved answers on this device, then behave like a normal resume on refresh.
-      if (resetDevice) { localStorage.removeItem(draftKey); window.history.replaceState(null, "", `${window.location.pathname}?resume=1`); return; }
-      const raw = localStorage.getItem(draftKey);
+      const raw = draftKey && !initial.id && !resetDevice ? localStorage.getItem(draftKey) : null;
       if (raw) setF(restoreDeviceDraft(initial, raw));
+      for (const key of Object.keys(localStorage)) if (key.startsWith("fivonine-draft-")) localStorage.removeItem(key);
     } catch {}
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [draftKey]);
-  useEffect(() => {
-    if (!draftKey) return;
-    const id = setTimeout(() => { try { localStorage.setItem(draftKey, deviceDraft(f)); setDeviceAt(time(locale)); } catch {} }, 700);
-    return () => clearTimeout(id);
-  }, [f, draftKey, locale]);
+  }, []);
   // A saved draft gets an id so the next save updates it.
   useEffect(() => { if (state?.ok && state.id) setF((p) => (p.id ? p : { ...p, id: state.id })); }, [state]);
 
@@ -266,7 +259,7 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
   const lastSaved = useRef(payload);
   const inFlight = useRef(false);
   useEffect(() => {
-    if (!autosave || live || f.title.trim().length < 4 || payload === lastSaved.current || inFlight.current) return;
+    if (!autosave || live || payload === lastSaved.current || inFlight.current) return;
     const timer = setTimeout(async () => {
       if (inFlight.current || busy !== null || pending) return; // the next change retries
       inFlight.current = true;
@@ -287,7 +280,7 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
         } else setAuto({ kind: "failed" });
       } catch { setAuto({ kind: "failed" }); }
       finally { inFlight.current = false; }
-    }, 2500);
+    }, auto.kind === "failed" ? 10000 : 2500);
     return () => clearTimeout(timer);
   }, [payload, autosave, live, busy, pending, locale, f.title, auto.kind]);
   const setBudget = (i: number, patch: Partial<{ label: string; amount: string }> | null) => {
@@ -352,14 +345,14 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
         {auto.kind === "saving" ? <><Icon name="spinner" size={15} />{F.save.saving}</>
           : auto.kind === "saved" ? <><Icon name="done" size={16} />{F.save.saved(auto.at ?? "")}</>
           : auto.kind === "failed" ? <><Icon name="alert" size={15} />{F.save.failed}</>
-          : f.title.trim().length < 4 ? <><Icon name="check" size={15} />{F.save.deviceOnly}</> : f.id ? <><Icon name="done" size={16} />{F.save.saved("").replace(/ · $/, "")}</> : null}
+          : f.id ? <><Icon name="done" size={16} />{F.save.saved("").replace(/ · $/, "")}</> : null}
       </p>
     </>
   ) : (
     <>
       {state && !state.ok && <p className="field-error" role="alert"><Icon name="alert" size={15} />{state.message}</p>}
       {savedAccount ? <p className="save-state ok" role="status"><Icon name="done" size={16} />{savedAccount}</p>
-        : draftKey && deviceAt ? <p className="save-state"><Icon name="check" size={15} />{x.savedDeviceAt(deviceAt)}</p> : null}
+        : null}
     </>
   );
   const draftBtn = (cls = "") => !live && (

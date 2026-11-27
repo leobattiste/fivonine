@@ -350,7 +350,8 @@ export async function saveCampaign(_: ActionResult, f: FormData): Promise<Action
     reference_name: str(pv.reference_name, 120) || null, reference_contact: str(pv.reference_contact, 200) || null,
     documents: (Array.isArray(pv.documents) ? pv.documents : []).map(own).filter((x): x is string => Boolean(x)).slice(0, 8),
   };
-  if (title.length < 4) return fail(`${d.create.missing} ${d.create.needTitle}`);
+  // A private draft can be saved before it has a title; everything else needs one.
+  if (submit && title.length < 4) return fail(`${d.create.missing} ${d.create.needTitle}`);
   if (submit) {
     const missing: string[] = [];
     if (!row.cause) missing.push(d.create.needCause);
@@ -395,11 +396,12 @@ export async function saveCampaign(_: ActionResult, f: FormData): Promise<Action
   if (row.beneficiary_relation === "self" && !row.beneficiary_name) row.beneficiary_name = me.display_name;
   if (!priv.contact_email) priv.contact_email = user.email ?? null;
   let id = typeof p.id === "string" && UUID.test(p.id) ? p.id : "";
-  let status = "draft";
+  let status = "draft", currentSlug = "";
   if (id) {
-    const { data: existing } = await sb.from("campaigns").select("id,status,owner_id").eq("id", id).maybeSingle();
+    const { data: existing } = await sb.from("campaigns").select("id,status,owner_id,slug").eq("id", id).maybeSingle();
     if (!existing || existing.owner_id !== user.id) return fail(d.common.error);
     status = existing.status;
+    currentSlug = existing.slug;
     if (["suspended", "completed", "closed"].includes(status)) return fail(d.common.error);
   }
   // A public fundraiser keeps its published version; the edit waits in review as proposed changes.
@@ -421,7 +423,9 @@ export async function saveCampaign(_: ActionResult, f: FormData): Promise<Action
     if (status !== "needs_changes") return fail(d.common.error);
   }
   if (id) {
-    const { error } = await sb.from("campaigns").update(fullRow).eq("id", id);
+    // A draft started before it had a title got a placeholder address. Give it a real one once the title exists.
+    const retitle = status === "draft" && title.length >= 4 && /^kanpay-[a-z0-9]{4}$/.test(currentSlug);
+    const { error } = await sb.from("campaigns").update(retitle ? { ...fullRow, slug: slugify(title) } : fullRow).eq("id", id);
     if (error) return fail(error.message.includes("no longer") ? error.message : d.common.error);
   } else {
     const { data, error } = await sb.from("campaigns").insert({ ...fullRow, slug: slugify(title), owner_id: user.id, status: "draft" }).select("id").single();
