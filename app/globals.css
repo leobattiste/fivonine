@@ -6,8 +6,14 @@
    Brand detail, "the kout": surfaces are rounded on three corners and nearly square on the bottom left,
    like a hand held out. It marks photos, cards, primary buttons, the active nav item and the page loader.
    Layout: every page runs full width with 20px outer edges. Text columns stay readable inside it. */
-/* Rosaline by Indian Type Foundry, served by Fontshare. Used for the logo only. */
-@import url("https://api.fontshare.com/v2/css?f[]=rosaline@400&display=swap");
+/* Agràve Pro by Daan Jobsis (SIL Open Font License, see /fonts/agrave-pro/OFL.txt). Self-hosted, used for the logo only. */
+@font-face {
+  font-family: "Agrave Pro";
+  src: url("/fonts/agrave-pro/AgravePro-Regular.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
 
 
 /* Switzer by Indian Type Foundry, served by Fontshare. Variable weights 100–900. */
@@ -126,7 +132,7 @@ dl, dd, figure { margin: 0; }
 .eyebrow { font-size: var(--text-body); color: var(--muted); font-weight: 400; }
 
 /* Wordmark and its mark */
-.wordmark { display: inline-flex; align-items: center; text-decoration: none; font-family: "Rosaline", var(--font); font-weight: 400; font-style: normal; font-size: 18px; line-height: 1.6; letter-spacing: normal; color: var(--ink); white-space: nowrap; }
+.wordmark { display: inline-flex; align-items: center; text-decoration: none; font-family: "Agrave Pro", var(--font); font-weight: 400; font-style: normal; font-size: 20px; line-height: 1.6; letter-spacing: normal; color: var(--ink); white-space: nowrap; }
 .mark { width: 26px; height: 26px; flex: none; }
 
 /* Buttons: primary = solid deep green; secondary = transparent with sage border. */
