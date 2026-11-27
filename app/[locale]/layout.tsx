@@ -11,7 +11,7 @@ import Loader from "@/components/Loader";
 import { Suspense } from "react";
 import { htmlLang, isLocale, locales, t } from "@/lib/i18n";
 import { getViewer } from "@/lib/auth";
-import { getSettings, unreadCount } from "@/lib/data";
+import { getSettings, myCampaigns, unreadCount } from "@/lib/data";
 import { SITE_URL } from "@/lib/constants";
 import { canIndexPublicSite } from "@/lib/launch-readiness";
 
@@ -44,7 +44,7 @@ export default async function Layout({ children, params }: { children: React.Rea
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
   const [viewer, settings] = await Promise.all([getViewer(), getSettings()]);
-  const unread = viewer ? await unreadCount(viewer.id) : 0;
+  const [unread, mine] = viewer ? await Promise.all([unreadCount(viewer.id), myCampaigns(viewer.id)]) : [0, []];
   const banner = settings.emergency.active ? settings.emergency[locale] || settings.emergency.fr : "";
   return (
     <html lang={htmlLang[locale]} className={msMadi.variable} suppressHydrationWarning>
@@ -56,7 +56,7 @@ export default async function Layout({ children, params }: { children: React.Rea
           </a>
         )}
         <Suspense fallback={null}><Loader /></Suspense>
-        <Header locale={locale} viewer={viewer ? { name: viewer.profile.display_name, admin: viewer.profile.role === "admin", unread, avatar: viewer.profile.avatar_path } : null} />
+        <Header locale={locale} viewer={viewer ? { name: viewer.profile.display_name, admin: viewer.profile.role === "admin", unread, avatar: viewer.profile.avatar_path, mine: mine.slice(0, 2).map((c) => ({ id: c.id, title: c.title, status: c.status, cover: c.cover_path })) } : null} />
         <main id="main">{children}</main>
         <Footer locale={locale} />
         <ServiceWorker />
