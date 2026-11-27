@@ -55,6 +55,9 @@ export default async function FundraiserPage({ params }: P) {
       {!isPublic && <p className="notice"><Icon name="lock" size={18} /><span><StatusPill status={c.status} locale={locale} /> {x.preview}</span></p>}
       {change && <p className="notice"><Icon name="clock" size={18} />{x.pendingChanges}</p>}
 
+
+      <div className="f-grid">
+        <div className="f-main f-a" style={{ minWidth: 0 }}>
       <header className="f-head">
         <h1>{c.title}</h1>
         <p className="f-meta">
@@ -70,9 +73,6 @@ export default async function FundraiserPage({ params }: P) {
         </div>
       </header>
       <Cover c={c} className="f-cover" priority sizes="100vw" />
-
-      <div className="f-grid">
-        <div className="f-main" style={{ minWidth: 0 }}>
           <SectionTabs items={[["story", x.tabs.story], ["organizer", x.tabs.organizer], ["support", x.support], ["updates", x.tabs.updates, updates.length]]} />
 
           <section id="story" className="f-section" aria-label={x.tabs.story}>
@@ -140,6 +140,7 @@ export default async function FundraiserPage({ params }: P) {
             {!mine && <Link className="arrow-link small" href={`/${locale}/report?campaign=${c.slug}`}><Icon name="flag" size={16} />{x.report}</Link>}
           </section>
 
+        </div>
         <section id="support" className="support f-section" aria-labelledby="support-h">
           <h2 id="support-h">{x.support}</h2>
           {c.goal_amount && (
@@ -166,7 +167,7 @@ export default async function FundraiserPage({ params }: P) {
             <Link className="btn small quiet" href={`${path}/flyer`}><Icon name="qr" size={16} />{d.campaign.flyer}</Link>
           </div>
         </section>
-
+        <div className="f-main f-b" style={{ minWidth: 0 }}>
           <section id="updates" className="f-section" aria-labelledby="updates-h">
             <h2 id="updates-h">{x.tabs.updates}</h2>
             {updates.length ? (
