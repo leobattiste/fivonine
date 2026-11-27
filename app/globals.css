@@ -1098,3 +1098,17 @@ textarea.input { border-radius: var(--r); padding: 14px 18px; }
 .cover-add { min-height: 160px; width: 100%; }
 .photo-tile .frame video, .gallery .frame video { width: 100%; height: 100%; object-fit: cover; display: block; background: var(--ink); }
 .gallery .frame video { object-fit: contain; }
+
+/* Review status, support confirmations, final report */
+.review-steps { display: flex; gap: 8px; list-style: none; padding: 0; margin: 0 0 12px; flex-wrap: wrap; }
+.review-steps li { display: flex; align-items: center; gap: 8px; padding: 6px 12px 6px 6px; border: 1px solid var(--line); border-radius: 999px; font-size: 14px; color: var(--muted); }
+.review-steps .n { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: var(--sage); font-size: 12px; font-weight: 600; color: var(--green); }
+.review-steps li[data-state="done"] { color: var(--green); }
+.review-steps li[data-state="done"] .n, .review-steps li[data-state="now"] .n { background: var(--green); color: #fff; }
+.review-steps li[data-state="now"] { border-color: var(--green); color: var(--green); font-weight: 600; }
+.support-tally { display: flex; align-items: center; gap: 8px; color: var(--muted); }
+.final-report { width: 100%; }
+.final-report summary { cursor: pointer; list-style: none; }
+.final-report summary::-webkit-details-marker { display: none; }
+.final-report[open] summary { margin-bottom: 12px; }
+.timeline .tag { margin-left: 8px; }

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { followUp } from "@/lib/dict/follow-up";
 import { Suspense } from "react";
 import Icon from "@/components/Icon";
 import ActionForm, { Submit } from "@/components/ActionForm";
@@ -9,7 +10,7 @@ import { SentForm, SupportMethods } from "@/components/Support";
 import { BackToResults, MobileSupport, SectionTabs, ShareBar } from "@/components/Bits";
 import { addVouch, toggleBookmark, toggleRemind } from "@/app/actions";
 import { getViewer } from "@/lib/auth";
-import { getCampaign, getCategories, getChange, getViewerState, ownerSince } from "@/lib/data";
+import { getCampaign, getCategories, getChange, getSupportTally, getViewerState, ownerSince } from "@/lib/data";
 import { SITE_URL, VOUCH_ROLES } from "@/lib/constants";
 import { fmtDate, fmtMoney, mediaUrl } from "@/lib/format";
 import { isLocale, t } from "@/lib/i18n";
@@ -41,6 +42,7 @@ export default async function FundraiserPage({ params }: P) {
   const where = place(c, locale), who = ownerName(c);
   const voice = mediaUrl(c.voice_path);
   const notes = contributions.filter((k) => k.message);
+  const tally = isPublic ? await getSupportTally(c.id) : { reported: 0, confirmed: 0 };
   const relation = c.beneficiary_relation ? d.relations[c.beneficiary_relation as keyof typeof d.relations] : "";
   const hidden = (k: string, v: string) => <input type="hidden" name={k} value={v} />;
 
@@ -77,6 +79,7 @@ export default async function FundraiserPage({ params }: P) {
           )}
           <ReviewChecks tier={c.tier} locale={locale} withHelp />
           {c.status === "completed" ? <p className="notice"><Icon name="done" size={18} />{x.supportClosed}</p> : <p className="small">{x.supportIntro}</p>}
+          {tally.reported > 0 && <p className="small support-tally"><Icon name="done" size={16} />{followUp[locale].tally(tally.reported, tally.confirmed)}</p>}
           {methods.length > 0 && c.status !== "completed" && <SupportMethods methods={methods} locale={locale} />}
           <p className="warn-line"><Icon name="shield" size={16} />{d.support.warning}</p>
           {c.status === "live" && <SentForm c={c} methods={methods} locale={locale} viewerName={viewer?.profile.display_name ?? ""} signedIn={Boolean(viewer)} />}
@@ -128,7 +131,7 @@ export default async function FundraiserPage({ params }: P) {
               <ol className="timeline">
                 {updates.map((u) => (
                   <li key={u.id}>
-                    <time dateTime={u.created_at}>{fmtDate(u.created_at, locale)}{u.author?.display_name ? `, ${u.author.display_name}` : ""}</time>
+                    <time dateTime={u.created_at}>{fmtDate(u.created_at, locale)}{u.author?.display_name ? `, ${u.author.display_name}` : ""}</time>{u.final && <span className="tag solid">{followUp[locale].final.tag}</span>}
                     {u.body.split(/\n{2,}/).map((para, i) => <p key={i}>{para}</p>)}
                     {u.proof.length > 0 && (
                       <div className="gallery" aria-label={d.campaign.proof}>

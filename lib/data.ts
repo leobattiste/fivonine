@@ -5,7 +5,7 @@ import { cleanSearch } from "./format";
 import { PER_PAGE } from "./constants";
 import { checked, unavailable } from "./data-errors";
 import { FIXTURES, fxCampaigns, fxCategories, fxContributions, fxMethods, fxMine, fxNotifications, fxPrivate, fxUpdates, fxVouches } from "./fixtures";
-import type { Appeal, Campaign, CampaignChange, CampaignPrivate, Category, Contribution, Notification, Profile, Progress, Settings, SupportMethod, Update, Vouch } from "./types";
+import type { Appeal, Campaign, CampaignChange, CampaignPrivate, Category, Contribution, Notification, Profile, Progress, Settings, SupportMethod, Update, SupportRecord, SupportTally, Vouch } from "./types";
 
 async function dataDb() { return (await db()) ?? unavailable("connection"); }
 
@@ -216,4 +216,20 @@ export async function getMyAppeals(userId: string): Promise<Appeal[]> {
   const sb = await dataDb();
   const { data } = checked(await sb.from("appeals").select("id,campaign_id,body,status,admin_note,created_at").eq("user_id", userId).order("created_at", { ascending: false }).limit(50), "my_appeals");
   return (data ?? []) as Appeal[];
+}
+
+/** Public count of people who say they sent help, and how many the organizer confirmed. */
+export const getSupportTally = cache(async (cid: string): Promise<SupportTally> => {
+  if (FIXTURES) return { reported: fxContributions.filter((k) => k.campaign_id === cid).length, confirmed: 0 };
+  const sb = await dataDb();
+  const { data } = await sb.rpc("support_tally", { cid });
+  const row = (Array.isArray(data) ? data[0] : data) as { reported?: number | string; confirmed?: number | string } | null;
+  return { reported: Number(row?.reported ?? 0), confirmed: Number(row?.confirmed ?? 0) };
+});
+/** The organizer's own list of reported support. Empty for anyone who is not on the team. */
+export async function getSupportRecords(cid: string): Promise<SupportRecord[]> {
+  if (FIXTURES) return fxContributions.filter((k) => k.campaign_id === cid).map((k) => ({ id: k.id, amount: k.amount, currency: k.currency, method: k.method, display_name: k.display_name, anonymous: k.anonymous, message: k.message, created_at: k.created_at, received_at: null }));
+  const sb = await dataDb();
+  const { data } = await sb.rpc("campaign_support_records", { cid });
+  return ((data ?? []) as SupportRecord[]).map((k) => ({ ...k, amount: Number(k.amount) }));
 }

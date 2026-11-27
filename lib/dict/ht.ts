@@ -549,6 +549,7 @@ const ht: Dict = {
     vouch_approved: (t: string) => `Yon moun bay garanti pou: ${t}`,
     reminder: (t: string) => `Yon kanpay ou mete nan favori toujou ouvri: ${t}`,
 
+    support_confirmed: (t: string) => t ? `Òganizatè a konfime li resevwa èd ou pou ${t}.` : "Òganizatè a konfime li resevwa èd ou.",
     appeal_accepted: (t: string) => t ? `Nou aksepte kontestasyon ou an: ${t}` : "Nou aksepte kontestasyon ou an.",
     appeal_declined: (t: string) => t ? `Nou refize kontestasyon ou an: ${t}` : "Nou refize kontestasyon ou an.",
     admin_appeal: (t: string) => t ? `Nouvo kontestasyon pou egzamine: ${t}` : "Nouvo kontestasyon pou egzamine.",
