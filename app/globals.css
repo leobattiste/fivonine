@@ -1136,3 +1136,19 @@ textarea.input { border-radius: var(--r); padding: 14px 18px; }
 .transfer-facts dt { color: var(--muted); }
 .transfer-facts dd { margin: 0; }
 .transfer-facts code { font-family: ui-monospace, monospace; background: var(--sage); padding: 1px 6px; border-radius: 4px; }
+
+/* Organizer next steps, help topics */
+.stat-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 12px; margin: 0; }
+.stat-row > div { display: flex; flex-direction: column-reverse; gap: 2px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 16px; }
+.stat-row dd { margin: 0; font-size: 28px; letter-spacing: -0.03em; line-height: 1.1; }
+.stat-row dt { font-size: var(--text-small, 14px); color: var(--muted); }
+.next-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.next-list li + li { border-top: 1px solid var(--line); }
+.next-list a { display: flex; align-items: flex-start; gap: 12px; padding: 14px 0; text-decoration: none; color: inherit; }
+.next-list .dot { flex: none; display: grid; place-items: center; width: 24px; height: 24px; margin-top: 1px; border-radius: 999px; border: 1.5px solid var(--line-strong); }
+.next-list li[data-done] .dot { background: var(--ink, #111); border-color: var(--ink, #111); color: #fff; }
+.next-list strong { display: block; font-weight: 500; }
+.next-list small { display: block; margin-top: 2px; color: var(--muted); font-size: var(--text-body); }
+.help-topics { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+.help-topics a { display: flex; flex-direction: column; gap: 10px; padding: 16px; border: 1px solid var(--line); border-radius: 16px; text-decoration: none; color: inherit; }
+.help-topics a:hover { background: var(--mint); }

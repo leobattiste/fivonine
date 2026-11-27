@@ -113,6 +113,30 @@ export default async function Manage({ params, searchParams }: { params: Promise
 
       <div className="manage-grid">
         <div className="stack" style={{ gap: 24, minWidth: 0 }}>
+          {canPost && !confirm && c.status === "live" && (() => {
+            const nx = fu.next, base = `/campaigns/${c.slug}`;
+            const confirmed = records.filter((k) => k.received_at).length, shown = updates.filter((u) => !u.hidden).length;
+            const left = c.deadline ? Math.max(0, Math.ceil((new Date(c.deadline).getTime() - new Date().getTime()) / 864e5)) : null;
+            const stats: [string, number][] = [[nx.stats.reported, records.length], [nx.stats.confirmed, confirmed], [nx.stats.updates, shown], ...(left === null ? [] : [[nx.stats.left, left] as [string, number]])];
+            const items: [keyof typeof nx.items, string, boolean | null][] = [
+              ["share", "#share", null], ["flyer", L(`${base}/flyer`), null], ["update", "#update", shown > 0],
+              ...(records.some((k) => !k.received_at) ? [["confirm", "#support", false] as [keyof typeof nx.items, string, boolean]] : []),
+              ["photos", L(`/dashboard/campaigns/${c.id}/edit`), c.gallery.length >= 2],
+            ];
+            return (
+              <section className="panel next-steps" aria-labelledby="nx-h">
+                <h2 id="nx-h">{nx.title}</h2>
+                <dl className="stat-row">{stats.map(([k, v]) => <div key={k}><dd>{v}</dd><dt>{k}</dt></div>)}</dl>
+                <ul className="next-list">
+                  {items.map(([k, href, done]) => (
+                    <li key={k} data-done={done ? "true" : undefined}>
+                      <Link href={href}><span className="dot" aria-hidden="true">{done && <Icon name="check" size={14} />}</span><span><strong>{nx.items[k][0]}</strong><small>{nx.items[k][1]}</small></span></Link>
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            );
+          })()}
           {change && (
             <section className="panel" aria-labelledby="cmp">
               <div className="row spread"><h2 id="cmp">{y.changed}</h2>
@@ -168,7 +192,7 @@ export default async function Manage({ params, searchParams }: { params: Promise
           )}
         </div>
         <aside className="stack" style={{ gap: 24 }}>
-          {c.status === "live" && <section className="panel mint"><h2>{y.share}</h2><ShareBar url={`${SITE_URL}/${locale}/campaigns/${c.slug}`} title={c.title} locale={locale} /></section>}
+          {c.status === "live" && <section className="panel mint" id="share"><h2>{y.share}</h2><ShareBar url={`${SITE_URL}/${locale}/campaigns/${c.slug}`} title={c.title} locale={locale} /></section>}
           {owner && (
             <section className="panel" aria-labelledby="more">
               <h2 id="more">{y.more}</h2>

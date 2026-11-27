@@ -4,6 +4,7 @@ import Icon from "@/components/Icon";
 import { Avatar, FundraiserCard } from "@/components/Campaign";
 import { getCategories, getProfile, listCampaigns } from "@/lib/data";
 import { fmtDate } from "@/lib/format";
+import { followUp } from "@/lib/dict/follow-up";
 import { isLocale, t } from "@/lib/i18n";
 type P = { params: Promise<{ locale: string; id: string }> };
 export async function generateMetadata({ params }: P): Promise<Metadata> {
@@ -30,6 +31,8 @@ export default async function ProfilePage({ params }: P) {
             {p.kind === "organization" && p.org_type && <span>{p.org_type}</span>}
             {p.show_location && (p.city || p.department) && <span><Icon name="pin" size={16} />{[p.city, p.department].filter(Boolean).join(", ")}</span>}
             <span>{d.profile.joined} {fmtDate(p.created_at, locale)}</span>
+            {items.some((c) => c.status === "live") && <span>{followUp[locale].next.profile.live(items.filter((c) => c.status === "live").length)}</span>}
+            {items.some((c) => c.status === "completed") && <span>{followUp[locale].next.profile.done(items.filter((c) => c.status === "completed").length)}</span>}
           </p>
           {p.show_bio && p.bio && <p className="measure">{p.bio}</p>}
         </div>

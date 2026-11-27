@@ -13,6 +13,11 @@ export default async function Help({ params }: { params: Promise<{ locale: strin
   return (
     <div className="wrap page">
       <header className="page-head"><h1>{p.title}</h1><p className="lead">{p.sub}</p></header>
+      <nav className="help-topics" aria-label={p.title}>
+        {([["/safety", d.footer.safety, "shield"], ["/resources", d.x.pages.resources.title, "guide"], ["/guidelines", d.footer.guidelines, "book"], ["/report", d.footer.report, "flag"], ["/contact", d.footer.contact, "mail"]] as [string, string, "shield" | "guide" | "book" | "flag" | "mail"][]).map(([href, label, icon]) => (
+          <Link key={href} href={`/${locale}${href}`}><Icon name={icon} size={22} /><span>{label}</span></Link>
+        ))}
+      </nav>
       <div className="help-layout">
         <HelpSearch items={items} label={h.search} none={h.none} />
         <aside className="stack">
