@@ -56,10 +56,17 @@ export function Cover({ c, className = "", sizes = "(min-width: 900px) 33vw, 100
 }
 export function FundraiserCard({ c, locale, cats, priority, simplified = false }: { c: Campaign; locale: Locale; cats: Category[]; priority?: boolean; simplified?: boolean }) {
   const d = t(locale), where = place(c, locale), cause = causeName(cats, c.cause, locale);
+  const badge = c.status === "completed" ? <span className="tag solid">{d.campaign.completed}</span> : c.urgent && c.status === "live" ? <span className="tag urgent">{d.v3.card.urgent}</span> : null;
+  const media = (
+    <div className="fcard-media">
+      <Cover c={c} priority={priority} sizes="(min-width: 1200px) 25vw, (min-width: 744px) 33vw, 50vw" />
+      {badge && <div className="badges">{badge}</div>}
+    </div>
+  );
   if (simplified) {
     return (
       <article className="fcard fcard-simple">
-        <Cover c={c} priority={priority} noIconFallback />
+        {media}
         <div className="fcard-details">
           <h3><Link href={`/${locale}/campaigns/${c.slug}`}>{c.title}</Link></h3>
           {(cause || where) && <p className="fcard-meta">{cause}{cause && where ? " · " : ""}{where}</p>}
@@ -70,14 +77,11 @@ export function FundraiserCard({ c, locale, cats, priority, simplified = false }
   const amount = c.goal_amount ? fmtMoney(Number(c.goal_amount), c.goal_currency, locale) : null;
   return (
     <article className="fcard">
-      <div style={{ position: "relative" }}>
-        <Cover c={c} priority={priority} />
-        {c.status === "completed" && <div className="badges"><span className="tag solid">{d.campaign.completed}</span></div>}
-      </div>
+      {media}
       {cause && <p className="meta"><span>{cause}</span></p>}
       <h3><Link href={`/${locale}/campaigns/${c.slug}`}>{c.title}</Link></h3>
       <p className="foot">
-        <span className="where">{where && <><Icon name="pin" size={15} />{where}</>}</span>
+        <span className="where">{where && <><Icon name="pin" size={14} />{where}</>}</span>
         <span className="amount">{amount ?? <span className="muted">{d.x.card.noGoal}</span>}</span>
       </p>
     </article>

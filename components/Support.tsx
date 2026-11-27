@@ -7,6 +7,7 @@ import { METHODS, methodName } from "@/lib/constants";
 import { t, type Locale } from "@/lib/i18n";
 import type { Campaign, SupportMethod } from "@/lib/types";
 
+const initialsOf = (name: string) => name.split(/[\s-]+/).filter(Boolean).map((w) => w[0]).join("").slice(0, 2).toUpperCase() || "•";
 const host = (url: string) => { try { return new URL(url).host.replace(/^www\./, ""); } catch { return url; } };
 
 /** Each way the organizer receives support, exactly as they wrote it, with an optional external link. */
@@ -19,7 +20,7 @@ export function SupportMethods({ methods, locale, compact }: { methods: Pick<Sup
         return (
           <li className="method" key={m.method}>
             <div className="method-head">
-              <strong>{name}</strong>
+              <span className="method-name"><span className="method-ico" aria-hidden="true">{initialsOf(name)}</span><strong>{name}</strong></span>
               {!compact && <CopyButton text={m.details} locale={locale} label={x.copyDetails} />}
             </div>
             <pre>{m.details}</pre>
@@ -39,10 +40,10 @@ export function SupportMethods({ methods, locale, compact }: { methods: Pick<Sup
 export function SentForm({ c, methods, locale, viewerName, signedIn }: { c: Campaign; methods: SupportMethod[]; locale: Locale; viewerName: string; signedIn: boolean }) {
   const d = t(locale);
   if (!signedIn)
-    return <Link className="btn wide" href={`/${locale}/login?next=${encodeURIComponent(`/${locale}/campaigns/${c.slug}#support`)}`}><Icon name="check" size={18} />{d.support.sent}</Link>;
+    return <Link className="btn primary wide large" href={`/${locale}/login?next=${encodeURIComponent(`/${locale}/campaigns/${c.slug}#support`)}`}><Icon name="check" size={18} />{d.support.sent}</Link>;
   return (
     <details className="disclose">
-      <summary className="btn wide" style={{ justifyContent: "center" }}><Icon name="check" size={18} />{d.support.sent}</summary>
+      <summary className="btn primary wide large" style={{ justifyContent: "center" }}><Icon name="check" size={18} />{d.support.sent}</summary>
       <ActionForm action={addContribution} locale={locale} className="stack" reset>
         <input type="hidden" name="campaign_id" value={c.id} />
         <p className="small muted">{d.support.sentTitle}</p>

@@ -43,8 +43,12 @@ export default async function FundraiserPage({ params }: P) {
   const relation = c.beneficiary_relation ? d.relations[c.beneficiary_relation as keyof typeof d.relations] : "";
   const hidden = (k: string, v: string) => <input type="hidden" name={k} value={v} />;
 
+  const v = d.v3.detail;
+  const live = c.status === "live";
+  const sectionItems: [string, string, number?][] = [["story", x.tabs.story], ["updates", x.tabs.updates, updates.length], ["organizer", x.tabs.organizer], ["trust", v.trust]];
+
   return (
-    <div className="wrap page" style={{ gap: 24 }}>
+    <div className="wrap page f-page">
       <div className="row spread">
         <BackToResults locale={locale} />
         {mine && <Link className="btn small" href={`/${locale}/dashboard/campaigns/${c.id}`}><Icon name="settings" size={16} />{x.manage}</Link>}
@@ -52,35 +56,61 @@ export default async function FundraiserPage({ params }: P) {
       {!isPublic && <p className="notice"><Icon name="lock" size={18} /><span><StatusPill status={c.status} locale={locale} /> {x.preview}</span></p>}
       {change && <p className="notice"><Icon name="clock" size={18} />{x.pendingChanges}</p>}
 
-      <header className="f-head">
-        <h1>{c.title}</h1>
-        <p className="f-meta">
-          {where && <span><Icon name="pin" size={16} />{where}</span>}
-          {c.published_at && <span><Icon name="calendar" size={16} />{d.campaign.posted} {fmtDate(c.published_at, locale)}</span>}
-          {c.deadline && <span><Icon name="clock" size={16} />{d.campaign.deadline} {fmtDate(c.deadline, locale)}</span>}
-        </p>
-        <div className="row tight">
-          {c.status === "completed" && <span className="tag solid">{d.campaign.completed}</span>}
-          {c.emergency && <span className="tag solid">{d.campaign.emergency}</span>}
-          {c.urgent && c.status === "live" && <span className="tag solid">{d.campaign.urgent}</span>}
-          {c.cause && <Link className="chip" href={`/${locale}/explore?cause=${c.cause}`}>{causeName(cats, c.cause, locale)}</Link>}
-        </div>
-      </header>
-      <Cover c={c} className="f-cover" priority sizes="100vw" />
-
-      <div className="f-grid">
-        <aside id="support" className="support" aria-labelledby="support-h">
-          <h2 id="support-h">{x.support}</h2>
-          {c.goal_amount && (
-            <div className="goal"><span className="small muted">{x.goal}</span><strong>{fmtMoney(Number(c.goal_amount), c.goal_currency, locale)}</strong><span className="xs muted">{x.goalNote}</span></div>
+      <div className="f-layout">
+        <header className="f-head">
+          <div className="f-tags">
+            {c.status === "completed" && <span className="tag solid">{d.campaign.completed}</span>}
+            {c.emergency && <span className="tag solid">{d.campaign.emergency}</span>}
+            {c.urgent && live && <span className="tag urgent">{d.campaign.urgent}</span>}
+            {c.cause && <Link className="tag soft" href={`/${locale}/explore?cause=${c.cause}`}>{causeName(cats, c.cause, locale)}</Link>}
+          </div>
+          <h1>{c.title}</h1>
+          <p className="f-meta">
+            {where && <span><Icon name="pin" size={16} />{where}</span>}
+            {c.published_at && <span><Icon name="calendar" size={16} />{d.campaign.posted} {fmtDate(c.published_at, locale)}</span>}
+            {c.deadline && <span><Icon name="clock" size={16} />{d.campaign.deadline} {fmtDate(c.deadline, locale)}</span>}
+          </p>
+          {c.owner && (
+            <p className="f-by">
+              <Avatar name={who} path={c.owner.avatar_path} size={32} />
+              <span>{v.organizedBy} <Link href={`/${locale}/u/${c.owner.id}`}><strong>{who}</strong></Link>{c.beneficiary_name ? <> · {v.forWho} {c.beneficiary_name}{relation ? ` (${relation})` : ""}</> : null}</span>
+            </p>
           )}
-          <ReviewChecks tier={c.tier} locale={locale} withHelp />
-          {c.status === "completed" ? <p className="notice"><Icon name="done" size={18} />{x.supportClosed}</p> : <p className="small">{x.supportIntro}</p>}
+        </header>
+
+        <div className="f-media">
+          <Cover c={c} className="f-cover" priority sizes="(min-width: 1000px) 60vw, 100vw" />
+          {c.gallery.length > 0 && (
+            <div className="f-thumbs" aria-label={v.gallery}>
+              {c.gallery.slice(0, 9).map((g) => <a key={g} href="#story" className="frame">{/* eslint-disable-next-line @next/next/no-img-element */}<img src={mediaUrl(g) ?? ""} alt="" loading="lazy" /></a>)}
+            </div>
+          )}
+        </div>
+
+        <div className="f-side">
+        <aside id="support" className="support" aria-labelledby="support-h">
+          <div className="support-top">
+            <h2 id="support-h">{x.support}</h2>
+            <ReviewChecks tier={c.tier} locale={locale} withHelp />
+          </div>
+          {c.goal_amount && (
+            <div className="goal"><span>{x.goal}</span><strong>{fmtMoney(Number(c.goal_amount), c.goal_currency, locale)}</strong><span className="xs muted">{x.goalNote}</span></div>
+          )}
+          {c.status === "completed" ? <p className="notice"><Icon name="done" size={18} />{x.supportClosed}</p> : (
+            <>
+              <p className="small muted">{x.supportIntro}</p>
+              {methods.length > 0 && <ol className="support-steps">{v.steps.map((s) => <li key={s}>{s}</li>)}</ol>}
+            </>
+          )}
           {methods.length > 0 && c.status !== "completed" && <SupportMethods methods={methods} locale={locale} />}
           <p className="warn-line"><Icon name="shield" size={16} />{d.support.warning}</p>
-          {c.status === "live" && <SentForm c={c} methods={methods} locale={locale} viewerName={viewer?.profile.display_name ?? ""} signedIn={Boolean(viewer)} />}
-          <ShareBar url={url} title={c.title} locale={locale} />
-          <div className="support-tools">
+          {live && <SentForm c={c} methods={methods} locale={locale} viewerName={viewer?.profile.display_name ?? ""} signedIn={Boolean(viewer)} />}
+          <div className="share-block">
+            <h3>{v.shareTitle}</h3>
+            <p className="hint">{v.shareHint}</p>
+            <ShareBar url={url} title={c.title} locale={locale} />
+          </div>
+          <div className="support-more">
             <form action={toggleBookmark}>
               {hidden("locale", locale)}{hidden("campaign_id", c.id)}{hidden("back", path)}{hidden("on", state.bookmarked ? "0" : "1")}
               <button className="btn small quiet" aria-pressed={state.bookmarked}><Icon name="bookmark" size={16} />{state.bookmarked ? d.campaign.saved : d.campaign.save}</button>
@@ -94,8 +124,18 @@ export default async function FundraiserPage({ params }: P) {
             <Link className="btn small quiet" href={`${path}/flyer`}><Icon name="qr" size={16} />{d.campaign.flyer}</Link>
           </div>
         </aside>
-        <div className="f-main" style={{ minWidth: 0 }}>
-          <SectionTabs items={[["story", x.tabs.story], ["organizer", x.tabs.organizer], ["updates", x.tabs.updates, updates.length]]} />
+        {live && (
+          <div className="support-mini" aria-hidden="true">
+            <p className="small muted">{c.title}</p>
+            {c.goal_amount && <p className="mini-goal"><span className="xs muted">{x.goal}</span><strong>{fmtMoney(Number(c.goal_amount), c.goal_currency, locale)}</strong></p>}
+            <a className="btn primary wide" href="#support" tabIndex={-1}><Icon name="hand" size={18} />{x.support}</a>
+            <a className="btn wide" href={`https://wa.me/?text=${encodeURIComponent(`${c.title}\n${url}`)}`} target="_blank" rel="noopener noreferrer" tabIndex={-1}><Icon name="whatsapp" size={18} />WhatsApp</a>
+          </div>
+        )}
+        </div>
+
+        <div className="f-main">
+          <SectionTabs items={sectionItems} />
 
           <section id="story" className="f-section" aria-label={x.tabs.story}>
             {voice && <div className="voice"><Icon name="mic" size={20} /><span className="small">{d.campaign.listen}</span><audio controls preload="none" src={voice} /></div>}
@@ -108,20 +148,13 @@ export default async function FundraiserPage({ params }: P) {
             )}
           </section>
 
-          <section id="organizer" className="f-section" aria-labelledby="org-h">
-            <h2 id="org-h">{x.tabs.organizer}</h2>
-            {c.owner && (
-              <div className="org-card">
-                <div className="who">
-                  <Avatar name={who} path={c.owner.avatar_path} size={56} />
-                  <div><strong>{who}</strong>{since && <p className="small muted">{x.memberSince} {fmtDate(since, locale)}</p>}</div>
-                  <section id="updates" className="f-section" aria-labelledby="updates-h">
+          <section id="updates" className="f-section" aria-labelledby="updates-h">
             <h2 id="updates-h">{x.tabs.updates}</h2>
             {updates.length ? (
               <ol className="timeline">
                 {updates.map((u) => (
                   <li key={u.id}>
-                    <time dateTime={u.created_at}>{fmtDate(u.created_at, locale)}{u.author?.display_name ? `, ${u.author.display_name}` : ""}</time>
+                    <time dateTime={u.created_at}>{fmtDate(u.created_at, locale)}{u.author?.display_name ? ` · ${u.author.display_name}` : ""}</time>
                     {u.body.split(/\n{2,}/).map((para, i) => <p key={i}>{para}</p>)}
                     {u.proof.length > 0 && (
                       <div className="gallery" aria-label={d.campaign.proof}>
@@ -133,7 +166,7 @@ export default async function FundraiserPage({ params }: P) {
               </ol>
             ) : <p className="muted">{x.noUpdates}</p>}
             {notes.length > 0 && (
-              <div className="stack" style={{ marginTop: 16 }}>
+              <div className="stack" style={{ marginTop: 12 }}>
                 <h3>{x.notes}</h3>
                 <p className="small muted">{x.notesHint}</p>
                 <ul className="notes">{notes.map((k) => <li key={k.id}><strong className="small">{k.anonymous || !k.display_name ? d.common.anonymous : k.display_name}</strong><p>{k.message}</p></li>)}</ul>
@@ -141,29 +174,37 @@ export default async function FundraiserPage({ params }: P) {
             )}
           </section>
 
-        </div>
+          <section id="organizer" className="f-section" aria-labelledby="org-h">
+            <h2 id="org-h">{x.tabs.organizer}</h2>
+            {c.owner && (
+              <div className="org-card">
+                <div className="who">
+                  <Avatar name={who} path={c.owner.avatar_path} size={56} />
+                  <div><strong>{who}</strong>{since && <p className="small muted">{x.memberSince} {fmtDate(since, locale)}</p>}</div>
+                </div>
                 {team.length > 0 && <p className="small"><Icon name="group" size={16} /> {x.team}: {team.map((m) => m.profile?.display_name).filter(Boolean).join(", ")}</p>}
                 <Link className="arrow-link small" href={`/${locale}/u/${c.owner.id}`}>{x.profile}<Icon name="arrow" size={16} /></Link>
               </div>
             )}
-            <div className="stack tight">
-              <h3>{x.checks}</h3>
-              <ul className="checklist">
-                <li><Icon name="check" size={18} /><span>{x.checkReviewed}</span></li>
-                {c.tier !== "none" && <li><Icon name="badge" size={18} /><span><strong>{d.tiers[c.tier]}.</strong> {d.tierHelp[c.tier]}</span></li>}
-              </ul>
-            </div>
+          </section>
+
+          <section id="trust" className="f-section" aria-labelledby="trust-h">
+            <h2 id="trust-h">{x.checks}</h2>
+            <ul className="checklist">
+              <li><Icon name="check" size={18} /><span>{x.checkReviewed}</span></li>
+              {c.tier !== "none" && <li><Icon name="badge" size={18} /><span><strong>{d.tiers[c.tier]}.</strong> {d.tierHelp[c.tier]}</span></li>}
+            </ul>
             {vouches.length > 0 && (
               <div className="stack tight">
                 <h3>{x.vouches}</h3>
                 <ul className="vouch-list">
-                  {vouches.map((v) => (
-                    <li key={v.id}><p className="small"><strong>{v.voucher?.display_name ?? d.common.member}</strong> <span className="muted">{d.vouchRoles[v.role as keyof typeof d.vouchRoles]}{v.organization ? `, ${v.organization}` : ""}</span></p><p>{v.statement}</p></li>
+                  {vouches.map((vo) => (
+                    <li key={vo.id}><p className="small"><strong>{vo.voucher?.display_name ?? d.common.member}</strong> <span className="muted">{d.vouchRoles[vo.role as keyof typeof d.vouchRoles]}{vo.organization ? `, ${vo.organization}` : ""}</span></p><p>{vo.statement}</p></li>
                   ))}
                 </ul>
               </div>
             )}
-            {c.status === "live" && !mine && !state.vouched && (
+            {live && !mine && !state.vouched && (
               <details className="disclose">
                 <summary>{d.campaign.vouchCta}</summary>
                 {viewer ? (
@@ -181,9 +222,8 @@ export default async function FundraiserPage({ params }: P) {
             {!mine && <Link className="arrow-link small" href={`/${locale}/report?campaign=${c.slug}`}><Icon name="flag" size={16} />{x.report}</Link>}
           </section>
         </div>
-
       </div>
-      {c.status === "live" && <Suspense fallback={null}><MobileSupport label={x.jump} /></Suspense>}
+      {live && <Suspense fallback={null}><MobileSupport label={x.jump} /></Suspense>}
     </div>
   );
 }

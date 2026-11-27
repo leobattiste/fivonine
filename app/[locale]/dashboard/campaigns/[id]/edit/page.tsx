@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import Icon from "@/components/Icon";
 import CampaignForm, { type FormState } from "@/components/CampaignForm";
+import { countryOptions } from "@/lib/countries";
 import { requireViewer } from "@/lib/auth";
 import { getCategories, getChange, getManaged } from "@/lib/data";
 import { isLocale, t } from "@/lib/i18n";
@@ -30,7 +31,7 @@ export default async function Edit({ params }: { params: Promise<{ locale: strin
       <Link className="crumb" href={`/${locale}/dashboard/campaigns/${id}`}><Icon name="left" size={18} />{d.common.back}</Link>
       <header className="page-head"><h1>{d.x.form.editTitle}</h1><p className="lead">{data.campaign.title}</p></header>
       {locked ? <p className="notice err"><Icon name="lock" size={18} />{viewer.profile.banned ? d.dash.restricted : d.x.dash.explain[data.campaign.status]}</p>
-        : <CampaignForm locale={locale} cats={cats} initial={initial} draftKey={null} live={data.campaign.status === "live"} email={viewer.email} reviewNote={p?.review_note} />}
+        : <CampaignForm locale={locale} cats={cats} countryList={countryOptions(locale)} initial={initial} draftKey={null} live={data.campaign.status === "live"} email={viewer.email} reviewNote={p?.review_note} />}
     </div>
   );
 }

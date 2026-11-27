@@ -54,13 +54,14 @@ export default function Header({ locale, viewer }: { locale: Locale; viewer: Vie
     </>
   );
 
+  const v = d.v3;
   return (
     <header className="site-header">
       <a className="skip" href="#main">{d.nav.skip}</a>
       <div className="wrap header-bar">
         <Link className="wordmark" href={L("")} aria-label="yon kout men"><Wordmark /></Link>
         <nav className="main-nav" aria-label={d.nav.menu}>
-          {links.map(([href, label]) => <Link key={href} href={L(href)} aria-current={isActive(href) ? "page" : undefined}>{label}</Link>)}
+          {links.filter(([href]) => href !== "/create").map(([href, label]) => <Link key={href} href={L(href)} aria-current={isActive(href) ? "page" : undefined}>{label}</Link>)}
         </nav>
         <div className="header-tools">
           <span className="only-wide">{language("lang-wide")}</span>
@@ -77,37 +78,41 @@ export default function Header({ locale, viewer }: { locale: Locale; viewer: Vie
           ) : (
             <Link className="btn quiet only-wide" href={L("/login")}>{n.signIn}</Link>
           )}
+          <Link className="btn primary only-wide header-cta" href={L("/create")}><Icon name="plus" size={18} />{v.header.start}</Link>
           <label className="lang lang-icon only-narrow" htmlFor="lang-mobile">
-            <Icon name="language" size={24} />
+            <Icon name="language" size={22} />
             <span className="sr">{d.nav.language}</span>
             <select id="lang-mobile" aria-label={d.nav.language} value={locale} onChange={(e) => switchLocale(e.target.value as Locale)}>
               {locales.map((l) => <option key={l} value={l}>{localeNames[l]}</option>)}
             </select>
           </label>
-          <Link
-            className="btn icon-only only-narrow header-account-icon"
-            href={viewer ? L("/dashboard") : L("/login")}
-            aria-label={viewer ? n.profile : n.signIn}
-          >
-            <Icon name="userCircle" size={24} />
-          </Link>
           <button className="btn icon-only only-narrow menu-btn" onClick={() => drawer.current?.showModal()} aria-label={n.openMenu}>
-            <Icon name="menu" size={26} />
+            <Icon name="menu" size={24} />
           </button>
         </div>
       </div>
 
-
       <dialog ref={drawer} className="drawer" aria-label={d.nav.menu} onClick={(e) => e.target === drawer.current && drawer.current?.close()}>
         <div className="drawer-head">
           <Link className="wordmark" href={L("")}><Wordmark /></Link>
-          <button className="btn icon-only close-control" autoFocus onClick={() => drawer.current?.close()} aria-label={n.closeMenu}><Icon name="x" size={26} /></button>
+          <button className="btn icon-only close-control" autoFocus onClick={() => drawer.current?.close()} aria-label={n.closeMenu}><Icon name="x" size={24} /></button>
         </div>
         <div className="drawer-body">
           <nav className="drawer-nav" aria-label={d.nav.menu}>
             {[["", d.nav.home] as [string, string], ...links].map(([href, label]) => <Link key={href} href={L(href)} aria-current={(href ? isActive(href) : path === L("")) ? "page" : undefined}>{label}<Icon name="right" /></Link>)}
           </nav>
-          {/* Account and language actions live in the mobile header. */}
+          {viewer ? (
+            <div className="drawer-acct">
+              <p className="who"><span className="avatar" aria-hidden="true">{initials}</span><span><strong>{viewer.name}</strong><span className="muted xs">{n.account}</span></span></p>
+              <div className="pop static">{accountItems(true)}</div>
+            </div>
+          ) : (
+            <Link className="btn wide" href={L("/login")}><Icon name="userCircle" size={18} />{n.signIn}</Link>
+          )}
+          <p className="drawer-lang">{language("lang-drawer")}</p>
+        </div>
+        <div className="drawer-foot">
+          <Link className="btn primary large wide" href={L("/create")}><Icon name="plus" size={18} />{v.header.start}</Link>
         </div>
       </dialog>
     </header>

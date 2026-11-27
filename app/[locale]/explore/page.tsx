@@ -34,9 +34,9 @@ export default async function Explore({ params, searchParams }: { params: Promis
   };
   const options = { causes: cats.map((c) => [c.slug, c[`name_${locale}`]] as [string, string]), places: DEPARTMENTS.map((p) => [p, p] as [string, string]) };
   return (
-    <div className="wrap page" style={{ gap: 20 }}>
+    <div className="wrap page" style={{ gap: 18 }}>
       <Suspense fallback={null}><RememberResults /></Suspense>
-      <ExploreShell locale={locale} options={options}>
+      <ExploreShell locale={locale} options={options} total={total}>
         {items.length ? (
           <div className="grid-cards">{items.map((c, i) => <FundraiserCard key={c.id} c={c} locale={locale} cats={cats} priority={i < 3} simplified />)}</div>
         ) : (

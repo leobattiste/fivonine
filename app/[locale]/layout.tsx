@@ -1,10 +1,12 @@
 import type { Metadata, Viewport } from "next";
-import { Ms_Madi } from "next/font/google";
+import { GeistSans } from "geist/font/sans";
+import "@fontsource-variable/bricolage-grotesque";
 import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import "../globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import TabBar from "@/components/TabBar";
 import Icon from "@/components/Icon";
 import { ServiceWorker } from "@/components/Bits";
 import Loader from "@/components/Loader";
@@ -14,8 +16,6 @@ import { getViewer } from "@/lib/auth";
 import { getSettings, unreadCount } from "@/lib/data";
 import { SITE_URL } from "@/lib/constants";
 import { canIndexPublicSite } from "@/lib/launch-readiness";
-
-const msMadi = Ms_Madi({ subsets: ["latin"], weight: "400", display: "swap", variable: "--font-ms-madi" });
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
@@ -36,6 +36,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 }
 export const viewport: Viewport = {
   themeColor: "#ffffff",
+  viewportFit: "cover",
   width: "device-width",
   initialScale: 1,
 };
@@ -47,7 +48,7 @@ export default async function Layout({ children, params }: { children: React.Rea
   const unread = viewer ? await unreadCount(viewer.id) : 0;
   const banner = settings.emergency.active ? settings.emergency[locale] || settings.emergency.fr : "";
   return (
-    <html lang={htmlLang[locale]} className={msMadi.variable} suppressHydrationWarning>
+    <html lang={htmlLang[locale]} className={GeistSans.variable} suppressHydrationWarning>
       <body>
         {banner && (
           <a className="emergency no-print" href={`/${locale}/explore?emergency=1`}>
@@ -59,6 +60,7 @@ export default async function Layout({ children, params }: { children: React.Rea
         <Header locale={locale} viewer={viewer ? { name: viewer.profile.display_name, admin: viewer.profile.role === "admin", unread, avatar: viewer.profile.avatar_path } : null} />
         <main id="main">{children}</main>
         <Footer locale={locale} />
+        <Suspense fallback={null}><TabBar locale={locale} signedIn={Boolean(viewer)} unread={unread} /></Suspense>
         <ServiceWorker />
       </body>
     </html>

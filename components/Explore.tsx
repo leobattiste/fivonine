@@ -1,7 +1,7 @@
 "use client";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useRef, useTransition } from "react";
-import Icon from "./Icon";
+import Icon, { causeIcon } from "./Icon";
 import { t, type Locale } from "@/lib/i18n";
 
 type Opt = [string, string];
@@ -9,8 +9,8 @@ export type ExploreOptions = { causes: Opt[]; places: Opt[] };
 const KEYS = ["q", "cause", "place", "status", "sort"] as const;
 
 /** Filters apply as soon as they change; results dim while the next set loads. */
-export default function ExploreShell({ locale, options, children }: { locale: Locale; options: ExploreOptions; children: React.ReactNode }) {
-  const x = t(locale).x.explore, n = t(locale).x.nav;
+export default function ExploreShell({ locale, options, total, children }: { locale: Locale; options: ExploreOptions; total?: number; children: React.ReactNode }) {
+  const x = t(locale).x.explore, n = t(locale).x.nav, v = t(locale).v3.explore;
   const router = useRouter(), path = usePathname(), sp = useSearchParams();
   const [busy, start] = useTransition();
   const drawer = useRef<HTMLDialogElement>(null);
@@ -50,15 +50,26 @@ export default function ExploreShell({ locale, options, children }: { locale: Lo
         </div>
       </div>
 
-      {busy && <div className="results-line" role="status"><Icon name="spinner" size={16} className="icon spin" />{x.searching}</div>}
-      {chips.length > 0 && (
-        <div className="active-filters">
-          {chips.map(([k, v]) => (
-            <span key={k} className="chip on">{v}<button type="button" className="close-control" aria-label={x.removeFilter(v)} onClick={() => push({ [k]: "" })}><Icon name="close" size={14} /></button></span>
-          ))}
-          <button type="button" className="link small" onClick={() => start(() => router.replace(path, { scroll: false }))}>{x.clearAll}</button>
-        </div>
-      )}
+      <nav className="quick-cats" aria-label={x.cause}>
+        <button type="button" className={`chip ${!get("cause") ? "on" : ""}`} aria-pressed={!get("cause")} onClick={() => push({ cause: "" })}>{v.all}</button>
+        {options.causes.map(([k, label]) => (
+          <button key={k} type="button" className={`chip ${get("cause") === k ? "on" : ""}`} aria-pressed={get("cause") === k} onClick={() => push({ cause: get("cause") === k ? "" : k })}>
+            <Icon name={causeIcon[k] ?? "hand"} size={16} />{label}
+          </button>
+        ))}
+      </nav>
+
+      <div className="results-line" role="status" aria-live="polite">
+        {busy ? <><Icon name="spinner" size={16} className="icon spin" />{x.searching}</> : typeof total === "number" ? <strong>{v.count(total)}</strong> : null}
+        {chips.filter(([k]) => k !== "cause").length > 0 && (
+          <span className="active-filters">
+            {chips.filter(([k]) => k !== "cause").map(([k, label]) => (
+              <span key={k} className="chip on">{label}<button type="button" className="close-control" aria-label={x.removeFilter(label)} onClick={() => push({ [k]: "" })}><Icon name="close" size={14} /></button></span>
+            ))}
+            <button type="button" className="link small" onClick={() => start(() => router.replace(path, { scroll: false }))}>{x.clearAll}</button>
+          </span>
+        )}
+      </div>
 
       <div className="results" data-busy={busy} aria-busy={busy}>{children}</div>
 
