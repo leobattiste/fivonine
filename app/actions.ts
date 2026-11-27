@@ -323,7 +323,7 @@ export async function saveCampaign(_: ActionResult, f: FormData): Promise<Action
     deadline: /^\d{4}-\d{2}-\d{2}$/.test(str(p.deadline, 10)) ? str(p.deadline, 10) : null,
     urgent: p.urgent === true,
     cover_path: uploadedCoverPath ?? previewCover,
-    gallery: Array.from(new Set((Array.isArray(p.gallery) ? p.gallery : []).map(own).filter((x): x is string => Boolean(x && /\\.(webp|jpg|jpeg|png|mp4|webm|mov)$/.test(x) && x !== uploadedCoverPath)))).slice(0, 9),
+    gallery: Array.from(new Set((Array.isArray(p.gallery) ? p.gallery : []).map(own).filter((x): x is string => Boolean(x && /\.(webp|jpg|jpeg|png|mp4|webm|mov)$/.test(x) && x !== uploadedCoverPath)))).slice(0, 9),
     video_url: /^https:\/\/[^\s]+$/.test(video) ? video : null,
     voice_path: own(p.voice_path),
     language: isLocale(str(p.language, 2)) ? str(p.language, 2) : locale,
