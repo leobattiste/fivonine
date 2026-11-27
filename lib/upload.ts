@@ -1,6 +1,8 @@
 "use client";
 import { browserDb } from "./supabase/client";
 export const MAX_BYTES = 8 * 1024 * 1024;
+export const VIDEO_MAX_BYTES = 50 * 1024 * 1024;
+export const VIDEO_TYPES = ["video/mp4", "video/webm", "video/quicktime"];
 /** Resize in the browser so uploads stay small on slow connections. */
 export type Crop = { x: number; y: number; w: number; h: number };
 export async function toWebp(file: File, opts: { max: number; ratio?: number; focusY?: number; crop?: Crop }): Promise<Blob> {
@@ -24,11 +26,11 @@ export async function toWebp(file: File, opts: { max: number; ratio?: number; fo
   if (!jpeg) throw new Error("encode");
   return jpeg;
 }
-const EXT: Record<string, string> = { "image/webp": "webp", "image/jpeg": "jpg", "image/png": "png", "application/pdf": "pdf", "audio/webm": "webm", "audio/mp4": "m4a", "audio/ogg": "ogg", "audio/mpeg": "mp3" };
+const EXT: Record<string, string> = { "image/webp": "webp", "image/jpeg": "jpg", "image/png": "png", "application/pdf": "pdf", "audio/webm": "webm", "audio/mp4": "m4a", "audio/ogg": "ogg", "audio/mpeg": "mp3", "video/mp4": "mp4", "video/webm": "webm", "video/quicktime": "mov" };
 export async function uploadBlob(bucket: "media" | "documents", blob: Blob): Promise<string> {
   const sb = browserDb();
   if (!sb) throw new Error("offline");
-  if (blob.size > MAX_BYTES) throw new Error("too-big");
+  if (blob.size > (VIDEO_TYPES.includes(blob.type.split(";")[0]) ? VIDEO_MAX_BYTES : MAX_BYTES)) throw new Error("too-big");
   const type = blob.type.split(";")[0];
   const ext = EXT[type];
   if (!ext) throw new Error("type");
@@ -42,4 +44,9 @@ export async function uploadBlob(bucket: "media" | "documents", blob: Blob): Pro
 export async function uploadImage(bucket: "media" | "documents", file: File, opts: { max: number; ratio?: number; focusY?: number; crop?: Crop }) {
   if (file.type === "application/pdf" && bucket === "documents") return uploadBlob(bucket, file);
   return uploadBlob(bucket, await toWebp(file, opts));
+}
+/** Phone videos go up as they are: re-encoding in the browser is too slow on most phones. */
+export async function uploadVideo(file: File) {
+  if (!VIDEO_TYPES.includes(file.type)) throw new Error("type");
+  return uploadBlob("media", file);
 }

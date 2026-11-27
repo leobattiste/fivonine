@@ -292,7 +292,7 @@ export async function saveCampaign(_: ActionResult, f: FormData): Promise<Action
     return fail(d.common.error);
   }
   const submit = f.get("intent") === "submit";
-  const own = (v: unknown) => (typeof v === "string" && new RegExp(`^${user.id}/[a-z0-9-]{8,60}\\.(webp|jpg|jpeg|png|webm|m4a|mp4|ogg|mp3|pdf)$`).test(v) ? v : null);
+  const own = (v: unknown) => (typeof v === "string" && new RegExp(`^${user.id}/[a-z0-9-]{8,60}\\.(webp|jpg|jpeg|png|webm|m4a|mp4|mov|ogg|mp3|pdf)$`).test(v) ? v : null);
   const ownedCover = own(p.cover_path);
   const uploadedCoverPath = ownedCover && /\.(webp|jpg|jpeg|png)$/.test(ownedCover) ? ownedCover : null;
   // Existing Pexels/demo covers are for preview while editing a draft only.
@@ -323,7 +323,7 @@ export async function saveCampaign(_: ActionResult, f: FormData): Promise<Action
     deadline: /^\d{4}-\d{2}-\d{2}$/.test(str(p.deadline, 10)) ? str(p.deadline, 10) : null,
     urgent: p.urgent === true,
     cover_path: uploadedCoverPath ?? previewCover,
-    gallery: Array.from(new Set((Array.isArray(p.gallery) ? p.gallery : []).map(own).filter((x): x is string => Boolean(x && /\\.(webp|jpg|jpeg|png)$/.test(x) && x !== uploadedCoverPath)))).slice(0, 9),
+    gallery: Array.from(new Set((Array.isArray(p.gallery) ? p.gallery : []).map(own).filter((x): x is string => Boolean(x && /\\.(webp|jpg|jpeg|png|mp4|webm|mov)$/.test(x) && x !== uploadedCoverPath)))).slice(0, 9),
     video_url: /^https:\/\/[^\s]+$/.test(video) ? video : null,
     voice_path: own(p.voice_path),
     language: isLocale(str(p.language, 2)) ? str(p.language, 2) : locale,
@@ -359,8 +359,9 @@ export async function saveCampaign(_: ActionResult, f: FormData): Promise<Action
     if (storyLen < 40) missing.push(({en:"a description of at least 40 characters",fr:"une description d’au moins 40 caractères",ht:"yon deskripsyon omwen 40 karaktè",es:"una descripción de al menos 40 caracteres"})[locale]);
     if (!methods.length || methods.some(m => !paymentValid(m.method,m.details,m.link??""))) missing.push(d.create.needMethod);
     if (!priv.id_front_path || !priv.selfie_path) missing.push(d.create.needIdentity);
-    if (!row.beneficiary_name || !row.beneficiary_relation) missing.push(d.create.needRecipient);
-    if (!priv.contact_name || !priv.contact_email || !priv.contact_details || splitContact(priv.contact_details).phone.length < 3) missing.push(d.create.needContact);
+    if (!row.beneficiary_relation || (!row.beneficiary_name && row.beneficiary_relation !== "self")) missing.push(d.create.needRecipient);
+    // Name and email come from the profile and account below. Only the phone must be given here.
+    if (!priv.contact_details || splitContact(priv.contact_details).phone.length < 3) missing.push(d.create.needContact);
     if (!p.consent) missing.push(d.create.needConsent);
     if (missing.length) return fail(`${d.create.missing} ${missing.join(", ")}`);
   }
@@ -390,6 +391,8 @@ export async function saveCampaign(_: ActionResult, f: FormData): Promise<Action
   if (!me || !profileReady(me)) return fail(d.x.setup.need);
   // The organizer is the profile that posts it: contact details come from the account.
   if (!priv.contact_name) priv.contact_name = me.display_name;
+  // "Me" fundraisers are for the profile owner: no need to type the name again.
+  if (row.beneficiary_relation === "self" && !row.beneficiary_name) row.beneficiary_name = me.display_name;
   if (!priv.contact_email) priv.contact_email = user.email ?? null;
   let id = typeof p.id === "string" && UUID.test(p.id) ? p.id : "";
   let status = "draft";
