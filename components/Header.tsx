@@ -7,11 +7,12 @@ import Icon from "./Icon";
 import { Wordmark } from "./Brand";
 import { LOCALE_COOKIE, localeNames, locales, localizedPath, t, type Locale } from "@/lib/i18n";
 import { signOut } from "@/app/actions";
+import { mediaUrl } from "@/lib/format";
 
-type Viewer = { name: string; admin: boolean; unread: number; avatar: string | null };
+type Viewer = { name: string; admin: boolean; unread: number; avatar: string | null; mine: { id: string; title: string; status: string; cover: string | null }[] };
 
 export default function Header({ locale, viewer }: { locale: Locale; viewer: Viewer | null }) {
-  const d = t(locale), n = d.x.nav, path = usePathname();
+  const d = t(locale), n = d.x.nav, m = followUp[locale].menu, path = usePathname();
   const drawer = useRef<HTMLDialogElement>(null);
   const [acct, setAcct] = useState(false);
   const acctRef = useRef<HTMLDivElement>(null);
@@ -106,10 +107,36 @@ export default function Header({ locale, viewer }: { locale: Locale; viewer: Vie
           <button className="btn icon-only close-control" autoFocus onClick={() => drawer.current?.close()} aria-label={n.closeMenu}><Icon name="x" size={26} /></button>
         </div>
         <div className="drawer-body">
-          <nav className="drawer-nav" aria-label={d.nav.menu}>
-            {[["", d.nav.home] as [string, string], ...links].map(([href, label]) => <Link key={href} href={L(href)} aria-current={(href ? isActive(href) : path === L("")) ? "page" : undefined}>{label}</Link>)}
+          <nav className="drawer-menu" aria-label={d.nav.menu}>
+            {viewer ? (
+              <>
+                <Link className="drawer-profile" href={L("/dashboard")}>{m.profile}<Icon name="right" size={18} /></Link>
+                <Link className="drawer-row" href={L("/dashboard?tab=campaigns")}><span className="r-t">{m.fundraisers}</span><Icon name="right" size={22} /></Link>
+                {viewer.mine.length > 0 ? viewer.mine.map((c) => {
+                  const open = c.status === "draft" || c.status === "needs_changes";
+                  const img = mediaUrl(c.cover);
+                  return (
+                    <Link key={c.id} className="drawer-camp" href={L(`/dashboard/campaigns/${c.id}${open ? "/edit" : ""}`)}>
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      {img ? <img src={img} alt="" width={64} height={64} /> : <span className="ph" aria-hidden="true" />}
+                      <span><strong>{c.title}</strong><small>{(d.status as Record<string, string>)[c.status] ?? c.status}{open ? ` · ${m.cont}` : ""}</small></span>
+                    </Link>
+                  );
+                }) : <Link className="drawer-camp empty" href={L("/create")}><span className="ph" aria-hidden="true"><Icon name="plus" size={22} /></span><span><strong>{m.start}</strong></span></Link>}
+                <Link className="drawer-row" href={L("/dashboard?tab=support")}><span><span className="r-t">{m.impact}</span><small>{m.impactSub}</small></span><Icon name="right" size={22} /></Link>
+                <Link className="drawer-row" href={L("/dashboard?tab=notifications")}><span className="r-t">{m.messages}{viewer.unread > 0 && <span className="count" aria-label={n.unread(viewer.unread)}>{viewer.unread}</span>}</span><Icon name="right" size={22} /></Link>
+                <Link className="drawer-row" href={L("/dashboard?tab=settings")}><span className="r-t">{m.settings}</span><Icon name="right" size={22} /></Link>
+                {viewer.admin && <Link className="drawer-row" href={L("/admin")}><span className="r-t">{n.admin}</span><Icon name="right" size={22} /></Link>}
+              </>
+            ) : (
+              <Link className="drawer-row" href={L("/login")}><span><span className="r-t">{m.signIn}</span><small>{m.signInSub}</small></span><Icon name="right" size={22} /></Link>
+            )}
+            <hr className="drawer-rule" />
+            {([["/explore", n.explore, m.donateSub], ["/create", n.fundraiser, m.fundraiseSub], ["/how-it-works", m.how, m.howSub], ["/about", n.about, m.aboutSub], ["/help", m.help, m.helpSub]] as [string, string, string][]).map(([href, label, sub]) => (
+              <Link key={href} className="drawer-row" href={L(href)} aria-current={isActive(href) ? "page" : undefined}><span><span className="r-t">{label}</span><small>{sub}</small></span><Icon name="right" size={22} /></Link>
+            ))}
+            {viewer && <form action={signOut} className="drawer-out"><input type="hidden" name="locale" value={locale} /><button><Icon name="logout" size={20} />{n.signOut}</button></form>}
           </nav>
-          {/* Account and language actions live in the mobile header. */}
         </div>
       </dialog>
     </header>
