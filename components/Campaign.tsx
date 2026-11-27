@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Icon, { causeIcon } from "./Icon";
+import SafeImg from "./SafeImg";
 import { fmtMoney, initials, mediaUrl, campaignPlace } from "@/lib/format";
 import { t, type Locale } from "@/lib/i18n";
 import type { Campaign, Category, Tier } from "@/lib/types";
@@ -44,8 +45,7 @@ export function Cover({ c, className = "", sizes = "(min-width: 900px) 33vw, 100
   const pexelsId = /^pexels:([0-9]{4,10})$/.exec(c.cover_path ?? "")?.[1];
   return url ? (
     <div className={`frame ${className}`}>
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={url} alt={pexelsId ? "Illustrative stock photo, not a real fundraiser beneficiary" : ""} sizes={sizes} loading={priority ? "eager" : "lazy"} decoding="async" />
+      <SafeImg icon={causeIcon[c.cause ?? "other"] ?? "image"} src={url} alt={pexelsId ? "Illustrative stock photo, not a real fundraiser beneficiary" : ""} sizes={sizes} loading={priority ? "eager" : "lazy"} decoding="async" />
       {pexelsId && <a className="credit-over" href={`https://www.pexels.com/photo/${pexelsId}/`} target="_blank" rel="noopener noreferrer">
         {pexelsDemoCredits[pexelsId] ?? "Photographer"} / Pexels
       </a>}

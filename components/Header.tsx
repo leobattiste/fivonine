@@ -8,6 +8,7 @@ import { Wordmark } from "./Brand";
 import { LOCALE_COOKIE, localeNames, locales, localizedPath, t, type Locale } from "@/lib/i18n";
 import { signOut } from "@/app/actions";
 import { mediaUrl } from "@/lib/format";
+import SafeImg from "./SafeImg";
 
 type Viewer = { name: string; admin: boolean; unread: number; avatar: string | null; mine: { id: string; title: string; status: string; cover: string | null }[] };
 
@@ -117,8 +118,7 @@ export default function Header({ locale, viewer }: { locale: Locale; viewer: Vie
                   const img = mediaUrl(c.cover);
                   return (
                     <Link key={c.id} className="drawer-camp" href={L(`/dashboard/campaigns/${c.id}${open ? "/edit" : ""}`)}>
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      {img ? <img src={img} alt="" width={64} height={64} /> : <span className="ph" aria-hidden="true" />}
+                      {img ? <SafeImg src={img} alt="" width={64} height={64} className="ph" /> : <span className="ph" aria-hidden="true" />}
                       <span><strong>{c.title}</strong><small>{(d.status as Record<string, string>)[c.status] ?? c.status}{open ? ` · ${m.cont}` : ""}</small></span>
                     </Link>
                   );

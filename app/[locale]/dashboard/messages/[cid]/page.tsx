@@ -26,7 +26,7 @@ export default async function Thread({ params, searchParams }: { params: Promise
         <h1>{info?.other_name ?? m.title}</h1>
         {info && <p className="muted"><Link href={`/${locale}/campaigns/${info.slug}`}>{info.title}</Link></p>}
       </header>
-      {messages.length === 0 && !info ? <div className="empty"><p>{m.none}</p></div> : (
+      {messages.length === 0 && !info ? <div className="empty"><span className="icon-box"><Icon name="mail" size={24} /></span><p>{m.none}</p></div> : (
         <ol className="thread" aria-label={m.title}>
           {messages.map((x) => (
             <li key={x.id} data-mine={x.mine ? "true" : undefined}>

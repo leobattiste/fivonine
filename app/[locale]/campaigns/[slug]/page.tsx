@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { followUp } from "@/lib/dict/follow-up";
 import MessageForm from "@/components/MessageForm";
+import SafeImg from "@/components/SafeImg";
 import { Suspense } from "react";
 import Icon from "@/components/Icon";
 import ActionForm, { Submit } from "@/components/ActionForm";
@@ -88,7 +89,7 @@ export default async function FundraiserPage({ params }: P) {
             {c.video_url && <p><a className="btn small" href={c.video_url} target="_blank" rel="noopener noreferrer nofollow"><Icon name="external" size={16} />{d.campaign.video}<span className="sr"> ({d.x.common.newTab})</span></a></p>}
             {c.gallery.length > 0 && (
               <div className="gallery" aria-label={d.campaign.photos}>
-                {c.gallery.map((g) => <div key={g} className="frame">{/\.(mp4|webm|mov)$/i.test(g) ? <video src={mediaUrl(g) ?? ""} controls playsInline preload="metadata" /> : <>{/* eslint-disable-next-line @next/next/no-img-element */}<img src={mediaUrl(g) ?? ""} alt="" loading="lazy" /></>}</div>)}
+                {c.gallery.map((g) => <div key={g} className="frame">{/\.(mp4|webm|mov)$/i.test(g) ? <video src={mediaUrl(g) ?? ""} controls playsInline preload="metadata" /> : <SafeImg src={mediaUrl(g) ?? ""} alt="" loading="lazy" />}</div>)}
               </div>
             )}
           </section>
