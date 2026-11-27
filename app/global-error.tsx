@@ -12,10 +12,10 @@ export default function GlobalError({ error, retry }: { error: unknown; retry: (
     console.error("[app] request unavailable", digest);
   }, [error]);
   const d = t(locale).common;
-  return <html lang={locale}><head><style>{"body{font-size:16px}h1{font-size:33px}@media(min-width:744px){h1{font-size:45px}}"}</style></head><body style={{ margin: 0, padding: 32, color: "#1f503b", background: "#ffffff", fontFamily: "system-ui, sans-serif" }}>
+  return <html lang={locale}><head><style>{"body{font-size:16px}h1{font-size:33px}@media(min-width:744px){h1{font-size:45px}}"}</style></head><body style={{ margin: 0, padding: 32, color: "#111111", background: "#ffffff", fontFamily: "system-ui, sans-serif" }}>
     <main role="alert" style={{ maxWidth: 640, margin: "12vh auto" }}>
       <h1>{d.errorTitle}</h1><p>{d.error}</p>
-      <button onClick={retry} style={{ marginTop: 16, padding: "12px 24px", border: "2px solid #1f503b", borderRadius: 12, background: "#1f503b", color: "white", font: "inherit", cursor: "pointer" }}>{d.retry}</button>
+      <button onClick={retry} style={{ marginTop: 16, padding: "12px 24px", border: "2px solid #111111", borderRadius: 12, background: "#111111", color: "white", font: "inherit", cursor: "pointer" }}>{d.retry}</button>
     </main>
   </body></html>;
 }

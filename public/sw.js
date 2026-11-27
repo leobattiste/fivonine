@@ -10,7 +10,7 @@ function offlinePage(pathname) {
   const requested = pathname.split("/")[1];
   const locale = Object.hasOwn(offlineCopy, requested) ? requested : "fr";
   const [title, body] = offlineCopy[locale];
-  return new Response(`<!doctype html><html lang="${locale}"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${title} | yon kout men</title><body style="font-family:system-ui;padding:32px;color:#1f503b"><h1>${title}</h1><p>${body}</p></body></html>`, { headers: { "Content-Type": "text/html; charset=utf-8" } });
+  return new Response(`<!doctype html><html lang="${locale}"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${title} | yon kout men</title><body style="font-family:system-ui;padding:32px;color:#111111"><h1>${title}</h1><p>${body}</p></body></html>`, { headers: { "Content-Type": "text/html; charset=utf-8" } });
 }
 self.addEventListener("install", () => self.skipWaiting());
 self.addEventListener("activate", (event) => {

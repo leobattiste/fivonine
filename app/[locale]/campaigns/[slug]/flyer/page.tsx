@@ -14,7 +14,7 @@ export default async function Flyer({ params }: { params: Promise<{ locale: stri
   const data = await getCampaign(slug);
   if (!data || data.campaign.status !== "live") notFound();
   const d = t(locale), url = `${SITE_URL}/${locale}/campaigns/${data.campaign.slug}`;
-  const qr = await QRCode.toString(url, { type: "svg", margin: 0, color: { dark: "#1f503b", light: "#ffffff" } });
+  const qr = await QRCode.toString(url, { type: "svg", margin: 0, color: { dark: "#111111", light: "#ffffff" } });
   return (
     <div className="wrap page flyer">
       <PrintButton label={d.support.print} />
