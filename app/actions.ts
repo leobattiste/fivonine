@@ -10,6 +10,7 @@ import { SUPABASE_KEY, SUPABASE_URL } from "@/lib/supabase/config";
 import { db } from "@/lib/supabase/server";
 import { isLocale, t, LOCALE_COOKIE, type Locale } from "@/lib/i18n";
 import { accountCopy } from "@/lib/account-copy";
+import { followUp } from "@/lib/dict/follow-up";
 import { profileReady, safeNext } from "@/lib/auth";
 import { cleanStory, storyText } from "@/lib/story";
 import { drainOutbox } from "@/lib/email";
@@ -506,6 +507,31 @@ export async function postUpdate(_: ActionResult, f: FormData): Promise<ActionRe
   after(() => drainOutbox());
   revalidatePath(`/${locale}`, "layout");
   return done(d.dash.updatePosted);
+}
+export async function confirmSupport(f: FormData) {
+  const { locale, sb, user } = await ctx(f);
+  const id = s(f, "id");
+  if (!sb || !user || !UUID.test(id)) return;
+  await sb.rpc("confirm_support", { rid: id, got: s(f, "got") === "1" });
+  after(() => drainOutbox());
+  revalidatePath(`/${locale}`, "layout");
+}
+/** Closing a fundraiser needs a short account of how the money was used; it is published as the final update. */
+export async function completeCampaign(_: ActionResult, f: FormData): Promise<ActionResult> {
+  const { locale, d, sb, user } = await ctx(f);
+  if (!sb || !user) return fail(d.common.signInFirst);
+  const id = s(f, "id"), body = s(f, "body", 4000);
+  if (!UUID.test(id)) return fail(d.common.required);
+  if (body.length < 20) return fail(followUp[locale].final.short);
+  const { data: mine } = await sb.from("campaigns").select("id,status").eq("id", id).eq("owner_id", user.id).maybeSingle();
+  if (!mine || mine.status !== "live") return fail(d.common.error);
+  const { error } = await sb.from("campaign_updates").insert({ campaign_id: id, author_id: user.id, body, proof: [], final: true });
+  if (error) return fail(d.common.error);
+  const { error: closeError } = await sb.from("campaigns").update({ status: "completed" }).eq("id", id).eq("owner_id", user.id);
+  if (closeError) return fail(d.common.error);
+  after(() => drainOutbox());
+  revalidatePath(`/${locale}`, "layout");
+  return done(followUp[locale].final.done);
 }
 export async function deleteUpdate(f: FormData) {
   const { locale, sb, user } = await ctx(f);

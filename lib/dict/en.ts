@@ -547,6 +547,7 @@ const en = {
     vouch_approved: (t: string) => `Someone vouched for: ${t}`,
     reminder: (t: string) => `A fundraiser you bookmarked is still open: ${t}`,
 
+    support_confirmed: (t: string) => t ? `The organizer confirmed they received your help for ${t}.` : "The organizer confirmed they received your help.",
     appeal_accepted: (t: string) => t ? `Your appeal was accepted: ${t}` : "Your appeal was accepted.",
     appeal_declined: (t: string) => t ? `Your appeal was declined: ${t}` : "Your appeal was declined.",
     admin_appeal: (t: string) => t ? `New appeal to review: ${t}` : "New appeal to review.",

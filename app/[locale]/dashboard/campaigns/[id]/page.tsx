@@ -8,9 +8,12 @@ import { ClearDraft, CopyButton, ShareBar } from "@/components/Bits";
 import { createFlow } from "@/lib/dict/create-flow";
 import { formText } from "@/lib/dict/form";
 import { UpdateForm } from "@/components/Uploads";
-import { addTeamMember, deleteCampaign, deleteUpdate, discardChanges, removeTeamMember, setCampaignStatus } from "@/app/actions";
+import FinalReport from "@/components/FinalReport";
+import { followUp } from "@/lib/dict/follow-up";
+import { fmtMoney } from "@/lib/format";
+import { addTeamMember, confirmSupport, deleteCampaign, deleteUpdate, discardChanges, removeTeamMember, setCampaignStatus } from "@/app/actions";
 import { requireViewer } from "@/lib/auth";
-import { getCategories, getChange, getManaged } from "@/lib/data";
+import { getCategories, getChange, getManaged, getSupportRecords } from "@/lib/data";
 import { SITE_URL } from "@/lib/constants";
 import { fmtDate } from "@/lib/format";
 import { isLocale, t } from "@/lib/i18n";
@@ -26,6 +29,8 @@ export default async function Manage({ params, searchParams }: { params: Promise
   const { campaign: c, priv, updates, team, methods } = data;
   const d = t(locale), x = d.dash, y = d.x.dash, sp = await searchParams, L = (p: string) => `/${locale}${p}`;
   const owner = c.owner_id === viewer.id;
+  const fu = followUp[locale];
+  const records = ["live", "completed"].includes(c.status) ? await getSupportRecords(c.id) : [];
   const canPost = ["live", "completed"].includes(c.status);
   const editable = owner && !["suspended", "completed", "closed"].includes(c.status);
   const note = ["needs_changes", "rejected", "suspended"].includes(c.status) ? priv?.review_note : null;
@@ -95,6 +100,17 @@ export default async function Manage({ params, searchParams }: { params: Promise
       {note && <div className="notice"><Icon name="note" size={18} /><span><strong>{y.feedback}</strong>{note}</span></div>}
       {change?.status === "needs_changes" && change.review_note && <div className="notice"><Icon name="note" size={18} /><span><strong>{y.feedback}</strong>{change.review_note}</span></div>}
 
+      {owner && !confirm && !["closed", "completed"].includes(c.status) && (() => {
+        const stage = c.status === "live" ? 2 : c.status === "pending" ? 1 : 0, info = fu.review.by[c.status];
+        return (
+          <section className="panel review-track" aria-labelledby="rv-h">
+            <h2 id="rv-h">{fu.review.title}</h2>
+            <ol className="review-steps">{fu.review.steps.map((label, i) => <li key={label} data-state={i < stage ? "done" : i === stage ? "now" : "next"} aria-current={i === stage ? "step" : undefined}><span className="n">{i < stage ? <Icon name="check" size={14} /> : i + 1}</span>{label}</li>)}</ol>
+            {info && <p><strong>{info.h}.</strong> {info.p}</p>}
+          </section>
+        );
+      })()}
+
       <div className="manage-grid">
         <div className="stack" style={{ gap: 24, minWidth: 0 }}>
           {change && (
@@ -111,13 +127,31 @@ export default async function Manage({ params, searchParams }: { params: Promise
               <UpdateForm locale={locale} id={c.id} />
             </section>
           )}
+          {records.length > 0 && (
+            <section className="panel" id="support" aria-labelledby="sup-h">
+              <h2 id="sup-h">{fu.support.title}</h2>
+              <p className="small muted measure">{fu.support.intro}</p>
+              <ul className="list">
+                {records.map((k) => (
+                  <li key={k.id}>
+                    <div className="stack tight" style={{ flex: "1 1 260px" }}>
+                      <strong>{fmtMoney(k.amount, k.currency, locale)} <span className="muted small">· {k.anonymous || !k.display_name ? fu.support.anon : k.display_name} · {fmtDate(k.created_at, locale)}</span></strong>
+                      {k.message && <p className="small">{k.message}</p>}
+                      <span className="xs muted">{k.received_at ? fu.support.gotOn(fmtDate(k.received_at, locale)) : fu.support.waiting}</span>
+                    </div>
+                    <form action={confirmSupport}>{hidden("locale", locale)}{hidden("id", k.id)}{hidden("got", k.received_at ? "0" : "1")}<button className={k.received_at ? "btn small ghost" : "btn small primary"}>{k.received_at ? fu.support.undo : fu.support.got}</button></form>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          )}
           {updates.length > 0 && (
             <section className="panel" aria-labelledby="ups">
               <h2 id="ups">{d.campaign.updates}</h2>
               <ul className="list">
                 {updates.map((u) => (
                   <li key={u.id}>
-                    <div className="stack tight" style={{ flex: "1 1 280px" }}><time className="xs muted">{fmtDate(u.created_at, locale)}</time><p>{u.body}</p></div>
+                    <div className="stack tight" style={{ flex: "1 1 280px" }}><div className="row tight"><time className="xs muted">{fmtDate(u.created_at, locale)}</time>{u.final && <span className="tag solid">{fu.final.tag}</span>}</div><p>{u.body}</p></div>
                     {u.author_id === viewer.id && <form action={deleteUpdate}>{hidden("locale", locale)}{hidden("id", u.id)}<Confirm label={x.delete} confirm={`${x.delete}?`} /></form>}
                   </li>
                 ))}
@@ -132,7 +166,7 @@ export default async function Manage({ params, searchParams }: { params: Promise
               <h2 id="more">{y.more}</h2>
               <div className="stack tight">
                 {c.status === "pending" && status("draft", x.withdraw, "btn small")}
-                {c.status === "live" && status("completed", x.markCompleted)}
+                {c.status === "live" && <FinalReport locale={locale} id={c.id} />}
                 {["live", "draft", "pending", "needs_changes", "rejected"].includes(c.status) && status("closed", x.close, "btn small quiet")}
                 {c.status === "live" && <p className="xs muted">{x.closeHint}</p>}
                 {["draft", "rejected", "needs_changes"].includes(c.status) && <form action={deleteCampaign}>{hidden("locale", locale)}{hidden("id", c.id)}<Confirm label={x.delete} confirm={x.deleteConfirm} /></form>}

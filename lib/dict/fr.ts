@@ -548,6 +548,7 @@ const fr: Dict = {
     vouch_approved: (t: string) => `Quelqu'un se porte garant de : ${t}`,
     reminder: (t: string) => `Une collecte dans vos favoris est toujours ouverte : ${t}`,
 
+    support_confirmed: (t: string) => t ? `L’organisateur a confirmé avoir reçu votre aide pour ${t}.` : "L’organisateur a confirmé avoir reçu votre aide.",
     appeal_accepted: (t: string) => t ? `Votre appel a été accepté: ${t}` : "Votre appel a été accepté.",
     appeal_declined: (t: string) => t ? `Votre appel a été refusé: ${t}` : "Votre appel a été refusé.",
     admin_appeal: (t: string) => t ? `Nouvel appel à examiner: ${t}` : "Nouvel appel à examiner.",

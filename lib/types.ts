@@ -31,7 +31,7 @@ export type CampaignPrivate = {
 };
 export type SupportMethod = { id: string; campaign_id: string; method: string; details: string; link: string | null; position: number };
 export type CampaignChange = { campaign_id: string; author_id: string; payload: { row: Record<string, unknown>; methods: { method: string; details: string; link: string | null }[] }; status: "pending" | "needs_changes"; review_note: string | null; submitted_at: string };
-export type Update = { id: string; campaign_id: string; author_id: string; body: string; proof: string[]; hidden: boolean; created_at: string; author?: { display_name: string } | null };
+export type Update = { final?: boolean; id: string; campaign_id: string; author_id: string; body: string; proof: string[]; hidden: boolean; created_at: string; author?: { display_name: string } | null };
 export type Contribution = { id: string; campaign_id: string; amount: number; currency: "HTG" | "USD"; method: string | null; display_name: string | null; anonymous: boolean; message: string | null; hidden: boolean; created_at: string };
 export type Vouch = { id: string; campaign_id: string; voucher_id: string; role: string; organization: string | null; statement: string; status: string; created_at: string; voucher?: { display_name: string; org_verified: boolean } | null };
 export type Category = { slug: string; name_ht: string; name_fr: string; name_en: string; name_es: string; position: number; active: boolean };
@@ -39,3 +39,5 @@ export type Settings = { emergency: { active: boolean } & Record<Locale, string>
 export type Notification = { id: string; kind: string; campaign_id: string | null; payload: { title?: string; slug?: string; note?: string }; read_at: string | null; created_at: string };
 export type ActionResult = { ok: boolean; message: string; id?: string; at?: string; undo?: string; field?: "cover_path" } | null;
 export type Appeal = { id: string; campaign_id: string | null; body: string; status: "open" | "accepted" | "declined"; admin_note: string | null; created_at: string };
+export type SupportRecord = { id: string; amount: number; currency: "HTG" | "USD"; method: string | null; display_name: string | null; anonymous: boolean; message: string | null; created_at: string; received_at: string | null };
+export type SupportTally = { reported: number; confirmed: number };
