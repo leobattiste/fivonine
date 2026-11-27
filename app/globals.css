@@ -1175,3 +1175,5 @@ textarea.input { border-radius: var(--r); padding: 14px 18px; }
 .drawer-about .pm::after { transform: translate(-50%, -50%) rotate(90deg); transition: opacity .15s; }
 .drawer-about[open] .pm::after { opacity: 0; }
 .drawer-about .drawer-sub { margin: -6px 0 10px; }
+
+.drawer-row .r-t { font-weight: 600; }
