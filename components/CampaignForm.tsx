@@ -8,10 +8,10 @@ import { t, type Locale } from "@/lib/i18n";
 import { uploadImage } from "@/lib/upload";
 import { fmtMoney, mediaUrl, campaignPlace } from "@/lib/format";
 import { deviceDraft, restoreDeviceDraft, type FormState, type IdentityFileField } from "@/lib/form";
-import { verificationCopy } from "@/lib/dict/verification";
+import { formText } from "@/lib/dict/form";
 import type { Category } from "@/lib/types";
 import { countryOptions, isCountry } from "@/lib/countries";
-import { formatPayment, parsePayment, paymentFields, paymentLabel, paymentValid, paymentIssues, formatWalletNumber, splitContact, formatContact } from "@/lib/payment-fields";
+import { formatPayment, parsePayment, paymentFields, paymentLabel, paymentValid, paymentIssues, paymentRows, formatWalletNumber, splitContact, formatContact } from "@/lib/payment-fields";
 import { createFlow } from "@/lib/dict/create-flow";
 export type { FormState };
 
@@ -40,21 +40,17 @@ const time = (locale: Locale) => new Intl.DateTimeFormat(locale, { hour: "numeri
 
 /** One visible section at a time, with shared draft state and final submission validation. */
 export default function CampaignForm({ locale, cats, initial, draftKey, live, email, reviewNote, countryList }: { locale: Locale; cats: Category[]; initial: FormState; draftKey: string | null; live: boolean; email?: string; reviewNote?: string | null; countryList?: { code: string; name: string }[] }) {
-  const d = t(locale), c = d.create, x = d.x.form, k = x.compose, verification = verificationCopy[locale], cf = createFlow[locale];
+  const d = t(locale), cf = createFlow[locale];
   const [f, setF] = useState<FormState>(initial);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [navigation, setNavigation] = useState<{ section: string; target: "tab" | "panel" | "error" } | null>(null);
   const activeStep = navigation?.section ?? "basics";
-  const navCopy = {
-    en: { previous: "Previous", next: "Next", basics: "About", story: "Story", goal: "Goal", media: "Media", support: "Donations", review: "Review", who: "Who are you fundraising for?", self: "Myself", other: "Someone else", org: "An organization", selfHint: "For my own needs.", otherHint: "For another person, family or community.", orgHint: "For an organization or community group.", orgName: "Organization name", selfName: "Your name", authorization: "Include supporting evidence that you have permission to fundraise for the recipient or organization.", diaspora: "City, state or region, and country", noGoal: "I don't have a specific goal", edit: "Edit" },
-    fr: { previous: "Précédent", next: "Suivant", basics: "À propos", story: "Histoire", goal: "Objectif", media: "Médias", support: "Dons", review: "Vérifier", who: "Pour qui organisez-vous cette collecte ?", self: "Moi-même", other: "Une autre personne", org: "Une organisation", selfHint: "Pour mes propres besoins.", otherHint: "Pour une personne, une famille ou une communauté.", orgHint: "Pour une organisation ou un groupe communautaire.", orgName: "Nom de l'organisation", selfName: "Votre nom", authorization: "Ajoutez des justificatifs de votre autorisation à collecter pour le bénéficiaire ou l’organisation.", diaspora: "Ville, région et pays", noGoal: "Je n'ai pas d'objectif précis", edit: "Modifier" },
-    ht: { previous: "Anvan", next: "Apre", basics: "Konsènan", story: "Istwa", goal: "Objektif", media: "Medya", support: "Don", review: "Revize", who: "Pou kiyès w ap ranmase sipò?", self: "Pou tèt mwen", other: "Yon lòt moun", org: "Yon òganizasyon", selfHint: "Pou pwòp bezwen mwen.", otherHint: "Pou yon lòt moun, yon fanmi oswa yon kominote.", orgHint: "Pou yon òganizasyon oswa yon gwoup kominotè.", orgName: "Non òganizasyon an", selfName: "Non w", authorization: "Ajoute dokiman ki montre ou gen pèmisyon pou ranmase sipò pou moun nan oswa òganizasyon an.", diaspora: "Vil, rejyon ak peyi", noGoal: "Mwen pa gen yon objektif presi", edit: "Modifye" },
-    es: { previous: "Anterior", next: "Siguiente", basics: "Acerca de", story: "Historia", goal: "Meta", media: "Multimedia", support: "Donaciones", review: "Revisar", who: "¿Para quién recaudas fondos?", self: "Para mí", other: "Para otra persona", org: "Una organización", selfHint: "Para mis propias necesidades.", otherHint: "Para otra persona, familia o comunidad.", orgHint: "Para una organización o un grupo comunitario.", orgName: "Nombre de la organización", selfName: "Tu nombre", authorization: "Adjunta documentación que acredite tu autorización para recaudar fondos para el destinatario o la organización.", diaspora: "Ciudad, región y país", noGoal: "No tengo una meta específica", edit: "Editar" },
-  }[locale];
-  const ui = {"en":{"country":"Country","location":"Where is the beneficiary located?","city":"City, state or region","role":"Your role in the organization","story":"Tell your story","title":"Fundraiser title","desc":"Description","storyHelp":"Explain why you are fundraising and how donations will help.","goal":"How much would you like to raise?","deadline":"End date","photos":"Photos","photoTitle":"Add photos to your fundraiser","photoHelp":"Upload up to 10 photos. Choose one as your cover.","cover":"Cover","makeCover":"Make cover","delete":"Delete","photoMenu":"Photo options","uploading":"Uploading photos","photoError":"Some photos could not be uploaded. Try again.","requiredCountry":"Choose a country.","requiredLocation":"Enter the city, state or region.","requiredRole":"Enter your role.","invalidDate":"Choose a valid end date.","invalidGoal":"Enter a positive amount.","contact":"Contact information","identity":"Identity documents","evidence":"Supporting evidence","phone":"Phone or WhatsApp","contactExtra":"Additional contact or recipient details","privacy":"Share only the payment information supporters need. It will appear on your fundraiser.","reviewTitle":"Review your fundraiser","complete":"Complete","noGoal":"No fixed goal","summaryPhotos":"photos","summaryMethods":"receiving methods","summaryDocs":"private documents provided","details":"Payment details","addMethod":"Add method","removeMethod":"Remove method","chooseMethod":"Choose a payment method"},"fr":{"country":"Pays","location":"Où se trouve le bénéficiaire ?","city":"Ville, État ou région","role":"Votre rôle dans l’organisation","story":"Racontez votre histoire","title":"Titre de la collecte","desc":"Description","storyHelp":"Expliquez pourquoi vous collectez des fonds et comment les dons aideront.","goal":"Combien souhaitez-vous collecter ?","deadline":"Date de fin","photos":"Photos","photoTitle":"Ajoutez des photos à votre collecte","photoHelp":"Ajoutez jusqu’à 10 photos. Choisissez une photo de couverture.","cover":"Couverture","makeCover":"Définir comme couverture","delete":"Supprimer","photoMenu":"Options de la photo","uploading":"Envoi des photos","photoError":"Certaines photos n’ont pas pu être envoyées. Réessayez.","requiredCountry":"Choisissez un pays.","requiredLocation":"Indiquez la ville, l’État ou la région.","requiredRole":"Indiquez votre rôle.","invalidDate":"Choisissez une date valide.","invalidGoal":"Saisissez un montant positif.","contact":"Coordonnées","identity":"Pièces d’identité","evidence":"Justificatifs","phone":"Téléphone ou WhatsApp","contactExtra":"Autres coordonnées ou précisions sur le destinataire","privacy":"Partagez uniquement les coordonnées de paiement nécessaires. Elles apparaîtront sur votre collecte.","reviewTitle":"Vérifiez votre collecte","complete":"Terminé","noGoal":"Sans objectif fixe","summaryPhotos":"photos","summaryMethods":"moyens de réception","summaryDocs":"documents privés fournis","details":"Coordonnées de paiement","addMethod":"Ajouter un moyen","removeMethod":"Retirer le moyen","chooseMethod":"Choisir un moyen de paiement"},"ht":{"country":"Peyi","location":"Ki kote benefisyè a ye?","city":"Vil, eta oswa rejyon","role":"Wòl ou nan òganizasyon an","story":"Rakonte istwa w","title":"Tit ranmasaj la","desc":"Deskripsyon","storyHelp":"Esplike poukisa w ap ranmase sipò ak kijan don yo pral ede.","goal":"Konbyen ou ta renmen ranmase?","deadline":"Dat fen","photos":"Foto","photoTitle":"Ajoute foto nan ranmasaj ou a","photoHelp":"Ajoute jiska 10 foto. Chwazi youn kòm foto kouvèti.","cover":"Kouvèti","makeCover":"Mete kòm kouvèti","delete":"Efase","photoMenu":"Opsyon foto","uploading":"N ap voye foto yo","photoError":"Gen foto ki pa t voye. Eseye ankò.","requiredCountry":"Chwazi yon peyi.","requiredLocation":"Antre vil, eta oswa rejyon an.","requiredRole":"Antre wòl ou.","invalidDate":"Chwazi yon dat ki valab.","invalidGoal":"Antre yon montan ki pozitif.","contact":"Enfòmasyon kontak","identity":"Pyès idantite","evidence":"Dokiman prèv","phone":"Telefòn oswa WhatsApp","contactExtra":"Lòt detay kontak oswa sou moun k ap resevwa a","privacy":"Pataje sèlman enfòmasyon peman moun bezwen. Yo pral parèt sou ranmasaj ou a.","reviewTitle":"Revize ranmasaj ou a","complete":"Konplè","noGoal":"Pa gen objektif fiks","summaryPhotos":"foto","summaryMethods":"fason pou resevwa","summaryDocs":"dokiman prive bay","details":"Detay peman","addMethod":"Ajoute yon fason","removeMethod":"Retire fason an","chooseMethod":"Chwazi yon fason pou resevwa"},"es":{"country":"País","location":"¿Dónde se encuentra el beneficiario?","city":"Ciudad, estado o región","role":"Tu función en la organización","story":"Cuenta tu historia","title":"Título de la recaudación","desc":"Descripción","storyHelp":"Explica por qué recaudas fondos y cómo ayudarán las donaciones.","goal":"¿Cuánto te gustaría recaudar?","deadline":"Fecha de finalización","photos":"Fotos","photoTitle":"Añade fotos a tu recaudación","photoHelp":"Sube hasta 10 fotos. Elige una como portada.","cover":"Portada","makeCover":"Establecer como portada","delete":"Eliminar","photoMenu":"Opciones de foto","uploading":"Subiendo fotos","photoError":"No se pudieron subir algunas fotos. Inténtalo de nuevo.","requiredCountry":"Selecciona un país.","requiredLocation":"Introduce la ciudad, estado o región.","requiredRole":"Introduce tu función.","invalidDate":"Selecciona una fecha válida.","invalidGoal":"Introduce un importe positivo.","contact":"Información de contacto","identity":"Documentos de identidad","evidence":"Documentos justificativos","phone":"Teléfono o WhatsApp","contactExtra":"Otros datos de contacto o del destinatario","privacy":"Comparte solo los datos necesarios para recibir pagos. Aparecerán en tu recaudación.","reviewTitle":"Revisa tu recaudación","complete":"Completo","noGoal":"Sin meta fija","summaryPhotos":"fotos","summaryMethods":"métodos de recepción","summaryDocs":"documentos privados aportados","details":"Datos de pago","addMethod":"Añadir método","removeMethod":"Quitar método","chooseMethod":"Elegir método de pago"}}[locale];
+  const F = formText[locale], ui = F.ui, c = F.c, k = F.k, verification = F.verification, x = { ...F.x, editor: d.x.form.editor };
+  const navCopy = { ...F.nav, basics: F.steps.basics, story: F.steps.story, goal: F.steps.goal, support: F.steps.receive, review: F.steps.submit };
   const countries = useMemo(() => countryList ?? countryOptions(locale), [countryList, locale]);
   const beneficiaryType = f.beneficiary_relation === "self" ? "self" : f.beneficiary_relation === "organization" ? "org" : f.beneficiary_relation ? "other" : "";
-  const [noGoal, setNoGoal] = useState(false);
+  const [readyHidden, setReadyHidden] = useState(false);
+  useEffect(() => { try { if (localStorage.getItem("fivonine-ready-seen")) setReadyHidden(true); } catch {} }, []);
   const [busy, setBusy] = useState<string | null>(null);
   const [upErr, setUpErr] = useState<string | null>(null);
   const [deviceAt, setDeviceAt] = useState<string | null>(null);
@@ -156,8 +152,8 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
   const sectionOf = (key: string) => verificationKeys.includes(key) ? "verification" : key.startsWith("beneficiary_") || ["cause", "department", "country_code", "commune", "organization_role"].includes(key) ? "basics" : key === "title" || key === "story" ? "story" : key === "goal_amount" || key === "deadline" || key === "budget" ? "goal" : key === "cover_path" || key === "video_url" ? "media" : key === "consent" ? "submit" : "receive";
   const items: [string, string][] = [
     ["basics", navCopy.basics], ["story", navCopy.story], ["goal", navCopy.goal],
-    ["media", ui.photos], ["receive", navCopy.support],
-    ["verification", c.s5], ["submit", navCopy.review],
+    ["media", F.steps.media], ["receive", navCopy.support],
+    ["verification", F.steps.verification], ["submit", navCopy.review],
   ];
   const stepIndex = items.findIndex(([id]) => id === activeStep);
   const lastStep = stepIndex === items.length - 1;
@@ -276,6 +272,12 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
   const closePreview = () => { previewDialog.current?.close(); setPreviewOpen(false); };
   const err = (key: string) => errors[key] ? <p className="field-error" id={`e-${key}`}><Icon name="alert" size={15} />{errors[key]}</p> : null;
   const inv = (key: string) => ({ "aria-invalid": errors[key] ? true : undefined, "aria-describedby": errors[key] ? `e-${key}` : undefined });
+  // Only the field that is actually wrong is marked, not every field of the method.
+  const fieldBad = (id: string, key: string, value: string, v: { details: string; link: string }) => {
+    if (!errors[`m.${id}`]) return false;
+    if (!value.trim()) return key === "handle" ? !v.link.trim() : true;
+    return (paymentIssues(id, v.details, v.link) as string[]).includes(key);
+  };
   const opt = <span className="opt"> ({x.optional})</span>;
   const identityInput = (key: IdentityFileField, label: string, optional = false) => (
     <div className="field">
@@ -297,7 +299,7 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
   const catName = cats.find((v) => v.slug === f.cause)?.[`name_${locale}`] ?? "";
   const where = campaignPlace(f, locale);
   const amount = Number(f.goal_amount) > 0 ? fmtMoney(Number(f.goal_amount), f.goal_currency, locale) : null;
-  const summaries: Record<string,string> = { basics: [beneficiaryType ? navCopy[beneficiaryType] : "", f.beneficiary_name, catName, where].filter(Boolean).join(" · "), story: f.title, goal: [amount ?? ui.noGoal, f.deadline].filter(Boolean).join(" · "), media: `${photos.length} ${ui.summaryPhotos}`, receive: `${methods.length} ${ui.summaryMethods}`, verification: `${[f.priv.id_front_path, f.priv.id_back_path, f.priv.selfie_path, ...f.priv.documents].filter(Boolean).length} ${ui.summaryDocs}` };
+  const summaries: Record<string,string> = { basics: [beneficiaryType ? navCopy[beneficiaryType] : "", f.beneficiary_name, catName, where].filter(Boolean).join(" · "), story: f.title, goal: [amount ?? ui.noGoal, f.deadline].filter(Boolean).join(" · "), media: ui.summaryPhotos(photos.length), receive: ui.summaryMethods(methods.length), verification: ui.summaryDocs([f.priv.id_front_path, f.priv.id_back_path, f.priv.selfie_path, ...f.priv.documents].filter(Boolean).length) };
   const savedAccount = state?.ok && state.at ? x.savedAccount(state.at) : null;
   const mail = f.priv.contact_email || email || "";
   const canDraft = f.title.trim().length >= 4;
@@ -345,9 +347,16 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
 
       <div id="wizard-top" className="wizard-top">
         <div className="wizard-progress" aria-live="polite">
-          <div className="row spread small"><strong>{cf.stepOf(stepIndex + 1, items.length)}</strong><span className="muted">{lastStep ? cf.almostDone : cf.minutesLeft(minutesLeft)}</span></div>
+          <div className="row spread small"><strong>{cf.stepOf(stepIndex + 1, items.length)} · {items[stepIndex]?.[1]}</strong><span className="muted">{lastStep ? cf.almostDone : cf.minutesLeft(minutesLeft)}</span></div>
           <div className="wizard-progress-bar" role="progressbar" aria-label={cf.stepOf(stepIndex + 1, items.length)} aria-valuemin={1} aria-valuemax={items.length} aria-valuenow={stepIndex + 1}><span style={{ width: `${((stepIndex + 1) / items.length) * 100}%` }} /></div>
         </div>
+        <details className="wizard-steps-mobile" key={activeStep}>
+          <summary>{navCopy.allSteps}</summary>
+          <ol>{items.map(([id, label], i) => {
+            const todo = Object.keys(missing).some((key) => sectionOf(key) === id);
+            return <li key={id}><button type="button" aria-current={activeStep === id ? "step" : undefined} disabled={navigationLocked} onClick={() => jump(id, "panel")}><span className="n">{i + 1}</span><span>{label}</span>{i < stepIndex && !todo && <Icon name="check" size={16} />}</button></li>;
+          })}</ol>
+        </details>
         <div id="wizard-tabs" className="wizard-tabs tabs" role="tablist" aria-label={x.title}>
           {items.map(([id, label], i) => (
             <button type="button" key={id} id={`wizard-tab-${id}`} role="tab"
@@ -374,6 +383,13 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
         {upErr && <p className="notice err" role="alert"><Icon name="alert" size={18} />{upErr}</p>}
 
         <section id="s-basics" className="part wizard-panel" role="tabpanel" aria-labelledby="wizard-tab-basics" tabIndex={-1} hidden={activeStep !== "basics"}>
+          {!live && !initial.id && !readyHidden && (
+            <aside className="ready-card" aria-labelledby="ready-title">
+              <h3 id="ready-title">{F.ready.title}</h3>
+              <ul>{F.ready.items.map((item) => <li key={item}><Icon name="check" size={16} />{item}</li>)}</ul>
+              <div><button type="button" className="btn small" onClick={() => { setReadyHidden(true); try { localStorage.setItem("fivonine-ready-seen", "1"); } catch {} }}>{F.ready.dismiss}</button></div>
+            </aside>
+          )}
           <header><h2>{navCopy.who}</h2></header>
           <fieldset className="field">
             <legend className="sr">{navCopy.who}</legend>
@@ -406,7 +422,7 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
             </label>}
           </div>}
           <div className="wizard-group">
-          <header><h2>{k.category.label}</h2><p className="muted">{k.category.hint}</p></header>
+          <header><h3>{k.category.label}</h3></header>
           <fieldset className="field" {...(errors.cause ? { "aria-describedby": "e-cause" } : {})}>
             <legend className="sr">{k.category.label}</legend>
             <div className="choice-row">
@@ -416,16 +432,16 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
           </fieldset>
           </div>
           <div className="wizard-group">
-          <header><h2>{ui.location}</h2></header>
+          <header><h3>{ui.location}</h3></header>
           <label className="field"><span>{ui.country}</span>
-            <select className="input" value={f.country_code} {...inv("country_code")} onChange={(e) => { const code = e.target.value; setF(p => ({ ...p, country_code: code, department: code && code !== "HT" ? "Diaspora" : "", commune: !p.country_code && p.department === "Diaspora" ? p.commune : "" })); setErrors(old => { const next = {...old}; delete next.country_code; delete next.department; delete next.commune; return next; }); }}>
+            <select className="input" value={f.country_code} {...inv("country_code")} onChange={(e) => { const code = e.target.value; setF(p => ({ ...p, country_code: code, goal_currency: p.goal_amount.trim() ? p.goal_currency : code && code !== "HT" ? "USD" : "HTG", department: code && code !== "HT" ? "Diaspora" : "", commune: !p.country_code && p.department === "Diaspora" ? p.commune : "" })); setErrors(old => { const next = {...old}; delete next.country_code; delete next.department; delete next.commune; return next; }); }}>
               <option value="">{c.choose}</option>
               {countries.map(({code, name}) => <option key={code} value={code}>{name}</option>)}
             </select>{err("country_code")}
           </label>
           {f.country_code === "HT" ? <div className="cols-2">
             <label className="field"><span>{c.department}</span><select className="input" value={f.department === "Diaspora" ? "" : f.department} onChange={(e) => set("department", e.target.value)} {...inv("department")}><option value="">{c.choose}</option>{DEPARTMENTS.filter(v => v !== "Diaspora").map(v => <option key={v}>{v}</option>)}</select>{err("department")}</label>
-            <label className="field"><span>{c.commune}{opt}</span><input className="input" value={f.commune} maxLength={80} onChange={(e) => set("commune", e.target.value)} /></label>
+            <label className="field"><span>{c.commune}</span><input className="input" value={f.commune} maxLength={80} onChange={(e) => set("commune", e.target.value)} /></label>
           </div> : f.country_code && <label className="field"><span>{ui.city}</span><input className="input" value={f.commune} maxLength={80} onChange={(e) => set("commune", e.target.value)} {...inv("commune")} />{err("commune")}</label>}
           </div>
         </section>
@@ -452,21 +468,21 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
 
         <section id="s-goal" className="part" role="tabpanel" aria-labelledby="wizard-tab-goal" tabIndex={-1} hidden={activeStep !== "goal"}>
           <header><h2>{ui.goal}</h2><p className="muted">{cf.goalHint}</p></header>
-          <label className="field"><span>{k.goal.label}{opt}</span>
+          <label className="field"><span>{k.goal.label}</span>
             <span className="joined">
-              <input className="input" inputMode="decimal" value={f.goal_amount} disabled={noGoal} placeholder="0.00" {...inv("goal_amount")} onChange={(e) => { const v = e.target.value.replace(",", "."); if (/^\d{0,9}(\.\d{0,2})?$/.test(v)) set("goal_amount", v); }} />
-              <select className="input" aria-label={d.support.currency} value={f.goal_currency} disabled={noGoal} onChange={(e) => set("goal_currency", e.target.value)}><option>HTG</option><option>USD</option></select>
+              <input className="input" inputMode="decimal" value={f.goal_amount} placeholder="0.00" {...inv("goal_amount")} onChange={(e) => { const v = e.target.value.replace(",", "."); if (/^\d{0,9}(\.\d{0,2})?$/.test(v)) set("goal_amount", v); }} />
+              <select className="input" aria-label={d.support.currency} value={f.goal_currency} onChange={(e) => set("goal_currency", e.target.value)}><option>HTG</option><option>USD</option></select>
             </span>
           </label>
           {err("goal_amount")}
-          <label className="check"><input type="checkbox" checked={noGoal} onChange={(e) => { setNoGoal(e.target.checked); if (e.target.checked) set("goal_amount", ""); }} /><span>{navCopy.noGoal}</span></label>
-          <label className="field"><span>{ui.deadline}{opt}</span><input className="input" type="date" value={f.deadline} onChange={(e) => set("deadline", e.target.value)} {...inv("deadline")} /><small>{cf.deadlineHint}</small>{err("deadline")}</label>
+          <p className="small muted">{ui.goalEmpty}</p>
+          <label className="field"><span>{ui.deadline}</span><input className="input" type="date" value={f.deadline} onChange={(e) => set("deadline", e.target.value)} {...inv("deadline")} /><small>{cf.deadlineHint}</small>{err("deadline")}</label>
           <div className="row tight" role="group" aria-label={cf.deadlinePick}>
             {[30, 60, 90].map((n) => <button key={n} type="button" className={`chip ${f.deadline === inDays(n) ? "on" : ""}`} aria-pressed={f.deadline === inDays(n)} onClick={() => set("deadline", inDays(n))}>{cf.days(n)}</button>)}
             <button type="button" className={`chip ${!f.deadline ? "on" : ""}`} aria-pressed={!f.deadline} onClick={() => set("deadline", "")}>{cf.noEnd}</button>
           </div>
           <div className="wizard-group budget-block">
-            <header><h3>{cf.budget.title}{opt}</h3><p className="small muted">{cf.budget.hint}</p></header>
+            <header><h3>{cf.budget.title}</h3><p className="small muted">{cf.budget.hint}</p></header>
             {f.budget.map((l, i) => (
               <div className="budget-line" key={i}>
                 <label className="field"><span className={i ? "sr" : undefined}>{cf.budget.label}</span><input className="input" value={l.label} maxLength={80} placeholder={cf.budget.labelPh} onChange={(e) => setBudget(i, { label: e.target.value })} {...inv("budget")} /></label>
@@ -481,7 +497,7 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
                 <p><span>{cf.budget.total}</span><strong>{fmtMoney(budgetTotal, f.goal_currency, locale)}</strong></p>
                 {Number(f.goal_amount) !== budgetTotal && <>
                   {Number(f.goal_amount) > 0 && <p className="small muted">{cf.budget.mismatch(fmtMoney(Number(f.goal_amount), f.goal_currency, locale), fmtMoney(budgetTotal, f.goal_currency, locale))}</p>}
-                  <div><button type="button" className="btn small" onClick={() => { setNoGoal(false); set("goal_amount", String(budgetTotal)); }}>{cf.budget.useAsGoal}</button></div>
+                  <div><button type="button" className="btn small" onClick={() => set("goal_amount", String(budgetTotal))}>{cf.budget.useAsGoal}</button></div>
                 </>}
               </div>
             )}
@@ -508,7 +524,7 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
           <p className="xs muted">{photos.length}/10</p>
           {illustrativeCover && <p className="small muted">{k.cover.demoReplace}</p>}
           {err("cover_path")}
-          <label className="field"><span>{cf.video.label}{opt}</span>
+          <label className="field"><span>{cf.video.label}</span>
             <input className="input" type="url" inputMode="url" placeholder="https://" maxLength={300} value={f.video_url} onChange={(e) => set("video_url", e.target.value)} {...inv("video_url")} />
             <small>{cf.video.hint}</small>{err("video_url")}
           </label>
@@ -530,7 +546,7 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
                       <div className="row" style={{justifyContent:"space-between"}}><span>{name}</span><button type="button" className="btn small quiet" aria-label={ui.removeMethod + " " + name} onClick={() => setMethod(m.id, null)}><Icon name="close" size={18}/></button></div>
                       {on && (
                         <>
-                          {values ? <div className="stack tight">{values.phone?.trim() && !errors[`m.${m.id}`] && <p className="pay-confirm small"><span className="muted">{cf.pay.sendsTo}</span> <strong>{values.holder?.trim() || "—"} · {formatWalletNumber(values.phone)}</strong></p>}{paymentFields(m.id).map(key => <label key={key} className="field"><span>{paymentLabel(key,locale)}{key==="handle" ? opt : null}</span><input className="input" inputMode={key==="phone"?"tel":undefined} maxLength={key==="instructions"?240:100} value={values[key]??""} onChange={e=>setMethod(m.id,{details:formatPayment(m.id,{...values,[key]:e.target.value},locale)})} {...inv(`m.${m.id}`)} /></label>)}{err(`m.${m.id}`)}</div> : <label className="field"><span>{ui.details}</span><textarea className="input" rows={3} maxLength={600} placeholder={hint} value={v.details} onChange={(e) => setMethod(m.id, { details: e.target.value })} {...inv(`m.${m.id}`)} />{err(`m.${m.id}`)}</label>}
+                          {values ? <div className="stack tight">{values.phone?.trim() && !errors[`m.${m.id}`] && <p className="pay-confirm small"><span className="muted">{cf.pay.sendsTo}</span> <strong>{values.holder?.trim() || "—"} · {formatWalletNumber(values.phone)}</strong></p>}{paymentFields(m.id).map(key => <label key={key} className="field"><span>{paymentLabel(key,locale)}{key==="handle" ? opt : null}</span><input className="input" inputMode={key==="phone"?"tel":undefined} maxLength={key==="instructions"?240:100} value={values[key]??""} onChange={e=>setMethod(m.id,{details:formatPayment(m.id,{...values,[key]:e.target.value},locale)})} {...(fieldBad(m.id, key, values[key] ?? "", v) ? { "aria-invalid": true, "aria-describedby": `e-m.${m.id}` } : {})} /></label>)}{err(`m.${m.id}`)}</div> : <label className="field"><span>{ui.details}</span><textarea className="input" rows={3} maxLength={600} placeholder={hint} value={v.details} onChange={(e) => setMethod(m.id, { details: e.target.value })} {...inv(`m.${m.id}`)} />{err(`m.${m.id}`)}</label>}
                           {(group === "app" || group === "other" || v.link) && (
                             <label className="field"><span>{x.link}{opt}</span><input className="input" type="url" inputMode="url" placeholder="https://" maxLength={300} value={v.link} onChange={(e) => setMethod(m.id, { link: e.target.value })} {...inv(`l.${m.id}`)} /><small>{x.linkHint}</small>{err(`l.${m.id}`)}</label>
                           )}
@@ -563,7 +579,7 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
             </label>
           </div>
           <label className="field"><span>{ui.phone}</span><input className="input" type="tel" inputMode="tel" autoComplete="tel" value={splitContact(f.priv.contact_details).phone} maxLength={60} onChange={(e)=>setPriv("contact_details",formatContact(e.target.value,splitContact(f.priv.contact_details).notes))} {...inv("contact_details")}/>{err("contact_details")}</label>
-          <label className="field"><span>{ui.contactExtra}{opt}</span><textarea className="input" rows={3} maxLength={500} value={splitContact(f.priv.contact_details).notes} onChange={(e)=>setPriv("contact_details",formatContact(splitContact(f.priv.contact_details).phone,e.target.value))}/></label>
+          <label className="field"><span>{ui.contactExtra}</span><textarea className="input" rows={2} maxLength={500} value={splitContact(f.priv.contact_details).notes} onChange={(e)=>setPriv("contact_details",formatContact(splitContact(f.priv.contact_details).phone,e.target.value))}/></label>
           <div className="stack">
             <h3>{ui.identity}</h3>
             <p className="muted" id="identity-hint">{verification.identityHint}</p>
@@ -574,11 +590,14 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
             </div>
             {identityInput("id_back_path", c.idBack, true)}
           </div>
+          <details className="disclose more-proof" open={Boolean(f.priv.reference_name || f.priv.reference_contact || f.priv.documents.length || (beneficiaryType && beneficiaryType !== "self"))}>
+            <summary>{ui.moreProof}</summary>
+            <div className="stack">
+            <p className="small muted">{ui.moreProofHint}</p>
           <div className="cols-2">
-            <label className="field"><span>{c.referenceName}{opt}</span><input className="input" value={f.priv.reference_name} maxLength={120} onChange={(e) => setPriv("reference_name", e.target.value)} /></label>
-            <label className="field"><span>{c.referenceContact}{opt}</span><input className="input" value={f.priv.reference_contact} maxLength={200} onChange={(e) => setPriv("reference_contact", e.target.value)} /></label>
+            <label className="field"><span>{c.referenceName}</span><input className="input" value={f.priv.reference_name} maxLength={120} onChange={(e) => setPriv("reference_name", e.target.value)} /></label>
+            <label className="field"><span>{c.referenceContact}</span><input className="input" value={f.priv.reference_contact} maxLength={200} onChange={(e) => setPriv("reference_contact", e.target.value)} /></label>
           </div>
-          <h3>{ui.evidence}</h3>
           {beneficiaryType && beneficiaryType !== "self" && <p className="muted">{navCopy.authorization}</p>}
           <div className="field"><span>{k.media.documents}</span>
             <small>{k.media.documentsHint}</small>
@@ -589,6 +608,8 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
                 <Icon name={busy === "documents" ? "spinner" : "file"} size={22} className={busy === "documents" ? "icon spin" : "icon"} /><span>{busy === "documents" ? c.uploading : c.addDocument}</span></label>
             )}
           </div>
+            </div>
+          </details>
           <label className="check"><input type="checkbox" checked={verificationConsent} required aria-required="true" onChange={(e) => { setVerificationConsent(e.target.checked); setErrors((old) => { const next = { ...old }; delete next.verificationConsent; return next; }); }} {...inv("verificationConsent")} /><span>{verification.consent}</span></label>
           {err("verificationConsent")}
           {draftKey && <p className="small muted"><Icon name="lock" size={15} />{verification.privateDraft}</p>}
@@ -596,7 +617,7 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
 
         <section id="s-submit" className="part submit-part" role="tabpanel" aria-labelledby="wizard-tab-submit" tabIndex={-1} hidden={activeStep !== "submit"}>
           <header><h2>{ui.reviewTitle}</h2><p className="muted">{live ? k.submit.changesHint : k.submit.hint}</p></header>
-          <div className="wizard-review-preview stack tight"><p className="eyebrow">{k.side.preview}</p>{card}
+          <div className="wizard-review-preview stack tight"><p className="eyebrow">{k.side.preview}</p>{f.cover_path ? card : <button type="button" className="cover-missing" onClick={() => jump("media", "panel")}><Icon name="image" size={24} /><span>{ui.addCover}</span></button>}
             <div><button type="button" className="btn" onClick={openPreview}><Icon name="eye" size={18} />{cf.preview.open}</button></div>
           </div>
           <div className="wizard-review-sections">
@@ -632,7 +653,6 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
             <button type="button" className="btn" disabled={stepIndex === 0 || navigationLocked}
               onClick={() => jump(items[stepIndex - 1][0], "panel")}><Icon name="left" size={16} />{navCopy.previous}</button>
             <div className="wizard-action-end">
-              {draftBtn()}
               {lastStep ? (
                 <button className="btn primary" type="submit" name="intent" value="submit" disabled={navigationLocked} aria-busy={pending}>{pending ? <><Icon name="spinner" size={18} />{d.common.loading}</> : live ? x.submitChanges : k.submit.label}</button>
               ) : (
@@ -640,7 +660,7 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
               )}
             </div>
           </div>
-          <div className="stack tight">{saveState}</div>
+          <div className="wizard-save">{draftBtn("small quiet")}<div className="stack tight">{saveState}</div></div>
         </div>
       </div>
       <dialog ref={previewDialog} className="modal preview-modal" aria-labelledby="preview-title" onClose={() => setPreviewOpen(false)} onClick={(e) => { if (e.target === e.currentTarget) closePreview(); }}>
@@ -657,7 +677,7 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
           {storyChars ? <div className="story" dangerouslySetInnerHTML={{ __html: previewHtml(f.story) }} /> : <p className="muted">{cf.preview.noStory}</p>}
           {budgetTotal > 0 && <section className="stack tight"><h3>{cf.preview.budget}</h3><ul className="budget-list">{budgetLines.filter((l) => Number(l.amount) > 0).map((l, i) => <li key={i}><span>{l.label}</span><strong>{fmtMoney(Number(l.amount), f.goal_currency, locale)}</strong></li>)}</ul></section>}
           <section className="stack tight"><h3>{cf.preview.support}</h3>
-            {methods.length ? <ul className="preview-methods">{methods.map((m) => <li key={m.method}><strong>{METHODS.find((v) => v.id === m.method)?.name || d.support.other}</strong><span className="small" style={{ whiteSpace: "pre-line" }}>{m.details}</span>{m.link && <span className="small muted">{m.link}</span>}</li>)}</ul> : <p className="muted">{cf.preview.noMethods}</p>}
+            {methods.length ? <ul className="preview-methods">{methods.map((m) => <li key={m.method}><strong>{METHODS.find((v) => v.id === m.method)?.name || d.support.other}</strong>{(() => { const rows = paymentRows(m.method, m.details, locale); return rows ? <dl className="method-rows">{rows.map(([l, v]) => <div key={l}><dt>{l}</dt><dd>{v}</dd></div>)}</dl> : <span className="small" style={{ whiteSpace: "pre-line" }}>{m.details}</span>; })()}{m.link && <span className="small muted">{m.link}</span>}</li>)}</ul> : <p className="muted">{cf.preview.noMethods}</p>}
           </section>
           <div><button type="button" className="btn primary" onClick={closePreview}>{cf.preview.close}</button></div>
         </div>}

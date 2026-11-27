@@ -43,3 +43,10 @@ test("free-text methods keep their old rule", () => {
   assert.equal(pf.paymentValid("other", "Cash at the church office", ""), true);
   assert.deepEqual(pf.paymentIssues("other", "Cash at the church office", ""), []);
 });
+
+test("details saved with the old labels still parse and display", () => {
+  const old = "Account holder or recipient name: Marie Joseph\nPhone number: 37123456";
+  assert.deepEqual(pf.parsePayment("moncash", old), { holder: "Marie Joseph", phone: "37123456" });
+  assert.deepEqual(pf.paymentRows("moncash", old, "ht"), [["Non sou kont lan", "Marie Joseph"], ["Nimewo telefòn", "+509 3712 3456"]]);
+  assert.equal(pf.paymentRows("other", "Cash at the church", "en"), null);
+});
