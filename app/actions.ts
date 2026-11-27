@@ -582,7 +582,16 @@ export async function addContribution(_: ActionResult, f: FormData): Promise<Act
   const id = s(f, "campaign_id"), amount = Number(s(f, "amount", 20).replace(/[\s,]/g, "")), method = s(f, "method", 30);
   if (!UUID.test(id) || !Number.isFinite(amount) || amount <= 0 || amount > 50000000) return fail(d.common.required);
   const anonymous = f.get("anonymous") === "on";
+  const sentOn = /^\d{4}-\d{2}-\d{2}$/.test(s(f, "sent_on", 10)) && !Number.isNaN(Date.parse(s(f, "sent_on", 10))) && Date.parse(s(f, "sent_on", 10)) <= Date.now() + 36e5 * 36 ? s(f, "sent_on", 10) : null;
+  const receipt = s(f, "receipt", 200);
+  if (receipt) {
+    if (!new RegExp(`^${user.id}/[a-z0-9-]{8,60}\\.(webp|jpg|jpeg|png|pdf)$`).test(receipt)) return fail(d.common.error);
+    const name = receipt.slice(user.id.length + 1);
+    const { data: found, error: listError } = await sb.storage.from("documents").list(user.id, { search: name, limit: 10 });
+    if (listError || !found?.some((object) => object.name === name)) return fail(d.common.error);
+  }
   const { error } = await sb.from("contributions").insert({
+    reference: s(f, "reference", 60) || null, sent_on: sentOn, sender_phone: s(f, "sender_phone", 30) || null, receipt_path: receipt || null,
     campaign_id: id, user_id: user.id, amount: Math.round(amount * 100) / 100, currency: s(f, "currency") === "USD" ? "USD" : "HTG",
     method: METHOD_IDS.includes(method) ? method : null, display_name: anonymous ? null : s(f, "display_name", 80) || null, anonymous, message: s(f, "message", 500) || null,
   });

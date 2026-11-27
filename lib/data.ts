@@ -5,7 +5,7 @@ import { cleanSearch } from "./format";
 import { PER_PAGE } from "./constants";
 import { checked, unavailable } from "./data-errors";
 import { FIXTURES, fxCampaigns, fxCategories, fxContributions, fxMethods, fxMine, fxNotifications, fxPrivate, fxUpdates, fxVouches } from "./fixtures";
-import type { Appeal, Campaign, CampaignChange, CampaignPrivate, Category, Contribution, Notification, Profile, Progress, Settings, SupportMethod, Update, SupportRecord, SupportTally, Vouch } from "./types";
+import type { Appeal, Campaign, CampaignChange, CampaignPrivate, Category, Contribution, Notification, Profile, Progress, Settings, SupportMethod, Update, MySupport, SupportRecord, SupportTally, Vouch } from "./types";
 
 async function dataDb() { return (await db()) ?? unavailable("connection"); }
 
@@ -226,10 +226,21 @@ export const getSupportTally = cache(async (cid: string): Promise<SupportTally> 
   const row = (Array.isArray(data) ? data[0] : data) as { reported?: number | string; confirmed?: number | string } | null;
   return { reported: Number(row?.reported ?? 0), confirmed: Number(row?.confirmed ?? 0) };
 });
+async function withReceiptLinks<T extends { receipt_path: string | null; receipt_url?: string | null }>(sb: Awaited<ReturnType<typeof dataDb>>, rows: T[]): Promise<T[]> {
+  return Promise.all(rows.map(async (row) => ({ ...row, receipt_url: row.receipt_path ? (await sb.storage.from("documents").createSignedUrl(row.receipt_path, 600)).data?.signedUrl ?? null : null })));
+}
+const noDetails = { reference: null, sent_on: null, sender_phone: null, receipt_path: null, receipt_url: null };
 /** The organizer's own list of reported support. Empty for anyone who is not on the team. */
 export async function getSupportRecords(cid: string): Promise<SupportRecord[]> {
-  if (FIXTURES) return fxContributions.filter((k) => k.campaign_id === cid).map((k) => ({ id: k.id, amount: k.amount, currency: k.currency, method: k.method, display_name: k.display_name, anonymous: k.anonymous, message: k.message, created_at: k.created_at, received_at: null }));
+  if (FIXTURES) return fxContributions.filter((k) => k.campaign_id === cid).map((k) => ({ id: k.id, amount: k.amount, currency: k.currency, method: k.method, display_name: k.display_name, anonymous: k.anonymous, message: k.message, created_at: k.created_at, received_at: null, ...noDetails, reference: "MC-48213907", sent_on: k.created_at.slice(0, 10) }));
   const sb = await dataDb();
   const { data } = await sb.rpc("campaign_support_records", { cid });
-  return ((data ?? []) as SupportRecord[]).map((k) => ({ ...k, amount: Number(k.amount) }));
+  return withReceiptLinks(sb, ((data ?? []) as SupportRecord[]).map((k) => ({ ...k, amount: Number(k.amount) })));
+}
+/** Everything the signed-in supporter has reported, with the details they added. */
+export async function mySupport(userId: string): Promise<MySupport[]> {
+  if (FIXTURES) return [];
+  const sb = await dataDb();
+  const { data } = checked(await sb.from("contributions").select("id,campaign_id,amount,currency,method,display_name,anonymous,message,created_at,received_at,reference,sent_on,sender_phone,receipt_path,campaign:campaigns(title,slug,status)").eq("user_id", userId).order("created_at", { ascending: false }).limit(100), "my_support");
+  return withReceiptLinks(sb, ((data ?? []) as unknown as MySupport[]).map((k) => ({ ...k, amount: Number(k.amount) })));
 }

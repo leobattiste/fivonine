@@ -137,6 +137,14 @@ export default async function Manage({ params, searchParams }: { params: Promise
                     <div className="stack tight" style={{ flex: "1 1 260px" }}>
                       <strong>{fmtMoney(k.amount, k.currency, locale)} <span className="muted small">· {k.anonymous || !k.display_name ? fu.support.anon : k.display_name} · {fmtDate(k.created_at, locale)}</span></strong>
                       {k.message && <p className="small">{k.message}</p>}
+                      {(k.reference || k.sent_on || k.sender_phone || k.receipt_url) && (
+                        <dl className="transfer-facts">
+                          {k.reference && <div><dt>{fu.send.ref}</dt><dd><code>{k.reference}</code></dd></div>}
+                          {k.sent_on && <div><dt>{fu.send.date}</dt><dd>{fmtDate(k.sent_on, locale)}</dd></div>}
+                          {k.sender_phone && <div><dt>{fu.send.phone}</dt><dd>{k.sender_phone}</dd></div>}
+                          {k.receipt_url && <div><dt>{fu.send.receipt}</dt><dd><a href={k.receipt_url} target="_blank" rel="noopener noreferrer">{fu.send.view}</a></dd></div>}
+                        </dl>
+                      )}
                       <span className="xs muted">{k.received_at ? fu.support.gotOn(fmtDate(k.received_at, locale)) : fu.support.waiting}</span>
                     </div>
                     <form action={confirmSupport}>{hidden("locale", locale)}{hidden("id", k.id)}{hidden("got", k.received_at ? "0" : "1")}<button className={k.received_at ? "btn small ghost" : "btn small primary"}>{k.received_at ? fu.support.undo : fu.support.got}</button></form>

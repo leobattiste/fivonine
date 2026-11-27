@@ -1112,3 +1112,12 @@ textarea.input { border-radius: var(--r); padding: 14px 18px; }
 .final-report summary::-webkit-details-marker { display: none; }
 .final-report[open] summary { margin-bottom: 12px; }
 .timeline .tag { margin-left: 8px; }
+
+/* Transfer details */
+.transfer-details { border: 1px solid var(--line); border-radius: 12px; padding: 14px; margin: 0; }
+.transfer-details legend { font-weight: 600; padding: 0 6px; }
+.transfer-facts { display: grid; gap: 4px; margin: 4px 0 0; font-size: 14px; }
+.transfer-facts div { display: flex; gap: 8px; flex-wrap: wrap; }
+.transfer-facts dt { color: var(--muted); }
+.transfer-facts dd { margin: 0; }
+.transfer-facts code { font-family: ui-monospace, monospace; background: var(--sage); padding: 1px 6px; border-radius: 4px; }

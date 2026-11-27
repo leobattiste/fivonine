@@ -3,6 +3,8 @@ import Icon from "./Icon";
 import ActionForm, { Submit } from "./ActionForm";
 import { CopyButton } from "./Bits";
 import { addContribution } from "@/app/actions";
+import ReceiptField from "./ReceiptField";
+import { followUp } from "@/lib/dict/follow-up";
 import { METHODS, methodName } from "@/lib/constants";
 import { t, type Locale } from "@/lib/i18n";
 import type { Campaign, SupportMethod } from "@/lib/types";
@@ -62,6 +64,16 @@ export function SentForm({ c, methods, locale, viewerName, signedIn }: { c: Camp
             {methods.map((m) => <option key={m.id} value={m.method}>{methodName(m.method, d.support.other)}</option>)}
           </select>
         </label>
+        <fieldset className="stack tight transfer-details">
+          <legend>{followUp[locale].send.title}</legend>
+          <p className="xs muted">{followUp[locale].send.privacy}</p>
+          <div className="cols-2">
+            <label className="field"><span>{followUp[locale].send.date} <span className="opt">({d.common.optional})</span></span><input className="input" type="date" name="sent_on" max={new Date().toISOString().slice(0, 10)} /></label>
+            <label className="field"><span>{followUp[locale].send.phone} <span className="opt">({d.common.optional})</span></span><input className="input" name="sender_phone" inputMode="tel" maxLength={30} /></label>
+          </div>
+          <label className="field"><span>{followUp[locale].send.ref} <span className="opt">({d.common.optional})</span></span><input className="input" name="reference" maxLength={60} autoComplete="off" /><small>{followUp[locale].send.refHint}</small></label>
+          <ReceiptField locale={locale} />
+        </fieldset>
         <label className="field"><span>{d.support.name}</span><input className="input" name="display_name" defaultValue={viewerName} maxLength={80} /></label>
         <label className="check"><input type="checkbox" name="anonymous" /><span>{d.support.hideName}</span></label>
         <label className="field"><span>{d.support.message} <span className="opt">({d.common.optional})</span></span><textarea className="input" name="message" rows={2} maxLength={500} /></label>
