@@ -2,7 +2,7 @@
 const x = {
   brand: { name: "yon kout men", tagline: "A helping hand between Haitians, wherever they are." },
   nav: {
-    explore: "Donate", fundraiser: "Fundraise", how: "How it works", about: "About", share: "Create a fundraiser", search: "Search", searchLabel: "Search fundraisers",
+    explore: "Donate", fundraiser: "Fundraise", how: "How it works", about: "About", share: "Create a campaign", search: "Search", searchLabel: "Search fundraisers",
     searchHint: "A name, a place or a need", go: "Search", signIn: "Sign in", account: "Account", openMenu: "Open menu", closeMenu: "Close menu",
     dashboard: "Overview", fundraisers: "My fundraisers", saved: "Bookmarked", notifications: "Notifications", profile: "Profile", admin: "Admin", signOut: "Sign out",
     settings: "Settings", preferences: "Preferences", security: "Security", requestDeletion: "Request account deletion",
@@ -24,7 +24,7 @@ const x = {
     ],
     organizerTitle: "Raising support for someone?",
     organizerBody: "Write the story in English, French, Kreyòl or Spanish, add a photo, and say how you receive support. We usually review within two days.",
-    organizerCta: "Create a fundraiser",
+    organizerCta: "Create a campaign",
     organizerLink: "Read the organizer guide",
     emptyTitle: "The first fundraisers are in review",
     emptyBody: "We read every story and check every organizer before anything goes public, so this page starts empty on purpose. Come back soon, or share the first fundraiser.",
@@ -175,7 +175,7 @@ const x = {
     toc: "On this page",
     how: {
       flowTitle: "Where the money goes", flowSupporter: "You", flowOrganizer: "The organizer", flowVia: "Transfer, wallet, bank or app", flowUs: "yon kout men publishes the story and the details. The money never passes through us.",
-      giveCta: "Explore fundraisers", needCta: "Create a fundraiser",
+      giveCta: "Explore fundraisers", needCta: "Create a campaign",
     },
     about: { photo: "Jacmel, Sud-Est" },
   },
