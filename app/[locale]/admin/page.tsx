@@ -27,7 +27,7 @@ export default async function Admin({ params, searchParams }: { params: Promise<
   const title = TABS.find(([k]) => k === tab)![1];
   return (
     <div className="wrap page" style={{ paddingTop: 8 }}>
-      {siteSettings.testMode && <div className="notice" role="status"><Icon name="alert" size={18} /><span><strong>Pre-launch test mode is on.</strong> Administrator fundraisers skip ID and recipient checks. <Link href={`${base}?tab=settings`}>Turn it off before launch</Link>.</span></div>}
+      {siteSettings.testMode && <div className="notice" role="status"><Icon name="alert" size={18} /><span><strong>Pre-launch test mode is on.</strong> Fundraisers from administrators and the listed test account skip ID and recipient checks. <Link href={`${base}?tab=settings`}>Turn it off before launch</Link>.</span></div>}
       <div className="admin-shell">
         <nav className="side-nav" aria-label="Admin sections">
           {TABS.map(([k, label, icon]) => <Link key={k} href={`${base}?tab=${k}`} aria-current={tab === k ? "page" : undefined}><Icon name={icon} size={18} />{label}{badge[k] > 0 && <span className="count">{badge[k]}</span>}</Link>)}
@@ -223,7 +223,7 @@ async function SettingsTab() {
       <div className="stack">
         <ActionForm action={setTestMode} className="stack panel">
           <h2>Pre-launch test mode</h2>
-          <p className="small muted">While this is on, fundraisers owned by an administrator can go live without ID photos, a selfie or a second reviewer. Fundraisers from everyone else still need full verification. Turn this off before launch.</p>
+          <p className="small muted">While this is on, fundraisers owned by an administrator or a listed test account (leoincompris@gmail.com) can go live without ID photos, a selfie or a second reviewer. Fundraisers from everyone else still need full verification. Turn this off before launch.</p>
           <label className="check"><input type="checkbox" name="active" defaultChecked={settings.testMode === true} /><span>Test mode is on</span></label>
           <Submit>Save test mode</Submit>
         </ActionForm>
