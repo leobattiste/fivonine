@@ -1,6 +1,8 @@
 import type { NextConfig } from "next";
 const config: NextConfig = {
   poweredByHeader: false,
+  // Share images read the logo font from disk.
+  outputFileTracingIncludes: { "/[locale]/**/opengraph-image*": ["./lib/og/**"] },
   async headers() {
     return [
       {
