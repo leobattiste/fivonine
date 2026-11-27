@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import ActionForm, { Confirm, Submit } from "@/components/ActionForm";
 import Icon, { type IconName } from "@/components/Icon";
 import AdminTable from "@/components/AdminTable";
-import { addBlock, decideAppeal, decideVouch, removeBlock, resolveItem, saveCategory, saveSettings, setBan, setRole, verifyOrg } from "@/app/admin-actions";
+import { addBlock, decideAppeal, decideVouch, removeBlock, resolveItem, saveCategory, saveSettings, setBan, setRole, setTestMode, verifyOrg } from "@/app/admin-actions";
 import { requireAdmin } from "@/lib/auth";
 import { adminAppeals, adminAudit, adminBlocklist, adminCampaigns, adminCategories, adminChanges, adminCounts, adminMessages, adminReports, adminUsers, adminVouches } from "@/lib/admin-data";
 import { getSettings } from "@/lib/data";
@@ -21,12 +21,13 @@ export default async function Admin({ params, searchParams }: { params: Promise<
   const me = await requireAdmin(locale);
   const sp = await searchParams;
   const tab = TABS.some(([k]) => k === sp.tab) ? sp.tab! : "queue";
-  const counts = await adminCounts();
+  const [counts, siteSettings] = await Promise.all([adminCounts(), getSettings()]);
   const badge: Record<string, number> = { queue: counts.pending + counts.changes, reports: counts.reports, vouches: counts.vouches, messages: counts.messages, appeals: counts.appeals, users: counts.orgs };
   const base = `/${locale}/admin`;
   const title = TABS.find(([k]) => k === tab)![1];
   return (
     <div className="wrap page" style={{ paddingTop: 8 }}>
+      {siteSettings.testMode && <div className="notice" role="status"><Icon name="alert" size={18} /><span><strong>Pre-launch test mode is on.</strong> Administrator fundraisers skip ID and recipient checks. <Link href={`${base}?tab=settings`}>Turn it off before launch</Link>.</span></div>}
       <div className="admin-shell">
         <nav className="side-nav" aria-label="Admin sections">
           {TABS.map(([k, label, icon]) => <Link key={k} href={`${base}?tab=${k}`} aria-current={tab === k ? "page" : undefined}><Icon name={icon} size={18} />{label}{badge[k] > 0 && <span className="count">{badge[k]}</span>}</Link>)}
@@ -220,6 +221,12 @@ async function SettingsTab() {
   return (
     <div className="manage-grid">
       <div className="stack">
+        <ActionForm action={setTestMode} className="stack panel">
+          <h2>Pre-launch test mode</h2>
+          <p className="small muted">While this is on, fundraisers owned by an administrator can go live without ID photos, a selfie or a second reviewer. Fundraisers from everyone else still need full verification. Turn this off before launch.</p>
+          <label className="check"><input type="checkbox" name="active" defaultChecked={settings.testMode === true} /><span>Test mode is on</span></label>
+          <Submit>Save test mode</Submit>
+        </ActionForm>
         <ActionForm action={saveSettings} className="stack panel">
           <h2>Emergency mode</h2>
           <p className="small muted">Shows a banner on every page that links to emergency campaigns. Mark campaigns as “Emergency” when you review them, and they move to the top of the queue.</p>

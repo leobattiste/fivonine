@@ -20,6 +20,7 @@ export const getSettings = cache(async (): Promise<Settings> => {
   const out = structuredClone(defaults);
   for (const row of data ?? []) {
     if (row.key === "emergency") out.emergency = { ...out.emergency, ...row.value };
+    if (row.key === "prelaunch_test_mode") out.testMode = row.value?.active === true;
     if (row.key === "rate" && Number(row.value?.htg_per_usd) > 0) out.rate = { htg_per_usd: Number(row.value.htg_per_usd) };
   }
   return out;
