@@ -36,7 +36,7 @@ export default async function Manage({ params, searchParams }: { params: Promise
 
   return (
     <div className="wrap page">
-      {confirm && <ClearDraft storageKey={`fivonine-draft-${viewer.id}`} />}
+      {confirm && <><ClearDraft storageKey={`fivonine-draft-${viewer.id}`} /><ClearDraft storageKey={`fivonine-draft-${viewer.id}-${c.id}`} /></>}
       <Link className="crumb" href={L("/dashboard")}><Icon name="left" size={18} />{d.x.nav.dashboard}</Link>
 
       {confirm ? (

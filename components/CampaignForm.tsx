@@ -35,11 +35,16 @@ function previewHtml(html: string): string {
   walk(doc.body);
   return doc.body.innerHTML;
 }
-const STEP_MINUTES = [1, 3, 2, 2, 2, 3, 1];
+/** Rough minutes each unfinished item takes. "Time left" is the sum of what is still missing, not the step position. */
+const ITEM_MINUTES: Record<string, number> = {
+  beneficiary_relation: 0.3, beneficiary_name: 0.3, organization_role: 0.3, cause: 0.3, country_code: 0.3, department: 0.3, commune: 0.3,
+  title: 0.7, story: 4, goal_amount: 0.5, budget: 0.7, cover_path: 2, video_url: 0.3, methods: 2,
+  contact_name: 0.3, contact_email: 0.3, contact_details: 0.5, id_front_path: 1.5, selfie_path: 1.5, consent: 0.5, verificationConsent: 0.2,
+};
 const time = (locale: Locale) => new Intl.DateTimeFormat(locale, { hour: "numeric", minute: "2-digit" }).format(new Date());
 
 /** One visible section at a time, with shared draft state and final submission validation. */
-export default function CampaignForm({ locale, cats, initial, draftKey, live, email, reviewNote, countryList }: { locale: Locale; cats: Category[]; initial: FormState; draftKey: string | null; live: boolean; email?: string; reviewNote?: string | null; countryList?: { code: string; name: string }[] }) {
+export default function CampaignForm({ locale, cats, initial, draftKey, live, email, reviewNote, countryList, autosave = false, resetDevice = false }: { locale: Locale; cats: Category[]; initial: FormState; draftKey: string | null; live: boolean; email?: string; reviewNote?: string | null; countryList?: { code: string; name: string }[]; autosave?: boolean; resetDevice?: boolean }) {
   const d = t(locale), cf = createFlow[locale];
   const [f, setF] = useState<FormState>(initial);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -49,8 +54,6 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
   const navCopy = { ...F.nav, basics: F.steps.basics, story: F.steps.story, goal: F.steps.goal, support: F.steps.receive, review: F.steps.submit };
   const countries = useMemo(() => countryList ?? countryOptions(locale), [countryList, locale]);
   const beneficiaryType = f.beneficiary_relation === "self" ? "self" : f.beneficiary_relation === "organization" ? "org" : f.beneficiary_relation ? "other" : "";
-  const [readyHidden, setReadyHidden] = useState(false);
-  useEffect(() => { try { if (localStorage.getItem("fivonine-ready-seen")) setReadyHidden(true); } catch {} }, []);
   const [busy, setBusy] = useState<string | null>(null);
   const [upErr, setUpErr] = useState<string | null>(null);
   const [deviceAt, setDeviceAt] = useState<string | null>(null);
@@ -76,6 +79,8 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
   useEffect(() => {
     if (!draftKey) return;
     try {
+      // "Start a new one": forget the unsaved answers on this device, then behave like a normal resume on refresh.
+      if (resetDevice) { localStorage.removeItem(draftKey); window.history.replaceState(null, "", `${window.location.pathname}?resume=1`); return; }
       const raw = localStorage.getItem(draftKey);
       if (raw) setF(restoreDeviceDraft(initial, raw));
     } catch {}
@@ -260,6 +265,35 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
     if (path) setPriv(key, path);
   }
   const payload = JSON.stringify({ ...f, methods, budget: budgetLines, hadBudget: initial.budget.length > 0, consent: consentOk });
+  // Save to the account on its own a few seconds after the organizer stops typing, so nothing is lost if they leave.
+  const [auto, setAuto] = useState<{ kind: "idle" | "saving" | "saved" | "failed"; at?: string }>({ kind: "idle" });
+  const lastSaved = useRef(payload);
+  const inFlight = useRef(false);
+  useEffect(() => {
+    if (!autosave || live || f.title.trim().length < 4 || payload === lastSaved.current || inFlight.current) return;
+    const timer = setTimeout(async () => {
+      if (inFlight.current || busy !== null || pending) return; // the next change retries
+      inFlight.current = true;
+      setAuto({ kind: "saving" });
+      const sent = payload;
+      try {
+        const fd = new FormData();
+        fd.set("locale", locale); fd.set("payload", sent); fd.set("intent", "draft");
+        const r = await saveCampaign(null, fd);
+        if (r?.ok) {
+          lastSaved.current = sent;
+          setAuto({ kind: "saved", at: r.at ?? time(locale) });
+          const newId = r.id;
+          if (newId) {
+            setF((p) => (p.id ? p : { ...p, id: newId }));
+            if (window.location.pathname.endsWith("/create")) window.history.replaceState(null, "", `${window.location.pathname}?draft=${newId}`);
+          }
+        } else setAuto({ kind: "failed" });
+      } catch { setAuto({ kind: "failed" }); }
+      finally { inFlight.current = false; }
+    }, 2500);
+    return () => clearTimeout(timer);
+  }, [payload, autosave, live, busy, pending, locale, f.title, auto.kind]);
   const setBudget = (i: number, patch: Partial<{ label: string; amount: string }> | null) => {
     setF((p) => ({ ...p, budget: patch === null ? p.budget.filter((_, j) => j !== i) : p.budget.map((l, j) => (j === i ? { ...l, ...patch } : l)) }));
     setErrors((e) => { const n = { ...e }; delete n.budget; return n; });
@@ -267,7 +301,8 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
   const inDays = (n: number) => { const t = new Date(); t.setDate(t.getDate() + n); return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, "0")}-${String(t.getDate()).padStart(2, "0")}`; };
   const storyChars = plain(f.story).length;
   const prompts = cf.prompts.byCause[f.cause] ?? cf.prompts.fallback;
-  const minutesLeft = STEP_MINUTES.slice(Math.max(0, stepIndex)).reduce((a, b) => a + b, 0);
+  const minutesLeft = Math.ceil(Object.keys(missing).reduce((sum, key) => sum + (key.startsWith("m.") || key.startsWith("l.") ? 0.5 : ITEM_MINUTES[key] ?? 0.3), 0)
+    + (!missing.story && storyChars < 400 ? 1.5 : 0));
   const openPreview = () => { setPreviewOpen(true); requestAnimationFrame(() => previewDialog.current?.showModal()); };
   const closePreview = () => { previewDialog.current?.close(); setPreviewOpen(false); };
   const err = (key: string) => errors[key] ? <p className="field-error" id={`e-${key}`}><Icon name="alert" size={15} />{errors[key]}</p> : null;
@@ -315,7 +350,17 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
       </p>
     </article>
   );
-  const saveState = (
+  const saveState = autosave && !live ? (
+    <>
+      {state && !state.ok && <p className="field-error" role="alert"><Icon name="alert" size={15} />{state.message}</p>}
+      <p className={`save-state ${auto.kind === "saved" ? "ok" : ""}`} role="status">
+        {auto.kind === "saving" ? <><Icon name="spinner" size={15} />{F.save.saving}</>
+          : auto.kind === "saved" ? <><Icon name="done" size={16} />{F.save.saved(auto.at ?? "")}</>
+          : auto.kind === "failed" ? <><Icon name="alert" size={15} />{F.save.failed}</>
+          : f.title.trim().length < 4 ? <><Icon name="check" size={15} />{F.save.deviceOnly}</> : f.id ? <><Icon name="done" size={16} />{F.save.saved("").replace(/ · $/, "")}</> : null}
+      </p>
+    </>
+  ) : (
     <>
       {state && !state.ok && <p className="field-error" role="alert"><Icon name="alert" size={15} />{state.message}</p>}
       {savedAccount ? <p className="save-state ok" role="status"><Icon name="done" size={16} />{savedAccount}</p>
@@ -347,7 +392,7 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
 
       <div id="wizard-top" className="wizard-top">
         <div className="wizard-progress" aria-live="polite">
-          <div className="row spread small"><strong>{cf.stepOf(stepIndex + 1, items.length)} · {items[stepIndex]?.[1]}</strong><span className="muted">{lastStep ? cf.almostDone : cf.minutesLeft(minutesLeft)}</span></div>
+          <div className="row spread small"><strong>{cf.stepOf(stepIndex + 1, items.length)} · {items[stepIndex]?.[1]}</strong><span className="muted">{minutesLeft === 0 ? F.save.readyToSend : cf.minutesLeft(minutesLeft)}</span></div>
           <div className="wizard-progress-bar" role="progressbar" aria-label={cf.stepOf(stepIndex + 1, items.length)} aria-valuemin={1} aria-valuemax={items.length} aria-valuenow={stepIndex + 1}><span style={{ width: `${((stepIndex + 1) / items.length) * 100}%` }} /></div>
         </div>
         <details className="wizard-steps-mobile" key={activeStep}>
@@ -383,13 +428,6 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
         {upErr && <p className="notice err" role="alert"><Icon name="alert" size={18} />{upErr}</p>}
 
         <section id="s-basics" className="part wizard-panel" role="tabpanel" aria-labelledby="wizard-tab-basics" tabIndex={-1} hidden={activeStep !== "basics"}>
-          {!live && !initial.id && !readyHidden && (
-            <aside className="ready-card" aria-labelledby="ready-title">
-              <h3 id="ready-title">{F.ready.title}</h3>
-              <ul>{F.ready.items.map((item) => <li key={item}><Icon name="check" size={16} />{item}</li>)}</ul>
-              <div><button type="button" className="btn small" onClick={() => { setReadyHidden(true); try { localStorage.setItem("fivonine-ready-seen", "1"); } catch {} }}>{F.ready.dismiss}</button></div>
-            </aside>
-          )}
           <header><h2>{navCopy.who}</h2></header>
           <fieldset className="field">
             <legend className="sr">{navCopy.who}</legend>
@@ -660,7 +698,7 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
               )}
             </div>
           </div>
-          <div className="wizard-save">{draftBtn("small quiet")}<div className="stack tight">{saveState}</div></div>
+          <div className="wizard-save">{!autosave && draftBtn("small quiet")}<div className="stack tight">{saveState}</div></div>
         </div>
       </div>
       <dialog ref={previewDialog} className="modal preview-modal" aria-labelledby="preview-title" onClose={() => setPreviewOpen(false)} onClick={(e) => { if (e.target === e.currentTarget) closePreview(); }}>
