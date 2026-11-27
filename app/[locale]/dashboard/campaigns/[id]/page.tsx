@@ -4,7 +4,8 @@ import { notFound } from "next/navigation";
 import Icon from "@/components/Icon";
 import ActionForm, { Confirm, Submit } from "@/components/ActionForm";
 import { Cover, StatusPill } from "@/components/Campaign";
-import { ClearDraft, ShareBar } from "@/components/Bits";
+import { ClearDraft, CopyButton, ShareBar } from "@/components/Bits";
+import { createFlow } from "@/lib/dict/create-flow";
 import { UpdateForm } from "@/components/Uploads";
 import { addTeamMember, deleteCampaign, deleteUpdate, discardChanges, removeTeamMember, setCampaignStatus } from "@/app/actions";
 import { requireViewer } from "@/lib/auth";
@@ -47,6 +48,31 @@ export default async function Manage({ params, searchParams }: { params: Promise
             <Link className="btn" href={L(`/campaigns/${c.slug}`)}><Icon name="eye" size={18} />{d.x.form.confirm.view}</Link>
             <Link className="btn quiet" href={L("/dashboard")}>{d.x.form.confirm.dashboard}</Link>
           </div>
+          {confirm === "sent" && (() => {
+            const cf = createFlow[locale], url = `${SITE_URL}/${locale}/campaigns/${c.slug}`, message = cf.after.message(c.title, url);
+            return (
+              <div className="after-submit">
+                <section aria-labelledby="next-h">
+                  <h2 id="next-h">{cf.after.title}</h2>
+                  <ol className="after-steps">{cf.after.steps(priv?.contact_email || viewer.email).map((step, i) => <li key={i}><span className="n">{i + 1}</span><span>{step}</span></li>)}</ol>
+                </section>
+                <section aria-labelledby="share-h" className="stack tight">
+                  <h2 id="share-h">{cf.after.shareTitle}</h2>
+                  <p className="small muted">{cf.after.shareBody}</p>
+                  <p className="share-message">{message}</p>
+                  <div className="row tight">
+                    <CopyButton text={message} locale={locale} label={cf.after.copy} done={cf.after.copied} className="btn small primary" />
+                    <a className="btn small" href={`https://wa.me/?text=${encodeURIComponent(message)}`} target="_blank" rel="noopener noreferrer"><Icon name="whatsapp" size={17} />WhatsApp</a>
+                  </div>
+                </section>
+                <section aria-labelledby="team-h" className="stack tight">
+                  <h2 id="team-h">{cf.after.teamTitle}</h2>
+                  <p className="small muted">{cf.after.teamBody}</p>
+                  <div><a className="btn small" href="#team"><Icon name="group" size={17} />{cf.after.teamCta}</a></div>
+                </section>
+              </div>
+            );
+          })()}
         </section>
       ) : (
         <header className="row spread end" style={{ alignItems: "flex-start" }}>

@@ -79,6 +79,7 @@ export default async function AdminCampaign({ params }: { params: Promise<{ loca
               {kv("End date", c.deadline)}
               {kv("Language", c.language)}
               {kv("Asked for urgent", c.urgent ? "Yes" : "No")}
+              {kv("Budget", Array.isArray(c.budget) && c.budget.length ? c.budget.map((l) => `${l.label}: ${fmtMoney(Number(l.amount), c.goal_currency, "en")}`).join(" · ") : null)}
               {kv("Video", c.video_url && <a href={c.video_url} target="_blank" rel="noopener noreferrer nofollow">{c.video_url}</a>)}
             </dl>
             {voice && <audio controls preload="none" src={voice} />}

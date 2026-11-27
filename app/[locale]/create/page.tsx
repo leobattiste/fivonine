@@ -8,6 +8,7 @@ import ProfileSetup from "@/components/ProfileSetup";
 import { profileReady, requireViewer } from "@/lib/auth";
 import { getCategories } from "@/lib/data";
 import { isLocale, t } from "@/lib/i18n";
+import { countryOptions } from "@/lib/countries";
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   return isLocale(locale) ? { title: t(locale).x.form.title } : {};
@@ -27,7 +28,7 @@ export default async function Create({ params }: { params: Promise<{ locale: str
       {viewer.profile.banned ? <p className="notice err"><Icon name="lock" size={18} />{d.dash.restricted}</p> : !profileReady(viewer.profile) ? (
         <ProfileSetup locale={locale} profile={viewer.profile} next={`/${locale}/create`} />
       ) : (
-        <CampaignForm locale={locale} cats={cats} initial={emptyForm(locale, name, viewer.email)} draftKey={`fivonine-draft-${viewer.id}`} live={false} email={viewer.email} />
+        <CampaignForm locale={locale} cats={cats} initial={emptyForm(locale, name, viewer.email)} draftKey={`fivonine-draft-${viewer.id}`} live={false} email={viewer.email} countryList={countryOptions(locale)} />
       )}
     </div>
   );

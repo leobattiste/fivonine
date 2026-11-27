@@ -985,3 +985,51 @@ textarea.input { border-radius: var(--r); padding: 14px 18px; }
   .doc { grid-template-columns: 260px minmax(0, 1fr); }
   .wizard-form .photo-grid { grid-template-columns: repeat(auto-fill, minmax(min(100%, 180px), 1fr)); }
 }
+
+/* ---------- Guided application (create flow v2) ---------- */
+.wizard-progress { display: grid; gap: 8px; }
+.wizard-progress .row { align-items: baseline; }
+.wizard-progress-bar { height: 6px; border-radius: var(--pill); background: var(--sage); overflow: hidden; }
+.wizard-progress-bar > span { display: block; height: 100%; border-radius: inherit; background: var(--green); transition: width var(--med) var(--ease); }
+.story-meter { display: flex; align-items: center; gap: 10px; font-size: var(--text-tiny); color: var(--muted); }
+.story-meter-bar { flex: 0 0 96px; height: 5px; border-radius: var(--pill); background: var(--line); overflow: hidden; }
+.story-meter-bar > span { display: block; height: 100%; border-radius: inherit; background: var(--warn); transition: width var(--med) var(--ease); }
+.story-meter.low { color: var(--err); }
+.story-meter.low .story-meter-bar > span { background: var(--err); }
+.story-meter.high .story-meter-bar > span { background: var(--green); }
+.story-help { padding: 4px 16px; border: 1.5px solid var(--sage); border-radius: var(--r); }
+.story-prompts { display: grid; gap: 8px; padding: 0 0 14px 20px; list-style: decimal; color: var(--muted); }
+.story-tips ul { display: grid; gap: 6px; margin-top: 6px; }
+.story-tips li { display: flex; gap: 8px; align-items: center; }
+.story-tips li .icon { color: var(--green); flex: none; }
+.budget-block { display: grid; gap: 12px; }
+.budget-line { display: grid; grid-template-columns: minmax(0, 1fr) 140px 40px; gap: 8px; align-items: end; }
+.budget-line .input { padding-inline: 14px; }
+.budget-line .btn { margin-bottom: 4px; width: 40px; padding: 0; justify-content: center; }
+.budget-total { display: grid; gap: 8px; padding: 14px 16px; border-radius: var(--r); background: var(--sage); }
+.budget-total > p:first-child { display: flex; justify-content: space-between; gap: 12px; }
+.budget-list { display: grid; gap: 0; border-top: 1.5px solid var(--line); }
+.budget-list li { display: flex; justify-content: space-between; gap: 16px; padding: 10px 0; border-bottom: 1.5px solid var(--line); }
+.budget-public { display: grid; gap: 8px; margin-block: 8px 16px; }
+.pay-confirm { padding: 10px 14px; border-radius: 12px; background: var(--sage); }
+.why-id { display: grid; gap: 10px; padding: 16px; border-radius: var(--r); background: var(--sage); }
+.why-id h3 { display: flex; align-items: center; gap: 8px; }
+.why-id dl { display: grid; gap: 10px; }
+.why-id dt { font-weight: 600; }
+.why-id dd { color: var(--ink); }
+@media (min-width: 700px) { .why-id dl { grid-template-columns: 1fr 1fr; gap: 14px 24px; } }
+.preview-modal { width: min(680px, calc(100vw - 2 * var(--gutter))); max-height: calc(100dvh - 32px); overflow: auto; }
+.preview-modal .preview-cover { aspect-ratio: 16 / 10; border-radius: 12px; overflow: hidden; }
+.preview-modal .preview-cover img { width: 100%; height: 100%; object-fit: cover; }
+.preview-goal { font-size: var(--text-heading); font-weight: 600; }
+.preview-methods { display: grid; gap: 10px; }
+.preview-methods li { display: grid; gap: 4px; padding: 12px 14px; border: 1.5px solid var(--sage); border-radius: 12px; }
+.after-submit { display: grid; gap: 28px; padding-top: 8px; border-top: 1.5px solid var(--sage); }
+.after-submit h2 { font-size: var(--text-heading); }
+.after-steps { display: grid; gap: 12px; margin-top: 12px; }
+.after-steps li { display: flex; gap: 12px; align-items: flex-start; }
+.after-steps .n { flex: none; display: grid; place-items: center; width: 28px; height: 28px; border-radius: var(--pill); background: var(--sage); font-weight: 600; font-size: var(--text-tiny); }
+.share-message { padding: 14px 16px; border-radius: 12px; background: var(--sage); white-space: pre-wrap; overflow-wrap: anywhere; }
+@media (max-width: 520px) { .budget-line { grid-template-columns: minmax(0, 1fr) 116px 40px; gap: 6px; } }
+.preview-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.preview-head .btn { flex: none; }

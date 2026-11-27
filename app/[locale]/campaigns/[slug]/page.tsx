@@ -14,6 +14,7 @@ import { SITE_URL, VOUCH_ROLES } from "@/lib/constants";
 import { fmtDate, fmtMoney, mediaUrl } from "@/lib/format";
 import { isLocale, t } from "@/lib/i18n";
 import { storyHtml, storyText } from "@/lib/story";
+import { createFlow } from "@/lib/dict/create-flow";
 
 type P = { params: Promise<{ locale: string; slug: string }> };
 export async function generateMetadata({ params }: P): Promise<Metadata> {
@@ -100,6 +101,12 @@ export default async function FundraiserPage({ params }: P) {
           <section id="story" className="f-section" aria-label={x.tabs.story}>
             {voice && <div className="voice"><Icon name="mic" size={20} /><span className="small">{d.campaign.listen}</span><audio controls preload="none" src={voice} /></div>}
             <div className="story" lang={c.language} dangerouslySetInnerHTML={{ __html: storyHtml(c.story) }} />
+            {Array.isArray(c.budget) && c.budget.length > 0 && (
+              <section className="budget-public" aria-labelledby="budget-h">
+                <h3 id="budget-h">{createFlow[locale].preview.budget}</h3>
+                <ul className="budget-list">{c.budget.map((l, i) => <li key={i}><span>{l.label}</span><strong>{fmtMoney(Number(l.amount), c.goal_currency, locale)}</strong></li>)}</ul>
+              </section>
+            )}
             {c.video_url && <p><a className="btn small" href={c.video_url} target="_blank" rel="noopener noreferrer nofollow"><Icon name="external" size={16} />{d.campaign.video}<span className="sr"> ({d.x.common.newTab})</span></a></p>}
             {c.gallery.length > 0 && (
               <div className="gallery" aria-label={d.campaign.photos}>
