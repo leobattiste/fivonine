@@ -554,6 +554,7 @@ const en = {
     admin_appeal: (t: string) => t ? `New appeal to review: ${t}` : "New appeal to review.",
   },
   email: {
+    cta: "Open",
     greeting: "Hello,",
     open: "Open it here:",
     noteLabel: "Note from our team:",

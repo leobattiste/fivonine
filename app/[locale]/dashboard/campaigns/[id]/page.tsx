@@ -13,7 +13,7 @@ import { followUp } from "@/lib/dict/follow-up";
 import { fmtMoney } from "@/lib/format";
 import { addTeamMember, confirmSupport, deleteCampaign, deleteUpdate, discardChanges, removeTeamMember, setCampaignStatus } from "@/app/actions";
 import { requireViewer } from "@/lib/auth";
-import { getCategories, getChange, getManaged, getSupportRecords } from "@/lib/data";
+import { getCampaignStats, getCategories, getChange, getManaged, getSupportRecords } from "@/lib/data";
 import { SITE_URL } from "@/lib/constants";
 import { fmtDate } from "@/lib/format";
 import { isLocale, t } from "@/lib/i18n";
@@ -24,7 +24,7 @@ export default async function Manage({ params, searchParams }: { params: Promise
   const { locale, id } = await params;
   if (!isLocale(locale)) notFound();
   const viewer = await requireViewer(locale, `/${locale}/dashboard/campaigns/${id}`);
-  const [data, change, cats] = await Promise.all([getManaged(id), getChange(id), getCategories(true)]);
+  const [data, change, cats, views] = await Promise.all([getManaged(id), getChange(id), getCategories(true), getCampaignStats(id)]);
   if (!data) notFound();
   const { campaign: c, priv, updates, team, methods } = data;
   const d = t(locale), x = d.dash, y = d.x.dash, sp = await searchParams, L = (p: string) => `/${locale}${p}`;
@@ -117,7 +117,7 @@ export default async function Manage({ params, searchParams }: { params: Promise
             const nx = fu.next, base = `/campaigns/${c.slug}`;
             const confirmed = records.filter((k) => k.received_at).length, shown = updates.filter((u) => !u.hidden).length;
             const left = c.deadline ? Math.max(0, Math.ceil((new Date(c.deadline).getTime() - new Date().getTime()) / 864e5)) : null;
-            const stats: [string, number][] = [[nx.stats.reported, records.length], [nx.stats.confirmed, confirmed], [nx.stats.updates, shown], ...(left === null ? [] : [[nx.stats.left, left] as [string, number]])];
+            const stats: [string, number][] = [[nx.stats.views, views.views], [nx.stats.week, views.week], [nx.stats.shares, views.shares], [nx.stats.reported, records.length], [nx.stats.confirmed, confirmed], [nx.stats.updates, shown], ...(left === null ? [] : [[nx.stats.left, left] as [string, number]])];
             const items: [keyof typeof nx.items, string, boolean | null][] = [
               ["share", "#share", null], ["flyer", L(`${base}/flyer`), null], ["update", "#update", shown > 0],
               ...(records.some((k) => !k.received_at) ? [["confirm", "#support", false] as [keyof typeof nx.items, string, boolean]] : []),
@@ -192,7 +192,7 @@ export default async function Manage({ params, searchParams }: { params: Promise
           )}
         </div>
         <aside className="stack" style={{ gap: 24 }}>
-          {c.status === "live" && <section className="panel mint" id="share"><h2>{y.share}</h2><ShareBar url={`${SITE_URL}/${locale}/campaigns/${c.slug}`} title={c.title} locale={locale} /></section>}
+          {c.status === "live" && <section className="panel mint" id="share"><h2>{y.share}</h2><ShareBar cid={c.id} url={`${SITE_URL}/${locale}/campaigns/${c.slug}`} title={c.title} locale={locale} /></section>}
           {owner && (
             <section className="panel" aria-labelledby="more">
               <h2 id="more">{y.more}</h2>

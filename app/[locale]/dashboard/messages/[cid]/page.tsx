@@ -4,7 +4,8 @@ import { notFound } from "next/navigation";
 import Icon from "@/components/Icon";
 import MessageForm from "@/components/MessageForm";
 import { requireViewer } from "@/lib/auth";
-import { getThread, getThreads } from "@/lib/data";
+import { getThread, getThreads, threadBlocked } from "@/lib/data";
+import { blockThread } from "@/app/actions";
 import { followUp } from "@/lib/dict/follow-up";
 import { isLocale } from "@/lib/i18n";
 export const metadata: Metadata = { robots: { index: false } };
@@ -16,7 +17,7 @@ export default async function Thread({ params, searchParams }: { params: Promise
   const viewer = await requireViewer(locale, `/${locale}/dashboard?tab=messages`);
   const sp = await searchParams, sid = sp.with && UUID.test(sp.with) ? sp.with : viewer.id;
   const m = followUp[locale].msg;
-  const [messages, threads] = await Promise.all([getThread(cid, sid), getThreads()]);
+  const [messages, threads, blocked] = await Promise.all([getThread(cid, sid), getThreads(), threadBlocked(cid, sid)]);
   const info = threads.find((x) => x.campaign_id === cid && x.supporter_id === sid);
   const fmt = new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" });
   return (
@@ -36,7 +37,16 @@ export default async function Thread({ params, searchParams }: { params: Promise
           ))}
         </ol>
       )}
-      <section className="panel" aria-label={m.send}><MessageForm locale={locale} id={cid} withId={sid} /></section>
+      {blocked ? <p className="notice"><Icon name="info" size={18} />{info?.as_organizer ? m.blockedNote : m.blocked}</p> : <section className="panel" aria-label={m.send}><MessageForm locale={locale} id={cid} withId={sid} /></section>}
+      <div className="row">
+        {info?.as_organizer && (
+          <form action={blockThread}>
+            <input type="hidden" name="locale" value={locale} /><input type="hidden" name="id" value={cid} /><input type="hidden" name="with" value={sid} /><input type="hidden" name="on" value={blocked ? "0" : "1"} />
+            <button className="btn small ghost"><Icon name={blocked ? "check" : "close"} size={16} />{blocked ? m.unblock : m.block}</button>
+          </form>
+        )}
+        {info && !info.as_organizer && <Link className="btn small ghost" href={`/${locale}/report?campaign=${info.slug}`}><Icon name="flag" size={16} />{m.report}</Link>}
+      </div>
     </div>
   );
 }

@@ -4,17 +4,38 @@ import { SUPABASE_KEY, SUPABASE_URL, supabaseEnabled } from "./supabase/config";
 import { isLocale, t, type Locale } from "./i18n";
 import { SITE_URL } from "./constants";
 import { DeliveryFailure, processEmailBatch, unconfiguredEmailRun, type EmailJob, type EmailFailure } from "./email-worker";
+const esc = (v: string | undefined) => String(v ?? "").replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[ch] as string);
+function pathFor(job: EmailJob) {
+  if (job.kind.startsWith("admin_")) return "admin";
+  if (job.kind.startsWith("appeal_")) return "dashboard?tab=profile#appeals";
+  if (job.kind === "message") return "dashboard?tab=messages";
+  if (job.kind === "support_confirmed") return "dashboard?tab=support";
+  if (["campaign_needs_changes", "campaign_rejected", "campaign_suspended", "new_contribution"].includes(job.kind) || !job.payload.slug) return "dashboard";
+  return `campaigns/${job.payload.slug}`;
+}
 function render(job: EmailJob) {
   const locale: Locale = isLocale(job.locale) ? job.locale : "fr";
   const d = t(locale);
   const make = (d.notif as Record<string, (title: string) => string>)[job.kind];
   const title = job.payload.title ?? "";
   const subject = make ? make(title) : "yon kout men";
-  const path = job.kind.startsWith("admin_") ? "admin" : job.kind.startsWith("appeal_") ? "dashboard?tab=profile#appeals" : ["campaign_needs_changes", "campaign_rejected", "campaign_suspended"].includes(job.kind) || !job.payload.slug ? "dashboard" : `campaigns/${job.payload.slug}`;
-  const lines = [d.email.greeting, "", subject, "", `${d.email.open} ${SITE_URL}/${locale}/${path}`];
+  const link = `${SITE_URL}/${locale}/${pathFor(job)}`;
+  const lines = [d.email.greeting, "", subject, "", `${d.email.open} ${link}`];
   if (job.payload.note) lines.push("", `${d.email.noteLabel} ${job.payload.note}`);
   lines.push("", "yon kout men", "", d.email.footer);
-  return { subject, text: lines.join("\n") };
+  const font = "font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif";
+  const html = `<!doctype html><html lang="${locale}"><body style="margin:0;background:#f4f4f4;padding:24px 12px;${font};color:#111111">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#ffffff;border-radius:16px">
+<tr><td style="padding:28px 28px 8px;font-size:22px;font-weight:700;letter-spacing:-0.5px">ykm</td></tr>
+<tr><td style="padding:8px 28px 0;font-size:16px;line-height:1.55">${esc(d.email.greeting)}</td></tr>
+<tr><td style="padding:12px 28px 0;font-size:20px;line-height:1.35;font-weight:600">${esc(subject)}</td></tr>
+${job.payload.note ? `<tr><td style="padding:16px 28px 0"><div style="background:#f4f4f4;border-radius:12px;padding:14px 16px;font-size:15px;line-height:1.5"><strong style="font-weight:600">${esc(d.email.noteLabel)}</strong> ${esc(job.payload.note)}</div></td></tr>` : ""}
+<tr><td style="padding:24px 28px 28px"><a href="${esc(link)}" style="display:inline-block;background:#111111;color:#ffffff;text-decoration:none;font-size:16px;font-weight:600;padding:13px 24px;border-radius:999px">${esc((d.email as { cta?: string }).cta ?? d.email.open)}</a></td></tr>
+</table>
+<p style="max-width:520px;margin:16px auto 0;font-size:12px;line-height:1.5;color:#777777">${esc(d.email.footer)}</p>
+</td></tr></table></body></html>`;
+  return { subject, text: lines.join("\n"), html };
 }
 const pause = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
 const report = (failure: EmailFailure | { stage: "config" | "reminders" | "health"; code: string }) => console.error("email_delivery", failure);

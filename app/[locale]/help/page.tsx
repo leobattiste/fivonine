@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import Icon from "@/components/Icon";
 import HelpSearch from "@/components/HelpSearch";
 import { contentMeta } from "@/components/Content";
+import { followUp } from "@/lib/dict/follow-up";
 import { isLocale, t } from "@/lib/i18n";
 export const generateMetadata = contentMeta("help");
 export default async function Help({ params }: { params: Promise<{ locale: string }> }) {
@@ -14,7 +15,7 @@ export default async function Help({ params }: { params: Promise<{ locale: strin
     <div className="wrap page">
       <header className="page-head"><h1>{p.title}</h1><p className="lead">{p.sub}</p></header>
       <nav className="help-topics" aria-label={p.title}>
-        {([["/safety", d.footer.safety, "shield"], ["/resources", d.x.pages.resources.title, "guide"], ["/guidelines", d.footer.guidelines, "book"], ["/report", d.footer.report, "flag"], ["/contact", d.footer.contact, "mail"]] as [string, string, "shield" | "guide" | "book" | "flag" | "mail"][]).map(([href, label, icon]) => (
+        {([["/verification", followUp[locale].ver.title, "badge"], ["/safety", d.footer.safety, "shield"], ["/resources", d.x.pages.resources.title, "guide"], ["/guidelines", d.footer.guidelines, "book"], ["/report", d.footer.report, "flag"], ["/contact", d.footer.contact, "mail"]] as [string, string, "badge" | "shield" | "guide" | "book" | "flag" | "mail"][]).map(([href, label, icon]) => (
           <Link key={href} href={`/${locale}${href}`}><Icon name={icon} size={22} /><span>{label}</span></Link>
         ))}
       </nav>

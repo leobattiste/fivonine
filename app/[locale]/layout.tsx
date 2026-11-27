@@ -11,7 +11,8 @@ import Loader from "@/components/Loader";
 import { Suspense } from "react";
 import { htmlLang, isLocale, locales, t } from "@/lib/i18n";
 import { getViewer } from "@/lib/auth";
-import { getSettings, myCampaigns, unreadCount } from "@/lib/data";
+import { draftStep } from "@/lib/draft-progress";
+import { getSettings, myCampaigns, unreadCount, withMethods } from "@/lib/data";
 import { SITE_URL } from "@/lib/constants";
 import { canIndexPublicSite } from "@/lib/launch-readiness";
 
@@ -45,6 +46,7 @@ export default async function Layout({ children, params }: { children: React.Rea
   if (!isLocale(locale)) notFound();
   const [viewer, settings] = await Promise.all([getViewer(), getSettings()]);
   const [unread, mine] = viewer ? await Promise.all([unreadCount(viewer.id), myCampaigns(viewer.id)]) : [0, []];
+  const top = mine.slice(0, 2), hasMethods = await withMethods(top.filter((c) => c.status === "draft" || c.status === "needs_changes").map((c) => c.id));
   const banner = settings.emergency.active ? settings.emergency[locale] || settings.emergency.fr : "";
   return (
     <html lang={htmlLang[locale]} className={msMadi.variable} suppressHydrationWarning>
@@ -56,7 +58,7 @@ export default async function Layout({ children, params }: { children: React.Rea
           </a>
         )}
         <Suspense fallback={null}><Loader /></Suspense>
-        <Header locale={locale} viewer={viewer ? { name: viewer.profile.display_name, admin: viewer.profile.role === "admin", unread, avatar: viewer.profile.avatar_path, mine: mine.slice(0, 2).map((c) => ({ id: c.id, title: c.title, status: c.status, cover: c.cover_path })) } : null} />
+        <Header locale={locale} viewer={viewer ? { name: viewer.profile.display_name, admin: viewer.profile.role === "admin", unread, avatar: viewer.profile.avatar_path, mine: top.map((c) => ({ id: c.id, title: c.title, status: c.status, cover: c.cover_path, step: ["draft", "needs_changes"].includes(c.status) ? draftStep(c, hasMethods.has(c.id)) : null })) } : null} />
         <main id="main">{children}</main>
         <Footer locale={locale} />
         <ServiceWorker />

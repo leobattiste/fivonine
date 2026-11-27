@@ -556,6 +556,7 @@ const ht: Dict = {
     admin_appeal: (t: string) => t ? `Nouvo kontestasyon pou egzamine: ${t}` : "Nouvo kontestasyon pou egzamine.",
   },
   email: {
+    cta: "Louvri",
     greeting: "Bonjou,",
     open: "Louvri li la a:",
     noteLabel: "Mesaj ekip nou an:",

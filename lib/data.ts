@@ -255,6 +255,38 @@ export async function getThreads(): Promise<import("./types").Thread[]> {
 export async function getThread(cid: string, sid: string): Promise<import("./types").ThreadMessage[]> {
   if (FIXTURES) return [{ id: "m1", body: "Hello, can I send through MonCash?", created_at: "2026-11-26T15:00:00Z", mine: false, sender_name: "Jane Doe" }, { id: "m2", body: "Yes, the number is on the page.", created_at: "2026-11-26T15:10:00Z", mine: true, sender_name: "You" }];
   const sb = await dataDb();
-  const { data } = await sb.rpc("read_thread", { cid, sid });
+  const [{ data }, { data: auth }] = await Promise.all([sb.rpc("read_thread", { cid, sid }), sb.auth.getUser()]);
+  // Opening the conversation clears its notification, so the next new message notifies (and emails) again.
+  if (auth.user) await sb.from("notifications").update({ read_at: new Date().toISOString() }).eq("user_id", auth.user.id).eq("kind", "message").eq("campaign_id", cid).eq("payload->>with", sid).is("read_at", null);
   return (data ?? []) as import("./types").ThreadMessage[];
+}
+
+/** Fundraisers among `ids` that already have at least one way to receive support. */
+export async function withMethods(ids: string[]): Promise<Set<string>> {
+  if (FIXTURES || !ids.length) return new Set();
+  const sb = await dataDb();
+  const { data } = await sb.from("support_methods").select("campaign_id").in("campaign_id", ids);
+  return new Set(((data ?? []) as { campaign_id: string }[]).map((r) => r.campaign_id));
+}
+
+export async function threadBlocked(cid: string, sid: string): Promise<boolean> {
+  if (FIXTURES) return false;
+  const sb = await dataDb();
+  const { data } = await sb.rpc("thread_blocked", { cid, sid });
+  return data === true;
+}
+export async function getCampaignStats(cid: string): Promise<{ views: number; shares: number; week: number }> {
+  if (FIXTURES) return { views: 214, shares: 31, week: 58 };
+  const sb = await dataDb();
+  const { data } = await sb.rpc("campaign_stat_totals", { cid });
+  const r = (Array.isArray(data) ? data[0] : data) as { views?: number | string; shares?: number | string; views_week?: number | string } | null;
+  return { views: Number(r?.views ?? 0), shares: Number(r?.shares ?? 0), week: Number(r?.views_week ?? 0) };
+}
+
+/** Public updates from fundraisers the viewer helped, newest first. */
+export async function updatesFrom(ids: string[]): Promise<(import("./types").Update & { campaign: { title: string; slug: string } | null })[]> {
+  if (FIXTURES || !ids.length) return [];
+  const sb = await dataDb();
+  const { data } = await sb.from("campaign_updates").select("*, campaign:campaigns(title,slug,status)").in("campaign_id", ids).eq("hidden", false).order("created_at", { ascending: false }).limit(20);
+  return ((data ?? []) as unknown as (import("./types").Update & { campaign: { title: string; slug: string; status: string } | null })[]).filter((u) => u.campaign && ["live", "completed"].includes(u.campaign.status));
 }
