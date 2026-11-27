@@ -113,6 +113,17 @@ export async function setHidden(f: FormData) {
   await a.log(hidden ? "hide" : "unhide", table, id);
   refresh();
 }
+/** Pre-launch test mode lets administrators publish their own fundraisers without the ID and recipient checks. */
+export async function setTestMode(_: ActionResult, f: FormData): Promise<ActionResult> {
+  const a = await admin();
+  if (!a) return fail("Admin access required.");
+  const active = f.get("active") === "on";
+  const { error } = await a.sb.from("settings").upsert({ key: "prelaunch_test_mode", value: { active } }, { onConflict: "key" });
+  if (error) return fail(error.message);
+  await a.log("test_mode", "settings", "site", active ? "pre-launch test mode on" : "pre-launch test mode off");
+  refresh();
+  return done(active ? "Test mode is on." : "Test mode is off. Every fundraiser needs full verification.");
+}
 export async function saveSettings(_: ActionResult, f: FormData): Promise<ActionResult> {
   const a = await admin();
   if (!a) return fail("Admin access required.");
