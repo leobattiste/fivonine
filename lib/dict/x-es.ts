@@ -4,7 +4,7 @@ import type { X } from "./x-en";
 const x: X = {
   brand: { name: "yon kout men", tagline: "Una mano amiga entre haitianos, estén donde estén." },
   nav: {
-    explore: "Donar", fundraiser: "Recaudar fondos", how: "Cómo funciona", about: "Quiénes somos", share: "Compartir una campaña", search: "Buscar", searchLabel: "Buscar campañas",
+    explore: "Donar", fundraiser: "Recaudar fondos", how: "Cómo funciona", about: "Quiénes somos", share: "Crear una campaña", search: "Buscar", searchLabel: "Buscar campañas",
     searchHint: "Un nombre, un lugar o una necesidad", go: "Buscar", signIn: "Iniciar sesión", account: "Cuenta", openMenu: "Abrir el menú", closeMenu: "Cerrar el menú",
     dashboard: "Resumen", fundraisers: "Mis campañas", saved: "Marcadores", notifications: "Notificaciones", profile: "Perfil", admin: "Administración", signOut: "Cerrar sesión",
     settings: "Configuración", preferences: "Preferencias", security: "Seguridad", requestDeletion: "Solicitar la eliminación de la cuenta",
@@ -26,7 +26,7 @@ const x: X = {
     ],
     organizerTitle: "¿Buscas apoyo para alguien?",
     organizerBody: "Escribe la historia en kreyòl, francés, inglés o español, añade una foto e indica cómo recibes el apoyo. Solemos revisar las campañas en un plazo de dos días.",
-    organizerCta: "Compartir una campaña",
+    organizerCta: "Crear una campaña",
     organizerLink: "Leer la guía del organizador",
     emptyTitle: "Las primeras campañas están en revisión",
     emptyBody: "Leemos cada historia y comprobamos los datos de cada organizador antes de publicar. Por eso esta página empieza vacía. Vuelve pronto o comparte la primera campaña.",
@@ -177,7 +177,7 @@ const x: X = {
     toc: "En esta página",
     how: {
       flowTitle: "A dónde va el dinero", flowSupporter: "Tú", flowOrganizer: "El organizador", flowVia: "Transferencia, billetera, banco o aplicación", flowUs: "yon kout men publica la historia y los datos. El dinero nunca pasa por nosotros.",
-      giveCta: "Explorar campañas", needCta: "Compartir una campaña",
+      giveCta: "Explorar campañas", needCta: "Crear una campaña",
     },
     about: { photo: "Jacmel, Sud-Est" },
   },

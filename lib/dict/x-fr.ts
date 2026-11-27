@@ -2,7 +2,7 @@ import type { X } from "./x-en";
 const x: X = {
   brand: { name: "yon kout men", tagline: "Un coup de main entre Haïtiens, où qu'ils soient." },
   nav: {
-    explore: "Donner", fundraiser: "Collecter", how: "Comment ça marche", about: "À propos", share: "Partager une collecte", search: "Rechercher", searchLabel: "Rechercher des collectes",
+    explore: "Donner", fundraiser: "Collecter", how: "Comment ça marche", about: "À propos", share: "Créer une collecte", search: "Rechercher", searchLabel: "Rechercher des collectes",
     searchHint: "Un nom, un lieu, un besoin", go: "Rechercher", signIn: "Se connecter", account: "Compte", openMenu: "Ouvrir le menu", closeMenu: "Fermer le menu",
     dashboard: "Vue d'ensemble", fundraisers: "Mes collectes", saved: "Favoris", notifications: "Notifications", profile: "Profil", admin: "Admin", signOut: "Se déconnecter",
     settings: "Paramètres", preferences: "Préférences", security: "Sécurité", requestDeletion: "Demander la suppression du compte",
@@ -24,7 +24,7 @@ const x: X = {
     ],
     organizerTitle: "Vous cherchez du soutien pour quelqu'un ?",
     organizerBody: "Écrivez l'histoire en anglais, en français, en kreyòl ou en espagnol, ajoutez une photo et indiquez comment vous recevez le soutien. Nous vérifions en général en deux jours.",
-    organizerCta: "Partager une collecte",
+    organizerCta: "Créer une collecte",
     organizerLink: "Lire le guide de l'organisateur",
     emptyTitle: "Les premières collectes sont en vérification",
     emptyBody: "Nous lisons chaque histoire et vérifions chaque organisateur avant toute publication. Cette page commence donc vide, volontairement. Revenez bientôt, ou partagez la première collecte.",
@@ -175,7 +175,7 @@ const x: X = {
     toc: "Sur cette page",
     how: {
       flowTitle: "Où va l'argent", flowSupporter: "Vous", flowOrganizer: "L'organisateur", flowVia: "Transfert, portefeuille, banque ou application", flowUs: "yon kout men publie l'histoire et les coordonnées. L'argent ne passe jamais par nous.",
-      giveCta: "Explorer les collectes", needCta: "Partager une collecte",
+      giveCta: "Explorer les collectes", needCta: "Créer une collecte",
     },
     about: { photo: "Jacmel, Sud-Est" },
   },
