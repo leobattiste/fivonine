@@ -9,7 +9,7 @@ import Icon from "@/components/Icon";
 import ActionForm, { Submit } from "@/components/ActionForm";
 import { Avatar, Cover, ReviewChecks, StatusPill, causeName, ownerName, place } from "@/components/Campaign";
 import { SentForm, SupportMethods } from "@/components/Support";
-import { BackToResults, MobileSupport, SectionTabs, ShareBar } from "@/components/Bits";
+import { BackToResults, MobileSupport, SectionTabs, ShareBar, ViewBeacon } from "@/components/Bits";
 import { addVouch, toggleBookmark, toggleRemind } from "@/app/actions";
 import { getViewer } from "@/lib/auth";
 import { getCampaign, getCategories, getChange, getSupportTally, getViewerState, ownerSince } from "@/lib/data";
@@ -43,7 +43,6 @@ export default async function FundraiserPage({ params }: P) {
   const path = `/${locale}/campaigns/${c.slug}`, url = `${SITE_URL}${path}`;
   const where = place(c, locale), who = ownerName(c);
   const voice = mediaUrl(c.voice_path);
-  const notes = contributions.filter((k) => k.message);
   const tally = isPublic ? await getSupportTally(c.id) : { reported: 0, confirmed: 0 };
   const relation = c.beneficiary_relation ? d.relations[c.beneficiary_relation as keyof typeof d.relations] : "";
   const hidden = (k: string, v: string) => <input type="hidden" name={k} value={v} />;
@@ -75,7 +74,7 @@ export default async function FundraiserPage({ params }: P) {
         </div>
       </header>
       <Cover c={c} className="f-cover" priority sizes="100vw" />
-          <SectionTabs items={[["story", x.tabs.story], ["organizer", x.tabs.organizer], ["support", x.support], ["updates", x.tabs.updates, updates.length]]} />
+          <SectionTabs items={[["story", x.tabs.story], ["organizer", x.tabs.organizer], ["support", x.support], ["updates", x.tabs.updates, updates.length], ["supporters", followUp[locale].wall.title, contributions.length]]} />
 
           <section id="story" className="f-section" aria-label={x.tabs.story}>
             {voice && <div className="voice"><Icon name="mic" size={20} /><span className="small">{d.campaign.listen}</span><audio controls preload="none" src={voice} /></div>}
@@ -118,6 +117,7 @@ export default async function FundraiserPage({ params }: P) {
                 <li><Icon name="check" size={18} /><span>{x.checkReviewed}</span></li>
                 {c.tier !== "none" && <li><Icon name="badge" size={18} /><span><strong>{d.tiers[c.tier]}.</strong> {d.tierHelp[c.tier]}</span></li>}
               </ul>
+              <Link className="arrow-link small" href={`/${locale}/verification#${c.tier}`}>{followUp[locale].ver.link}<Icon name="arrow" size={16} /></Link>
             </div>
             {vouches.length > 0 && (
               <div className="stack tight">
@@ -159,7 +159,7 @@ export default async function FundraiserPage({ params }: P) {
           {methods.length > 0 && c.status !== "completed" && <SupportMethods methods={methods} locale={locale} />}
           <p className="warn-line"><Icon name="shield" size={16} />{d.support.warning}</p>
           {c.status === "live" && <SentForm c={c} methods={methods} locale={locale} viewerName={viewer?.profile.display_name ?? ""} signedIn={Boolean(viewer)} />}
-          <ShareBar url={url} title={c.title} locale={locale} />
+          <ShareBar url={url} title={c.title} locale={locale} cid={c.id} />
           <div className="support-tools">
             <form action={toggleBookmark}>
               {hidden("locale", locale)}{hidden("campaign_id", c.id)}{hidden("back", path)}{hidden("on", state.bookmarked ? "0" : "1")}
@@ -185,24 +185,38 @@ export default async function FundraiserPage({ params }: P) {
                     {u.body.split(/\n{2,}/).map((para, i) => <p key={i}>{para}</p>)}
                     {u.proof.length > 0 && (
                       <div className="gallery" aria-label={d.campaign.proof}>
-                        {u.proof.map((g) => <div key={g} className="frame">{/* eslint-disable-next-line @next/next/no-img-element */}<img src={mediaUrl(g) ?? ""} alt={d.campaign.proof} loading="lazy" /></div>)}
+                        {u.proof.map((g) => <div key={g} className="frame"><SafeImg src={mediaUrl(g) ?? ""} alt={d.campaign.proof} loading="lazy" /></div>)}
                       </div>
                     )}
                   </li>
                 ))}
               </ol>
             ) : <p className="muted">{x.noUpdates}</p>}
-            {notes.length > 0 && (
-              <div className="stack" style={{ marginTop: 16 }}>
-                <h3>{x.notes}</h3>
-                <p className="small muted">{x.notesHint}</p>
-                <ul className="notes">{notes.map((k) => <li key={k.id}><strong className="small">{k.anonymous || !k.display_name ? d.common.anonymous : k.display_name}</strong><p>{k.message}</p></li>)}</ul>
-              </div>
-            )}
+          </section>
+          <section id="supporters" className="f-section" aria-labelledby="wall-h">
+            <h2 id="wall-h">{followUp[locale].wall.title}{contributions.length > 0 && <span className="muted"> · {contributions.length}</span>}</h2>
+            {contributions.length === 0 ? <p className="muted">{followUp[locale].wall.empty}</p> : (() => {
+              const row = (k: (typeof contributions)[number]) => {
+                const name = k.anonymous || !k.display_name ? followUp[locale].wall.anon : k.display_name;
+                return (
+                  <li key={k.id}>
+                    <span className="av" aria-hidden="true">{k.anonymous || !k.display_name ? <Icon name="heart" size={16} /> : name.slice(0, 1).toUpperCase()}</span>
+                    <div><strong>{name}</strong> <span className="small muted">· {fmtDate(k.created_at, locale)}</span>{k.message && <p>{k.message}</p>}</div>
+                  </li>
+                );
+              };
+              return (
+                <>
+                  <ul className="wall">{contributions.slice(0, 6).map(row)}</ul>
+                  {contributions.length > 6 && <details className="wall-more"><summary className="btn small">{followUp[locale].wall.all(contributions.length)}</summary><ul className="wall">{contributions.slice(6).map(row)}</ul></details>}
+                </>
+              );
+            })()}
           </section>
         </div>
 
       </div>
+      {!mine && ["live", "completed"].includes(c.status) && <ViewBeacon cid={c.id} />}
       {c.status === "live" && <Suspense fallback={null}><MobileSupport label={x.jump} /></Suspense>}
     </div>
   );

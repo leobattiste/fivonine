@@ -556,6 +556,7 @@ const es: Dict = {
     admin_appeal: (t: string) => t ? `Nueva apelación por revisar: ${t}` : "Nueva apelación por revisar.",
   },
   email: {
+    cta: "Abrir",
     greeting: "Hola:",
     open: "Ábrelo aquí:",
     noteLabel: "Nota de nuestro equipo:",

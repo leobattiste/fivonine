@@ -654,7 +654,24 @@ export async function sendMessage(_: ActionResult, f: FormData): Promise<ActionR
   const { data, error } = await sb.rpc("send_message", { cid, sid, msg: body });
   if (error || data === "forbidden" || data === "not_found") return fail(m.failed);
   if (data === "rate") return fail(m.rate);
+  if (data === "blocked") return fail(m.blocked);
   if (data !== "ok") return fail(m.failed);
   revalidatePath(`/${locale}`, "layout");
   return done(m.sent);
+}
+
+/** Anonymous visit and share counts for organizers. Silent: never fails the page. */
+export async function recordStat(cid: string, kind: "view" | "share") {
+  if (!UUID.test(cid) || (kind !== "view" && kind !== "share")) return;
+  const sb = await db();
+  if (!sb) return;
+  await sb.rpc("record_stat", { cid, k: kind });
+}
+/** An organizer stops (or allows again) messages from one supporter on one fundraiser. */
+export async function blockThread(f: FormData) {
+  const { locale, sb, user } = await ctx(f);
+  const cid = s(f, "id"), sid = s(f, "with");
+  if (!sb || !user || !UUID.test(cid) || !UUID.test(sid)) return;
+  await sb.rpc("block_thread", { cid, sid, on_off: s(f, "on") === "1" });
+  revalidatePath(`/${locale}/dashboard/messages/${cid}`);
 }

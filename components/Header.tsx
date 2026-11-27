@@ -9,8 +9,9 @@ import { LOCALE_COOKIE, localeNames, locales, localizedPath, t, type Locale } fr
 import { signOut } from "@/app/actions";
 import { mediaUrl } from "@/lib/format";
 import SafeImg from "./SafeImg";
+import { DRAFT_STEPS } from "@/lib/draft-progress";
 
-type Viewer = { name: string; admin: boolean; unread: number; avatar: string | null; mine: { id: string; title: string; status: string; cover: string | null }[] };
+type Viewer = { name: string; admin: boolean; unread: number; avatar: string | null; mine: { id: string; title: string; status: string; cover: string | null; step: number | null }[] };
 
 export default function Header({ locale, viewer }: { locale: Locale; viewer: Viewer | null }) {
   const d = t(locale), n = d.x.nav, m = followUp[locale].menu, path = usePathname();
@@ -119,7 +120,7 @@ export default function Header({ locale, viewer }: { locale: Locale; viewer: Vie
                   return (
                     <Link key={c.id} className="drawer-camp" href={L(`/dashboard/campaigns/${c.id}${open ? "/edit" : ""}`)}>
                       {img ? <SafeImg src={img} alt="" width={64} height={64} className="ph" /> : <span className="ph" aria-hidden="true" />}
-                      <span><strong>{c.title}</strong><small>{(d.status as Record<string, string>)[c.status] ?? c.status}{open ? ` · ${m.cont}` : ""}</small></span>
+                      <span><strong>{c.title}</strong><small>{(d.status as Record<string, string>)[c.status] ?? c.status}{open ? ` · ${c.step ? d.x.form.stepOf(c.step, DRAFT_STEPS) : m.cont}` : ""}</small></span>
                     </Link>
                   );
                 }) : <Link className="drawer-camp empty" href={L("/create")}><span className="ph" aria-hidden="true"><Icon name="plus" size={22} /></span><span><strong>{m.start}</strong></span></Link>}

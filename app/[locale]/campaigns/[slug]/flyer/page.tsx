@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import QRCode from "qrcode";
 import { SupportMethods } from "@/components/Support";
+import { Cover } from "@/components/Campaign";
 import { Wordmark } from "@/components/Brand";
 import { PrintButton } from "@/components/Bits";
 import { getCampaign } from "@/lib/data";
@@ -17,13 +18,14 @@ export default async function Flyer({ params }: { params: Promise<{ locale: stri
   const qr = await QRCode.toString(url, { type: "svg", margin: 0, color: { dark: "#111111", light: "#ffffff" } });
   return (
     <div className="wrap page flyer">
-      <PrintButton label={d.support.print} />
+      <div className="flyer-bar no-print"><PrintButton label={d.support.print} /></div>
       <div className="flyer-sheet">
-        <p className="wordmark"><Wordmark /></p>
+        <div className="flyer-top"><p className="wordmark"><Wordmark /></p><p className="small muted">{d.flyer.title}</p></div>
+        <Cover c={data.campaign} className="flyer-cover" priority sizes="640px" noIconFallback />
         <h1>{data.campaign.title}</h1>
         {data.campaign.beneficiary_name && <p className="lead">{d.campaign.for} {data.campaign.beneficiary_name}</p>}
-        <div className="cols-2" style={{ alignItems: "start" }}>
-          <div>
+        <div className="flyer-cols">
+          <div className="flyer-qr">
             <div className="qr" dangerouslySetInnerHTML={{ __html: qr }} />
             <p className="small">{d.flyer.scan}</p>
             <p className="small flyer-url">{url.replace(/^https?:\/\//, "")}</p>

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import Icon from "./Icon";
+import { recordStat } from "@/app/actions";
 import { t, type Locale } from "@/lib/i18n";
 
 export function CopyButton({ text, locale, label, done, className = "btn small soft" }: { text: string; locale: Locale; label?: string; done?: string; className?: string }) {
@@ -21,17 +22,18 @@ export function CopyButton({ text, locale, label, done, className = "btn small s
     </button>
   );
 }
-export function ShareBar({ url, title, locale }: { url: string; title: string; locale: Locale }) {
+export function ShareBar({ url, title, locale, cid }: { url: string; title: string; locale: Locale; cid?: string }) {
+  const shared = () => { if (cid) recordStat(cid, "share").catch(() => {}); };
   const d = t(locale), x = d.x.detail;
   const [native, setNative] = useState(false);
   useEffect(() => setNative("share" in navigator), []);
   return (
     <div className="support-tools">
-      <a className="btn small" href={`https://wa.me/?text=${encodeURIComponent(`${title}\n${url}`)}`} target="_blank" rel="noopener noreferrer">
+      <a className="btn small" onClick={shared} href={`https://wa.me/?text=${encodeURIComponent(`${title}\n${url}`)}`} target="_blank" rel="noopener noreferrer">
         <Icon name="whatsapp" size={17} />WhatsApp<span className="sr"> ({d.x.common.newTab})</span>
       </a>
-      <CopyButton text={url} locale={locale} label={x.copyLink} done={x.linkCopied} className="btn small" />
-      {native && <button type="button" className="btn small" onClick={() => navigator.share({ title, url }).catch(() => {})}><Icon name="share" size={16} />{d.campaign.share}</button>}
+      <span onClickCapture={shared} style={{ display: "contents" }}><CopyButton text={url} locale={locale} label={x.copyLink} done={x.linkCopied} className="btn small" /></span>
+      {native && <button type="button" className="btn small" onClick={() => { shared(); navigator.share({ title, url }).catch(() => {}); }}><Icon name="share" size={16} />{d.campaign.share}</button>}
     </div>
   );
 }
@@ -119,4 +121,14 @@ export function MobileSupport({ label, target = "support" }: { label: string; ta
       <a className="btn primary large" href={`#${target}`} tabIndex={hidden ? -1 : 0}><Icon name="hand" size={20} />{label}</a>
     </div>
   );
+}
+
+/** Counts one visit per fundraiser per browser session. */
+export function ViewBeacon({ cid }: { cid: string }) {
+  useEffect(() => {
+    const key = `ykm-v-${cid}`;
+    try { if (sessionStorage.getItem(key)) return; sessionStorage.setItem(key, "1"); } catch {}
+    recordStat(cid, "view").catch(() => {});
+  }, [cid]);
+  return null;
 }
