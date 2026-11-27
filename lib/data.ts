@@ -245,3 +245,16 @@ export async function mySupport(userId: string): Promise<MySupport[]> {
   const { data } = checked(await sb.from("contributions").select("id,campaign_id,amount,currency,method,display_name,anonymous,message,created_at,received_at,reference,sent_on,sender_phone,receipt_path,campaign:campaigns(title,slug,status)").eq("user_id", userId).order("created_at", { ascending: false }).limit(100), "my_support");
   return withReceiptLinks(sb, ((data ?? []) as unknown as MySupport[]).map((k) => ({ ...k, amount: Number(k.amount) })));
 }
+
+export async function getThreads(): Promise<import("./types").Thread[]> {
+  if (FIXTURES) return [{ campaign_id: "c1", supporter_id: "00000000-0000-0000-0000-000000000009", title: "Ede Marie peye operasyon li nan Okap", slug: "ede-marie-peye-operasyon-li", other_name: "Jane Doe", last_body: "Hello, can I send through MonCash?", last_at: "2026-11-26T15:00:00Z", unread: 1, as_organizer: true }];
+  const sb = await dataDb();
+  const { data } = await sb.rpc("my_threads");
+  return ((data ?? []) as (Omit<import("./types").Thread, "unread"> & { unread: number | string })[]).map((r) => ({ ...r, unread: Number(r.unread) }));
+}
+export async function getThread(cid: string, sid: string): Promise<import("./types").ThreadMessage[]> {
+  if (FIXTURES) return [{ id: "m1", body: "Hello, can I send through MonCash?", created_at: "2026-11-26T15:00:00Z", mine: false, sender_name: "Jane Doe" }, { id: "m2", body: "Yes, the number is on the page.", created_at: "2026-11-26T15:10:00Z", mine: true, sender_name: "You" }];
+  const sb = await dataDb();
+  const { data } = await sb.rpc("read_thread", { cid, sid });
+  return (data ?? []) as import("./types").ThreadMessage[];
+}

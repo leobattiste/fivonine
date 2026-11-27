@@ -642,3 +642,19 @@ export async function markNotificationsRead(f: FormData) {
   await sb.from("notifications").update({ read_at: new Date().toISOString() }).eq("user_id", user.id).is("read_at", null);
   revalidatePath(`/${locale}`, "layout");
 }
+
+/** A supporter writes to the organizers of a fundraiser, or an organizer answers an existing thread. */
+export async function sendMessage(_: ActionResult, f: FormData): Promise<ActionResult> {
+  const { locale, d, sb, user } = await ctx(f);
+  if (!sb || !user) return fail(d.common.signInFirst);
+  const cid = s(f, "id"), sid = s(f, "with") || user.id, body = s(f, "body", 1500);
+  const m = followUp[locale].msg;
+  if (!UUID.test(cid) || !UUID.test(sid)) return fail(d.common.required);
+  if (!body) return fail(m.empty);
+  const { data, error } = await sb.rpc("send_message", { cid, sid, msg: body });
+  if (error || data === "forbidden" || data === "not_found") return fail(m.failed);
+  if (data === "rate") return fail(m.rate);
+  if (data !== "ok") return fail(m.failed);
+  revalidatePath(`/${locale}`, "layout");
+  return done(m.sent);
+}

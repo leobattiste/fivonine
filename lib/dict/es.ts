@@ -549,6 +549,7 @@ const es: Dict = {
     vouch_approved: (t: string) => `Alguien dio fe de: ${t}`,
     reminder: (t: string) => `Una campaña que añadiste a marcadores sigue abierta: ${t}`,
 
+    message: (t: string) => t ? `Nuevo mensaje sobre ${t}.` : "Nuevo mensaje.",
     support_confirmed: (t: string) => t ? `El organizador confirmó que recibió tu ayuda para ${t}.` : "El organizador confirmó que recibió tu ayuda.",
     appeal_accepted: (t: string) => t ? `Tu apelación fue aceptada: ${t}` : "Tu apelación fue aceptada.",
     appeal_declined: (t: string) => t ? `Tu apelación fue rechazada: ${t}` : "Tu apelación fue rechazada.",

@@ -14,13 +14,13 @@ import { db } from "@/lib/supabase/server";
 import { requireViewer } from "@/lib/auth";
 import { followUp } from "@/lib/dict/follow-up";
 import { fmtMoney } from "@/lib/format";
-import { getCategories, mySupport, myBookmarks, myCampaigns, myChanges, myNotifications, reviewNotes, unreadCount } from "@/lib/data";
+import { getCategories, mySupport, getThreads, myBookmarks, myCampaigns, myChanges, myNotifications, reviewNotes, unreadCount } from "@/lib/data";
 import { DEPARTMENTS } from "@/lib/constants";
 import { fmtDate } from "@/lib/format";
 import { isLocale, t, type Locale } from "@/lib/i18n";
 import type { Campaign, Status } from "@/lib/types";
 export const metadata: Metadata = { robots: { index: false } };
-const TABS = ["profile", "campaigns", "support", "saved", "notifications", "settings"] as const;
+const TABS = ["profile", "campaigns", "support", "saved", "messages", "notifications", "settings"] as const;
 
 export default async function Dashboard({ params, searchParams }: { params: Promise<{ locale: string }>; searchParams: Promise<{ tab?: string }> }) {
   const { locale } = await params;
@@ -37,6 +37,7 @@ export default async function Dashboard({ params, searchParams }: { params: Prom
           {viewer.profile.banned && <p className="notice err"><Icon name="lock" size={18} />{d.dash.restricted}</p>}
           {tab === "campaigns" && <Overview locale={locale} viewerId={viewer.id} />}
           {tab === "support" && <MySupportTab locale={locale} viewerId={viewer.id} />}
+          {tab === "messages" && <MessagesTab locale={locale} />}
           {tab === "saved" && <Saved locale={locale} viewerId={viewer.id} />}
           {tab === "notifications" && <Notifications locale={locale} viewerId={viewer.id} />}
           {tab === "profile" && <Profile locale={locale} viewer={viewer} />}
@@ -99,6 +100,28 @@ async function Overview({ locale, viewerId }: { locale: Locale; viewerId: string
     </>
   );
 }
+async function MessagesTab({ locale }: { locale: Locale }) {
+  const m = followUp[locale].msg, items = await getThreads();
+  const fmt = new Intl.DateTimeFormat(locale, { dateStyle: "medium" });
+  return (
+    <>
+      <header className="stack tight"><h1>{m.title}</h1><p className="muted measure">{m.intro}</p></header>
+      {!items.length ? <div className="empty"><span className="icon-box"><Icon name="mail" size={24} /></span><p>{m.none}</p></div> : (
+        <ul className="list thread-list">
+          {items.map((x) => (
+            <li key={`${x.campaign_id}-${x.supporter_id}`}>
+              <Link href={`/${locale}/dashboard/messages/${x.campaign_id}${x.as_organizer ? `?with=${x.supporter_id}` : ""}`} className="stack tight" style={{ flex: "1 1 280px", textDecoration: "none", color: "inherit" }}>
+                <strong>{x.other_name ?? (x.as_organizer ? m.supporter : m.organizer)}{x.unread > 0 && <span className="count" style={{ marginLeft: 8 }}>{x.unread}</span>}</strong>
+                <span className="small muted">{x.title} · {fmt.format(new Date(x.last_at))}</span>
+                <span className="small clamp-2">{x.last_body}</span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
+    </>
+  );
+}
 async function MySupportTab({ locale, viewerId }: { locale: Locale; viewerId: string }) {
   const fu = followUp[locale], items = await mySupport(viewerId);
   return (
@@ -151,7 +174,7 @@ async function Notifications({ locale, viewerId }: { locale: Locale; viewerId: s
         <ul className="list">
           {items.map((n) => {
             const toManage = ["campaign_needs_changes", "campaign_rejected", "campaign_suspended", "campaign_live", "new_contribution", "vouch_approved", "changes_needed", "changes_approved"].includes(n.kind);
-            const href = n.kind === "appeal_accepted" || n.kind === "appeal_declined" ? `/${locale}/dashboard?tab=settings#appeals` : n.kind.startsWith("admin_") ? `/${locale}/admin` : n.campaign_id && toManage ? `/${locale}/dashboard/campaigns/${n.campaign_id}` : n.payload.slug ? `/${locale}/campaigns/${n.payload.slug}` : `/${locale}/dashboard`;
+            const href = n.kind === "message" && n.campaign_id ? `/${locale}/dashboard/messages/${n.campaign_id}${n.payload.with ? `?with=${n.payload.with}` : ""}` : n.kind === "appeal_accepted" || n.kind === "appeal_declined" ? `/${locale}/dashboard?tab=settings#appeals` : n.kind.startsWith("admin_") ? `/${locale}/admin` : n.campaign_id && toManage ? `/${locale}/dashboard/campaigns/${n.campaign_id}` : n.payload.slug ? `/${locale}/campaigns/${n.payload.slug}` : `/${locale}/dashboard`;
             return (
               <li key={n.id} className={n.read_at ? "" : "unread"}>
                 <div className="stack tight" style={{ flex: "1 1 300px" }}>

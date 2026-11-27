@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { followUp } from "@/lib/dict/follow-up";
+import MessageForm from "@/components/MessageForm";
 import { Suspense } from "react";
 import Icon from "@/components/Icon";
 import ActionForm, { Submit } from "@/components/ActionForm";
@@ -103,6 +104,11 @@ export default async function FundraiserPage({ params }: P) {
         </div>
                 {team.length > 0 && <p className="small"><Icon name="group" size={16} /> {x.team}: {team.map((m) => m.profile?.display_name).filter(Boolean).join(", ")}</p>}
                 <Link className="arrow-link small" href={`/${locale}/u/${c.owner.id}`}>{x.profile}<Icon name="arrow" size={16} /></Link>
+                {c.status === "live" && !mine && (viewer ? (
+                  <details className="contact-org"><summary className="btn small"><Icon name="mail" size={16} />{followUp[locale].msg.contact}</summary><p className="small muted">{followUp[locale].msg.contactHint}</p><MessageForm locale={locale} id={c.id} /></details>
+                ) : (
+                  <Link className="btn small" href={`/${locale}/login?next=${encodeURIComponent(`/${locale}/campaigns/${c.slug}`)}`}><Icon name="mail" size={16} />{followUp[locale].msg.signIn}</Link>
+                ))}
               </div>
             )}
             <div className="stack tight">
