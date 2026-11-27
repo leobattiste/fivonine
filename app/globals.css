@@ -1073,3 +1073,20 @@ textarea.input { border-radius: var(--r); padding: 14px 18px; }
   .wizard-footer .wizard-action-end .btn { white-space: nowrap; }
 }
 .ready-card .btn { background: var(--white); }
+
+/* ---------- Start screen before the form ---------- */
+.create-intro { display: grid; gap: 28px; max-width: 640px; margin-inline: auto; }
+.create-intro h2 { font-size: 18px; }
+.create-intro .ready-card { padding: 20px; }
+.intro-drafts { display: grid; gap: 10px; }
+.intro-drafts ul { display: grid; gap: 8px; }
+.draft-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; border: 1.5px solid var(--line); border-radius: var(--r); text-decoration: none; }
+.draft-row:hover { border-color: var(--ink); }
+.draft-row small { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.intro-how { display: grid; gap: 14px; }
+.intro-how li { display: flex; gap: 12px; align-items: flex-start; }
+.intro-how li > span:last-child { display: grid; gap: 2px; }
+.intro-how .n { flex: none; display: grid; place-items: center; width: 28px; height: 28px; border-radius: var(--pill); background: var(--sage); font-size: var(--text-tiny); font-weight: 600; }
+.intro-actions { display: grid; gap: 16px; justify-items: start; }
+.intro-actions .btn.primary { min-width: 200px; justify-content: center; }
+@media (max-width: 699px) { .intro-actions .btn.primary { width: 100%; } }

@@ -9,9 +9,11 @@ import type { Locale } from "../i18n";
 const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
 
 const ht = {
+  intro: { title: "Kòmanse yon ranmasaj", lead: "Kèk minit pou rakonte istwa a. Ekip nou an verifye l anvan l parèt.", how: [["Anviwon 10 a 15 minit", "Ou pa bezwen fini tout an menm tan."], ["Li anrejistre pou kont li", "Ou ka kite epi kontinye pita, sou nenpòt aparèy."], ["Pyès ou rete prive", "Se sèlman ekip verifikasyon an ki wè l. Verifikasyon pran jiska 2 jou."]] as [string, string][], start: "Kòmanse", continueTitle: "Kontinye kote w te rive", savedOn: (d: string) => `Anrejistre ${d}`, needsChanges: "Gen chanjman pou fè", deviceDraft: "Kontinye sa w te kòmanse sou aparèy sa a", untitled: "Ranmasaj san tit", startNew: "Kòmanse yon lòt" },
+  save: { saving: "L ap anrejistre…", saved: (t: string) => `Anrejistre nan kont ou · ${t}`, deviceOnly: "Anrejistre sou aparèy sa a. Ajoute yon tit pou l anrejistre nan kont ou tou.", failed: "Nou pa t ka anrejistre nan kont ou. Repons ou yo rete sou aparèy sa a.", readyToSend: "Pare pou voye" },
   steps: { basics: "Pou kiyès", story: "Istwa", goal: "Objektif", media: "Foto", receive: "Lajan", verification: "Idantite", submit: "Voye" },
   nav: { previous: "Retounen", next: "Kontinye", edit: "Chanje", allSteps: "Tout etap yo", who: "Pou kiyès ranmasaj la ye?", self: "Pou mwen", other: "Pou yon lòt moun", org: "Pou yon òganizasyon", selfHint: "Pou pwòp bezwen pa m", otherHint: "Yon moun, yon fanmi oswa yon kominote", orgHint: "Yon lekòl, yon legliz oswa yon gwoup", selfName: "Non w", orgName: "Non òganizasyon an", authorization: "Si w ap ranmase pou yon lòt moun, ajoute prèv ou gen dwa fè l (yon lèt, yon mesaj de moun nan)." },
-  ready: { title: "Prepare sa yo anvan", items: ["Yon foto ki klè", "Pyès idantite w ak yon selfi kote w kenbe l", "Yon kont MonCash, NatCash, bank oswa transfè", "Anviwon 10 a 15 minit"], dismiss: "Mwen pare" },
+  ready: { title: "Prepare sa yo anvan", items: ["Yon foto ki klè", "Pyès idantite w ak yon selfi kote w kenbe l", "Yon kont MonCash, NatCash, bank oswa transfè"], dismiss: "Mwen pare" },
   c: {
     addDocument: "Ajoute yon dokiman", addPhoto: "Ajoute foto", beneficiary: "Non moun nan", choose: "Chwazi", commune: "Vil oswa komin", department: "Depatman",
     consentTruth: "Tout sa m ekri yo vre.", consentTerms: "M dakò ak kondisyon yo ak règ kominote a.", consentOff: "M konprann moun yo voye lajan an dirèkteman bay moun k ap resevwa a. yon kout men pa janm kenbe lajan an, epi li ka retire yon ranmasaj ki pa respekte règ yo.",
@@ -54,9 +56,11 @@ const ht = {
 type FormText = typeof ht;
 
 const fr: FormText = {
+  intro: { title: "Lancer une collecte", lead: "Quelques minutes pour raconter l’histoire. Notre équipe la vérifie avant publication.", how: [["Environ 10 à 15 minutes", "Pas besoin de tout finir d’un coup."], ["Enregistrement automatique", "Partez quand vous voulez et reprenez plus tard, sur n’importe quel appareil."], ["Votre pièce reste privée", "Seule l’équipe de vérification la voit. La vérification prend jusqu’à 2 jours."]], start: "Commencer", continueTitle: "Reprendre là où vous en étiez", savedOn: (d: string) => `Enregistré ${d}`, needsChanges: "Modifications demandées", deviceDraft: "Reprendre ce que vous avez commencé sur cet appareil", untitled: "Collecte sans titre", startNew: "En commencer une autre" },
+  save: { saving: "Enregistrement…", saved: (t: string) => `Enregistré dans votre compte · ${t}`, deviceOnly: "Gardé sur cet appareil. Ajoutez un titre pour l’enregistrer aussi dans votre compte.", failed: "Impossible d’enregistrer dans votre compte. Vos réponses restent sur cet appareil.", readyToSend: "Prêt à envoyer" },
   steps: { basics: "Pour qui", story: "Histoire", goal: "Objectif", media: "Photos", receive: "Argent", verification: "Identité", submit: "Envoi" },
   nav: { previous: "Retour", next: "Continuer", edit: "Modifier", allSteps: "Toutes les étapes", who: "Pour qui est cette collecte ?", self: "Pour moi", other: "Pour quelqu’un d’autre", org: "Pour une organisation", selfHint: "Pour mon propre besoin", otherHint: "Une personne, une famille ou une communauté", orgHint: "Une école, une église ou un groupe", selfName: "Votre nom", orgName: "Nom de l’organisation", authorization: "Si vous collectez pour quelqu’un d’autre, ajoutez une preuve que vous en avez le droit (une lettre, un message de sa part)." },
-  ready: { title: "Préparez ceci avant de commencer", items: ["Une photo nette", "Votre pièce d’identité et un selfie en la tenant", "Un compte MonCash, NatCash, bancaire ou de transfert", "Environ 10 à 15 minutes"], dismiss: "Je suis prêt" },
+  ready: { title: "Préparez ceci avant de commencer", items: ["Une photo nette", "Votre pièce d’identité et un selfie en la tenant", "Un compte MonCash, NatCash, bancaire ou de transfert"], dismiss: "Je suis prêt" },
   c: {
     addDocument: "Ajouter un document", addPhoto: "Ajouter une photo", beneficiary: "Son nom", choose: "Choisir", commune: "Ville ou commune", department: "Département",
     consentTruth: "Tout ce que j’ai écrit est vrai.", consentTerms: "J’accepte les conditions et les règles de la communauté.", consentOff: "Je comprends que les donateurs envoient l’argent directement au destinataire. yon kout men ne garde jamais l’argent et peut retirer une collecte qui ne respecte pas les règles.",
@@ -97,9 +101,11 @@ const fr: FormText = {
 };
 
 const en: FormText = {
+  intro: { title: "Start a fundraiser", lead: "A few minutes to tell the story. Our team checks it before it goes public.", how: [["About 10–15 minutes", "You don’t have to finish in one go."], ["Saves as you go", "Leave anytime and pick up later, on any device."], ["Your ID stays private", "Only our review team sees it. Review takes up to 2 days."]], start: "Start", continueTitle: "Pick up where you left off", savedOn: (d: string) => `Saved ${d}`, needsChanges: "Needs changes", deviceDraft: "Continue what you started on this device", untitled: "Untitled fundraiser", startNew: "Start a new one" },
+  save: { saving: "Saving…", saved: (t: string) => `Saved to your account · ${t}`, deviceOnly: "Saved on this device. Add a title to also save it to your account.", failed: "Couldn’t save to your account. Your answers are kept on this device.", readyToSend: "Ready to send" },
   steps: { basics: "Who", story: "Story", goal: "Goal", media: "Photos", receive: "Money", verification: "ID", submit: "Send" },
   nav: { previous: "Back", next: "Continue", edit: "Edit", allSteps: "All steps", who: "Who is this fundraiser for?", self: "Me", other: "Someone else", org: "An organization", selfHint: "For my own need", otherHint: "A person, family or community", orgHint: "A school, church or group", selfName: "Your name", orgName: "Organization name", authorization: "Raising for someone else? Add proof you’re allowed to (a letter, or a message from them)." },
-  ready: { title: "Have these ready", items: ["A clear photo", "Your ID and a selfie holding it", "A MonCash, NatCash, bank or transfer account", "About 10–15 minutes"], dismiss: "I’m ready" },
+  ready: { title: "Have these ready", items: ["A clear photo", "Your ID and a selfie holding it", "A MonCash, NatCash, bank or transfer account"], dismiss: "I’m ready" },
   c: {
     addDocument: "Add a document", addPhoto: "Add photo", beneficiary: "Their name", choose: "Choose", commune: "Town or commune", department: "Department",
     consentTruth: "Everything I wrote is true.", consentTerms: "I accept the terms and community rules.", consentOff: "I understand supporters send money directly to the receiver. yon kout men never holds the money and can remove a fundraiser that breaks the rules.",
@@ -140,9 +146,11 @@ const en: FormText = {
 };
 
 const es: FormText = {
+  intro: { title: "Iniciar una recaudación", lead: "Unos minutos para contar la historia. Nuestro equipo la revisa antes de publicarla.", how: [["Unos 10 a 15 minutos", "No tienes que terminar de una vez."], ["Se guarda sola", "Sal cuando quieras y sigue después, en cualquier dispositivo."], ["Tu documento es privado", "Solo el equipo de revisión lo ve. La revisión tarda hasta 2 días."]], start: "Empezar", continueTitle: "Sigue donde lo dejaste", savedOn: (d: string) => `Guardado ${d}`, needsChanges: "Requiere cambios", deviceDraft: "Continuar lo que empezaste en este dispositivo", untitled: "Recaudación sin título", startNew: "Empezar otra" },
+  save: { saving: "Guardando…", saved: (t: string) => `Guardado en tu cuenta · ${t}`, deviceOnly: "Guardado en este dispositivo. Añade un título para guardarlo también en tu cuenta.", failed: "No se pudo guardar en tu cuenta. Tus respuestas siguen en este dispositivo.", readyToSend: "Listo para enviar" },
   steps: { basics: "Para quién", story: "Historia", goal: "Meta", media: "Fotos", receive: "Dinero", verification: "Identidad", submit: "Enviar" },
   nav: { previous: "Atrás", next: "Continuar", edit: "Editar", allSteps: "Todos los pasos", who: "¿Para quién es esta recaudación?", self: "Para mí", other: "Para otra persona", org: "Para una organización", selfHint: "Para mi propia necesidad", otherHint: "Una persona, familia o comunidad", orgHint: "Una escuela, iglesia o grupo", selfName: "Tu nombre", orgName: "Nombre de la organización", authorization: "¿Recaudas para otra persona? Añade una prueba de que puedes hacerlo (una carta o un mensaje suyo)." },
-  ready: { title: "Ten esto a mano", items: ["Una foto clara", "Tu documento y una selfie sosteniéndolo", "Una cuenta MonCash, NatCash, bancaria o de envío", "Unos 10 a 15 minutos"], dismiss: "Estoy listo" },
+  ready: { title: "Ten esto a mano", items: ["Una foto clara", "Tu documento y una selfie sosteniéndolo", "Una cuenta MonCash, NatCash, bancaria o de envío"], dismiss: "Estoy listo" },
   c: {
     addDocument: "Añadir un documento", addPhoto: "Añadir foto", beneficiary: "Su nombre", choose: "Elegir", commune: "Ciudad o comuna", department: "Departamento",
     consentTruth: "Todo lo que escribí es verdad.", consentTerms: "Acepto las condiciones y las reglas de la comunidad.", consentOff: "Entiendo que los donantes envían el dinero directamente a quien lo recibe. yon kout men nunca guarda el dinero y puede retirar una recaudación que no cumpla las reglas.",
