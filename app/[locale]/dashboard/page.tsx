@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { formText } from "@/lib/dict/form";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import Icon from "@/components/Icon";
@@ -62,14 +63,14 @@ async function Overview({ locale, viewerId }: { locale: Locale; viewerId: string
         <Cover c={c} className="thumbnail" sizes="150px" />
         <div className="stack tight" style={{ minWidth: 0 }}>
           <div className="row tight"><StatusPill status={c.status} locale={locale} />{ch && <span className="tag line">{ch.status === "pending" ? x.changesPending : x.changesNeeded}</span>}</div>
-          <h3><Link href={manage}>{c.title}</Link></h3>
+          <h3><Link href={manage}>{c.title || formText[locale].intro.untitled}</Link></h3>
           <p className="explain">{ch?.status === "pending" ? x.changesPendingBody : x.explain[c.status]}</p>
           <p className="xs muted">{x.updatedOn} {fmtDate(c.updated_at, locale)}</p>
         </div>
         {note && <div className="feedback"><strong>{x.feedback}</strong>{note}</div>}
         <div className="row" style={{ justifyContent: "flex-end" }}>
           <Link className={`btn small ${ATTN.includes(c.status) || ch?.status === "needs_changes" ? "primary" : ""}`} href={primary}>{label}</Link>
-          <Link className="btn small quiet icon-only" href={manage} aria-label={`${d.dash.manage}: ${c.title}`}><Icon name="more" size={18} /></Link>
+          <Link className="btn small quiet icon-only" href={manage} aria-label={`${d.dash.manage}: ${c.title || formText[locale].intro.untitled}`}><Icon name="more" size={18} /></Link>
         </div>
       </li>
     );
