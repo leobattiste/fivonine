@@ -110,7 +110,7 @@ export default function Header({ locale, viewer }: { locale: Locale; viewer: Vie
           <nav className="drawer-menu" aria-label={d.nav.menu}>
             {viewer ? (
               <>
-                <Link className="drawer-profile" href={L("/dashboard")}>{m.profile}<Icon name="right" size={18} /></Link>
+                <Link className="drawer-row" href={L("/dashboard")}><span className="r-t">{n.profile}</span><Icon name="right" size={22} /></Link>
                 <Link className="drawer-row" href={L("/dashboard?tab=campaigns")}><span className="r-t">{m.fundraisers}</span><Icon name="right" size={22} /></Link>
                 {viewer.mine.length > 0 ? viewer.mine.map((c) => {
                   const open = c.status === "draft" || c.status === "needs_changes";
@@ -124,18 +124,23 @@ export default function Header({ locale, viewer }: { locale: Locale; viewer: Vie
                   );
                 }) : <Link className="drawer-camp empty" href={L("/create")}><span className="ph" aria-hidden="true"><Icon name="plus" size={22} /></span><span><strong>{m.start}</strong></span></Link>}
                 <Link className="drawer-row" href={L("/dashboard?tab=support")}><span><span className="r-t">{m.impact}</span><small>{m.impactSub}</small></span><Icon name="right" size={22} /></Link>
-                <Link className="drawer-row" href={L("/dashboard?tab=messages")}><span className="r-t">{m.messages}</span><Icon name="right" size={22} /></Link>
                 <Link className="drawer-row" href={L("/dashboard?tab=notifications")}><span className="r-t">{n.notifications}{viewer.unread > 0 && <span className="count" aria-label={n.unread(viewer.unread)}>{viewer.unread}</span>}</span><Icon name="right" size={22} /></Link>
-                <Link className="drawer-row" href={L("/dashboard?tab=settings")}><span className="r-t">{m.settings}</span><Icon name="right" size={22} /></Link>
+                <Link className="drawer-row" href={L("/dashboard?tab=settings")}><span className="r-t">{n.settings}</span><Icon name="right" size={22} /></Link>
                 {viewer.admin && <Link className="drawer-row" href={L("/admin")}><span className="r-t">{n.admin}</span><Icon name="right" size={22} /></Link>}
               </>
             ) : (
               <Link className="drawer-row" href={L("/login")}><span><span className="r-t">{m.signIn}</span><small>{m.signInSub}</small></span><Icon name="right" size={22} /></Link>
             )}
             <hr className="drawer-rule" />
-            {([["/explore", n.explore, m.donateSub], ["/create", n.fundraiser, m.fundraiseSub], ["/how-it-works", m.how, m.howSub], ["/about", n.about, m.aboutSub], ["/help", m.help, m.helpSub]] as [string, string, string][]).map(([href, label, sub]) => (
+            {([["/explore", n.explore, m.donateSub], ["/create", n.fundraiser, m.fundraiseSub]] as [string, string, string][]).map(([href, label, sub]) => (
               <Link key={href} className="drawer-row" href={L(href)} aria-current={isActive(href) ? "page" : undefined}><span><span className="r-t">{label}</span><small>{sub}</small></span><Icon name="right" size={22} /></Link>
             ))}
+            <Link className="drawer-row" href={L("/about")} aria-current={isActive("/about") ? "page" : undefined}><span className="r-t">{n.about}</span><Icon name="right" size={22} /></Link>
+            <div className="drawer-sub">
+              {([["/about", m.who], ["/how-it-works", m.how], ["/help", m.help]] as [string, string][]).map(([href, label]) => (
+                <Link key={href} href={L(href)} aria-current={isActive(href) ? "page" : undefined}>{label}<Icon name="right" size={18} /></Link>
+              ))}
+            </div>
             {viewer && <form action={signOut} className="drawer-out"><input type="hidden" name="locale" value={locale} /><button><Icon name="logout" size={20} />{n.signOut}</button></form>}
           </nav>
         </div>
