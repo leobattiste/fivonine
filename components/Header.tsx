@@ -47,7 +47,7 @@ export default function Header({ locale, viewer }: { locale: Locale; viewer: Vie
     <>
       {includeProfile && <Link href={L("/dashboard")}><Icon name="userCircle" size={18} />{n.profile}</Link>}
       <Link href={L("/dashboard?tab=campaigns")}><Icon name="hand" size={18} />{n.fundraisers}</Link>
-      <Link href={L("/dashboard?tab=support")}><Icon name="heart" size={18} />{followUp[locale].mine.tab}</Link>
+      <Link href={L("/dashboard/impact")}><Icon name="heart" size={18} />{followUp[locale].mine.tab}</Link>
       <Link href={L("/dashboard?tab=saved")}><Icon name="bookmark" size={18} />{n.saved}</Link>
       <Link href={L("/dashboard?tab=notifications")}><Icon name="bell" size={18} />{n.notifications}{viewer.unread > 0 && <span className="count" aria-label={n.unread(viewer.unread)}>{viewer.unread}</span>}</Link>
       <Link href={L("/dashboard?tab=settings")}><Icon name="settings" size={18} />{n.settings}</Link>
@@ -132,13 +132,13 @@ export default function Header({ locale, viewer }: { locale: Locale; viewer: Vie
               <Link className="drawer-row" href={L("/login")}><span><span className="r-t">{m.signIn}</span><small>{m.signInSub}</small></span></Link>
             )}
             <hr className="drawer-rule" />
-            {([["/explore", n.explore, m.donateSub], ["/create", n.fundraiser, m.fundraiseSub]] as [string, string, string][]).map(([href, label, sub]) => (
+            {([["/explore", n.explore, m.donateSub], ["/fundraise", n.fundraiser, m.fundraiseSub]] as [string, string, string][]).map(([href, label, sub]) => (
               <Link key={href} className="drawer-row" href={L(href)} aria-current={isActive(href) ? "page" : undefined}><span><span className="r-t">{label}</span><small>{sub}</small></span></Link>
             ))}
             <details className="drawer-about" open={["/about", "/how-it-works", "/help"].some(isActive) || undefined}>
               <summary className="drawer-row"><span className="r-t">{n.about}</span><span className="pm" aria-hidden="true" /></summary>
               <div className="drawer-sub">
-                {([["/about", m.who], ["/how-it-works", m.how], ["/help", m.help]] as [string, string][]).map(([href, label]) => (
+                {([["/who-we-are", m.who], ["/how-it-works", m.how], ["/help", m.help]] as [string, string][]).map(([href, label]) => (
                   <Link key={href} href={L(href)} aria-current={isActive(href) ? "page" : undefined}>{label}</Link>
                 ))}
               </div>
