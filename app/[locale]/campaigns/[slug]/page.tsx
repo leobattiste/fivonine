@@ -72,34 +72,8 @@ export default async function FundraiserPage({ params }: P) {
       <Cover c={c} className="f-cover" priority sizes="100vw" />
 
       <div className="f-grid">
-        <aside id="support" className="support" aria-labelledby="support-h">
-          <h2 id="support-h">{x.support}</h2>
-          {c.goal_amount && (
-            <div className="goal"><span className="small muted">{x.goal}</span><strong>{fmtMoney(Number(c.goal_amount), c.goal_currency, locale)}</strong><span className="xs muted">{x.goalNote}</span></div>
-          )}
-          <ReviewChecks tier={c.tier} locale={locale} withHelp />
-          {c.status === "completed" ? <p className="notice"><Icon name="done" size={18} />{x.supportClosed}</p> : <p className="small">{x.supportIntro}</p>}
-          {tally.reported > 0 && <p className="small support-tally"><Icon name="done" size={16} />{followUp[locale].tally(tally.reported, tally.confirmed)}</p>}
-          {methods.length > 0 && c.status !== "completed" && <SupportMethods methods={methods} locale={locale} />}
-          <p className="warn-line"><Icon name="shield" size={16} />{d.support.warning}</p>
-          {c.status === "live" && <SentForm c={c} methods={methods} locale={locale} viewerName={viewer?.profile.display_name ?? ""} signedIn={Boolean(viewer)} />}
-          <ShareBar url={url} title={c.title} locale={locale} />
-          <div className="support-tools">
-            <form action={toggleBookmark}>
-              {hidden("locale", locale)}{hidden("campaign_id", c.id)}{hidden("back", path)}{hidden("on", state.bookmarked ? "0" : "1")}
-              <button className="btn small quiet" aria-pressed={state.bookmarked}><Icon name="bookmark" size={16} />{state.bookmarked ? d.campaign.saved : d.campaign.save}</button>
-            </form>
-            {state.bookmarked && (
-              <form action={toggleRemind}>
-                {hidden("locale", locale)}{hidden("campaign_id", c.id)}{hidden("on", state.remind ? "0" : "1")}
-                <button className="btn small quiet" aria-pressed={state.remind}><Icon name="bell" size={16} />{d.campaign.remind}</button>
-              </form>
-            )}
-            <Link className="btn small quiet" href={`${path}/flyer`}><Icon name="qr" size={16} />{d.campaign.flyer}</Link>
-          </div>
-        </aside>
         <div className="f-main" style={{ minWidth: 0 }}>
-          <SectionTabs items={[["story", x.tabs.story], ["organizer", x.tabs.organizer], ["updates", x.tabs.updates, updates.length]]} />
+          <SectionTabs items={[["story", x.tabs.story], ["organizer", x.tabs.organizer], ["support", x.support], ["updates", x.tabs.updates, updates.length]]} />
 
           <section id="story" className="f-section" aria-label={x.tabs.story}>
             {voice && <div className="voice"><Icon name="mic" size={20} /><span className="small">{d.campaign.listen}</span><audio controls preload="none" src={voice} /></div>}
@@ -125,31 +99,6 @@ export default async function FundraiserPage({ params }: P) {
                 <div className="who">
                   <Avatar name={who} path={c.owner.avatar_path} size={56} />
                   <div><strong>{who}</strong>{since && <p className="small muted">{x.memberSince} {fmtDate(since, locale)}</p>}</div>
-                  <section id="updates" className="f-section" aria-labelledby="updates-h">
-            <h2 id="updates-h">{x.tabs.updates}</h2>
-            {updates.length ? (
-              <ol className="timeline">
-                {updates.map((u) => (
-                  <li key={u.id}>
-                    <time dateTime={u.created_at}>{fmtDate(u.created_at, locale)}{u.author?.display_name ? `, ${u.author.display_name}` : ""}</time>{u.final && <span className="tag solid">{followUp[locale].final.tag}</span>}
-                    {u.body.split(/\n{2,}/).map((para, i) => <p key={i}>{para}</p>)}
-                    {u.proof.length > 0 && (
-                      <div className="gallery" aria-label={d.campaign.proof}>
-                        {u.proof.map((g) => <div key={g} className="frame">{/* eslint-disable-next-line @next/next/no-img-element */}<img src={mediaUrl(g) ?? ""} alt={d.campaign.proof} loading="lazy" /></div>)}
-                      </div>
-                    )}
-                  </li>
-                ))}
-              </ol>
-            ) : <p className="muted">{x.noUpdates}</p>}
-            {notes.length > 0 && (
-              <div className="stack" style={{ marginTop: 16 }}>
-                <h3>{x.notes}</h3>
-                <p className="small muted">{x.notesHint}</p>
-                <ul className="notes">{notes.map((k) => <li key={k.id}><strong className="small">{k.anonymous || !k.display_name ? d.common.anonymous : k.display_name}</strong><p>{k.message}</p></li>)}</ul>
-              </div>
-            )}
-          </section>
 
         </div>
                 {team.length > 0 && <p className="small"><Icon name="group" size={16} /> {x.team}: {team.map((m) => m.profile?.display_name).filter(Boolean).join(", ")}</p>}
@@ -189,6 +138,59 @@ export default async function FundraiserPage({ params }: P) {
               </details>
             )}
             {!mine && <Link className="arrow-link small" href={`/${locale}/report?campaign=${c.slug}`}><Icon name="flag" size={16} />{x.report}</Link>}
+          </section>
+
+        <section id="support" className="support f-section" aria-labelledby="support-h">
+          <h2 id="support-h">{x.support}</h2>
+          {c.goal_amount && (
+            <div className="goal"><span className="small muted">{x.goal}</span><strong>{fmtMoney(Number(c.goal_amount), c.goal_currency, locale)}</strong><span className="xs muted">{x.goalNote}</span></div>
+          )}
+          <ReviewChecks tier={c.tier} locale={locale} withHelp />
+          {c.status === "completed" ? <p className="notice"><Icon name="done" size={18} />{x.supportClosed}</p> : <p className="small">{x.supportIntro}</p>}
+          {tally.reported > 0 && <p className="small support-tally"><Icon name="done" size={16} />{followUp[locale].tally(tally.reported, tally.confirmed)}</p>}
+          {methods.length > 0 && c.status !== "completed" && <SupportMethods methods={methods} locale={locale} />}
+          <p className="warn-line"><Icon name="shield" size={16} />{d.support.warning}</p>
+          {c.status === "live" && <SentForm c={c} methods={methods} locale={locale} viewerName={viewer?.profile.display_name ?? ""} signedIn={Boolean(viewer)} />}
+          <ShareBar url={url} title={c.title} locale={locale} />
+          <div className="support-tools">
+            <form action={toggleBookmark}>
+              {hidden("locale", locale)}{hidden("campaign_id", c.id)}{hidden("back", path)}{hidden("on", state.bookmarked ? "0" : "1")}
+              <button className="btn small quiet" aria-pressed={state.bookmarked}><Icon name="bookmark" size={16} />{state.bookmarked ? d.campaign.saved : d.campaign.save}</button>
+            </form>
+            {state.bookmarked && (
+              <form action={toggleRemind}>
+                {hidden("locale", locale)}{hidden("campaign_id", c.id)}{hidden("on", state.remind ? "0" : "1")}
+                <button className="btn small quiet" aria-pressed={state.remind}><Icon name="bell" size={16} />{d.campaign.remind}</button>
+              </form>
+            )}
+            <Link className="btn small quiet" href={`${path}/flyer`}><Icon name="qr" size={16} />{d.campaign.flyer}</Link>
+          </div>
+        </section>
+
+          <section id="updates" className="f-section" aria-labelledby="updates-h">
+            <h2 id="updates-h">{x.tabs.updates}</h2>
+            {updates.length ? (
+              <ol className="timeline">
+                {updates.map((u) => (
+                  <li key={u.id}>
+                    <time dateTime={u.created_at}>{fmtDate(u.created_at, locale)}{u.author?.display_name ? `, ${u.author.display_name}` : ""}</time>{u.final && <span className="tag solid">{followUp[locale].final.tag}</span>}
+                    {u.body.split(/\n{2,}/).map((para, i) => <p key={i}>{para}</p>)}
+                    {u.proof.length > 0 && (
+                      <div className="gallery" aria-label={d.campaign.proof}>
+                        {u.proof.map((g) => <div key={g} className="frame">{/* eslint-disable-next-line @next/next/no-img-element */}<img src={mediaUrl(g) ?? ""} alt={d.campaign.proof} loading="lazy" /></div>)}
+                      </div>
+                    )}
+                  </li>
+                ))}
+              </ol>
+            ) : <p className="muted">{x.noUpdates}</p>}
+            {notes.length > 0 && (
+              <div className="stack" style={{ marginTop: 16 }}>
+                <h3>{x.notes}</h3>
+                <p className="small muted">{x.notesHint}</p>
+                <ul className="notes">{notes.map((k) => <li key={k.id}><strong className="small">{k.anonymous || !k.display_name ? d.common.anonymous : k.display_name}</strong><p>{k.message}</p></li>)}</ul>
+              </div>
+            )}
           </section>
         </div>
 
