@@ -12,13 +12,15 @@ import { AvatarInput } from "@/components/Uploads";
 import { markNotificationsRead, saveProfile } from "@/app/actions";
 import { db } from "@/lib/supabase/server";
 import { requireViewer } from "@/lib/auth";
-import { getCategories, myBookmarks, myCampaigns, myChanges, myNotifications, reviewNotes, unreadCount } from "@/lib/data";
+import { followUp } from "@/lib/dict/follow-up";
+import { fmtMoney } from "@/lib/format";
+import { getCategories, mySupport, myBookmarks, myCampaigns, myChanges, myNotifications, reviewNotes, unreadCount } from "@/lib/data";
 import { DEPARTMENTS } from "@/lib/constants";
 import { fmtDate } from "@/lib/format";
 import { isLocale, t, type Locale } from "@/lib/i18n";
 import type { Campaign, Status } from "@/lib/types";
 export const metadata: Metadata = { robots: { index: false } };
-const TABS = ["profile", "campaigns", "saved", "notifications", "settings"] as const;
+const TABS = ["profile", "campaigns", "support", "saved", "notifications", "settings"] as const;
 
 export default async function Dashboard({ params, searchParams }: { params: Promise<{ locale: string }>; searchParams: Promise<{ tab?: string }> }) {
   const { locale } = await params;
@@ -34,6 +36,7 @@ export default async function Dashboard({ params, searchParams }: { params: Prom
         <div className="stack" style={{ gap: 28, minWidth: 0 }}>
           {viewer.profile.banned && <p className="notice err"><Icon name="lock" size={18} />{d.dash.restricted}</p>}
           {tab === "campaigns" && <Overview locale={locale} viewerId={viewer.id} />}
+          {tab === "support" && <MySupportTab locale={locale} viewerId={viewer.id} />}
           {tab === "saved" && <Saved locale={locale} viewerId={viewer.id} />}
           {tab === "notifications" && <Notifications locale={locale} viewerId={viewer.id} />}
           {tab === "profile" && <Profile locale={locale} viewer={viewer} />}
@@ -92,6 +95,35 @@ async function Overview({ locale, viewerId }: { locale: Locale; viewerId: string
           {attention.length > 0 && <section className="stack" aria-labelledby="attn"><h2 id="attn">{x.attention}</h2><ul className="f-rows">{attention.map(row)}</ul></section>}
           {rest.length > 0 && <section className="stack" aria-labelledby="all"><h2 id="all">{x.all}</h2><ul className="f-rows">{rest.map(row)}</ul></section>}
         </>
+      )}
+    </>
+  );
+}
+async function MySupportTab({ locale, viewerId }: { locale: Locale; viewerId: string }) {
+  const fu = followUp[locale], items = await mySupport(viewerId);
+  return (
+    <>
+      <header className="stack tight"><h1>{fu.mine.title}</h1><p className="muted measure">{fu.mine.intro}</p></header>
+      {!items.length ? <div className="empty"><span className="icon-box"><Icon name="heart" size={24} /></span><p>{fu.mine.empty}</p><Link className="btn" href={`/${locale}/explore`}>{fu.mine.find}</Link></div> : (
+        <ul className="list">
+          {items.map((k) => (
+            <li key={k.id}>
+              <div className="stack tight" style={{ flex: "1 1 280px" }}>
+                <strong>{fmtMoney(k.amount, k.currency, locale)} <span className="muted small">· {fmtDate(k.created_at, locale)}</span></strong>
+                {k.campaign && ["live", "completed"].includes(k.campaign.status) ? <Link href={`/${locale}/campaigns/${k.campaign.slug}`}>{k.campaign.title}</Link> : <span className="small muted">{fu.mine.gone}</span>}
+                {(k.reference || k.sent_on || k.sender_phone || k.receipt_url) && (
+                  <dl className="transfer-facts">
+                    {k.reference && <div><dt>{fu.send.ref}</dt><dd><code>{k.reference}</code></dd></div>}
+                    {k.sent_on && <div><dt>{fu.send.date}</dt><dd>{fmtDate(k.sent_on, locale)}</dd></div>}
+                    {k.sender_phone && <div><dt>{fu.send.phone}</dt><dd>{k.sender_phone}</dd></div>}
+                    {k.receipt_url && <div><dt>{fu.send.receipt}</dt><dd><a href={k.receipt_url} target="_blank" rel="noopener noreferrer">{fu.send.view}</a></dd></div>}
+                  </dl>
+                )}
+                <span className="xs muted">{k.received_at ? fu.mine.confirmed(fmtDate(k.received_at, locale)) : fu.mine.waiting}</span>
+              </div>
+            </li>
+          ))}
+        </ul>
       )}
     </>
   );

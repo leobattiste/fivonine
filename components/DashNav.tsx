@@ -3,6 +3,7 @@ import { useEffect, useRef } from "react";
 import Link from "next/link";
 import Icon, { type IconName } from "./Icon";
 import { t, type Locale } from "@/lib/i18n";
+import { followUp } from "@/lib/dict/follow-up";
 export default function DashNav({ locale, tab, unread }: { locale: Locale; tab: string; unread: number }) {
   const n = t(locale).x.nav;
   const navRef = useRef<HTMLElement>(null);
@@ -19,7 +20,7 @@ export default function DashNav({ locale, tab, unread }: { locale: Locale; tab: 
       nav.scrollLeft += activeRect.right - navRect.right + margin;
     }
   }, [tab]);
-  const items: [string, string, IconName, number?][] = [["profile", n.profile, "userCircle"], ["campaigns", n.fundraisers, "hand"], ["saved", n.saved, "bookmark"], ["notifications", n.notifications, "bell", unread], ["settings", n.settings, "settings"]];
+  const items: [string, string, IconName, number?][] = [["profile", n.profile, "userCircle"], ["campaigns", n.fundraisers, "hand"], ["support", followUp[locale].mine.tab, "heart"], ["saved", n.saved, "bookmark"], ["notifications", n.notifications, "bell", unread], ["settings", n.settings, "settings"]];
   return (
     <nav ref={navRef} className="side-nav" aria-label={n.account}>
       {items.map(([k, label, icon, count]) => (

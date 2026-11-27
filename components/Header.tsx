@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { followUp } from "@/lib/dict/follow-up";
 import Icon from "./Icon";
 import { Wordmark } from "./Brand";
 import { LOCALE_COOKIE, localeNames, locales, localizedPath, t, type Locale } from "@/lib/i18n";
@@ -45,6 +46,7 @@ export default function Header({ locale, viewer }: { locale: Locale; viewer: Vie
     <>
       {includeProfile && <Link href={L("/dashboard")}><Icon name="userCircle" size={18} />{n.profile}</Link>}
       <Link href={L("/dashboard?tab=campaigns")}><Icon name="hand" size={18} />{n.fundraisers}</Link>
+      <Link href={L("/dashboard?tab=support")}><Icon name="heart" size={18} />{followUp[locale].mine.tab}</Link>
       <Link href={L("/dashboard?tab=saved")}><Icon name="bookmark" size={18} />{n.saved}</Link>
       <Link href={L("/dashboard?tab=notifications")}><Icon name="bell" size={18} />{n.notifications}{viewer.unread > 0 && <span className="count" aria-label={n.unread(viewer.unread)}>{viewer.unread}</span>}</Link>
       <Link href={L("/dashboard?tab=settings")}><Icon name="settings" size={18} />{n.settings}</Link>
