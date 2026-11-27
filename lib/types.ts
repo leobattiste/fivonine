@@ -36,9 +36,12 @@ export type Contribution = { id: string; campaign_id: string; amount: number; cu
 export type Vouch = { id: string; campaign_id: string; voucher_id: string; role: string; organization: string | null; statement: string; status: string; created_at: string; voucher?: { display_name: string; org_verified: boolean } | null };
 export type Category = { slug: string; name_ht: string; name_fr: string; name_en: string; name_es: string; position: number; active: boolean };
 export type Settings = { emergency: { active: boolean } & Record<Locale, string>; rate: { htg_per_usd: number }; testMode?: boolean };
-export type Notification = { id: string; kind: string; campaign_id: string | null; payload: { title?: string; slug?: string; note?: string }; read_at: string | null; created_at: string };
+export type Notification = { id: string; kind: string; campaign_id: string | null; payload: { title?: string; slug?: string; note?: string; with?: string }; read_at: string | null; created_at: string };
 export type ActionResult = { ok: boolean; message: string; id?: string; at?: string; undo?: string; field?: "cover_path" } | null;
 export type Appeal = { id: string; campaign_id: string | null; body: string; status: "open" | "accepted" | "declined"; admin_note: string | null; created_at: string };
 export type SupportRecord = { id: string; amount: number; currency: "HTG" | "USD"; method: string | null; display_name: string | null; anonymous: boolean; message: string | null; created_at: string; received_at: string | null; reference: string | null; sent_on: string | null; sender_phone: string | null; receipt_path: string | null; receipt_url?: string | null };
 export type MySupport = SupportRecord & { campaign_id: string; campaign: { title: string; slug: string; status: string } | null };
 export type SupportTally = { reported: number; confirmed: number };
+
+export type Thread = { campaign_id: string; supporter_id: string; title: string; slug: string; other_name: string | null; last_body: string; last_at: string; unread: number; as_organizer: boolean };
+export type ThreadMessage = { id: string; body: string; created_at: string; mine: boolean; sender_name: string };

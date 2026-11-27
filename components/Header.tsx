@@ -124,7 +124,8 @@ export default function Header({ locale, viewer }: { locale: Locale; viewer: Vie
                   );
                 }) : <Link className="drawer-camp empty" href={L("/create")}><span className="ph" aria-hidden="true"><Icon name="plus" size={22} /></span><span><strong>{m.start}</strong></span></Link>}
                 <Link className="drawer-row" href={L("/dashboard?tab=support")}><span><span className="r-t">{m.impact}</span><small>{m.impactSub}</small></span><Icon name="right" size={22} /></Link>
-                <Link className="drawer-row" href={L("/dashboard?tab=notifications")}><span className="r-t">{m.messages}{viewer.unread > 0 && <span className="count" aria-label={n.unread(viewer.unread)}>{viewer.unread}</span>}</span><Icon name="right" size={22} /></Link>
+                <Link className="drawer-row" href={L("/dashboard?tab=messages")}><span className="r-t">{m.messages}</span><Icon name="right" size={22} /></Link>
+                <Link className="drawer-row" href={L("/dashboard?tab=notifications")}><span className="r-t">{n.notifications}{viewer.unread > 0 && <span className="count" aria-label={n.unread(viewer.unread)}>{viewer.unread}</span>}</span><Icon name="right" size={22} /></Link>
                 <Link className="drawer-row" href={L("/dashboard?tab=settings")}><span className="r-t">{m.settings}</span><Icon name="right" size={22} /></Link>
                 {viewer.admin && <Link className="drawer-row" href={L("/admin")}><span className="r-t">{n.admin}</span><Icon name="right" size={22} /></Link>}
               </>
