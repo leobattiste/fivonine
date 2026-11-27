@@ -84,7 +84,7 @@ export default async function AdminCampaign({ params }: { params: Promise<{ loca
             </dl>
             {voice && <audio controls preload="none" src={voice} />}
             <div className="story" dangerouslySetInnerHTML={{ __html: storyHtml(c.story) }} />
-            {c.gallery.length > 0 && <div className="gallery">{c.gallery.map((g) => <div key={g} className="frame">{/* eslint-disable-next-line @next/next/no-img-element */}<img src={mediaUrl(g) ?? ""} alt="" loading="lazy" /></div>)}</div>}
+            {c.gallery.length > 0 && <div className="gallery">{c.gallery.map((g) => <div key={g} className="frame">{/\.(mp4|webm|mov)$/i.test(g) ? <video src={mediaUrl(g) ?? ""} controls playsInline preload="metadata" /> : <>{/* eslint-disable-next-line @next/next/no-img-element */}<img src={mediaUrl(g) ?? ""} alt="" loading="lazy" /></>}</div>)}</div>}
           </section>
           <section className="panel">
             <h2>How to support (public)</h2>

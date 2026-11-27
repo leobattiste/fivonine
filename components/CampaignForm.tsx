@@ -5,7 +5,7 @@ import StoryEditor from "./StoryEditor";
 import { saveCampaign } from "@/app/actions";
 import { DEPARTMENTS, METHODS, RELATIONS, type MethodGroup } from "@/lib/constants";
 import { t, type Locale } from "@/lib/i18n";
-import { uploadImage } from "@/lib/upload";
+import { uploadImage, uploadVideo, VIDEO_TYPES } from "@/lib/upload";
 import { fmtMoney, mediaUrl, campaignPlace } from "@/lib/format";
 import { deviceDraft, restoreDeviceDraft, type FormState, type IdentityFileField } from "@/lib/form";
 import { formText } from "@/lib/dict/form";
@@ -16,6 +16,7 @@ import { createFlow } from "@/lib/dict/create-flow";
 export type { FormState };
 
 const LINK = /^https:\/\/[^\s]+$/;
+const isVideo = (path: string) => /\.(mp4|webm|mov)$/i.test(path);
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const ID_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const plain = (html: string) => html.replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").replace(/\s+/g, " ").trim();
@@ -131,10 +132,8 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
     if (f.beneficiary_relation === "organization" && !f.organization_role.trim()) e.organization_role = ui.requiredRole;
     if (f.goal_amount.trim() && (!Number.isFinite(Number(f.goal_amount)) || Number(f.goal_amount) <= 0)) e.goal_amount = ui.invalidGoal;
     if (f.deadline && !/^\d{4}-\d{2}-\d{2}$/.test(f.deadline)) e.deadline = ui.invalidDate;
-    if (f.beneficiary_relation && f.beneficiary_name.trim().length < 2) e.beneficiary_name = c.needRecipient;
+    if (f.beneficiary_relation && f.beneficiary_relation !== "self" && f.beneficiary_name.trim().length < 2) e.beneficiary_name = c.needRecipient;
     if (!(RELATIONS as readonly string[]).includes(f.beneficiary_relation)) e.beneficiary_relation = c.needRecipient;
-    if (f.priv.contact_name.trim().length < 2) e.contact_name = c.needContact;
-    if (!EMAIL.test(f.priv.contact_email.trim())) e.contact_email = c.needContact;
     if (splitContact(f.priv.contact_details).phone.trim().length < 3) e.contact_details = c.needContact;
     if (!f.priv.id_front_path) e.id_front_path = c.needIdentity;
     if (!f.priv.selfie_path) e.selfie_path = c.needIdentity;
@@ -145,7 +144,6 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
       else if (!paymentValid(id, v.details, v.link)) e[`m.${id}`] = x.err.details;
       if (v.link.trim() && !LINK.test(v.link.trim())) e[`l.${id}`] = x.err.link;
     }
-    if (f.video_url.trim() && !LINK.test(f.video_url.trim())) e.video_url = cf.video.invalid;
     if (budgetLines.some((l) => l.label.trim().length < 2 || !(Number(l.amount) > 0))) e.budget = cf.budget.invalid;
     if (!live && (!consent.every(Boolean) || (needsBeneficiaryConsent && !beneficiaryConsent))) e.consent = x.err.consent;
     if (!verificationConsent) e.verificationConsent = verification.consentError;
@@ -215,29 +213,27 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
     catch (e) { setUpErr(e instanceof Error && e.message === "too-big" ? c.tooBig : c.uploadFailed); return null; }
     finally { setBusy(null); }
   }
-  async function addPhotos(files: FileList | null) {
+  async function addCover(file: File | undefined) {
+    if (!file || busy !== null || pending) return;
+    const path = await run("cover", () => uploadImage("media", file, { max: 1600 }));
+    if (path) { setF((p) => ({ ...p, cover_path: path, gallery: p.gallery.filter((g) => g !== path) })); setErrors((old) => { const next = { ...old }; delete next.cover_path; return next; }); }
+  }
+  async function addGallery(files: FileList | null) {
     if (!files || busy !== null || pending) return;
-    const selected = Array.from(files).slice(0, Math.max(0, 10 - photos.length));
+    const selected = Array.from(files).slice(0, Math.max(0, 9 - f.gallery.length));
     if (!selected.length) return;
-    setBusy("photos"); setUpErr(null); setPhotoProgress({done:0,total:selected.length});
+    setBusy("photos"); setUpErr(null); setPhotoProgress({ done: 0, total: selected.length });
     const paths: string[] = [];
-    let failed = false;
+    let failed = false, tooBig = false;
     try {
       for (let i = 0; i < selected.length; i++) {
-        try { paths.push(await uploadImage("media", selected[i], { max: 1600 })); }
-        catch { failed = true; }
-        setPhotoProgress({done:i + 1,total:selected.length});
+        const file = selected[i];
+        try { paths.push(VIDEO_TYPES.includes(file.type) ? await uploadVideo(file) : await uploadImage("media", file, { max: 1600 })); }
+        catch (e) { if (e instanceof Error && e.message === "too-big") tooBig = true; else failed = true; }
+        setPhotoProgress({ done: i + 1, total: selected.length });
       }
-      if (paths.length) {
-        setF((p) => {
-          const old = Array.from(new Set([p.cover_path, ...p.gallery].filter((v): v is string => Boolean(v))));
-          const cover = p.cover_path && !/^(pexels|demo):/.test(p.cover_path) ? p.cover_path : paths[0];
-          const all = Array.from(new Set([cover, ...old, ...paths])).filter(v => !/^(pexels|demo):/.test(v)).slice(0, 10);
-          return { ...p, cover_path: cover, gallery: all.filter(v => v !== cover) };
-        });
-        setErrors((old) => { const next = { ...old }; delete next.cover_path; return next; });
-      }
-      if (failed) setUpErr(ui.photoError);
+      if (paths.length) setF((p) => ({ ...p, gallery: Array.from(new Set([...p.gallery, ...paths])).filter((g) => g !== p.cover_path).slice(0, 9) }));
+      if (tooBig) setUpErr(ui.videoTooBig); else if (failed) setUpErr(ui.photoError);
     } finally { setBusy(null); }
   }
   function makeCover(path: string) {
@@ -336,7 +332,6 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
   const amount = Number(f.goal_amount) > 0 ? fmtMoney(Number(f.goal_amount), f.goal_currency, locale) : null;
   const summaries: Record<string,string> = { basics: [beneficiaryType ? navCopy[beneficiaryType] : "", f.beneficiary_name, catName, where].filter(Boolean).join(" · "), story: f.title, goal: [amount ?? ui.noGoal, f.deadline].filter(Boolean).join(" · "), media: ui.summaryPhotos(photos.length), receive: ui.summaryMethods(methods.length), verification: ui.summaryDocs([f.priv.id_front_path, f.priv.id_back_path, f.priv.selfie_path, ...f.priv.documents].filter(Boolean).length) };
   const savedAccount = state?.ok && state.at ? x.savedAccount(state.at) : null;
-  const mail = f.priv.contact_email || email || "";
   const canDraft = f.title.trim().length >= 4;
 
   const card = (
@@ -437,7 +432,7 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
                   <input type="radio" name="beneficiary-type" value={type} checked={beneficiaryType === type} {...inv("beneficiary_relation")}
                     onChange={() => {
                       if (beneficiaryType === type) return;
-                      setF((old) => ({ ...old, beneficiary_relation: type === "org" ? "organization" : type === "self" ? "self" : "other", beneficiary_name: type === "self" ? old.priv.contact_name : "", organization_role: "" }));
+                      setF((old) => ({ ...old, beneficiary_relation: type === "org" ? "organization" : type === "self" ? "self" : "other", beneficiary_name: type === "self" ? (old.priv.contact_name || old.beneficiary_name) : "", organization_role: "" }));
                       setVerificationConsent(false);
                       setErrors((old) => { const next = { ...old }; delete next.beneficiary_name; delete next.beneficiary_relation; return next; });
                     }} />
@@ -448,10 +443,10 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
             {err("beneficiary_relation")}
           </fieldset>
           {beneficiaryType && <div className="stack">
-            <label className="field"><span>{beneficiaryType === "self" ? navCopy.selfName : beneficiaryType === "org" ? navCopy.orgName : c.beneficiary}</span>
+            {beneficiaryType !== "self" && <label className="field"><span>{beneficiaryType === "org" ? navCopy.orgName : c.beneficiary}</span>
               <input className="input" value={f.beneficiary_name} maxLength={120} required aria-required="true" onChange={(e) => set("beneficiary_name", e.target.value)} {...inv("beneficiary_name")} />
               {err("beneficiary_name")}
-            </label>
+            </label>}
             {beneficiaryType === "org" && <label className="field"><span>{ui.role}</span><input className="input" maxLength={120} value={f.organization_role} onChange={(e) => set("organization_role", e.target.value)} {...inv("organization_role")} />{err("organization_role")}</label>}
             {beneficiaryType === "other" && <label className="field"><span>{c.relation}</span>
               <select className="input" value={f.beneficiary_relation} onChange={(e) => set("beneficiary_relation", e.target.value)}>
@@ -461,13 +456,13 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
           </div>}
           <div className="wizard-group">
           <header><h3>{k.category.label}</h3></header>
-          <fieldset className="field" {...(errors.cause ? { "aria-describedby": "e-cause" } : {})}>
-            <legend className="sr">{k.category.label}</legend>
-            <div className="choice-row">
-              {cats.map((cat) => <label key={cat.slug} className="choice"><input type="radio" name="cause" checked={f.cause === cat.slug} onChange={() => set("cause", cat.slug)} /><span>{cat[`name_${locale}`]}</span></label>)}
-            </div>
+          <label className="field"><span className="sr">{k.category.label}</span>
+            <select className="input" value={f.cause} onChange={(e) => set("cause", e.target.value)} {...inv("cause")}>
+              <option value="">{c.choose}</option>
+              {cats.map((cat) => <option key={cat.slug} value={cat.slug}>{cat[`name_${locale}`]}</option>)}
+            </select>
             {err("cause")}
-          </fieldset>
+          </label>
           </div>
           <div className="wizard-group">
           <header><h3>{ui.location}</h3></header>
@@ -492,7 +487,6 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
           </label>
           <div className="field">
             <label htmlFor="story-editor">{ui.desc}</label>
-            {!storyChars && <div><button type="button" className="btn small soft" onClick={() => set("story", cf.prompts.guideHeadings.map((h) => `<h3>${h}</h3><p></p>`).join(""))}><Icon name="guide" size={16} />{cf.prompts.useGuide}</button></div>}
             <StoryEditor id="story-editor" value={f.story} onChange={(html) => set("story", html)} placeholder={ui.storyHelp} labels={x.editor} invalid={Boolean(errors.story)} describedBy={errors.story ? "e-story story-meter" : "story-meter"} />
             <p id="story-meter" className={`story-meter ${storyChars < 40 ? "low" : storyChars < 400 ? "mid" : "high"}`}><span className="story-meter-bar"><span style={{ width: `${Math.min(100, (storyChars / 600) * 100)}%` }} /></span><span>{storyChars < 40 ? cf.meter.short : storyChars < 400 ? cf.meter.ok : cf.meter.good} · {cf.meter.chars(storyChars)}</span></p>
             {err("story")}
@@ -543,29 +537,40 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
         </section>
 
         <section id="s-media" className="part wizard-panel" role="tabpanel" aria-labelledby="wizard-tab-media" tabIndex={-1} hidden={activeStep !== "media"}>
-          <header><h2>{ui.photoTitle}</h2><p className="muted">{ui.photoHelp}</p></header>
-          <input ref={photoPicker} type="file" accept="image/*" multiple hidden disabled={navigationLocked} onChange={(e) => { const files = e.target.files; void addPhotos(files); e.target.value = ""; }} />
-          <div className="photo-grid">
-            {photos.map((p, i) => (
-              <div className="photo-tile" key={p}>
-                <div className="frame">{/* eslint-disable-next-line @next/next/no-img-element */}<img src={src(p)} alt={`${ui.photos} ${i + 1}`} /></div>
-                {f.cover_path === p && <span className="photo-cover-label">{ui.cover}</span>}
-                <button type="button" className="photo-options-btn" aria-label={`${ui.photoMenu} ${i + 1}`} aria-expanded={photoMenu === p} disabled={navigationLocked} onClick={() => setPhotoMenu(photoMenu === p ? null : p)} onKeyDown={(e) => { if(e.key === "Escape") setPhotoMenu(null); }}><Icon name="more" size={20}/></button>
-                {photoMenu === p && <div className="photo-options-menu">
-                  {f.cover_path !== p && !/^(pexels|demo):/.test(p) && <button type="button" disabled={navigationLocked} onClick={() => makeCover(p)}>{ui.makeCover}</button>}
-                  <button type="button" disabled={navigationLocked} onClick={() => deletePhoto(p)}>{ui.delete}</button>
-                </div>}
+          <header><h2>{ui.photoTitle}</h2></header>
+          <div className="wizard-group">
+            <header><h3>{ui.coverTitle}</h3><p className="small muted">{ui.coverHint}</p></header>
+            <input ref={photoPicker} type="file" accept="image/*" hidden disabled={navigationLocked} onChange={(e) => { const file = e.target.files?.[0]; e.target.value = ""; void addCover(file); }} />
+            {f.cover_path ? (
+              <div className="cover-slot">
+                <div className="frame">{/* eslint-disable-next-line @next/next/no-img-element */}<img src={src(f.cover_path)} alt={ui.coverTitle} /></div>
+                <button type="button" className="btn small" data-cover-replace disabled={navigationLocked} {...inv("cover_path")} onClick={() => photoPicker.current?.click()}><Icon name={busy === "cover" ? "spinner" : "image"} size={16} />{busy === "cover" ? c.uploading : ui.coverChange}</button>
               </div>
-            ))}
-            {photos.length < 10 && <button type="button" className="upload-zone photo-add" data-cover-replace aria-busy={busy === "photos"} disabled={navigationLocked} {...inv("cover_path")} onClick={() => photoPicker.current?.click()}><Icon name={busy === "photos" ? "spinner" : "plus"} size={24}/><span>{busy === "photos" ? ui.uploading : c.addPhoto}</span>{busy === "photos" && <small>{photoProgress.done}/{photoProgress.total}</small>}</button>}
+            ) : (
+              <button type="button" className="upload-zone cover-add" data-cover-replace aria-busy={busy === "cover"} disabled={navigationLocked} {...inv("cover_path")} onClick={() => photoPicker.current?.click()}><Icon name={busy === "cover" ? "spinner" : "image"} size={26} /><span>{busy === "cover" ? c.uploading : ui.coverAdd}</span></button>
+            )}
+            {illustrativeCover && <p className="small muted">{k.cover.demoReplace}</p>}
+            {err("cover_path")}
           </div>
-          <p className="xs muted">{photos.length}/10</p>
-          {illustrativeCover && <p className="small muted">{k.cover.demoReplace}</p>}
-          {err("cover_path")}
-          <label className="field"><span>{cf.video.label}</span>
-            <input className="input" type="url" inputMode="url" placeholder="https://" maxLength={300} value={f.video_url} onChange={(e) => set("video_url", e.target.value)} {...inv("video_url")} />
-            <small>{cf.video.hint}</small>{err("video_url")}
-          </label>
+          <div className="wizard-group">
+            <header><h3>{ui.galleryTitle}</h3><p className="small muted">{ui.galleryHint}</p></header>
+            <input id="gallery-picker" type="file" accept="image/*,video/mp4,video/webm,video/quicktime" multiple hidden disabled={navigationLocked} onChange={(e) => { const files = e.target.files; void addGallery(files); e.target.value = ""; }} />
+            <div className="photo-grid">
+              {f.gallery.map((p, i) => (
+                <div className="photo-tile" key={p}>
+                  <div className="frame">{isVideo(p) ? <video src={src(p)} muted playsInline preload="metadata" aria-label={`${ui.video} ${i + 1}`} /> : <>{/* eslint-disable-next-line @next/next/no-img-element */}<img src={src(p)} alt={`${ui.photos} ${i + 1}`} /></>}</div>
+                  {isVideo(p) && <span className="photo-cover-label">{ui.video}</span>}
+                  <button type="button" className="photo-options-btn" aria-label={`${ui.photoMenu} ${i + 1}`} aria-expanded={photoMenu === p} disabled={navigationLocked} onClick={() => setPhotoMenu(photoMenu === p ? null : p)} onKeyDown={(e) => { if (e.key === "Escape") setPhotoMenu(null); }}><Icon name="more" size={20} /></button>
+                  {photoMenu === p && <div className="photo-options-menu">
+                    {!isVideo(p) && <button type="button" disabled={navigationLocked} onClick={() => makeCover(p)}>{ui.makeCover}</button>}
+                    <button type="button" disabled={navigationLocked} onClick={() => deletePhoto(p)}>{ui.delete}</button>
+                  </div>}
+                </div>
+              ))}
+              {f.gallery.length < 9 && <button type="button" className="upload-zone photo-add" aria-busy={busy === "photos"} disabled={navigationLocked} onClick={() => document.getElementById("gallery-picker")?.click()}><Icon name={busy === "photos" ? "spinner" : "plus"} size={24} /><span>{busy === "photos" ? ui.uploading : ui.galleryAdd}</span>{busy === "photos" && <small>{photoProgress.done}/{photoProgress.total}</small>}</button>}
+            </div>
+            <p className="xs muted">{f.gallery.length}/9</p>
+          </div>
         </section>
 
         <section id="s-receive" className="part" role="tabpanel" aria-labelledby="wizard-tab-receive" tabIndex={-1} hidden={activeStep !== "receive"}>
@@ -606,16 +611,6 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
           </section>
           <h3>{ui.contact}</h3>
           <p className="small muted" id="verification-contact-hint">{verification.contactHint}</p>
-          <div className="cols-2">
-            <label className="field"><span>{c.contactName}</span>
-              <input className="input" autoComplete="name" value={f.priv.contact_name} maxLength={120} required aria-required="true" onChange={(e) => setPriv("contact_name", e.target.value)} {...inv("contact_name")} />
-              {err("contact_name")}
-            </label>
-            <label className="field"><span>{c.contactEmail}</span>
-              <input className="input" type="email" inputMode="email" autoComplete="email" value={f.priv.contact_email} maxLength={254} required aria-required="true" onChange={(e) => setPriv("contact_email", e.target.value)} {...inv("contact_email")} />
-              {err("contact_email")}
-            </label>
-          </div>
           <label className="field"><span>{ui.phone}</span><input className="input" type="tel" inputMode="tel" autoComplete="tel" value={splitContact(f.priv.contact_details).phone} maxLength={60} onChange={(e)=>setPriv("contact_details",formatContact(e.target.value,splitContact(f.priv.contact_details).notes))} {...inv("contact_details")}/>{err("contact_details")}</label>
           <label className="field"><span>{ui.contactExtra}</span><textarea className="input" rows={2} maxLength={500} value={splitContact(f.priv.contact_details).notes} onChange={(e)=>setPriv("contact_details",formatContact(splitContact(f.priv.contact_details).phone,e.target.value))}/></label>
           <div className="stack">
@@ -650,7 +645,6 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
           </details>
           <label className="check"><input type="checkbox" checked={verificationConsent} required aria-required="true" onChange={(e) => { setVerificationConsent(e.target.checked); setErrors((old) => { const next = { ...old }; delete next.verificationConsent; return next; }); }} {...inv("verificationConsent")} /><span>{verification.consent}</span></label>
           {err("verificationConsent")}
-          {draftKey && <p className="small muted"><Icon name="lock" size={15} />{verification.privateDraft}</p>}
         </section>
 
         <section id="s-submit" className="part submit-part" role="tabpanel" aria-labelledby="wizard-tab-submit" tabIndex={-1} hidden={activeStep !== "submit"}>
@@ -678,8 +672,6 @@ export default function CampaignForm({ locale, cats, initial, draftKey, live, em
           )}
           <ul className="next-list">
             <li><Icon name="clock" size={18} /><span>{k.submit.eta}</span></li>
-            <li><Icon name="mail" size={18} /><span>{k.submit.reach(mail)}</span></li>
-            {!live && <li><Icon name="group" size={18} /><span>{cf.coOrg}</span></li>}
           </ul>
           {Object.keys(missing).length > 0 && (
             <div className="notice err"><Icon name="alert" size={18} /><span><strong>{c.missing}</strong>

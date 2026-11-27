@@ -1090,3 +1090,11 @@ textarea.input { border-radius: var(--r); padding: 14px 18px; }
 .intro-actions { display: grid; gap: 16px; justify-items: start; }
 .intro-actions .btn.primary { min-width: 200px; justify-content: center; }
 @media (max-width: 699px) { .intro-actions .btn.primary { width: 100%; } }
+
+/* ---------- Cover and gallery fields ---------- */
+.cover-slot { display: grid; gap: 10px; justify-items: start; }
+.cover-slot .frame { width: 100%; aspect-ratio: 4 / 3; border-radius: var(--r); overflow: hidden; }
+.cover-slot .frame img { width: 100%; height: 100%; object-fit: cover; }
+.cover-add { min-height: 160px; width: 100%; }
+.photo-tile .frame video, .gallery .frame video { width: 100%; height: 100%; object-fit: cover; display: block; background: var(--ink); }
+.gallery .frame video { object-fit: contain; }

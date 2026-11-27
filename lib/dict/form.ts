@@ -24,6 +24,7 @@ const ht = {
     tooBig: "Fichye a twò gwo. Sèvi ak youn ki pi piti pase 8 MB.", uploadFailed: "Li pa monte. Gade koneksyon w epi eseye ankò.", uploaded: "Li monte", uploading: "L ap monte…",
   },
   ui: {
+    coverTitle: "Foto kouvèti", coverHint: "Se premye bagay moun wè. Sèvi ak yon vrè foto ki klè.", coverAdd: "Ajoute foto kouvèti a", coverChange: "Chanje foto kouvèti a", galleryTitle: "Galri", galleryHint: "Plis foto oswa ti videyo (jiska 9). Yon ti videyo ak telefòn ede moun fè w konfyans. Chak videyo dwe pi piti pase 50 MB.", galleryAdd: "Ajoute foto oswa videyo", videoTooBig: "Videyo a twò gwo. Sèvi ak youn ki pi kout (mwens pase 50 MB).", video: "Videyo",
     addMethod: "Ajoute yon fason pou resevwa lajan", chooseMethod: "Chwazi…", city: "Vil ak rejyon", complete: "Fini", contact: "Kijan nou ka jwenn ou", contactExtra: "Gen lòt bagay nou ta dwe konnen?", country: "Peyi", cover: "Kouvèti",
     deadline: "Dat fen", delete: "Efase", desc: "Istwa a", details: "Detay", evidence: "Plis prèv", goal: "Konbyen lajan ou bezwen?", goalEmpty: "Kite l vid si pa gen yon montan fiks.", identity: "Pyès idantite w",
     invalidDate: "Chwazi yon dat ki bon.", invalidGoal: "Antre yon montan ki pi plis pase 0.", location: "Ki kote yo ye?", makeCover: "Mete l kòm kouvèti", noGoal: "Pa gen montan fiks", phone: "Telefòn oswa WhatsApp",
@@ -71,6 +72,7 @@ const fr: FormText = {
     tooBig: "Fichier trop lourd. Utilisez-en un de moins de 8 Mo.", uploadFailed: "L’envoi a échoué. Vérifiez votre connexion et réessayez.", uploaded: "Envoyé", uploading: "Envoi…",
   },
   ui: {
+    coverTitle: "Photo de couverture", coverHint: "C’est la première chose que les gens voient. Utilisez une vraie photo nette.", coverAdd: "Ajouter la photo de couverture", coverChange: "Changer la photo de couverture", galleryTitle: "Galerie", galleryHint: "D’autres photos ou de courtes vidéos (jusqu’à 9). Une courte vidéo au téléphone inspire confiance. Moins de 50 Mo par vidéo.", galleryAdd: "Ajouter photos ou vidéos", videoTooBig: "Vidéo trop lourde. Utilisez-en une plus courte (moins de 50 Mo).", video: "Vidéo",
     addMethod: "Ajouter un moyen de recevoir l’argent", chooseMethod: "Choisir…", city: "Ville et région", complete: "Terminé", contact: "Comment vous joindre", contactExtra: "Autre chose à savoir ?", country: "Pays", cover: "Couverture",
     deadline: "Date de fin", delete: "Supprimer", desc: "L’histoire", details: "Détails", evidence: "Plus de preuves", goal: "De combien avez-vous besoin ?", goalEmpty: "Laissez vide s’il n’y a pas de montant fixe.", identity: "Votre pièce d’identité",
     invalidDate: "Choisissez une date valide.", invalidGoal: "Entrez un montant supérieur à 0.", location: "Où se trouvent-ils ?", makeCover: "Mettre en couverture", noGoal: "Sans montant fixe", phone: "Téléphone ou WhatsApp",
@@ -116,6 +118,7 @@ const en: FormText = {
     tooBig: "This file is too big. Use one under 8 MB.", uploadFailed: "Upload failed. Check your connection and try again.", uploaded: "Uploaded", uploading: "Uploading…",
   },
   ui: {
+    coverTitle: "Cover photo", coverHint: "The first thing people see. Use a clear, real photo.", coverAdd: "Add cover photo", coverChange: "Change cover photo", galleryTitle: "Gallery", galleryHint: "More photos or short videos (up to 9). A short phone video builds trust. Each video must be under 50 MB.", galleryAdd: "Add photos or videos", videoTooBig: "This video is too big. Use a shorter one (under 50 MB).", video: "Video",
     addMethod: "Add a way to receive money", chooseMethod: "Choose…", city: "City and region", complete: "Done", contact: "How we reach you", contactExtra: "Anything else we should know?", country: "Country", cover: "Cover",
     deadline: "End date", delete: "Delete", desc: "The story", details: "Details", evidence: "More proof", goal: "How much do you need?", goalEmpty: "Leave it empty if there’s no fixed amount.", identity: "Your ID",
     invalidDate: "Choose a valid date.", invalidGoal: "Enter an amount above 0.", location: "Where are they?", makeCover: "Use as cover", noGoal: "No fixed amount", phone: "Phone or WhatsApp",
@@ -161,6 +164,7 @@ const es: FormText = {
     tooBig: "El archivo es muy grande. Usa uno de menos de 8 MB.", uploadFailed: "No se pudo subir. Revisa tu conexión e inténtalo de nuevo.", uploaded: "Subido", uploading: "Subiendo…",
   },
   ui: {
+    coverTitle: "Foto de portada", coverHint: "Es lo primero que ven. Usa una foto real y clara.", coverAdd: "Añadir foto de portada", coverChange: "Cambiar foto de portada", galleryTitle: "Galería", galleryHint: "Más fotos o videos cortos (hasta 9). Un video corto con el teléfono genera confianza. Menos de 50 MB por video.", galleryAdd: "Añadir fotos o videos", videoTooBig: "El video es muy grande. Usa uno más corto (menos de 50 MB).", video: "Video",
     addMethod: "Añadir una forma de recibir el dinero", chooseMethod: "Elegir…", city: "Ciudad y región", complete: "Listo", contact: "Cómo contactarte", contactExtra: "¿Algo más que debamos saber?", country: "País", cover: "Portada",
     deadline: "Fecha de fin", delete: "Eliminar", desc: "La historia", details: "Datos", evidence: "Más pruebas", goal: "¿Cuánto necesitas?", goalEmpty: "Déjalo vacío si no hay un monto fijo.", identity: "Tu documento",
     invalidDate: "Elige una fecha válida.", invalidGoal: "Escribe un monto mayor que 0.", location: "¿Dónde están?", makeCover: "Usar como portada", noGoal: "Sin monto fijo", phone: "Teléfono o WhatsApp",
